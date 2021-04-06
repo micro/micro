@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+message Usage {
+	// service name
+	string service = 1;
+	// version of service
+	string version = 2;
+	// unique service id
+	string id = 3;
+	// unix timestamp of report
+	uint64 timestamp = 4;
+	// window of report in seconds
+	uint64 window = 5;
+	// usage metrics
+	Metrics metrics = 6;
+}
+
+message Metrics {
+	// counts such as requests, services, etc
+	map<string,uint64> count = 1;
+}

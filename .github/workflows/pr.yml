@@ -1,0 +1,36 @@
+name: PR Sanity Check
+on: pull_request
+
+jobs:
+
+  prtest:
+    name: PR sanity check
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Protoc
+      uses: arduino/setup-protoc@v1
+    - name: Set up Go 1.15
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.15
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Check Go mod sanity
+      run: |
+        echo "Checking if go mod has unneeded comments"
+        while read p; do
+          ! grep -R "$p" go.mod
+        done <./test/gomod_forbidden_words.txt
+  
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+
+    - name: Run tests
+      id: tests
+      env:
+        IN_TRAVIS_CI: yes
+      run: go test -v ./...

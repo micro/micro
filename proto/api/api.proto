@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/micro/micro/v3/proto/api;api";
+
+service Api {
+  rpc Register(Endpoint) returns (EmptyResponse) {};
+  rpc Deregister(Endpoint) returns (EmptyResponse) {};
+}
+
+message Endpoint {
+  string name = 1;
+  repeated string host = 2;
+  repeated string path = 3;
+  repeated string method = 4;
+  bool stream = 5;
+}
+
+message EmptyResponse {}
+
+message Pair {
+	string key = 1;
+	repeated string values = 2;
+}
+
+message Request {
+  string method = 1;
+  string path = 2;
+  map<string, Pair> header = 3;
+  map<string, Pair> get = 4;
+  map<string, Pair> post = 5;
+  string body = 6;  // raw request body; if not application/x-www-form-urlencoded
+	string url = 7; // the full url
+}
+
+message Response {
+  int32 statusCode = 1;
+  map<string, Pair> header = 2;
+  string body = 3;
+}
+
+// A HTTP event as RPC
+// Forwarded by the event handler
+message Event {
+	// e.g login
+	string name = 1;
+	// uuid
+	string id = 2;
+	// unix timestamp of event
+	int64 timestamp = 3;
+	// event headers
+  map<string, Pair> header = 4;
+	// the event data
+	string data = 5;
+}

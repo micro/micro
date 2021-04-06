@@ -1,0 +1,208 @@
+syntax = "proto3";
+
+package runtime;
+
+option go_package = "github.com/micro/micro/v3/proto/runtime;runtime";
+
+service Runtime {
+	rpc Create(CreateRequest) returns (CreateResponse) {};
+	rpc Read(ReadRequest) returns (ReadResponse) {};
+	rpc Delete(DeleteRequest) returns (DeleteResponse) {};
+	rpc Update(UpdateRequest) returns (UpdateResponse) {};
+	rpc Logs(LogsRequest) returns (stream LogRecord) {};
+}
+
+message Resource {
+	Namespace namespace = 1;
+	NetworkPolicy networkpolicy = 2;
+	Service service = 3;
+	ResourceQuota resourcequota = 4;
+}
+
+message Namespace {
+	// name of the namespace
+	string name = 1;
+}
+
+message NetworkPolicy {
+	// the labels allowed ingress by this policy
+	map<string,string> allowedlabels = 1;
+	// name of the network policy
+	string name = 2;
+	// namespace the network policy belongs to
+	string namespace = 3;
+}
+
+message ResourceQuota {
+	// name of the resource quota
+	string name = 1;
+	// namespace the resource quota belongs to
+	string namespace = 2;
+	// resource requests
+	Resources requests = 3;
+	// resource limits
+	Resources limits = 4;
+}
+
+message Resources {
+	int32 Memory = 1; // in MiB
+	int32 CPU = 2; // in millicores
+	int32 EphemeralStorage = 3; // in MiB
+}
+
+// Source service is used by the CLI to upload source to the service. The service will return
+// a unique ID representing the location of that source. This ID can then be used as a source
+// for the service when doing Runtime.Create. The server will handle cleanup of uploaded source.
+service Source {
+	rpc Upload(stream UploadRequest) returns (UploadResponse) {};
+}
+
+// Build service is used by containers to download prebuilt binaries. The client will pass the 
+// service (name and version are required attributed) and the server will then stream the latest
+// binary to the client.
+service Build {
+	rpc Read(Service) returns (stream BuildReadResponse) {};
+}
+
+message Service {
+	// name of the service
+	string name = 1;
+	// version of the service
+	string version = 2;
+	// git url of the source
+	string source = 3;
+	// service metadata
+	map<string,string> metadata = 4;
+	// status of the service
+	int32 status = 5;
+}
+
+message CreateOptions {
+	// command to pass in
+	repeated string command = 1;
+	// args to pass into command
+	repeated string args = 2;
+	// environment to pass in
+	repeated string env = 3;
+	// output to send to
+	string output = 4;
+	// create type of service
+	string type = 5;
+	// image to use
+	string image = 6;
+	// namespace to create the service in
+	string namespace = 7;
+	// secrets to use for the service
+	map<string,string> secrets = 8;
+	// entrypoint within the source
+	string entrypoint = 9;
+	// volumes to mount
+	map<string,string> volumes = 10;
+}
+
+message CreateRequest {
+	Resource resource = 1;
+	CreateOptions options = 2;
+}
+
+message CreateResponse {}
+
+message ReadOptions {
+	// service name
+	string service = 1;
+	// version of the service
+	string version = 2;
+	// type of service
+	string type = 3;
+	// namespace of the service
+	string namespace = 4;
+}
+
+message ReadRequest {
+	ReadOptions options = 1;
+}
+
+message ReadResponse {
+	repeated Service services = 1;
+}
+
+message DeleteOptions {
+	// namespace of the service
+	string namespace = 1;
+}
+
+message DeleteRequest {
+	Resource resource = 1;
+	DeleteOptions options = 2;
+}
+
+message DeleteResponse {}
+
+message UpdateOptions {
+	// namespace of the service
+	string namespace = 1;
+	// entrypoint within the source
+	string entrypoint = 2;
+}
+
+message UpdateRequest {
+	Resource resource = 1;
+	UpdateOptions options = 2;
+}
+
+message UpdateResponse {}
+
+message ListOptions {
+	// namespace of the service
+	string namespace = 1;
+}
+
+message ListRequest {
+	ListOptions options = 1;
+}
+
+message ListResponse {
+	repeated Service services = 1;
+}
+
+message LogsOptions {
+	// namespace of the service
+	string namespace = 1;
+}
+
+message LogsRequest{
+	// service to request logs for
+	string service = 1;
+	// stream records continuously
+	bool stream = 2;
+	// count of records to request
+	int64 count = 3;
+	// relative time in seconds
+	// before the current time
+	// from which to show logs
+	int64 since = 4;
+	// options to use
+	LogsOptions options = 5;
+}
+
+message LogRecord {
+	// timestamp of log record
+	int64 timestamp = 1;
+	// record metadata
+	map<string,string> metadata = 2;
+	// message
+	string message = 3;
+}
+
+message UploadRequest {
+	Service service = 1;
+	bytes data = 2;	
+}
+
+message UploadResponse {
+	string id = 1;
+}
+
+message BuildReadResponse {
+	bytes data = 1;	
+}

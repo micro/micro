@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package go.micro.service.signup;
+
+service Signup {
+	// Sends the verification email to the user
+	rpc SendVerificationEmail(SendVerificationEmailRequest) returns (SendVerificationEmailResponse);
+	// Verify kicks off the process of verification
+	rpc Verify(VerifyRequest) returns (VerifyResponse);
+	rpc SetPaymentMethod(SetPaymentMethodRequest) returns (SetPaymentMethodResponse);
+	rpc HasPaymentMethod(HasPaymentMethodRequest) returns (HasPaymentMethodResponse);
+	// Creates a subscription and an account
+	rpc CompleteSignup(CompleteSignupRequest) returns (CompleteSignupResponse);
+	rpc Recover(RecoverRequest) returns (RecoverResponse);
+}
+
+message SendVerificationEmailRequest {
+	string email = 1;
+}
+
+message SendVerificationEmailResponse {}
+
+message VerifyRequest {
+	string email = 1;
+	// Email token that was received in an email.
+	string token = 2;
+}
+
+message VerifyResponse {
+	// Auth token to be saved into `~/.micro`
+	// For users who are already registered and paid,
+	// the flow stops here.
+	// For users who are yet to be registered
+	// the token will be acquired in the `FinishSignup` step.
+	AuthToken authToken = 1;
+	// Payment provider custommer id that can be used to
+	// acquire a payment method, see `micro login` flow for more.
+	// @todo this is likely not needed
+	string customerID = 2;
+	// Namespace to use
+	// @todod deprecated since we no longer support OTP logins
+	string namespace = 3;
+	// Message to display to the user
+	string message = 4;
+	// Whether payment is required or not
+	bool payment_required = 5;
+	// Namespaces one has access to based on previous invites
+	// Currently only 1 is supported
+	repeated string namespaces = 6;
+}
+
+message SetPaymentMethodRequest {
+	string email = 1;
+	string payment_method = 2;
+}
+
+message SetPaymentMethodResponse {
+
+}
+
+message HasPaymentMethodRequest {
+	// We can't read by email because that would be too easy to guess.
+	// The token is already used for identification purposes during the signup
+	// so we will use that too to pull for the payment method.
+	string token = 1;
+}
+
+message HasPaymentMethodResponse {
+	bool has = 1;
+}
+
+message CompleteSignupRequest {
+	string email = 1;
+	// The token has to be passed here too for identification purposes.
+	string token = 2;
+	// This payment method ID is the one we got back from Stripe on the frontend (ie. `m3o.com/subscribe.html`)
+	// deprecated: signup service now knows the payment method due to the
+	// SetPaymentMethod call issued by the frontend.
+	string paymentMethodID = 3;
+	// The secret/password to use for the account
+	string secret = 4;
+	// Which namespace to sign up to based on previous invite
+	string namespace = 5;
+}
+
+message CompleteSignupResponse {
+	AuthToken authToken = 1;
+	string namespace = 2;
+}
+
+// lifted from https://github.com/micro/go-micro/blob/master/auth/service/proto/auth.proto
+message AuthToken {
+	string access_token = 1;
+	string refresh_token = 2;
+	int64 created = 3;
+	int64 expiry = 4;
+}
+
+message RecoverRequest {
+	string email = 1;
+}
+
+message RecoverResponse {}

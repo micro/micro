@@ -1,0 +1,495 @@
+{
+  "components": {
+    "requestBodies": {
+      "ConfigDeleteRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteRequest"
+            }
+          }
+        },
+        "description": "ConfigDeleteRequest"
+      },
+      "ConfigGetRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/GetRequest"
+            }
+          }
+        },
+        "description": "ConfigGetRequest"
+      },
+      "ConfigReadRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ReadRequest"
+            }
+          }
+        },
+        "description": "ConfigReadRequest"
+      },
+      "ConfigSetRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SetRequest"
+            }
+          }
+        },
+        "description": "ConfigSetRequest"
+      }
+    },
+    "responses": {
+      "ConfigDeleteResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteResponse"
+            }
+          }
+        },
+        "description": "ConfigDeleteResponse"
+      },
+      "ConfigGetResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/GetResponse"
+            }
+          }
+        },
+        "description": "ConfigGetResponse"
+      },
+      "ConfigReadResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ReadResponse"
+            }
+          }
+        },
+        "description": "ConfigReadResponse"
+      },
+      "ConfigSetResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SetResponse"
+            }
+          }
+        },
+        "description": "ConfigSetResponse"
+      },
+      "MicroAPIError": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "Code": {
+                  "description": "Error code",
+                  "example": 500,
+                  "type": "number"
+                },
+                "Detail": {
+                  "description": "Error detail",
+                  "example": "service not found",
+                  "type": "string"
+                },
+                "Id": {
+                  "description": "Error ID",
+                  "type": "string"
+                },
+                "Status": {
+                  "description": "Error status message",
+                  "example": "Internal Server Error",
+                  "type": "string"
+                }
+              },
+              "title": "MicroAPIError",
+              "type": "object"
+            }
+          }
+        },
+        "description": "Error from the Micro API"
+      }
+    },
+    "schemas": {
+      "Change": {
+        "properties": {
+          "changeSet": {
+            "properties": {
+              "checksum": {
+                "type": "string"
+              },
+              "data": {
+                "type": "string"
+              },
+              "format": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "timestamp": {
+                "format": "int64",
+                "type": "number"
+              }
+            },
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "title": "Change",
+        "type": "object"
+      },
+      "ChangeSet": {
+        "properties": {
+          "checksum": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "int64",
+            "type": "number"
+          }
+        },
+        "title": "ChangeSet",
+        "type": "object"
+      },
+      "DeleteRequest": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "title": "DeleteRequest",
+        "type": "object"
+      },
+      "DeleteResponse": {
+        "title": "DeleteResponse",
+        "type": "object"
+      },
+      "GetRequest": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "secret": {
+                "description": "Is it an encrypted value?",
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "title": "GetRequest",
+        "type": "object"
+      },
+      "GetResponse": {
+        "properties": {
+          "value": {
+            "properties": {
+              "data": {
+                "type": "string"
+              },
+              "format": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "GetResponse",
+        "type": "object"
+      },
+      "Options": {
+        "properties": {
+          "secret": {
+            "description": "Is it an encrypted value?",
+            "type": "boolean"
+          }
+        },
+        "title": "Options",
+        "type": "object"
+      },
+      "ReadRequest": {
+        "description": "Below definitions are only here for backwards compatibility",
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "title": "ReadRequest",
+        "type": "object"
+      },
+      "ReadResponse": {
+        "properties": {
+          "change": {
+            "properties": {
+              "changeSet": {
+                "properties": {
+                  "checksum": {
+                    "type": "string"
+                  },
+                  "data": {
+                    "type": "string"
+                  },
+                  "format": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "timestamp": {
+                    "format": "int64",
+                    "type": "number"
+                  }
+                },
+                "type": "object"
+              },
+              "namespace": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ReadResponse",
+        "type": "object"
+      },
+      "SetRequest": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "secret": {
+                "description": "Is it an encrypted value?",
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          },
+          "path": {
+            "type": "string"
+          },
+          "value": {
+            "properties": {
+              "data": {
+                "type": "string"
+              },
+              "format": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "SetRequest",
+        "type": "object"
+      },
+      "SetResponse": {
+        "title": "SetResponse",
+        "type": "object"
+      },
+      "Value": {
+        "properties": {
+          "data": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          }
+        },
+        "title": "Value",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "MicroAPIToken": {
+        "bearerFormat": "JWT",
+        "description": "Micro API token",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Generated by protoc-gen-openapi",
+    "title": "Config",
+    "version": "1",
+    "x-logo": {
+      "altText": "Micro logo",
+      "backgroundColor": "#FFFFFF",
+      "url": "https://micro.mu/images/logo.png"
+    }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/config/Config/Delete": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/ConfigDeleteRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ConfigDeleteResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Config.Delete(DeleteRequest)"
+      }
+    },
+    "/config/Config/Get": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/ConfigGetRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ConfigGetResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Config.Get(GetRequest)"
+      }
+    },
+    "/config/Config/Read": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/ConfigReadRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ConfigReadResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Config.Read(ReadRequest)"
+      }
+    },
+    "/config/Config/Set": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/ConfigSetRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ConfigSetResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Config.Set(SetRequest)"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.m3o.dev",
+      "description": "Micro DEV environment"
+    },
+    {
+      "url": "https://api.m3o.com",
+      "description": "Micro LIVE environment"
+    }
+  ]
+}

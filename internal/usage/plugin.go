@@ -7,9 +7,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/micro/cli"
-	"github.com/micro/go-micro/registry"
-	"github.com/micro/micro/plugin"
+	"github.com/micro/micro/v3/internal/backoff"
+	"github.com/micro/micro/v3/plugin"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/urfave/cli/v2"
 )
 
 func init() {
@@ -27,17 +28,25 @@ func Plugin() plugin.Plugin {
 		plugin.WithName("usage"),
 		plugin.WithInit(func(c *cli.Context) error {
 			// only do if enabled
-			if !c.GlobalBool("report_usage") {
+			if !c.Bool("report_usage") {
 				os.Setenv("MICRO_REPORT_USAGE", "false")
 				return nil
 			}
 
-			if len(c.Args()) < 1 || len(c.Args()[0]) == 0 {
-				return nil
+			var service string
+
+			// set service name
+			if c.Args().Len() > 0 && len(c.Args().Get(0)) > 0 {
+				service = c.Args().Get(0)
 			}
 
-			// service name
-			service := c.Args()[0]
+			// service subcommand
+			if service == "service" {
+				// set as the sub command
+				if v := c.Args().Get(1); len(v) > 0 {
+					service = v
+				}
+			}
 
 			// kick off the tracker
 			go func() {
@@ -59,11 +68,18 @@ func Plugin() plugin.Plugin {
 					atomic.StoreUint64(&requests, 0)
 
 					// set metrics
+					u.Metrics.Count["instances"] = uint64(1)
 					u.Metrics.Count["requests"] = reqs
 					u.Metrics.Count["services"] = srvs
 
-					// send report
-					Report(u)
+					// attempt to send report 3 times
+					for i := 1; i <= 3; i++ {
+						if err := Report(u); err != nil {
+							time.Sleep(backoff.Do(i * 2))
+							continue
+						}
+						break
+					}
 
 					// now sleep 24 hours
 					time.Sleep(time.Hour * 24)

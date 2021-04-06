@@ -1,0 +1,53 @@
+project_name: micro
+release:
+  github:
+    owner: micro
+    name: micro
+  name_template: 'Release {{.Tag}}'
+before:
+  hooks:
+    - go mod download
+builds:
+- binary: micro
+  env:
+    - CGO_ENABLED=0
+    - GO111MODULE=on
+  ldflags: -s -w -X github.com/micro/micro/v3/cmd.GitCommit={{ .ShortCommit }} -X github.com/micro/micro/v3/cmd.GitTag={{ .Tag }} -X github.com/micro/micro/v3/cmd.BuildDate={{ .Timestamp }} -X github.com/micro/micro/v3/cmd.SelfUpdate=false
+  goos:
+  - linux
+  - darwin
+  - windows
+  goarch:
+  - 386
+  - amd64
+  - arm
+  - arm64
+  goarm:
+  - 7
+archives:
+- name_template: '{{.ProjectName}}-{{.Tag}}-{{.Os}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}'
+  replacements:
+    darwin: darwin
+    linux: linux
+    windows: windows
+    amd64: amd64
+    arm: arm
+    arm64: arm64
+  format: tar.gz
+  format_overrides:
+  - goos: windows
+    format: zip
+  files:
+    - LICENSE
+    - README.md
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'

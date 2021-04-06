@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package events;
+option go_package = "github.com/micro/micro/v3/proto/event;events";
+
+service Stream {
+  rpc Publish(PublishRequest) returns (PublishResponse);
+  rpc Consume(ConsumeRequest) returns (stream Event);
+}
+
+service Store {
+  rpc Read(ReadRequest) returns (ReadResponse);
+  rpc Write(WriteRequest) returns (WriteResponse);
+}
+
+message PublishRequest {
+  string topic = 1;
+  map<string, string> metadata = 2;
+  bytes payload = 3;
+  int64 timestamp = 4;
+}
+
+message PublishResponse {}
+
+message ConsumeRequest {
+  string group = 1;
+  string topic = 2;
+  int64 offset = 3;
+  bool auto_ack = 4;
+  // duration in nanoseconds
+  int64 ack_wait = 5;
+  int64 retry_limit = 6;
+}
+
+message Event {
+  string id = 1;
+  string topic = 2;
+  map<string, string> metadata = 3;
+  bytes payload = 4;
+  int64 timestamp = 5;
+} 
+
+message ReadRequest {
+  string topic = 1;
+  uint64 limit = 2;
+	uint64 offset = 3;
+}
+
+message ReadResponse {
+  repeated Event events = 1;
+}
+
+message WriteRequest {
+  Event event = 1;
+  int64 ttl = 2;
+}
+
+message WriteResponse {}
+
+message AckRequest {
+  string id = 1;
+  bool success = 2;
+}

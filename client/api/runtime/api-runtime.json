@@ -1,0 +1,1668 @@
+{
+  "components": {
+    "requestBodies": {
+      "BuildReadRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Service"
+            }
+          }
+        },
+        "description": "BuildReadRequest"
+      },
+      "RuntimeCreateRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreateRequest"
+            }
+          }
+        },
+        "description": "RuntimeCreateRequest"
+      },
+      "RuntimeDeleteRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteRequest"
+            }
+          }
+        },
+        "description": "RuntimeDeleteRequest"
+      },
+      "RuntimeLogsRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/LogsRequest"
+            }
+          }
+        },
+        "description": "RuntimeLogsRequest"
+      },
+      "RuntimeReadRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ReadRequest"
+            }
+          }
+        },
+        "description": "RuntimeReadRequest"
+      },
+      "RuntimeUpdateRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UpdateRequest"
+            }
+          }
+        },
+        "description": "RuntimeUpdateRequest"
+      },
+      "SourceUploadRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UploadRequest"
+            }
+          }
+        },
+        "description": "SourceUploadRequest"
+      }
+    },
+    "responses": {
+      "BuildReadResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BuildReadResponse"
+            }
+          }
+        },
+        "description": "BuildReadResponse"
+      },
+      "MicroAPIError": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "Code": {
+                  "description": "Error code",
+                  "example": 500,
+                  "type": "number"
+                },
+                "Detail": {
+                  "description": "Error detail",
+                  "example": "service not found",
+                  "type": "string"
+                },
+                "Id": {
+                  "description": "Error ID",
+                  "type": "string"
+                },
+                "Status": {
+                  "description": "Error status message",
+                  "example": "Internal Server Error",
+                  "type": "string"
+                }
+              },
+              "title": "MicroAPIError",
+              "type": "object"
+            }
+          }
+        },
+        "description": "Error from the Micro API"
+      },
+      "RuntimeCreateResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreateResponse"
+            }
+          }
+        },
+        "description": "RuntimeCreateResponse"
+      },
+      "RuntimeDeleteResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteResponse"
+            }
+          }
+        },
+        "description": "RuntimeDeleteResponse"
+      },
+      "RuntimeLogsResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/LogRecord"
+            }
+          }
+        },
+        "description": "RuntimeLogsResponse"
+      },
+      "RuntimeReadResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ReadResponse"
+            }
+          }
+        },
+        "description": "RuntimeReadResponse"
+      },
+      "RuntimeUpdateResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UpdateResponse"
+            }
+          }
+        },
+        "description": "RuntimeUpdateResponse"
+      },
+      "SourceUploadResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UploadResponse"
+            }
+          }
+        },
+        "description": "SourceUploadResponse"
+      }
+    },
+    "schemas": {
+      "BuildReadResponse": {
+        "properties": {
+          "data": {
+            "format": "byte",
+            "type": "string"
+          }
+        },
+        "title": "BuildReadResponse",
+        "type": "object"
+      },
+      "CreateOptions": {
+        "properties": {
+          "args": {
+            "description": "args to pass into command",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "command": {
+            "description": "command to pass in",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "entrypoint": {
+            "description": "entrypoint within the source",
+            "type": "string"
+          },
+          "env": {
+            "description": "environment to pass in",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "image": {
+            "description": "image to use",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "namespace to create the service in",
+            "type": "string"
+          },
+          "output": {
+            "description": "output to send to",
+            "type": "string"
+          },
+          "secrets": {
+            "additionalProperties": {
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "title": "SecretsEntry",
+              "type": "object"
+            },
+            "description": "secrets to use for the service",
+            "type": "object"
+          },
+          "type": {
+            "description": "create type of service",
+            "type": "string"
+          },
+          "volumes": {
+            "additionalProperties": {
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "title": "VolumesEntry",
+              "type": "object"
+            },
+            "description": "volumes to mount",
+            "type": "object"
+          }
+        },
+        "title": "CreateOptions",
+        "type": "object"
+      },
+      "CreateRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "args": {
+                "description": "args to pass into command",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "command": {
+                "description": "command to pass in",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "entrypoint": {
+                "description": "entrypoint within the source",
+                "type": "string"
+              },
+              "env": {
+                "description": "environment to pass in",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "image": {
+                "description": "image to use",
+                "type": "string"
+              },
+              "namespace": {
+                "description": "namespace to create the service in",
+                "type": "string"
+              },
+              "output": {
+                "description": "output to send to",
+                "type": "string"
+              },
+              "secrets": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "SecretsEntry",
+                  "type": "object"
+                },
+                "description": "secrets to use for the service",
+                "type": "object"
+              },
+              "type": {
+                "description": "create type of service",
+                "type": "string"
+              },
+              "volumes": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "VolumesEntry",
+                  "type": "object"
+                },
+                "description": "volumes to mount",
+                "type": "object"
+              }
+            },
+            "type": "object"
+          },
+          "resource": {
+            "properties": {
+              "namespace": {
+                "properties": {
+                  "name": {
+                    "description": "name of the namespace",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "networkpolicy": {
+                "properties": {
+                  "allowedlabels": {
+                    "additionalProperties": {
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "AllowedlabelsEntry",
+                      "type": "object"
+                    },
+                    "description": "the labels allowed ingress by this policy",
+                    "type": "object"
+                  },
+                  "name": {
+                    "description": "name of the network policy",
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "description": "namespace the network policy belongs to",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "resourcequota": {
+                "properties": {
+                  "limits": {
+                    "description": "resource limits",
+                    "properties": {
+                      "CPU": {
+                        "description": "in millicores",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "EphemeralStorage": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "Memory": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "name": {
+                    "description": "name of the resource quota",
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "description": "namespace the resource quota belongs to",
+                    "type": "string"
+                  },
+                  "requests": {
+                    "description": "resource requests",
+                    "properties": {
+                      "CPU": {
+                        "description": "in millicores",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "EphemeralStorage": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "Memory": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      }
+                    },
+                    "type": "object"
+                  }
+                },
+                "type": "object"
+              },
+              "service": {
+                "properties": {
+                  "metadata": {
+                    "additionalProperties": {
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "MetadataEntry",
+                      "type": "object"
+                    },
+                    "description": "service metadata",
+                    "type": "object"
+                  },
+                  "name": {
+                    "description": "name of the service",
+                    "type": "string"
+                  },
+                  "source": {
+                    "description": "git url of the source",
+                    "type": "string"
+                  },
+                  "status": {
+                    "description": "status of the service",
+                    "format": "int32",
+                    "type": "number"
+                  },
+                  "version": {
+                    "description": "version of the service",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "CreateRequest",
+        "type": "object"
+      },
+      "CreateResponse": {
+        "title": "CreateResponse",
+        "type": "object"
+      },
+      "DeleteOptions": {
+        "properties": {
+          "namespace": {
+            "description": "namespace of the service",
+            "type": "string"
+          }
+        },
+        "title": "DeleteOptions",
+        "type": "object"
+      },
+      "DeleteRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "namespace": {
+                "description": "namespace of the service",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "resource": {
+            "properties": {
+              "namespace": {
+                "properties": {
+                  "name": {
+                    "description": "name of the namespace",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "networkpolicy": {
+                "properties": {
+                  "allowedlabels": {
+                    "additionalProperties": {
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "AllowedlabelsEntry",
+                      "type": "object"
+                    },
+                    "description": "the labels allowed ingress by this policy",
+                    "type": "object"
+                  },
+                  "name": {
+                    "description": "name of the network policy",
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "description": "namespace the network policy belongs to",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "resourcequota": {
+                "properties": {
+                  "limits": {
+                    "description": "resource limits",
+                    "properties": {
+                      "CPU": {
+                        "description": "in millicores",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "EphemeralStorage": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "Memory": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "name": {
+                    "description": "name of the resource quota",
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "description": "namespace the resource quota belongs to",
+                    "type": "string"
+                  },
+                  "requests": {
+                    "description": "resource requests",
+                    "properties": {
+                      "CPU": {
+                        "description": "in millicores",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "EphemeralStorage": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "Memory": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      }
+                    },
+                    "type": "object"
+                  }
+                },
+                "type": "object"
+              },
+              "service": {
+                "properties": {
+                  "metadata": {
+                    "additionalProperties": {
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "MetadataEntry",
+                      "type": "object"
+                    },
+                    "description": "service metadata",
+                    "type": "object"
+                  },
+                  "name": {
+                    "description": "name of the service",
+                    "type": "string"
+                  },
+                  "source": {
+                    "description": "git url of the source",
+                    "type": "string"
+                  },
+                  "status": {
+                    "description": "status of the service",
+                    "format": "int32",
+                    "type": "number"
+                  },
+                  "version": {
+                    "description": "version of the service",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "DeleteRequest",
+        "type": "object"
+      },
+      "DeleteResponse": {
+        "title": "DeleteResponse",
+        "type": "object"
+      },
+      "ListOptions": {
+        "properties": {
+          "namespace": {
+            "description": "namespace of the service",
+            "type": "string"
+          }
+        },
+        "title": "ListOptions",
+        "type": "object"
+      },
+      "ListRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "namespace": {
+                "description": "namespace of the service",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ListRequest",
+        "type": "object"
+      },
+      "ListResponse": {
+        "properties": {
+          "services": {
+            "properties": {
+              "metadata": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "MetadataEntry",
+                  "type": "object"
+                },
+                "description": "service metadata",
+                "type": "object"
+              },
+              "name": {
+                "description": "name of the service",
+                "type": "string"
+              },
+              "source": {
+                "description": "git url of the source",
+                "type": "string"
+              },
+              "status": {
+                "description": "status of the service",
+                "format": "int32",
+                "type": "number"
+              },
+              "version": {
+                "description": "version of the service",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ListResponse",
+        "type": "object"
+      },
+      "LogRecord": {
+        "properties": {
+          "message": {
+            "description": "message",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "title": "MetadataEntry",
+              "type": "object"
+            },
+            "description": "record metadata",
+            "type": "object"
+          },
+          "timestamp": {
+            "description": "timestamp of log record",
+            "format": "int64",
+            "type": "number"
+          }
+        },
+        "title": "LogRecord",
+        "type": "object"
+      },
+      "LogsOptions": {
+        "properties": {
+          "namespace": {
+            "description": "namespace of the service",
+            "type": "string"
+          }
+        },
+        "title": "LogsOptions",
+        "type": "object"
+      },
+      "LogsRequest": {
+        "properties": {
+          "count": {
+            "description": "count of records to request",
+            "format": "int64",
+            "type": "number"
+          },
+          "options": {
+            "description": "options to use",
+            "properties": {
+              "namespace": {
+                "description": "namespace of the service",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "service": {
+            "description": "service to request logs for",
+            "type": "string"
+          },
+          "since": {
+            "description": "relative time in seconds\n before the current time\n from which to show logs",
+            "format": "int64",
+            "type": "number"
+          },
+          "stream": {
+            "description": "stream records continuously",
+            "type": "boolean"
+          }
+        },
+        "title": "LogsRequest",
+        "type": "object"
+      },
+      "Namespace": {
+        "properties": {
+          "name": {
+            "description": "name of the namespace",
+            "type": "string"
+          }
+        },
+        "title": "Namespace",
+        "type": "object"
+      },
+      "NetworkPolicy": {
+        "properties": {
+          "allowedlabels": {
+            "additionalProperties": {
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "title": "AllowedlabelsEntry",
+              "type": "object"
+            },
+            "description": "the labels allowed ingress by this policy",
+            "type": "object"
+          },
+          "name": {
+            "description": "name of the network policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "namespace the network policy belongs to",
+            "type": "string"
+          }
+        },
+        "title": "NetworkPolicy",
+        "type": "object"
+      },
+      "ReadOptions": {
+        "properties": {
+          "namespace": {
+            "description": "namespace of the service",
+            "type": "string"
+          },
+          "service": {
+            "description": "service name",
+            "type": "string"
+          },
+          "type": {
+            "description": "type of service",
+            "type": "string"
+          },
+          "version": {
+            "description": "version of the service",
+            "type": "string"
+          }
+        },
+        "title": "ReadOptions",
+        "type": "object"
+      },
+      "ReadRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "namespace": {
+                "description": "namespace of the service",
+                "type": "string"
+              },
+              "service": {
+                "description": "service name",
+                "type": "string"
+              },
+              "type": {
+                "description": "type of service",
+                "type": "string"
+              },
+              "version": {
+                "description": "version of the service",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ReadRequest",
+        "type": "object"
+      },
+      "ReadResponse": {
+        "properties": {
+          "services": {
+            "properties": {
+              "metadata": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "MetadataEntry",
+                  "type": "object"
+                },
+                "description": "service metadata",
+                "type": "object"
+              },
+              "name": {
+                "description": "name of the service",
+                "type": "string"
+              },
+              "source": {
+                "description": "git url of the source",
+                "type": "string"
+              },
+              "status": {
+                "description": "status of the service",
+                "format": "int32",
+                "type": "number"
+              },
+              "version": {
+                "description": "version of the service",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ReadResponse",
+        "type": "object"
+      },
+      "Resource": {
+        "properties": {
+          "namespace": {
+            "properties": {
+              "name": {
+                "description": "name of the namespace",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "networkpolicy": {
+            "properties": {
+              "allowedlabels": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "AllowedlabelsEntry",
+                  "type": "object"
+                },
+                "description": "the labels allowed ingress by this policy",
+                "type": "object"
+              },
+              "name": {
+                "description": "name of the network policy",
+                "type": "string"
+              },
+              "namespace": {
+                "description": "namespace the network policy belongs to",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "resourcequota": {
+            "properties": {
+              "limits": {
+                "description": "resource limits",
+                "properties": {
+                  "CPU": {
+                    "description": "in millicores",
+                    "format": "int32",
+                    "type": "number"
+                  },
+                  "EphemeralStorage": {
+                    "description": "in MiB",
+                    "format": "int32",
+                    "type": "number"
+                  },
+                  "Memory": {
+                    "description": "in MiB",
+                    "format": "int32",
+                    "type": "number"
+                  }
+                },
+                "type": "object"
+              },
+              "name": {
+                "description": "name of the resource quota",
+                "type": "string"
+              },
+              "namespace": {
+                "description": "namespace the resource quota belongs to",
+                "type": "string"
+              },
+              "requests": {
+                "description": "resource requests",
+                "properties": {
+                  "CPU": {
+                    "description": "in millicores",
+                    "format": "int32",
+                    "type": "number"
+                  },
+                  "EphemeralStorage": {
+                    "description": "in MiB",
+                    "format": "int32",
+                    "type": "number"
+                  },
+                  "Memory": {
+                    "description": "in MiB",
+                    "format": "int32",
+                    "type": "number"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          },
+          "service": {
+            "properties": {
+              "metadata": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "MetadataEntry",
+                  "type": "object"
+                },
+                "description": "service metadata",
+                "type": "object"
+              },
+              "name": {
+                "description": "name of the service",
+                "type": "string"
+              },
+              "source": {
+                "description": "git url of the source",
+                "type": "string"
+              },
+              "status": {
+                "description": "status of the service",
+                "format": "int32",
+                "type": "number"
+              },
+              "version": {
+                "description": "version of the service",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "Resource",
+        "type": "object"
+      },
+      "ResourceQuota": {
+        "properties": {
+          "limits": {
+            "description": "resource limits",
+            "properties": {
+              "CPU": {
+                "description": "in millicores",
+                "format": "int32",
+                "type": "number"
+              },
+              "EphemeralStorage": {
+                "description": "in MiB",
+                "format": "int32",
+                "type": "number"
+              },
+              "Memory": {
+                "description": "in MiB",
+                "format": "int32",
+                "type": "number"
+              }
+            },
+            "type": "object"
+          },
+          "name": {
+            "description": "name of the resource quota",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "namespace the resource quota belongs to",
+            "type": "string"
+          },
+          "requests": {
+            "description": "resource requests",
+            "properties": {
+              "CPU": {
+                "description": "in millicores",
+                "format": "int32",
+                "type": "number"
+              },
+              "EphemeralStorage": {
+                "description": "in MiB",
+                "format": "int32",
+                "type": "number"
+              },
+              "Memory": {
+                "description": "in MiB",
+                "format": "int32",
+                "type": "number"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ResourceQuota",
+        "type": "object"
+      },
+      "Resources": {
+        "properties": {
+          "CPU": {
+            "description": "in millicores",
+            "format": "int32",
+            "type": "number"
+          },
+          "EphemeralStorage": {
+            "description": "in MiB",
+            "format": "int32",
+            "type": "number"
+          },
+          "Memory": {
+            "description": "in MiB",
+            "format": "int32",
+            "type": "number"
+          }
+        },
+        "title": "Resources",
+        "type": "object"
+      },
+      "Service": {
+        "properties": {
+          "metadata": {
+            "additionalProperties": {
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "title": "MetadataEntry",
+              "type": "object"
+            },
+            "description": "service metadata",
+            "type": "object"
+          },
+          "name": {
+            "description": "name of the service",
+            "type": "string"
+          },
+          "source": {
+            "description": "git url of the source",
+            "type": "string"
+          },
+          "status": {
+            "description": "status of the service",
+            "format": "int32",
+            "type": "number"
+          },
+          "version": {
+            "description": "version of the service",
+            "type": "string"
+          }
+        },
+        "title": "Service",
+        "type": "object"
+      },
+      "UpdateOptions": {
+        "properties": {
+          "entrypoint": {
+            "description": "entrypoint within the source",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "namespace of the service",
+            "type": "string"
+          }
+        },
+        "title": "UpdateOptions",
+        "type": "object"
+      },
+      "UpdateRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "entrypoint": {
+                "description": "entrypoint within the source",
+                "type": "string"
+              },
+              "namespace": {
+                "description": "namespace of the service",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "resource": {
+            "properties": {
+              "namespace": {
+                "properties": {
+                  "name": {
+                    "description": "name of the namespace",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "networkpolicy": {
+                "properties": {
+                  "allowedlabels": {
+                    "additionalProperties": {
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "AllowedlabelsEntry",
+                      "type": "object"
+                    },
+                    "description": "the labels allowed ingress by this policy",
+                    "type": "object"
+                  },
+                  "name": {
+                    "description": "name of the network policy",
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "description": "namespace the network policy belongs to",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "resourcequota": {
+                "properties": {
+                  "limits": {
+                    "description": "resource limits",
+                    "properties": {
+                      "CPU": {
+                        "description": "in millicores",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "EphemeralStorage": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "Memory": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "name": {
+                    "description": "name of the resource quota",
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "description": "namespace the resource quota belongs to",
+                    "type": "string"
+                  },
+                  "requests": {
+                    "description": "resource requests",
+                    "properties": {
+                      "CPU": {
+                        "description": "in millicores",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "EphemeralStorage": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      },
+                      "Memory": {
+                        "description": "in MiB",
+                        "format": "int32",
+                        "type": "number"
+                      }
+                    },
+                    "type": "object"
+                  }
+                },
+                "type": "object"
+              },
+              "service": {
+                "properties": {
+                  "metadata": {
+                    "additionalProperties": {
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "MetadataEntry",
+                      "type": "object"
+                    },
+                    "description": "service metadata",
+                    "type": "object"
+                  },
+                  "name": {
+                    "description": "name of the service",
+                    "type": "string"
+                  },
+                  "source": {
+                    "description": "git url of the source",
+                    "type": "string"
+                  },
+                  "status": {
+                    "description": "status of the service",
+                    "format": "int32",
+                    "type": "number"
+                  },
+                  "version": {
+                    "description": "version of the service",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "UpdateRequest",
+        "type": "object"
+      },
+      "UpdateResponse": {
+        "title": "UpdateResponse",
+        "type": "object"
+      },
+      "UploadRequest": {
+        "properties": {
+          "data": {
+            "format": "byte",
+            "type": "string"
+          },
+          "service": {
+            "properties": {
+              "metadata": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "MetadataEntry",
+                  "type": "object"
+                },
+                "description": "service metadata",
+                "type": "object"
+              },
+              "name": {
+                "description": "name of the service",
+                "type": "string"
+              },
+              "source": {
+                "description": "git url of the source",
+                "type": "string"
+              },
+              "status": {
+                "description": "status of the service",
+                "format": "int32",
+                "type": "number"
+              },
+              "version": {
+                "description": "version of the service",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "UploadRequest",
+        "type": "object"
+      },
+      "UploadResponse": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "title": "UploadResponse",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "MicroAPIToken": {
+        "bearerFormat": "JWT",
+        "description": "Micro API token",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Generated by protoc-gen-openapi",
+    "title": "Runtime",
+    "version": "1",
+    "x-logo": {
+      "altText": "Micro logo",
+      "backgroundColor": "#FFFFFF",
+      "url": "https://micro.mu/images/logo.png"
+    }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/runtime/Build/Read": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/BuildReadRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/BuildReadResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Build.Read(Service)"
+      }
+    },
+    "/runtime/Runtime/Create": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RuntimeCreateRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/RuntimeCreateResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Runtime.Create(CreateRequest)"
+      }
+    },
+    "/runtime/Runtime/Delete": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RuntimeDeleteRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/RuntimeDeleteResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Runtime.Delete(DeleteRequest)"
+      }
+    },
+    "/runtime/Runtime/Logs": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RuntimeLogsRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/RuntimeLogsResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Runtime.Logs(LogsRequest)"
+      }
+    },
+    "/runtime/Runtime/Read": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RuntimeReadRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/RuntimeReadResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Runtime.Read(ReadRequest)"
+      }
+    },
+    "/runtime/Runtime/Update": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RuntimeUpdateRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/RuntimeUpdateResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Runtime.Update(UpdateRequest)"
+      }
+    },
+    "/runtime/Source/Upload": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/SourceUploadRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SourceUploadResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Source.Upload(UploadRequest)"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.m3o.dev",
+      "description": "Micro DEV environment"
+    },
+    {
+      "url": "https://api.m3o.com",
+      "description": "Micro LIVE environment"
+    }
+  ]
+}
