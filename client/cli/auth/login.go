@@ -69,7 +69,10 @@ func login(ctx *cli.Context) error {
 		report.Errorf(ctx, "%v: Getting token: %v", username, err.Error())
 		return err
 	}
-	token.Save(ctx, tok)
+	if err := token.Save(ctx, tok); err != nil {
+		report.Errorf(ctx, "%s: Save token: %s", username, err.Error())
+		return err
+	}
 
 	fmt.Println("Successfully logged in.")
 	return nil
