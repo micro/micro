@@ -11,9 +11,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/juju/fslock"
 	"github.com/micro/micro/v3/internal/user"
 	conf "github.com/micro/micro/v3/service/config"
+	"github.com/nightlyone/lockfile"
 )
 
 var (
@@ -26,7 +26,7 @@ var (
 	File = filepath.Join(user.Dir, "config.json")
 
 	// a global lock for the config
-	lock = fslock.New(File)
+	lock, _ = lockfile.New(File)
 )
 
 // SetConfig sets the config file
@@ -36,7 +36,7 @@ func SetConfig(configFilePath string) {
 
 	File = configFilePath
 	// new lock for the file
-	lock = fslock.New(File)
+	lock, _ = lockfile.New(File)
 }
 
 // config is a singleton which is required to ensure
@@ -81,7 +81,7 @@ func Set(path, value string) error {
 		return err
 	}
 	// acquire lock
-	if err := lock.Lock(); err != nil {
+	if err := lock.TryLock(); err != nil {
 		return err
 	}
 	defer lock.Unlock()
