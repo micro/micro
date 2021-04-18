@@ -239,7 +239,7 @@ See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproj
 
 ## Hosting
 
-For hosting see [m3o.com](https://m3o.com).
+For cloud hosting see [m3o.com](https://m3o.com).
 
 ## Community
 
