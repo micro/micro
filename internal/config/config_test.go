@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/juju/fslock"
 	"github.com/micro/micro/v3/internal/user"
+	"github.com/nightlyone/lockfile"
 )
 
 func Test(t *testing.T) {
@@ -36,7 +36,7 @@ func Test(t *testing.T) {
 	saveFile := File
 
 	File = filepath.Join(user.Dir, "config-test.json")
-	lock = fslock.New(File)
+	lock, _ = lockfile.New(File)
 
 	defer func() {
 		File = saveFile

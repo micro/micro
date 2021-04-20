@@ -42,7 +42,7 @@ func printKey(k string, v int64) {
 func years() [][]byte {
 	var years [][]byte
 
-	for _, year := range []string{"2019", "2020"} {
+	for _, year := range []string{"2019", "2020", "2021"} {
 		rsp, err := http.Get("https://go.micro.mu/usage?date=" + year)
 		if err != nil {
 			fmt.Println(err)
