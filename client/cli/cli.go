@@ -19,7 +19,6 @@ import (
 	_ "github.com/micro/micro/v3/client/cli/network"
 	_ "github.com/micro/micro/v3/client/cli/new"
 	_ "github.com/micro/micro/v3/client/cli/run"
-	_ "github.com/micro/micro/v3/client/cli/signup"
 	_ "github.com/micro/micro/v3/client/cli/store"
 	_ "github.com/micro/micro/v3/client/cli/user"
 )

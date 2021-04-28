@@ -109,13 +109,9 @@ func init() {
 		&cli.Command{
 			Name:        "login",
 			Usage:       `Interactive login flow.`,
-			Description: "Run 'micro login' for micro servers or 'micro login --otp' for the Micro Platform.",
+			Description: "Run 'micro login' for the server",
 			Action:      login,
 			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:  "otp",
-					Usage: "Login/signup with a One Time Password.",
-				},
 				&cli.StringFlag{
 					Name:  "password",
 					Usage: "Password to use for login. If not provided, will be asked for during login. Useful for automated scripts",
