@@ -200,8 +200,6 @@ func Run(context *cli.Context) error {
 
 	log.Info("Starting server runtime")
 
-
-
 	// start the runtime
 	if err := runtimeServer.Start(); err != nil {
 		log.Fatal(err)

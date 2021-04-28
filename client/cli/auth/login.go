@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
-	"github.com/micro/micro/v3/client/cli/signup"
 	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/report"
@@ -20,11 +19,6 @@ import (
 // login flow.
 // For documentation of the flow please refer to https://github.com/micro/development/pull/223
 func login(ctx *cli.Context) error {
-	// assuming --otp go to platform.Signup
-	if isOTP := ctx.Bool("otp"); isOTP {
-		return signup.Run(ctx)
-	}
-
 	// otherwise assume username/password login
 
 	// get the environment
