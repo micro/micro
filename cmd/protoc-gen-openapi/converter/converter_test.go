@@ -12,7 +12,7 @@ import (
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/micro/micro/v3/internal/openapi/converter/testdata"
+	"github.com/micro/micro/v3/cmd/protoc-gen-openapi/converter/testdata"
 )
 
 const (
