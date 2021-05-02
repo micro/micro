@@ -44,7 +44,7 @@ const (
 type Account struct {
 	// ID of the account e.g. UUID. Should not change
 	ID string `json:"id"`
-	// Type of the account, e.g. cient, service, user
+	// Type of the account, e.g. api, client, service, user
 	Type string `json:"type"`
 	// Issuer of the account e.g micro
 	Issuer string `json:"issuer"`
