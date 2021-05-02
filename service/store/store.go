@@ -17,6 +17,7 @@
 package store
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 )
@@ -60,6 +61,30 @@ type Record struct {
 	Metadata map[string]interface{} `json:"metadata"`
 	// Time to expire a record: TODO: change to timestamp
 	Expiry time.Duration `json:"expiry,omitempty"`
+}
+
+// NewRecord returns a record from key, val
+func NewRecord(key string, val interface{}) *Record {
+	b, _ := json.Marshal(val)
+	return &Record{
+		Key:   key,
+		Value: b,
+	}
+}
+
+// Encode will marshal any type into the byte Value field
+func (r *Record) Encode(v interface{}) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	r.Value = b
+	return nil
+}
+
+// Scan is a convenience helper for decoding records
+func (r *Record) Scan(v interface{}) error {
+	return json.Unmarshal(r.Value, v)
 }
 
 // Read records
