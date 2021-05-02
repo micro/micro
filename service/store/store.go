@@ -82,8 +82,8 @@ func (r *Record) Encode(v interface{}) error {
 	return nil
 }
 
-// Scan is a convenience helper for decoding records
-func (r *Record) Scan(v interface{}) error {
+// Decode is a convenience helper for decoding records
+func (r *Record) Decode(v interface{}) error {
 	return json.Unmarshal(r.Value, v)
 }
 
