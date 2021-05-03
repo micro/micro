@@ -42,6 +42,9 @@ func read(ctx *cli.Context) error {
 	if ctx.Bool("prefix") {
 		opts = append(opts, store.ReadPrefix())
 	}
+	if ctx.Bool("suffix") {
+		opts = append(opts, store.ReadSuffix())
+	}
 	if ctx.Uint("limit") != 0 {
 		opts = append(opts, store.ReadLimit(ctx.Uint("limit")))
 	}
@@ -149,6 +152,9 @@ func list(ctx *cli.Context) error {
 	}
 	if ctx.Bool("prefix") {
 		opts = append(opts, store.ListPrefix(ctx.Args().First()))
+	}
+	if ctx.Bool("suffix") {
+		opts = append(opts, store.ListSuffix(ctx.Args().First()))
 	}
 	if ctx.Uint("limit") != 0 {
 		opts = append(opts, store.ListLimit(ctx.Uint("limit")))

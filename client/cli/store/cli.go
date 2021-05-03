@@ -41,6 +41,12 @@ func init() {
 						Usage:   "read prefix",
 						Value:   false,
 					},
+					&cli.BoolFlag{
+						Name:    "suffix",
+						Aliases: []string{"s"},
+						Usage:   "read suffix",
+						Value:   false,
+					},
 					&cli.UintFlag{
 						Name:    "limit",
 						Aliases: []string{"l"},
