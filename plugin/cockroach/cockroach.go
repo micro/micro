@@ -92,7 +92,6 @@ func (s *sqlStore) getDB(database, table string) (string, string) {
 // createDB ensures that the DB and table have been created. It's used for lazy initialisation
 // and will record which tables have been created to reduce calls to the DB
 func (s *sqlStore) createDB(database, table string) error {
-
 	database, table = s.getDB(database, table)
 
 	s.Lock()
@@ -115,6 +114,7 @@ func (s *sqlStore) db() (*sql.DB, error) {
 	if s.dbConn == nil {
 		return nil, ErrNoConnection
 	}
+
 	if err := s.dbConn.Ping(); err != nil {
 		if !isBadConnError(err) {
 			return nil, err
@@ -125,6 +125,7 @@ func (s *sqlStore) db() (*sql.DB, error) {
 			return nil, err
 		}
 	}
+
 	return s.dbConn, nil
 }
 
@@ -136,6 +137,13 @@ func isBadConnError(err error) bool {
 	if err == driver.ErrBadConn {
 		return true
 	}
+
+	// heavy handed crude check for "connection reset by peer"
+	if strings.Contains(err.Error(), syscall.ECONNRESET.Error()) {
+		return true
+	}
+
+	// otherwise iterate through the error types
 	switch t := err.(type) {
 	case syscall.Errno:
 		return t == syscall.ECONNRESET || t == syscall.ECONNABORTED || t == syscall.ECONNREFUSED
@@ -144,6 +152,7 @@ func isBadConnError(err error) bool {
 	case net.Error:
 		return !t.Temporary()
 	}
+
 	return false
 }
 
