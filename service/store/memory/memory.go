@@ -143,20 +143,37 @@ func (m *memoryStore) delete(prefix, key string) {
 	m.getStore(prefix).Delete(key)
 }
 
-func (m *memoryStore) list(prefix string, limit, offset uint, prefixFilter, suffixFilter string) []string {
+func (m *memoryStore) list(prefix string, order store.Order, limit, offset uint, prefixFilter, suffixFilter string) []string {
+	// TODO: sort they keys
+	var allItems []string
 
-	allItems := m.getStore(prefix).Items()
+	for k := range m.getStore(prefix).Items() {
+		allItems = append(allItems, k)
+	}
 
 	allKeys := make([]string, len(allItems))
 
 	// construct list of keys for this prefix
 	i := 0
-	for k := range allItems {
-		allKeys[i] = k
-		i++
+
+	// order descending if specified
+	if order == store.OrderDesc {
+		j := 0
+		for i := len(allItems); i > 0; i-- {
+			allKeys[j] = allItems[i-1]
+			j++
+		}
+	} else {
+		// default order ascending
+		for _, k := range allItems {
+			allKeys[i] = k
+			i++
+		}
 	}
+
 	keys := make([]string, 0, len(allKeys))
 	sort.Slice(allKeys, func(i, j int) bool { return allKeys[i] < allKeys[j] })
+
 	for _, k := range allKeys {
 		if prefixFilter != "" && !strings.HasPrefix(k, prefixFilter) {
 			continue
@@ -199,7 +216,9 @@ func (m *memoryStore) String() string {
 }
 
 func (m *memoryStore) Read(key string, opts ...store.ReadOption) ([]*store.Record, error) {
-	readOpts := store.ReadOptions{}
+	readOpts := store.ReadOptions{
+		Order: store.OrderAsc,
+	}
 	for _, o := range opts {
 		o(&readOpts)
 	}
@@ -217,7 +236,7 @@ func (m *memoryStore) Read(key string, opts ...store.ReadOption) ([]*store.Recor
 		if readOpts.Suffix {
 			suffixFilter = key
 		}
-		keys = m.list(prefix, readOpts.Limit, readOpts.Offset, prefixFilter, suffixFilter)
+		keys = m.list(prefix, readOpts.Order, readOpts.Limit, readOpts.Offset, prefixFilter, suffixFilter)
 	} else {
 		keys = []string{key}
 	}
@@ -282,13 +301,15 @@ func (m *memoryStore) Options() store.Options {
 }
 
 func (m *memoryStore) List(opts ...store.ListOption) ([]string, error) {
-	listOptions := store.ListOptions{}
+	listOptions := store.ListOptions{
+		Order: store.OrderAsc,
+	}
 
 	for _, o := range opts {
 		o(&listOptions)
 	}
 
 	prefix := m.prefix(listOptions.Database, listOptions.Table)
-	keys := m.list(prefix, listOptions.Limit, listOptions.Offset, listOptions.Prefix, listOptions.Suffix)
+	keys := m.list(prefix, listOptions.Order, listOptions.Limit, listOptions.Offset, listOptions.Prefix, listOptions.Suffix)
 	return keys, nil
 }

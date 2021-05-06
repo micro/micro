@@ -77,6 +77,7 @@ func (s *srv) List(opts ...store.ListOption) ([]string, error) {
 		Suffix:   options.Suffix,
 		Limit:    uint64(options.Limit),
 		Offset:   uint64(options.Offset),
+		Order:    string(options.Order),
 	}
 
 	stream, err := s.Client.List(s.Context(), &pb.ListRequest{Options: listOpts}, client.WithAddress(s.Nodes...), client.WithAuthToken())
@@ -124,6 +125,7 @@ func (s *srv) Read(key string, opts ...store.ReadOption) ([]*store.Record, error
 		Suffix:   options.Suffix,
 		Limit:    uint64(options.Limit),
 		Offset:   uint64(options.Offset),
+		Order:    string(options.Order),
 	}
 
 	rsp, err := s.Client.Read(s.Context(), &pb.ReadRequest{
