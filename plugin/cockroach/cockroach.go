@@ -47,8 +47,8 @@ var (
 	re = regexp.MustCompile("[^a-zA-Z0-9]+")
 
 	// alternative ordering
-	orderAsc  = "ORDER by key ASC"
-	orderDesc = "ORDER by key DESC"
+	orderAsc  = "ORDER BY key ASC"
+	orderDesc = "ORDER BY key DESC"
 
 	// the sql statements we prepare and use
 	statements = map[string]string{
