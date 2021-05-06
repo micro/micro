@@ -51,6 +51,13 @@ func read(ctx *cli.Context) error {
 	if ctx.Uint("offset") != 0 {
 		opts = append(opts, store.ReadLimit(ctx.Uint("offset")))
 	}
+	if v := ctx.String("order"); len(v) > 0 {
+		order := store.OrderAsc
+		if v == "desc" {
+			order = store.OrderDesc
+		}
+		opts = append(opts, store.ReadOrder(order))
+	}
 
 	records, err := store.DefaultStore.Read(ctx.Args().First(), opts...)
 	if err != nil {
@@ -161,6 +168,13 @@ func list(ctx *cli.Context) error {
 	}
 	if ctx.Uint("offset") != 0 {
 		opts = append(opts, store.ListLimit(ctx.Uint("offset")))
+	}
+	if v := ctx.String("order"); len(v) > 0 {
+		order := store.OrderAsc
+		if v == "desc" {
+			order = store.OrderDesc
+		}
+		opts = append(opts, store.ListOrder(order))
 	}
 
 	keys, err := store.DefaultStore.List(opts...)

@@ -52,6 +52,10 @@ func init() {
 						Aliases: []string{"l"},
 						Usage:   "list limit",
 					},
+					&cli.StringFlag{
+						Name:  "order",
+						Usage: "Set the order of records e.g asc or desc",
+					},
 					&cli.UintFlag{
 						Name:    "offset",
 						Aliases: []string{"o"},
@@ -91,6 +95,10 @@ func init() {
 					&cli.StringFlag{
 						Name:  "output",
 						Usage: "output format (json)",
+					},
+					&cli.StringFlag{
+						Name:  "order",
+						Usage: "Set the order of records e.g asc or desc",
 					},
 					&cli.BoolFlag{
 						Name:    "prefix",

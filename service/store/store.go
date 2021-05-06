@@ -22,11 +22,11 @@ import (
 	"time"
 )
 
-// Order 
+// Order
 type Order string
 
 const (
-	OrderAsc = Order("asc")
+	OrderAsc  = Order("asc")
 	OrderDesc = Order("desc")
 )
 

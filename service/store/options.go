@@ -95,7 +95,7 @@ func ReadFrom(database, table string) ReadOption {
 // ReadOrder specifies the order to return the data
 func ReadOrder(o Order) ReadOption {
 	return func(r *ReadOptions) {
-                r.Order = o
+		r.Order = o
 	}
 }
 
