@@ -208,8 +208,8 @@ func (m *fileStore) list(db *bolt.DB, order store.Order, limit, offset uint, pre
 		keys = keys[offset:]
 	}
 
-	// check the limit
-	if int(limit) > len(keys) {
+	// check key limit
+	if v := int(limit); v == 0 || v > len(keys) {
 		limit = uint(len(keys))
 	}
 
