@@ -22,6 +22,14 @@ import (
 	"time"
 )
 
+// Order 
+type Order string
+
+const (
+	OrderAsc = Order("asc")
+	OrderDesc = Order("desc")
+)
+
 var (
 	// DefaultStore implementation
 	DefaultStore Store
