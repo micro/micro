@@ -160,7 +160,26 @@ func (m *memoryStore) list(prefix string, order store.Order, limit, offset uint,
 
 	var keys []string
 
-	for _, k := range allItems {
+
+        if offset > 0 {
+                // offset is greater than the keys we have
+                if int(offset) >= len(allItems) {
+                        return nil
+                }
+
+                // otherwise set the offset for the keys
+                allItems = allItems[offset:]
+        }
+
+        // check key limit
+        if v := int(limit); v == 0 || v > len(allItems) {
+                limit = uint(len(allItems))
+        }
+
+
+        for i := 0; i < int(limit); i++ {
+		k := allItems[i]
+
 		if prefixFilter != "" && !strings.HasPrefix(k, prefixFilter) {
 			continue
 		}
@@ -171,12 +190,8 @@ func (m *memoryStore) list(prefix string, order store.Order, limit, offset uint,
 			offset--
 			continue
 		}
+
 		keys = append(keys, k)
-		// this check still works if no limit was passed to begin with, you'll just end up with large -ve value
-		if limit == 1 {
-			break
-		}
-		limit--
 	}
 
 	return keys
