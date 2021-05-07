@@ -43,10 +43,6 @@ See the [TODO](/todo) list, open a PR and start hacking away at the docs.
 
 Join us in GitHub [Discussions](https://github.com/micro/micro/discussions) or [Slack](https://slack.m3o.com).
 
-## Hosting
-
-For cloud hosting see [m3o.com](https://m3o.com).
-
 ## License
 
 [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/)
