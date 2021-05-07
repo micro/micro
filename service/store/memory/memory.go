@@ -151,30 +151,16 @@ func (m *memoryStore) list(prefix string, order store.Order, limit, offset uint,
 		allItems = append(allItems, k)
 	}
 
-	allKeys := make([]string, len(allItems))
-
-	// construct list of keys for this prefix
-	i := 0
-
-	// order descending if specified
+	// sort in ascending order
 	if order == store.OrderDesc {
-		j := 0
-		for i := len(allItems); i > 0; i-- {
-			allKeys[j] = allItems[i-1]
-			j++
-		}
+		sort.Slice(allItems, func(i, j int) bool { return allItems[i] > allItems[j] })
 	} else {
-		// default order ascending
-		for _, k := range allItems {
-			allKeys[i] = k
-			i++
-		}
+		sort.Slice(allItems, func(i, j int) bool { return allItems[i] < allItems[j] })
 	}
 
-	keys := make([]string, 0, len(allKeys))
-	sort.Slice(allKeys, func(i, j int) bool { return allKeys[i] < allKeys[j] })
+	var keys []string
 
-	for _, k := range allKeys {
+	for _, k := range allItems {
 		if prefixFilter != "" && !strings.HasPrefix(k, prefixFilter) {
 			continue
 		}
@@ -192,6 +178,7 @@ func (m *memoryStore) list(prefix string, order store.Order, limit, offset uint,
 		}
 		limit--
 	}
+
 	return keys
 }
 
