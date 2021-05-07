@@ -237,10 +237,6 @@ See the [docs](https://micro.mu) for detailed information on the architecture, i
 
 See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/).
 
-## Hosting
-
-For cloud hosting see [m3o.com](https://m3o.com).
-
 ## Community
 
 Join us on GitHub [Discussions](https://github.com/micro/micro/discussions) or [Slack](https://slack.micro.mu).
