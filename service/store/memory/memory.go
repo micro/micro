@@ -160,24 +160,8 @@ func (m *memoryStore) list(prefix string, order store.Order, limit, offset uint,
 
 	var keys []string
 
-
-        if offset > 0 {
-                // offset is greater than the keys we have
-                if int(offset) >= len(allItems) {
-                        return nil
-                }
-
-                // otherwise set the offset for the keys
-                allItems = allItems[offset:]
-        }
-
-        // check key limit
-        if v := int(limit); v == 0 || v > len(allItems) {
-                limit = uint(len(allItems))
-        }
-
-
-        for i := 0; i < int(limit); i++ {
+	// filter on prefix and suffix first
+	for i := 0; i < len(allItems); i++ {
 		k := allItems[i]
 
 		if prefixFilter != "" && !strings.HasPrefix(k, prefixFilter) {
@@ -186,15 +170,33 @@ func (m *memoryStore) list(prefix string, order store.Order, limit, offset uint,
 		if suffixFilter != "" && !strings.HasSuffix(k, suffixFilter) {
 			continue
 		}
-		if offset > 0 {
-			offset--
-			continue
-		}
 
 		keys = append(keys, k)
 	}
 
-	return keys
+        if offset > 0 {
+                // offset is greater than the keys we have
+                if int(offset) >= len(keys) {
+                        return nil
+                }
+
+                // otherwise set the offset for the keys
+                keys = keys[offset:]
+        }
+
+        // check key limit
+        if v := int(limit); v == 0 || v > len(keys) {
+                limit = uint(len(keys))
+        }
+
+	// gen the final key list
+	var keyList []string
+
+        for i := 0; i < int(limit); i++ {
+		keyList = append(keyList, keys[i])
+	}
+
+	return keyList
 }
 
 func (m *memoryStore) Close() error {
