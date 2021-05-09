@@ -3,7 +3,7 @@
   <a href="https://github.com/micro/micro/network/members"><img src="https://img.shields.io/github/forks/micro/micro?style=social" /></a>
   <a href="https://github.com/micro/micro/stargazers"><img src="https://img.shields.io/github/stars/micro/micro?style=social" /></a>
 </div>
-<br>
+
 Micro is a Distributed OS built for the Cloud.
 
 ## Overview
