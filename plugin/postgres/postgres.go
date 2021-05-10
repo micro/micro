@@ -202,7 +202,7 @@ func (s *sqlStore) initDB(database, table string) error {
 
 func (s *sqlStore) configure() error {
 	if len(s.options.Nodes) == 0 {
-		s.options.Nodes = []string{"postgresql://root@localhost:26257?sslmode=disable"}
+		s.options.Nodes = []string{"postgresql://root@localhost:5432?sslmode=disable"}
 	}
 
 	source := s.options.Nodes[0]
