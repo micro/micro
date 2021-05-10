@@ -167,8 +167,8 @@ func (s *sqlStore) initDB(database, table string) error {
 		return err
 	}
 	// Create the namespace's database
-	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", database))
-	if err != nil {
+	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE %s;", database))
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
 		return err
 	}
 
