@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-plugins/v3/store/cockroach/metadata.go
+// Original source: github.com/micro/go-plugins/v3/store/postgres/metadata.go
 
-package cockroach
+package postgres
 
 import (
 	"database/sql/driver"

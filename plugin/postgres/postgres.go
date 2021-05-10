@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-plugins/v3/store/cockroach/cockroach.go
+// Original source: github.com/micro/go-plugins/v3/store/postgres/postgres.go
 
-// Package cockroach implements the cockroach store
-package cockroach
+// Package postgres implements the postgres store
+package postgres
 
 import (
 	"database/sql"
@@ -572,7 +572,7 @@ func (s *sqlStore) Options() store.Options {
 }
 
 func (s *sqlStore) String() string {
-	return "cockroach"
+	return "postgres"
 }
 
 // NewStore returns a new micro Store backed by sql
