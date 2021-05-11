@@ -264,6 +264,7 @@ type BlobStoreService interface {
 	Read(ctx context.Context, in *BlobReadRequest, opts ...client.CallOption) (BlobStore_ReadService, error)
 	Write(ctx context.Context, opts ...client.CallOption) (BlobStore_WriteService, error)
 	Delete(ctx context.Context, in *BlobDeleteRequest, opts ...client.CallOption) (*BlobDeleteResponse, error)
+	SetPolicy(ctx context.Context, in *SetPolicyRequest, opts ...client.CallOption) (*SetPolicyResponse, error)
 }
 
 type blobStoreService struct {
@@ -383,12 +384,23 @@ func (c *blobStoreService) Delete(ctx context.Context, in *BlobDeleteRequest, op
 	return out, nil
 }
 
+func (c *blobStoreService) SetPolicy(ctx context.Context, in *SetPolicyRequest, opts ...client.CallOption) (*SetPolicyResponse, error) {
+	req := c.c.NewRequest(c.name, "BlobStore.SetPolicy", in)
+	out := new(SetPolicyResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for BlobStore service
 
 type BlobStoreHandler interface {
 	Read(context.Context, *BlobReadRequest, BlobStore_ReadStream) error
 	Write(context.Context, BlobStore_WriteStream) error
 	Delete(context.Context, *BlobDeleteRequest, *BlobDeleteResponse) error
+	SetPolicy(context.Context, *SetPolicyRequest, *SetPolicyResponse) error
 }
 
 func RegisterBlobStoreHandler(s server.Server, hdlr BlobStoreHandler, opts ...server.HandlerOption) error {
@@ -396,6 +408,7 @@ func RegisterBlobStoreHandler(s server.Server, hdlr BlobStoreHandler, opts ...se
 		Read(ctx context.Context, stream server.Stream) error
 		Write(ctx context.Context, stream server.Stream) error
 		Delete(ctx context.Context, in *BlobDeleteRequest, out *BlobDeleteResponse) error
+		SetPolicy(ctx context.Context, in *SetPolicyRequest, out *SetPolicyResponse) error
 	}
 	type BlobStore struct {
 		blobStore
@@ -493,4 +506,8 @@ func (x *blobStoreWriteStream) Recv() (*BlobWriteRequest, error) {
 
 func (h *blobStoreHandler) Delete(ctx context.Context, in *BlobDeleteRequest, out *BlobDeleteResponse) error {
 	return h.BlobStoreHandler.Delete(ctx, in, out)
+}
+
+func (h *blobStoreHandler) SetPolicy(ctx context.Context, in *SetPolicyRequest, out *SetPolicyResponse) error {
+	return h.BlobStoreHandler.SetPolicy(ctx, in, out)
 }
