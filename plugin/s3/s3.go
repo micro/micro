@@ -16,7 +16,6 @@ package s3
 
 import (
 	"bytes"
-	"context"
 	"io"
 	"path/filepath"
 	"regexp"
@@ -177,43 +176,18 @@ func (s *s3) Delete(key string, opts ...store.BlobOption) error {
 	}
 
 	if len(s.options.Bucket) > 0 {
-		return s.client.RemoveObject(
-			context.TODO(),                        // context
-			s.options.Bucket,                      // bucket name
-			filepath.Join(options.Namespace, key), // object name
-			minio.RemoveObjectOptions{},           // options
-		)
+		k := filepath.Join(options.Namespace, key) // object name
+		_, err := s.client.DeleteObject(&sthree.DeleteObjectInput{
+			Bucket: &s.options.Bucket, // bucket name
+			Key:    &k,
+		})
+		return err
 	}
 
-	return s.client.RemoveObject(
-		context.TODO(),              // context
-		options.Namespace,           // bucket name
-		key,                         // object name
-		minio.RemoveObjectOptions{}, // options
-	)
-}
-
-func (s *s3) SetPolicy(key string, opts ...store.PolicyOption) error {
-	// validate the key
-	if len(key) == 0 {
-		return store.ErrMissingKey
-	}
-
-	// make the key safe for use with s3
-	key = keyRegex.ReplaceAllString(key, "-")
-
-	// parse the options
-	var options store.PolicyOptions
-	for _, o := range opts {
-		o(&options)
-	}
-	if len(options.Namespace) == 0 {
-		options.Namespace = "micro"
-	}
-	policy := minio.Buc()
-	policy.SetBucket(options.Namespace)
-	policy.SetKey(key)
-	policy.BucketAccessPolicy()
-
-	return s.client.SetBucketPolicy(context.TODO(), options.Namespace, policy.String())
+	k := filepath.Join(options.Namespace, key) // object name
+	_, err := s.client.DeleteObject(&sthree.DeleteObjectInput{
+		Bucket: &options.Namespace, // bucket name
+		Key:    &k,
+	})
+	return err
 }

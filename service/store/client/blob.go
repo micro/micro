@@ -159,7 +159,3 @@ func (b *blob) cli() pb.BlobStoreService {
 	}
 	return b.client
 }
-
-func (b *blob) SetPolicy(key string, opts ...store.PolicyOption) error {
-	return errors.NotImplemented("SetPolicy", "set policy not implemented")
-}
