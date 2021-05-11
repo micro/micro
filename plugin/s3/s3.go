@@ -122,13 +122,17 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 	if err != nil {
 		return err
 	}
+	acl := "private"
+	if options.Public {
+		acl = "public"
+	}
 	if len(s.options.Bucket) > 0 {
 		k := filepath.Join(options.Namespace, key)
 		object := sthree.PutObjectInput{
 			Bucket: &s.options.Bucket,
 			Key:    &k,
 			Body:   strings.NewReader(buf.String()),
-			ACL:    aws.String("private"),
+			ACL:    aws.String(acl),
 			Metadata: map[string]*string{
 				// @todo what is this
 				"x-amz-meta-my-key": aws.String("your-value"), //required
@@ -147,7 +151,7 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 		Bucket: &s.options.Bucket,
 		Key:    &k,
 		Body:   strings.NewReader(buf.String()),
-		ACL:    aws.String("private"),
+		ACL:    aws.String(acl),
 		Metadata: map[string]*string{
 			// @todo what is this
 			"x-amz-meta-my-key": aws.String("your-value"), //required
