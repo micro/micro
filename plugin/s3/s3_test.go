@@ -16,11 +16,13 @@ package s3
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
 
 	"github.com/micro/micro/v3/service/store"
+	"github.com/minio/minio-go/v7"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -130,4 +132,11 @@ func TestBlobStore(t *testing.T) {
 		assert.Equal(t, store.ErrNotFound, err, "Error should be not found")
 		assert.Nil(t, res, "Result should be nil")
 	})
+}
+
+func TestPolicy(t *testing.T) {
+	policy := minio.NewPostPolicy()
+	policy.SetBucket("bucketname")
+	policy.SetKey("/key/key1")
+	fmt.Println(policy.String())
 }

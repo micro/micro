@@ -153,11 +153,11 @@ func (b *blobHandler) SetPolicy(ctx context.Context, req *pb.SetPolicyRequest, r
 	// execute the request
 	err := store.DefaultBlobStore.SetPolicy(req.Key, store.PolicyNamespace(req.GetOptions().GetNamespace()), store.PolicyPublic(true))
 	if err == store.ErrNotFound {
-		return errors.NotFound("store.Blob.Delete", "Blob not found")
+		return errors.NotFound("store.Blob.SetPolicy", "Blob not found")
 	} else if err == store.ErrMissingKey {
-		return errors.BadRequest("store.Blob.Delete", "Missing key")
+		return errors.BadRequest("store.Blob.SetPolicy", "Missing key")
 	} else if err != nil {
-		return errors.InternalServerError("store.Blob.Delete", err.Error())
+		return errors.InternalServerError("store.Blob.SetPolicy", err.Error())
 	}
 
 	return nil
