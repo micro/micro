@@ -29,10 +29,10 @@ require (
 	github.com/hashicorp/go-version v1.2.1
 	github.com/hpcloud/tail v1.0.0
 	github.com/improbable-eng/grpc-web v0.13.0
+	github.com/klauspost/cpuid v1.3.1 // indirect
 	github.com/kr/pretty v0.2.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/miekg/dns v1.1.27
-	github.com/minio/minio-go/v7 v7.0.5
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/nightlyone/lockfile v1.0.0
 	github.com/olekukonko/tablewriter v0.0.4
@@ -54,6 +54,8 @@ require (
 	go.etcd.io/bbolt v1.3.5
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
+	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
+	golang.org/x/text v0.3.3 // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.27.0
 	google.golang.org/protobuf v1.25.0

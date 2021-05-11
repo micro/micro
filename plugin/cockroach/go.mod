@@ -1,4 +1,4 @@
-module github.com/micro/micro/plugin/postgres/v3
+module github.com/micro/micro/plugin/cockroach/v3
 
 go 1.15
 

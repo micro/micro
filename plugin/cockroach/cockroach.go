@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-plugins/v3/store/postgres/postgres.go
+// Original source: github.com/micro/go-plugins/v3/store/cockroach/cockroach.go
 
-// Package postgres implements the postgres store
-package postgres
+// Package cockroach implements the cockroach store
+package cockroach
 
 import (
 	"database/sql"
@@ -167,8 +167,8 @@ func (s *sqlStore) initDB(database, table string) error {
 		return err
 	}
 	// Create the namespace's database
-	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE %s;", database))
-	if err != nil && !strings.Contains(err.Error(), "already exists") {
+	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", database))
+	if err != nil {
 		return err
 	}
 
@@ -202,7 +202,7 @@ func (s *sqlStore) initDB(database, table string) error {
 
 func (s *sqlStore) configure() error {
 	if len(s.options.Nodes) == 0 {
-		s.options.Nodes = []string{"postgresql://postgres@localhost:5432?sslmode=disable"}
+		s.options.Nodes = []string{"postgresql://root@localhost:26257?sslmode=disable"}
 	}
 
 	source := s.options.Nodes[0]
@@ -572,7 +572,7 @@ func (s *sqlStore) Options() store.Options {
 }
 
 func (s *sqlStore) String() string {
-	return "postgres"
+	return "cockroach"
 }
 
 // NewStore returns a new micro Store backed by sql
