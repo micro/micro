@@ -133,10 +133,6 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 			Key:    &k,
 			Body:   strings.NewReader(buf.String()),
 			ACL:    aws.String(acl),
-			Metadata: map[string]*string{
-				// @todo what is this
-				"x-amz-meta-my-key": aws.String("your-value"), //required
-			},
 		}
 		_, err := s.client.PutObject(&object)
 		return err
@@ -152,10 +148,6 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 		Key:    &k,
 		Body:   strings.NewReader(buf.String()),
 		ACL:    aws.String(acl),
-		Metadata: map[string]*string{
-			// @todo what is this
-			"x-amz-meta-my-key": aws.String("your-value"), //required
-		},
 	}
 	_, err = s.client.PutObject(&object)
 	return err
