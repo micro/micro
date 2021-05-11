@@ -11,10 +11,10 @@ import (
 var (
 	// ErrUnauthorized is returned by Authorize when a context without a blank account tries to access
 	// a restricted namespace
-	ErrUnauthorized = errors.New("An account is required")
+	ErrUnauthorized = errors.New("an account is required")
 	// ErrForbidden is returned by Authorize when a context is trying to access a namespace it doesn't
 	// have access to
-	ErrForbidden = errors.New("Access denied to namespace")
+	ErrForbidden = errors.New("access denied to namespace")
 )
 
 const (
@@ -35,7 +35,7 @@ func AuthorizeAdmin(ctx context.Context, ns, method string) error {
 	}
 
 	// check it's an admin
-	if !hasScope("admin", adminAcc.Scopes) && !hasScope("service", adminAcc.Scopes) {
+	if !hasTypeAndScope("user", "admin", adminAcc) && !hasTypeAndScope("service", "service", adminAcc) {
 		return merrors.Unauthorized(method, "Unauthorized")
 	}
 	return nil
@@ -75,20 +75,27 @@ func authorize(ctx context.Context, namespace string, opts ...AuthorizeOption) e
 	}
 
 	// the server and admins can access all namespaces
-	if acc.Issuer == DefaultNamespace && (acc.Type == "service" || hasScope("admin", acc.Scopes)) {
+	if acc.Issuer == DefaultNamespace && (hasTypeAndScope("service", "service", acc) || hasTypeAndScope("user", "admin", acc)) {
 		return nil
 	}
 
-	// ensure the account is requesing access to it's own namespace
+	// ensure the account is requesting access to it's own namespace
 	if acc.Issuer != namespace {
+		return ErrForbidden
+	}
+	// account should be of type user or service
+	if acc.Type != "user" && acc.Type != "service" {
 		return ErrForbidden
 	}
 
 	return nil
 }
 
-func hasScope(scope string, scopes []string) bool {
-	for _, s := range scopes {
+func hasTypeAndScope(atype, scope string, acc *auth.Account) bool {
+	if atype != acc.Type {
+		return false
+	}
+	for _, s := range acc.Scopes {
 		if s == scope {
 			return true
 		}

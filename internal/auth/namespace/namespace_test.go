@@ -21,7 +21,7 @@ func TestAuthorize(t *testing.T) {
 			name: "MicroAdminAccessingMicro",
 			acc: &auth.Account{
 				ID:       "1",
-				Type:     "",
+				Type:     "user",
 				Issuer:   "micro",
 				Metadata: nil,
 				Scopes:   []string{"admin"},
@@ -34,7 +34,7 @@ func TestAuthorize(t *testing.T) {
 			name: "MicroAdminAccessingFoo",
 			acc: &auth.Account{
 				ID:       "1",
-				Type:     "",
+				Type:     "user",
 				Issuer:   "micro",
 				Metadata: nil,
 				Scopes:   []string{"admin"},
@@ -73,7 +73,7 @@ func TestAuthorize(t *testing.T) {
 			name: "FooAdminAccessingMicro",
 			acc: &auth.Account{
 				ID:       "1",
-				Type:     "",
+				Type:     "user",
 				Issuer:   "foo",
 				Metadata: nil,
 				Scopes:   []string{"admin"},
@@ -86,7 +86,7 @@ func TestAuthorize(t *testing.T) {
 			name: "FooAdminAccessingFoo",
 			acc: &auth.Account{
 				ID:       "1",
-				Type:     "",
+				Type:     "user",
 				Issuer:   "foo",
 				Metadata: nil,
 				Scopes:   []string{"admin"},
@@ -111,7 +111,7 @@ func TestAuthorize(t *testing.T) {
 			name: "FooUserAccessingFoo",
 			acc: &auth.Account{
 				ID:       "1",
-				Type:     "",
+				Type:     "user",
 				Issuer:   "foo",
 				Metadata: nil,
 				Scopes:   []string{},
@@ -200,7 +200,7 @@ func TestAuthorizeAdmin(t *testing.T) {
 			name: "MicroAdminAccessingMicro",
 			acc: &auth.Account{
 				ID:       "1",
-				Type:     "",
+				Type:     "user",
 				Issuer:   "micro",
 				Metadata: nil,
 				Scopes:   []string{"admin"},
@@ -213,7 +213,7 @@ func TestAuthorizeAdmin(t *testing.T) {
 			name: "MicroAdminAccessingFoo",
 			acc: &auth.Account{
 				ID:       "1",
-				Type:     "",
+				Type:     "user",
 				Issuer:   "micro",
 				Metadata: nil,
 				Scopes:   []string{"admin"},
@@ -252,7 +252,7 @@ func TestAuthorizeAdmin(t *testing.T) {
 			name: "FooAdminAccessingMicro",
 			acc: &auth.Account{
 				ID:       "1",
-				Type:     "",
+				Type:     "user",
 				Issuer:   "foo",
 				Metadata: nil,
 				Scopes:   []string{"admin"},
@@ -265,7 +265,7 @@ func TestAuthorizeAdmin(t *testing.T) {
 			name: "FooAdminAccessingFoo",
 			acc: &auth.Account{
 				ID:       "1",
-				Type:     "",
+				Type:     "user",
 				Issuer:   "foo",
 				Metadata: nil,
 				Scopes:   []string{"admin"},
@@ -290,7 +290,7 @@ func TestAuthorizeAdmin(t *testing.T) {
 			name: "FooUserAccessingFoo",
 			acc: &auth.Account{
 				ID:       "1",
-				Type:     "",
+				Type:     "user",
 				Issuer:   "foo",
 				Metadata: nil,
 				Scopes:   []string{},
@@ -367,16 +367,18 @@ func TestAuthorizeAdmin(t *testing.T) {
 	}
 }
 
-func TestHasScope(t *testing.T) {
+func TestHasTypeAndScope(t *testing.T) {
 	tcs := []struct {
 		name   string
+		atype  string
 		scope  string
 		scopes []string
 		result bool
 	}{
 		{
-			name:   "hasScope",
-			scope:  "admin",
+			name:  "hasScope",
+			scope: "admin",
+
 			scopes: []string{"developer", "admin", "analyst"},
 			result: true,
 		},
@@ -402,7 +404,14 @@ func TestHasScope(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			assert.Equal(t, tc.result, hasScope(tc.scope, tc.scopes))
+			acc := auth.Account{
+				ID:     tc.name,
+				Type:   tc.atype,
+				Issuer: "foobar",
+				Scopes: tc.scopes,
+				Name:   tc.name,
+			}
+			assert.Equal(t, tc.result, hasTypeAndScope(tc.atype, tc.scope, &acc))
 		})
 
 	}
