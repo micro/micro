@@ -29,12 +29,34 @@ type BlobStore interface {
 	Read(key string, opts ...BlobOption) (io.Reader, error)
 	Write(key string, blob io.Reader, opts ...BlobOption) error
 	Delete(key string, opts ...BlobOption) error
+	SetPolicy(key string, opts ...PolicyOption) error
 }
 
 // BlobOptions contains options to use when interacting with the store
 type BlobOptions struct {
 	// Namespace to  from
 	Namespace string
+}
+
+// PolicyOptions represets policies for a given path
+type PolicyOptions struct {
+	// Public makes a path public, private is default
+	Public    bool
+	Namespace string
+}
+
+type PolicyOption func(o *PolicyOptions)
+
+func PolicyPublic(isPublic bool) PolicyOption {
+	return func(o *PolicyOptions) {
+		o.Public = isPublic
+	}
+}
+
+func PolicyNamespace(ns string) PolicyOption {
+	return func(o *PolicyOptions) {
+		o.Namespace = ns
+	}
 }
 
 // BlobOption sets one or more BlobOptions

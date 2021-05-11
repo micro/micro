@@ -17,6 +17,7 @@ service BlobStore {
 	rpc Read(BlobReadRequest) returns (stream BlobReadResponse) {};
 	rpc Write(stream BlobWriteRequest) returns (BlobWriteResponse) {};
 	rpc Delete(BlobDeleteRequest) returns (BlobDeleteResponse) {};
+	rpc SetPolicy(SetPolicyRequest) returns (SetPolicyResponse) {};
 }
 
 message Field {
@@ -141,3 +142,17 @@ message BlobDeleteRequest {
 }
 
 message BlobDeleteResponse {}
+
+message PolicyOptions {
+	string namespace = 1;
+	bool public = 2;
+}
+
+message SetPolicyRequest {
+	string key = 1;
+	PolicyOptions options = 2;
+}
+
+message SetPolicyResponse {
+	
+}

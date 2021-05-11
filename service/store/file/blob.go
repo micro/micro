@@ -184,3 +184,7 @@ func (b *blobStore) Delete(key string, opts ...store.BlobOption) error {
 		return bucket.Delete([]byte(key))
 	})
 }
+
+func (b *blobStore) SetPolicy(key string, opts ...store.PolicyOption) error {
+	return nil
+}

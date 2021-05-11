@@ -215,3 +215,27 @@ func (s *s3) Delete(key string, opts ...store.BlobOption) error {
 		minio.RemoveObjectOptions{}, // options
 	)
 }
+
+func (s *s3) SetPolicy(key string, opts ...store.PolicyOption) error {
+	// validate the key
+	if len(key) == 0 {
+		return store.ErrMissingKey
+	}
+
+	// make the key safe for use with s3
+	key = keyRegex.ReplaceAllString(key, "-")
+
+	// parse the options
+	var options store.PolicyOptions
+	for _, o := range opts {
+		o(&options)
+	}
+	if len(options.Namespace) == 0 {
+		options.Namespace = "micro"
+	}
+	policy := minio.NewPostPolicy()
+	policy.SetBucket(options.Namespace)
+	policy.SetKey(key)
+
+	return s.client.SetBucketPolicy(context.TODO(), options.Namespace, policy.String())
+}
