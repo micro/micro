@@ -109,6 +109,7 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 			Key: key,
 			Options: &pb.BlobOptions{
 				Namespace: options.Namespace,
+				Public:    options.Public,
 			},
 			Blob: buffer[:num],
 		}
@@ -158,8 +159,4 @@ func (b *blob) cli() pb.BlobStoreService {
 		b.client = pb.NewBlobStoreService("store", client.DefaultClient)
 	}
 	return b.client
-}
-
-func (b *blob) SetPolicy(key string, opts ...store.PolicyOption) error {
-	return errors.NotImplemented("SetPolicy", "set policy not implemented")
 }

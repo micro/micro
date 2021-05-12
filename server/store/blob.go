@@ -80,7 +80,7 @@ func (b *blobHandler) Write(ctx context.Context, stream pb.BlobStore_WriteStream
 
 			// parse the options
 			if options == nil || len(options.Namespace) == 0 {
-				options = &pb.BlobOptions{Namespace: namespace.FromContext(ctx)}
+				options.Namespace = namespace.FromContext(ctx)
 			}
 
 			// authorize the request. do this inside the loop so we fail fast
@@ -100,7 +100,7 @@ func (b *blobHandler) Write(ctx context.Context, stream pb.BlobStore_WriteStream
 	}
 
 	// execute the request
-	err := store.DefaultBlobStore.Write(key, buf, store.BlobNamespace(options.Namespace))
+	err := store.DefaultBlobStore.Write(key, buf, store.BlobNamespace(options.Namespace), store.BlobPublic(options.Public))
 	if err == store.ErrMissingKey {
 		return errors.BadRequest("store.Blob.Write", "Missing key")
 	} else if err != nil {
@@ -126,32 +126,6 @@ func (b *blobHandler) Delete(ctx context.Context, req *pb.BlobDeleteRequest, rsp
 
 	// execute the request
 	err := store.DefaultBlobStore.Delete(req.Key, store.BlobNamespace(req.Options.Namespace))
-	if err == store.ErrNotFound {
-		return errors.NotFound("store.Blob.Delete", "Blob not found")
-	} else if err == store.ErrMissingKey {
-		return errors.BadRequest("store.Blob.Delete", "Missing key")
-	} else if err != nil {
-		return errors.InternalServerError("store.Blob.Delete", err.Error())
-	}
-
-	return nil
-}
-
-func (b *blobHandler) SetPolicy(ctx context.Context, req *pb.SetPolicyRequest, rsp *pb.SetPolicyResponse) error {
-	// parse the options
-	if ns := req.GetOptions().GetNamespace(); len(ns) == 0 {
-		req.Options = &pb.PolicyOptions{
-			Namespace: namespace.FromContext(ctx),
-		}
-	}
-
-	// authorize the request
-	if err := authns.AuthorizeAdmin(ctx, req.Options.Namespace, "store.Blob.Delete"); err != nil {
-		return err
-	}
-
-	// execute the request
-	err := store.DefaultBlobStore.SetPolicy(req.Key, store.PolicyNamespace(req.GetOptions().GetNamespace()), store.PolicyPublic(true))
 	if err == store.ErrNotFound {
 		return errors.NotFound("store.Blob.Delete", "Blob not found")
 	} else if err == store.ErrMissingKey {
