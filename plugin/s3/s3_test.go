@@ -22,7 +22,6 @@ import (
 	"testing"
 
 	"github.com/micro/micro/v3/service/store"
-	"github.com/minio/minio-go/v7"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -134,9 +133,3 @@ func TestBlobStore(t *testing.T) {
 	})
 }
 
-func TestPolicy(t *testing.T) {
-	policy := minio.NewPostPolicy()
-	policy.SetBucket("bucketname")
-	policy.SetKey("/key/key1")
-	fmt.Println(policy.String())
-}
