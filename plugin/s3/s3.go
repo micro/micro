@@ -15,19 +15,26 @@
 package s3
 
 import (
-	"context"
+	"bytes"
 	"io"
-	"net/http"
 	"path/filepath"
 	"regexp"
+	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	sthree "github.com/aws/aws-sdk-go/service/s3"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/pkg/errors"
 )
 
-var keyRegex = regexp.MustCompile("[^a-zA-Z0-9]+")
+var doubleSlash = regexp.MustCompile("/+")
+var removeCol = regexp.MustCompile(":")
+
+func cleanKey(s string) string {
+	return removeCol.ReplaceAllLiteralString(doubleSlash.ReplaceAllLiteralString(s, "/"), "")
+}
 
 // NewBlobStore returns an initialized s3 blob store
 func NewBlobStore(opts ...Option) (store.BlobStore, error) {
@@ -36,35 +43,20 @@ func NewBlobStore(opts ...Option) (store.BlobStore, error) {
 	for _, o := range opts {
 		o(&options)
 	}
-	minioOpts := &minio.Options{
-		Secure: options.Secure,
-	}
-	if len(options.AccessKeyID) > 0 || len(options.SecretAccessKey) > 0 {
-		minioOpts.Creds = credentials.NewStaticV2(options.AccessKeyID, options.SecretAccessKey, "")
-	}
 
-	// configure the transport to use custom tls config if provided
-	if options.TLSConfig != nil {
-		ts, err := minio.DefaultTransport(options.Secure)
-		if err != nil {
-			return nil, errors.Wrap(err, "Error setting up s3 blob store transport")
-		}
-		ts.TLSClientConfig = options.TLSConfig
-		minioOpts.Transport = ts
-	}
-
-	// initialize minio client
-	client, err := minio.New(options.Endpoint, minioOpts)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error connecting to s3 blob store")
-	}
+	sess := session.Must(session.NewSession(&aws.Config{
+		Endpoint:    &options.Endpoint,
+		Region:      &options.Region,
+		Credentials: credentials.NewStaticCredentials(options.AccessKeyID, options.SecretAccessKey, ""),
+	}))
+	client := sthree.New(sess)
 
 	// return the blob store
 	return &s3{client, &options}, nil
 }
 
 type s3 struct {
-	client  *minio.Client
+	client  *sthree.S3
 	options *Options
 }
 
@@ -75,7 +67,7 @@ func (s *s3) Read(key string, opts ...store.BlobOption) (io.Reader, error) {
 	}
 
 	// make the key safe for use with s3
-	key = keyRegex.ReplaceAllString(key, "-")
+	key = cleanKey(key)
 
 	// parse the options
 	var options store.BlobOptions
@@ -86,42 +78,30 @@ func (s *s3) Read(key string, opts ...store.BlobOption) (io.Reader, error) {
 		options.Namespace = "micro"
 	}
 
-	// lookup the object
-	var res *minio.Object
 	var err error
+	var res *sthree.GetObjectOutput
 	if len(s.options.Bucket) > 0 {
-		res, err = s.client.GetObject(
-			context.TODO(),                        // context
-			s.options.Bucket,                      // bucket name
-			filepath.Join(options.Namespace, key), // object name
-			minio.GetObjectOptions{},              // options
-		)
+		k := filepath.Join(options.Namespace, key)
+		res, err = s.client.GetObject(&sthree.GetObjectInput{
+			Bucket: &s.options.Bucket, // bucket name
+			Key:    &k,                // object name
+		})
 	} else {
-		res, err = s.client.GetObject(
-			context.TODO(),           // context
-			options.Namespace,        // bucket name
-			key,                      // object name
-			minio.GetObjectOptions{}, // options
-		)
+		res, err = s.client.GetObject(&sthree.GetObjectInput{
+			Bucket: &options.Namespace, // bucket name
+			Key:    &key,               // object name
+		})
 	}
 
-	// scaleway will return a 404 if the bucket doesn't exist
-	if verr, ok := err.(minio.ErrorResponse); ok && verr.StatusCode == http.StatusNotFound {
-		return nil, store.ErrNotFound
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
-	// check the object info, if an error is returned the object could not be found
-	_, err = res.Stat()
-	if verr, ok := err.(minio.ErrorResponse); ok && verr.StatusCode == http.StatusNotFound {
-		return nil, store.ErrNotFound
-	} else if err != nil {
-		return nil, err
-	}
+	out := bytes.NewBuffer([]byte{})
+	_, err = io.Copy(out, res.Body)
 
 	// return the result
-	return res, nil
+	return out, nil
 }
 
 func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
@@ -131,7 +111,7 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 	}
 
 	// make the key safe for use with s3
-	key = keyRegex.ReplaceAllString(key, "-")
+	key = cleanKey(key)
 
 	// parse the options
 	var options store.BlobOptions
@@ -143,41 +123,40 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 	}
 
 	// if the bucket exists, write using the namespace as a filepath
+	buf := new(strings.Builder)
+	_, err := io.Copy(buf, blob)
+	if err != nil {
+		return err
+	}
+	acl := "private"
+	if options.Public {
+		acl = "public-read"
+	}
+	logger.Infof("Saving file %v with ACL %v into namespace %v", key, acl, options.Namespace)
 	if len(s.options.Bucket) > 0 {
-		_, err := s.client.PutObject(
-			context.TODO(),                        // context
-			s.options.Bucket,                      // bucket name
-			filepath.Join(options.Namespace, key), // object name
-			blob,                                  // reader
-			int64(-1),                             // length of object
-			minio.PutObjectOptions{
-				ContentType: "application/octet-stream",
-			},
-		)
-		return err
-	}
-
-	// check the bucket exists, create it if not
-	if exists, err := s.client.BucketExists(context.TODO(), options.Namespace); err != nil {
-		return err
-	} else if !exists {
-		opts := minio.MakeBucketOptions{Region: s.options.Region}
-		if err := s.client.MakeBucket(context.TODO(), options.Namespace, opts); err != nil {
-			return err
+		k := filepath.Join(options.Namespace, key)
+		object := sthree.PutObjectInput{
+			Bucket: &s.options.Bucket,
+			Key:    &k,
+			Body:   strings.NewReader(buf.String()),
+			ACL:    aws.String(acl),
 		}
+		_, err := s.client.PutObject(&object)
+		return err
 	}
 
-	// create the object in the bucket
-	_, err := s.client.PutObject(
-		context.TODO(),    // context
-		options.Namespace, // bucket name
-		key,               // object name
-		blob,              // reader
-		int64(-1),         // length of object
-		minio.PutObjectOptions{
-			ContentType: "application/octet-stream",
-		},
-	)
+	s.client.CreateBucket(&sthree.CreateBucketInput{
+		Bucket: &options.Namespace,
+	})
+
+	k := filepath.Join(options.Namespace, key)
+	object := sthree.PutObjectInput{
+		Bucket: &s.options.Bucket,
+		Key:    &k,
+		Body:   strings.NewReader(buf.String()),
+		ACL:    aws.String(acl),
+	}
+	_, err = s.client.PutObject(&object)
 	return err
 }
 
@@ -188,7 +167,7 @@ func (s *s3) Delete(key string, opts ...store.BlobOption) error {
 	}
 
 	// make the key safe for use with s3
-	key = keyRegex.ReplaceAllString(key, "-")
+	key = cleanKey(key)
 
 	// parse the options
 	var options store.BlobOptions
@@ -200,42 +179,18 @@ func (s *s3) Delete(key string, opts ...store.BlobOption) error {
 	}
 
 	if len(s.options.Bucket) > 0 {
-		return s.client.RemoveObject(
-			context.TODO(),                        // context
-			s.options.Bucket,                      // bucket name
-			filepath.Join(options.Namespace, key), // object name
-			minio.RemoveObjectOptions{},           // options
-		)
+		k := filepath.Join(options.Namespace, key) // object name
+		_, err := s.client.DeleteObject(&sthree.DeleteObjectInput{
+			Bucket: &s.options.Bucket, // bucket name
+			Key:    &k,
+		})
+		return err
 	}
 
-	return s.client.RemoveObject(
-		context.TODO(),              // context
-		options.Namespace,           // bucket name
-		key,                         // object name
-		minio.RemoveObjectOptions{}, // options
-	)
-}
-
-func (s *s3) SetPolicy(key string, opts ...store.PolicyOption) error {
-	// validate the key
-	if len(key) == 0 {
-		return store.ErrMissingKey
-	}
-
-	// make the key safe for use with s3
-	key = keyRegex.ReplaceAllString(key, "-")
-
-	// parse the options
-	var options store.PolicyOptions
-	for _, o := range opts {
-		o(&options)
-	}
-	if len(options.Namespace) == 0 {
-		options.Namespace = "micro"
-	}
-	policy := minio.NewPostPolicy()
-	policy.SetBucket(options.Namespace)
-	policy.SetKey(key)
-
-	return s.client.SetBucketPolicy(context.TODO(), options.Namespace, policy.String())
+	k := filepath.Join(options.Namespace, key) // object name
+	_, err := s.client.DeleteObject(&sthree.DeleteObjectInput{
+		Bucket: &options.Namespace, // bucket name
+		Key:    &k,
+	})
+	return err
 }
