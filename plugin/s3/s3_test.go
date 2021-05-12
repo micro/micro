@@ -16,7 +16,6 @@ package s3
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -24,6 +23,12 @@ import (
 	"github.com/micro/micro/v3/service/store"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestRegexp(t *testing.T) {
+	if cleanKey("build://name/version") != "build/name/version" {
+		t.Fatal(cleanKey("build://name/version"))
+	}
+}
 
 func TestBlobStore(t *testing.T) {
 	region := os.Getenv("S3_BLOB_STORE_REGION")
@@ -132,4 +137,3 @@ func TestBlobStore(t *testing.T) {
 		assert.Nil(t, res, "Result should be nil")
 	})
 }
-

@@ -29,7 +29,12 @@ import (
 	"github.com/micro/micro/v3/service/store"
 )
 
-var keyRegex = regexp.MustCompile("[^a-zA-Z0-9]+")
+var doubleSlash = regexp.MustCompile("/+")
+var removeCol = regexp.MustCompile(":")
+
+func cleanKey(s string) string {
+	return removeCol.ReplaceAllLiteralString(doubleSlash.ReplaceAllLiteralString(s, "/"), "")
+}
 
 // NewBlobStore returns an initialized s3 blob store
 func NewBlobStore(opts ...Option) (store.BlobStore, error) {
@@ -62,7 +67,7 @@ func (s *s3) Read(key string, opts ...store.BlobOption) (io.Reader, error) {
 	}
 
 	// make the key safe for use with s3
-	key = keyRegex.ReplaceAllString(key, "-")
+	key = cleanKey(key)
 
 	// parse the options
 	var options store.BlobOptions
@@ -106,7 +111,7 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 	}
 
 	// make the key safe for use with s3
-	key = keyRegex.ReplaceAllString(key, "-")
+	key = cleanKey(key)
 
 	// parse the options
 	var options store.BlobOptions
@@ -162,7 +167,7 @@ func (s *s3) Delete(key string, opts ...store.BlobOption) error {
 	}
 
 	// make the key safe for use with s3
-	key = keyRegex.ReplaceAllString(key, "-")
+	key = cleanKey(key)
 
 	// parse the options
 	var options store.BlobOptions
