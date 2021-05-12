@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"github.com/micro/micro/v3/client"
+	microServer "github.com/micro/micro/v3/server"
 	"github.com/micro/micro/v3/internal/api/server/acme"
 	"github.com/micro/micro/v3/internal/api/server/acme/autocert"
 	"github.com/micro/micro/v3/internal/api/server/acme/certmagic"
@@ -232,7 +232,7 @@ func Run(ctx *cli.Context) error {
 }
 
 var (
-	Flags = append(client.Flags,
+	Flags = append(microServer.Flags,
 		&cli.StringFlag{
 			Name:    "address",
 			Usage:   "Set the proxy http address e.g 0.0.0.0:8081",

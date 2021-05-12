@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/cmd/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/internal/network"

@@ -1,4 +1,4 @@
-package client
+package server
 
 import "github.com/urfave/cli/v2"
 

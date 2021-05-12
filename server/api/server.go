@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
-	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/server"
 	ahandler "github.com/micro/micro/v3/internal/api/handler"
 	aapi "github.com/micro/micro/v3/internal/api/handler/api"
 	"github.com/micro/micro/v3/internal/api/handler/event"
@@ -22,7 +22,7 @@ import (
 	"github.com/micro/micro/v3/internal/api/resolver/subdomain"
 	"github.com/micro/micro/v3/internal/api/router"
 	regRouter "github.com/micro/micro/v3/internal/api/router/registry"
-	"github.com/micro/micro/v3/internal/api/server"
+	apiserver "github.com/micro/micro/v3/internal/api/server"
 	"github.com/micro/micro/v3/internal/api/server/acme"
 	"github.com/micro/micro/v3/internal/api/server/acme/autocert"
 	"github.com/micro/micro/v3/internal/api/server/acme/certmagic"
@@ -54,7 +54,7 @@ var (
 )
 
 var (
-	Flags = append(client.Flags,
+	Flags = append(server.Flags,
 		&cli.StringFlag{
 			Name:    "address",
 			Usage:   "Set the api address e.g 0.0.0.0:8080",
@@ -113,15 +113,15 @@ func Run(ctx *cli.Context) error {
 	srv := service.New(service.Name(Name))
 
 	// Init API
-	var opts []server.Option
+	var opts []apiserver.Option
 
 	if ctx.Bool("enable_acme") {
 		hosts := helper.ACMEHosts(ctx)
-		opts = append(opts, server.EnableACME(true))
-		opts = append(opts, server.ACMEHosts(hosts...))
+		opts = append(opts, apiserver.EnableACME(true))
+		opts = append(opts, apiserver.ACMEHosts(hosts...))
 		switch ACMEProvider {
 		case "autocert":
-			opts = append(opts, server.ACMEProvider(autocert.NewProvider()))
+			opts = append(opts, apiserver.ACMEProvider(autocert.NewProvider()))
 		case "certmagic":
 			if ACMEChallengeProvider != "cloudflare" {
 				log.Fatal("The only implemented DNS challenge provider is cloudflare")
@@ -146,7 +146,7 @@ func Run(ctx *cli.Context) error {
 			}
 
 			opts = append(opts,
-				server.ACMEProvider(
+				apiserver.ACMEProvider(
 					certmagic.NewProvider(
 						acme.AcceptToS(true),
 						acme.CA(ACMECA),
@@ -166,12 +166,12 @@ func Run(ctx *cli.Context) error {
 			return err
 		}
 
-		opts = append(opts, server.EnableTLS(true))
-		opts = append(opts, server.TLSConfig(config))
+		opts = append(opts, apiserver.EnableTLS(true))
+		opts = append(opts, apiserver.TLSConfig(config))
 	}
 
 	if ctx.Bool("enable_cors") {
-		opts = append(opts, server.EnableCORS(true))
+		opts = append(opts, apiserver.EnableCORS(true))
 	}
 
 	// create the router
