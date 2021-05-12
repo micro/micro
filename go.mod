@@ -23,9 +23,9 @@ require (
 	github.com/hpcloud/tail v1.0.0
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/kr/pretty v0.2.0
-	github.com/m3o/platform v0.0.0-20210512105552-e6700d708e74 // indirect
-	github.com/m3o/platform/profile/ci v0.0.0-20210512103138-4a540cec553c // indirect
-	github.com/m3o/platform/profile/platform v0.0.0-20210512103138-4a540cec553c
+	github.com/m3o/platform v0.0.0-20210512111320-e4aa657e6d90 // indirect
+	github.com/m3o/platform/profile/ci v0.0.0-20210512111320-e4aa657e6d90 // indirect
+	github.com/m3o/platform/profile/platform v0.0.0-20210512111320-e4aa657e6d90
 	github.com/miekg/dns v1.1.27
 	github.com/nightlyone/lockfile v1.0.0
 	github.com/olekukonko/tablewriter v0.0.4
