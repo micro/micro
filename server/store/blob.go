@@ -80,7 +80,7 @@ func (b *blobHandler) Write(ctx context.Context, stream pb.BlobStore_WriteStream
 
 			// parse the options
 			if options == nil || len(options.Namespace) == 0 {
-				options = &pb.BlobOptions{Namespace: namespace.FromContext(ctx)}
+				options.Namespace = namespace.FromContext(ctx)
 			}
 
 			// authorize the request. do this inside the loop so we fail fast
@@ -100,7 +100,7 @@ func (b *blobHandler) Write(ctx context.Context, stream pb.BlobStore_WriteStream
 	}
 
 	// execute the request
-	err := store.DefaultBlobStore.Write(key, buf, store.BlobNamespace(options.Namespace))
+	err := store.DefaultBlobStore.Write(key, buf, store.BlobNamespace(options.Namespace), store.BlobPublic(options.Public))
 	if err == store.ErrMissingKey {
 		return errors.BadRequest("store.Blob.Write", "Missing key")
 	} else if err != nil {
