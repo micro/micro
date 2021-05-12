@@ -25,6 +25,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	sthree "github.com/aws/aws-sdk-go/service/s3"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
 )
 
@@ -126,6 +127,7 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 	if options.Public {
 		acl = "public-read"
 	}
+	logger.Infof("Saving file %v with ACL %v into namespace %v", key, acl, options.Namespace)
 	if len(s.options.Bucket) > 0 {
 		k := filepath.Join(options.Namespace, key)
 		object := sthree.PutObjectInput{
