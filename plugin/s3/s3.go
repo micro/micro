@@ -124,7 +124,7 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 	}
 	acl := "private"
 	if options.Public {
-		acl = "public"
+		acl = "public-read"
 	}
 	if len(s.options.Bucket) > 0 {
 		k := filepath.Join(options.Namespace, key)
