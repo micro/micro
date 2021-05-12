@@ -109,6 +109,7 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 			Key: key,
 			Options: &pb.BlobOptions{
 				Namespace: options.Namespace,
+				Public:    options.Public,
 			},
 			Blob: buffer[:num],
 		}
