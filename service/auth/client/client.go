@@ -32,8 +32,10 @@ func (r *rulesCache) get(key string) []*auth.Rule {
 	entry := r.ruleCache[key]
 	r.RUnlock()
 	if entry != nil && time.Since(entry.t) < r.ttl {
+		logger.Infof("Cache hit %s", key)
 		return entry.v
 	}
+	logger.Infof("Cache miss %s", key)
 	return nil
 }
 
