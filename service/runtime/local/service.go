@@ -22,7 +22,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/util/build"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/local/process"
@@ -67,7 +66,7 @@ func newService(s *runtime.Service, c runtime.CreateOptions) *service {
 		Service: s,
 		Process: new(proc.Process),
 		Exec: &process.Binary{
-			Package: &build.Package{
+			Package: &process.Package{
 				Name: s.Name,
 				Path: exec,
 			},

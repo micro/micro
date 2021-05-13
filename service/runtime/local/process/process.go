@@ -17,8 +17,6 @@ package process
 
 import (
 	"io"
-
-	"github.com/micro/micro/v3/util/build"
 )
 
 // Process manages a running process
@@ -35,13 +33,35 @@ type Process interface {
 
 type Binary struct {
 	// Package containing executable
-	Package *build.Package
+	Package *Package
 	// The env variables
 	Env []string
 	// Args to pass
 	Args []string
 	// Initial working directory
 	Dir string
+}
+
+// Source is the source of a build
+type Source struct {
+	// Path to the source if local
+	Path string
+	// Language is the language of code
+	Language string
+	// Location of the source
+	Repository string
+}
+
+// Package is packaged format for source
+type Package struct {
+	// Name of the package
+	Name string
+	// Location of the package
+	Path string
+	// Type of package e.g tarball, binary, docker
+	Type string
+	// Source of the package
+	Source *Source
 }
 
 // PID is the running process
