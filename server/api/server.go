@@ -8,25 +8,24 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
-	ahandler "github.com/micro/micro/v3/util/api/handler"
-	aapi "github.com/micro/micro/v3/util/api/handler/api"
-	"github.com/micro/micro/v3/util/api/handler/event"
-	ahttp "github.com/micro/micro/v3/util/api/handler/http"
-	arpc "github.com/micro/micro/v3/util/api/handler/rpc"
-	"github.com/micro/micro/v3/util/api/handler/web"
-	"github.com/micro/micro/v3/util/api/resolver"
-	"github.com/micro/micro/v3/util/api/resolver/grpc"
-	"github.com/micro/micro/v3/util/api/resolver/host"
-	"github.com/micro/micro/v3/util/api/resolver/path"
-	"github.com/micro/micro/v3/util/api/resolver/subdomain"
-	"github.com/micro/micro/v3/util/api/router"
-	regRouter "github.com/micro/micro/v3/util/api/router/registry"
-	apiserver "github.com/micro/micro/v3/util/api/server"
-	"github.com/micro/micro/v3/util/api/server/acme"
-	"github.com/micro/micro/v3/util/api/server/acme/autocert"
-	"github.com/micro/micro/v3/util/api/server/acme/certmagic"
-	httpapi "github.com/micro/micro/v3/util/api/server/http"
-	"github.com/micro/micro/v3/util/handler"
+	ahandler "github.com/micro/micro/v3/server/api/handler"
+	aapi "github.com/micro/micro/v3/server/api/handler/api"
+	"github.com/micro/micro/v3/server/api/handler/event"
+	ahttp "github.com/micro/micro/v3/server/api/handler/http"
+	arpc "github.com/micro/micro/v3/server/api/handler/rpc"
+	"github.com/micro/micro/v3/server/api/handler/web"
+	"github.com/micro/micro/v3/server/api/resolver"
+	"github.com/micro/micro/v3/server/api/resolver/grpc"
+	"github.com/micro/micro/v3/server/api/resolver/host"
+	"github.com/micro/micro/v3/server/api/resolver/path"
+	"github.com/micro/micro/v3/server/api/resolver/subdomain"
+	"github.com/micro/micro/v3/server/api/router"
+	regRouter "github.com/micro/micro/v3/server/api/router/registry"
+	apiserver "github.com/micro/micro/v3/server/api/server"
+	"github.com/micro/micro/v3/util/acme"
+	"github.com/micro/micro/v3/util/acme/autocert"
+	"github.com/micro/micro/v3/util/acme/certmagic"
+	httpapi "github.com/micro/micro/v3/server/api/server/http"
 	"github.com/micro/micro/v3/util/helper"
 	rrmicro "github.com/micro/micro/v3/util/resolver/api"
 	"github.com/micro/micro/v3/util/sync/memory"
@@ -284,7 +283,7 @@ func Run(ctx *cli.Context) error {
 			router.WithResolver(rr),
 			router.WithRegistry(muregistry.DefaultRegistry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(srv, rt, Namespace))
+		r.PathPrefix(APIPath).Handler(Meta(srv, rt, Namespace))
 	}
 
 	// register all the http handler plugins

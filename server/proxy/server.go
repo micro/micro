@@ -7,9 +7,9 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"github.com/micro/micro/v3/util/api/server/acme"
-	"github.com/micro/micro/v3/util/api/server/acme/autocert"
-	"github.com/micro/micro/v3/util/api/server/acme/certmagic"
+	"github.com/micro/micro/v3/util/acme"
+	"github.com/micro/micro/v3/util/acme/autocert"
+	"github.com/micro/micro/v3/util/acme/certmagic"
 	"github.com/micro/micro/v3/util/helper"
 	"github.com/micro/micro/v3/util/muxer"
 	"github.com/micro/micro/v3/util/sync/memory"

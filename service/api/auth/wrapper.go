@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/micro/micro/v3/util/api/resolver"
-	"github.com/micro/micro/v3/util/api/resolver/subdomain"
-	"github.com/micro/micro/v3/util/api/server"
+	"github.com/micro/micro/v3/server/api/resolver"
+	"github.com/micro/micro/v3/server/api/resolver/subdomain"
+	"github.com/micro/micro/v3/server/api/server"
 	inauth "github.com/micro/micro/v3/util/auth"
 	"github.com/micro/micro/v3/util/ctx"
 	"github.com/micro/micro/v3/util/namespace"

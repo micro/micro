@@ -4,7 +4,7 @@ package micro
 import (
 	"net/http"
 
-	"github.com/micro/micro/v3/util/api/resolver"
+	"github.com/micro/micro/v3/server/api/resolver"
 	"github.com/micro/micro/v3/service/registry"
 )
 
