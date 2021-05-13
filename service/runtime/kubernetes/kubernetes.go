@@ -372,6 +372,11 @@ func (k *kubernetes) Update(resource runtime.Resource, opts ...runtime.UpdateOpt
 			// update build time annotation
 			dep.Spec.Template.Metadata.Annotations["updated"] = fmt.Sprintf("%d", time.Now().Unix())
 
+			// set num instances (there is currently no way to set to 0
+			if options.Instances > 0 {
+				dep.Spec.Replicas = int(options.Instances)
+			}
+
 			// update the deployment
 			res := &client.Resource{
 				Kind:  "deployment",

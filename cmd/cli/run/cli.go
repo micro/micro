@@ -36,6 +36,10 @@ var flags = []cli.Flag{
 		Name:  "env_vars",
 		Usage: "Set the environment variables e.g. foo=bar",
 	},
+	&cli.IntFlag{
+		Name:  "instances",
+		Usage: "Number of instances to run. Defaults to 1",
+	},
 }
 
 func init() {

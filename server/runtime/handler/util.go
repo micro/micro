@@ -97,6 +97,10 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 		options = append(options, runtime.WithVolume(name, path))
 	}
 
+	if opts.Instances > 0 {
+		options = append(options, runtime.CreateInstances(int(opts.Instances)))
+	}
+
 	// TODO: output options
 
 	return options
@@ -124,6 +128,7 @@ func toUpdateOptions(ctx context.Context, opts *pb.UpdateOptions) []runtime.Upda
 	return []runtime.UpdateOption{
 		runtime.UpdateNamespace(opts.Namespace),
 		runtime.UpdateEntrypoint(opts.Entrypoint),
+		runtime.UpdateInstances(int(opts.Instances)),
 	}
 }
 

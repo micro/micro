@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/micro/micro/v3/cmd/cli/util"
 	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/cmd/cli/util"
 	clic "github.com/micro/micro/v3/internal/command"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
