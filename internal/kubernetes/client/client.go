@@ -353,13 +353,19 @@ func NewDeployment(s *runtime.Service, opts *runtime.CreateOptions) *Resource {
 		port, _ = strconv.Atoi(opts.Port)
 	}
 
+	// set the number of replicas to run
+	replicas := 1
+	if opts.Instances > 1 {
+		replicas = int(opts.Instances)
+	}
+
 	return &Resource{
 		Kind: "deployment",
 		Name: metadata.Name,
 		Value: &Deployment{
 			Metadata: metadata,
 			Spec: &DeploymentSpec{
-				Replicas: 1,
+				Replicas: replicas,
 				Selector: &LabelSelector{
 					MatchLabels: labels,
 				},

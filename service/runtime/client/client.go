@@ -162,6 +162,7 @@ func (s *svc) Create(resource runtime.Resource, opts ...runtime.CreateOption) er
 				Secrets:    options.Secrets,
 				Entrypoint: options.Entrypoint,
 				Volumes:    options.Volumes,
+				Instances:  int64(options.Instances),
 			},
 		}
 
@@ -448,6 +449,7 @@ func (s *svc) Update(resource runtime.Resource, opts ...runtime.UpdateOption) er
 			Options: &pb.UpdateOptions{
 				Namespace:  options.Namespace,
 				Entrypoint: options.Entrypoint,
+				Instances:  int64(options.Instances),
 			},
 		}
 
