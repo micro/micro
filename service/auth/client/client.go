@@ -179,6 +179,11 @@ func (s *srv) Inspect(token string) (*auth.Account, error) {
 		return nil, auth.ErrInvalidToken
 	}
 
+	// optimisation - is the key the right format for jwt auth?
+	if auth.DefaultAuth.String() == "jwt" && len(strings.Split(token, ".")) != 3 {
+		return nil, auth.ErrInvalidToken
+	}
+
 	// try to decode JWT locally and fall back to srv if an error occurs
 	if len(strings.Split(token, ".")) == 3 && len(s.options.PublicKey) > 0 {
 		return s.token.Inspect(token)
