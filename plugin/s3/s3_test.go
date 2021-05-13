@@ -28,6 +28,9 @@ func TestRegexp(t *testing.T) {
 	if cleanKey("build://name/version") != "build/name/version" {
 		t.Fatal(cleanKey("build://name/version"))
 	}
+	if cleanKey("build://name:version") != "build/name/version" {
+		t.Fatal(cleanKey("build://name:version"))
+	}
 }
 
 func TestBlobStore(t *testing.T) {

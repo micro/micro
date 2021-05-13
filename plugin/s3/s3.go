@@ -33,7 +33,7 @@ var doubleSlash = regexp.MustCompile("/+")
 var removeCol = regexp.MustCompile(":")
 
 func cleanKey(s string) string {
-	return removeCol.ReplaceAllLiteralString(doubleSlash.ReplaceAllLiteralString(s, "/"), "")
+	return doubleSlash.ReplaceAllLiteralString(removeCol.ReplaceAllLiteralString(s, "/"), "/")
 }
 
 // NewBlobStore returns an initialized s3 blob store
