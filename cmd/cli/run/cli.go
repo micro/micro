@@ -38,7 +38,9 @@ var flags = []cli.Flag{
 	},
 	&cli.IntFlag{
 		Name:  "instances",
-		Usage: "Number of instances to run. Defaults to 1",
+		Aliases: []string{"i"},
+		Usage: "Number of instances to run",
+		Value: 1,
 	},
 }
 
