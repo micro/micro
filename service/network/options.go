@@ -16,8 +16,8 @@ package network
 
 import (
 	"github.com/google/uuid"
-	"github.com/micro/micro/v3/internal/network/tunnel"
-	tmucp "github.com/micro/micro/v3/internal/network/tunnel/mucp"
+	"github.com/micro/micro/v3/util/network/tunnel"
+	tmucp "github.com/micro/micro/v3/util/network/tunnel/mucp"
 	"github.com/micro/micro/v3/service/proxy"
 	"github.com/micro/micro/v3/service/proxy/mucp"
 	"github.com/micro/micro/v3/service/router"

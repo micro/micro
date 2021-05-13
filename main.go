@@ -6,7 +6,7 @@ import (
 	"github.com/micro/micro/v3/cmd"
 
 	// internal packages
-	_ "github.com/micro/micro/v3/internal/usage"
+	_ "github.com/micro/micro/v3/util/usage"
 
 	// load packages so they can register commands
 	_ "github.com/micro/micro/v3/cmd/cli"

@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	kclient "github.com/micro/micro/v3/internal/kubernetes/client"
-	"github.com/micro/micro/v3/internal/namespace"
-	"github.com/micro/micro/v3/internal/runtime/source/git"
+	kclient "github.com/micro/micro/v3/util/kubernetes/client"
+	"github.com/micro/micro/v3/util/namespace"
+	"github.com/micro/micro/v3/util/runtime/source/git"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/build"
 	"github.com/micro/micro/v3/service/build/util/tar"

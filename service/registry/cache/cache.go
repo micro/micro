@@ -21,7 +21,7 @@ import (
 	"sync"
 	"time"
 
-	util "github.com/micro/micro/v3/internal/registry"
+	util "github.com/micro/micro/v3/util/registry"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 )

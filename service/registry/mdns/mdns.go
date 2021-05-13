@@ -29,7 +29,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/micro/v3/internal/mdns"
+	"github.com/micro/micro/v3/util/mdns"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 )

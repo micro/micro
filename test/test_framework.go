@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/cmd/cli/namespace"
-	"github.com/micro/micro/v3/internal/user"
+	"github.com/micro/micro/v3/util/user"
 )
 
 const (

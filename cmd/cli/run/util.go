@@ -3,7 +3,7 @@ package runtime
 import (
 	"io"
 
-	"github.com/micro/micro/v3/internal/runtime/source/git"
+	"github.com/micro/micro/v3/util/runtime/source/git"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/build/util/tar"
 	"github.com/micro/micro/v3/service/client"

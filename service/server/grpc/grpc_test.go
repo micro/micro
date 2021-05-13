@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"testing"
 
-	tgrpc "github.com/micro/micro/v3/internal/network/transport/grpc"
+	tgrpc "github.com/micro/micro/v3/util/network/transport/grpc"
 	pberr "github.com/micro/micro/v3/proto/errors"
 	bmemory "github.com/micro/micro/v3/service/broker/memory"
 	"github.com/micro/micro/v3/service/client"

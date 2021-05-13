@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/micro/micro/v3/internal/auth/namespace"
+	"github.com/micro/micro/v3/util/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"

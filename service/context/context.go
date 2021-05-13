@@ -4,7 +4,7 @@ package context
 import (
 	"context"
 
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/util/namespace"
 	"github.com/micro/micro/v3/service/context/metadata"
 )
 
