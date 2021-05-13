@@ -180,7 +180,8 @@ func (s *srv) Inspect(token string) (*auth.Account, error) {
 	}
 
 	// optimisation - is the key the right format for jwt auth?
-	if auth.DefaultAuth.String() == "jwt" && len(strings.Split(token, ".")) != 3 {
+	// TODO how do we know we're not using basic auth?
+	if len(strings.Split(token, ".")) != 3 {
 		return nil, auth.ErrInvalidToken
 	}
 
