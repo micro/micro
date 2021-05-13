@@ -26,10 +26,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/util/codec"
-	"github.com/micro/micro/v3/util/codec/bytes"
-	"github.com/micro/micro/v3/util/selector"
-	"github.com/micro/micro/v3/util/selector/roundrobin"
 	"github.com/micro/micro/v3/service/client"
 	grpcc "github.com/micro/micro/v3/service/client/grpc"
 	"github.com/micro/micro/v3/service/context/metadata"
@@ -39,6 +35,10 @@ import (
 	"github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/router/registry"
 	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/util/codec"
+	"github.com/micro/micro/v3/util/codec/bytes"
+	"github.com/micro/micro/v3/util/selector"
+	"github.com/micro/micro/v3/util/selector/roundrobin"
 	"google.golang.org/grpc"
 )
 

@@ -27,9 +27,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	proto "github.com/micro/micro/v3/proto/api"
 	"github.com/micro/micro/v3/server/api/handler"
 	"github.com/micro/micro/v3/util/ctx"
-	proto "github.com/micro/micro/v3/proto/api"
 	"github.com/oxtoacart/bpool"
 )
 

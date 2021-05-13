@@ -21,10 +21,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/util/auth/rules"
 	"github.com/micro/micro/v3/util/auth/token"
 	"github.com/micro/micro/v3/util/auth/token/jwt"
-	"github.com/micro/micro/v3/service/auth"
 )
 
 // NewAuth returns a new instance of the Auth service

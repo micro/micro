@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/caddyserver/certmagic"
-	"github.com/micro/micro/v3/util/acme"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/util/acme"
 )
 
 type certmagicProvider struct {

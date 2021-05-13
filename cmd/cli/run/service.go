@@ -15,11 +15,11 @@ import (
 
 	"github.com/micro/micro/v3/cmd/cli/namespace"
 	"github.com/micro/micro/v3/cmd/cli/util"
+	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/util/config"
 	run "github.com/micro/micro/v3/util/runtime"
 	"github.com/micro/micro/v3/util/runtime/source/git"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/runtime"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/codes"

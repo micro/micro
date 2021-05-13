@@ -12,11 +12,11 @@ import (
 
 	"github.com/micro/micro/v3/cmd/cli/namespace"
 	"github.com/micro/micro/v3/cmd/cli/util"
-	cbytes "github.com/micro/micro/v3/util/codec/bytes"
 	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/registry"
+	cbytes "github.com/micro/micro/v3/util/codec/bytes"
 	"github.com/urfave/cli/v2"
 
 	"github.com/serenize/snaker"

@@ -26,6 +26,11 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/micro/micro/v3/server/api/handler"
+	"github.com/micro/micro/v3/service/api"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context/metadata"
+	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/util/codec"
 	"github.com/micro/micro/v3/util/codec/bytes"
 	"github.com/micro/micro/v3/util/codec/jsonrpc"
@@ -33,11 +38,6 @@ import (
 	"github.com/micro/micro/v3/util/ctx"
 	"github.com/micro/micro/v3/util/qson"
 	"github.com/micro/micro/v3/util/router"
-	"github.com/micro/micro/v3/service/api"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
 	"github.com/oxtoacart/bpool"
 )
 

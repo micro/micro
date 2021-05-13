@@ -7,12 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/micro/v3/util/helper"
-	"github.com/micro/micro/v3/util/muxer"
-	"github.com/micro/micro/v3/util/network/transport"
-	"github.com/micro/micro/v3/util/network/transport/grpc"
-	"github.com/micro/micro/v3/util/network/tunnel"
-	tmucp "github.com/micro/micro/v3/util/network/tunnel/mucp"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	net "github.com/micro/micro/v3/service/network"
@@ -23,6 +17,12 @@ import (
 	"github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/server"
 	mucpServer "github.com/micro/micro/v3/service/server/mucp"
+	"github.com/micro/micro/v3/util/helper"
+	"github.com/micro/micro/v3/util/muxer"
+	"github.com/micro/micro/v3/util/network/transport"
+	"github.com/micro/micro/v3/util/network/transport/grpc"
+	"github.com/micro/micro/v3/util/network/tunnel"
+	tmucp "github.com/micro/micro/v3/util/network/tunnel/mucp"
 	"github.com/urfave/cli/v2"
 )
 

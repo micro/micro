@@ -7,12 +7,6 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"github.com/micro/micro/v3/util/acme"
-	"github.com/micro/micro/v3/util/acme/autocert"
-	"github.com/micro/micro/v3/util/acme/certmagic"
-	"github.com/micro/micro/v3/util/helper"
-	"github.com/micro/micro/v3/util/muxer"
-	"github.com/micro/micro/v3/util/sync/memory"
 	microServer "github.com/micro/micro/v3/server"
 	"github.com/micro/micro/v3/service"
 	bmem "github.com/micro/micro/v3/service/broker/memory"
@@ -27,6 +21,12 @@ import (
 	"github.com/micro/micro/v3/service/server"
 	sgrpc "github.com/micro/micro/v3/service/server/grpc"
 	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/util/acme"
+	"github.com/micro/micro/v3/util/acme/autocert"
+	"github.com/micro/micro/v3/util/acme/certmagic"
+	"github.com/micro/micro/v3/util/helper"
+	"github.com/micro/micro/v3/util/muxer"
+	"github.com/micro/micro/v3/util/sync/memory"
 	"github.com/urfave/cli/v2"
 )
 

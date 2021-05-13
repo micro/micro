@@ -33,13 +33,13 @@ import (
 	mem "github.com/micro/micro/v3/service/store/memory"
 	"github.com/urfave/cli/v2"
 
-	inAuth "github.com/micro/micro/v3/util/auth"
-	"github.com/micro/micro/v3/util/user"
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microBuilder "github.com/micro/micro/v3/service/build"
 	microEvents "github.com/micro/micro/v3/service/events"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microStore "github.com/micro/micro/v3/service/store"
+	inAuth "github.com/micro/micro/v3/util/auth"
+	"github.com/micro/micro/v3/util/user"
 )
 
 // profiles which when called will configure micro to run in that environment

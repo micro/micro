@@ -1,5 +1,4 @@
-// Package micro provides a micro rpc resolver which prefixes a namespace
-package micro
+package api
 
 import (
 	"net/http"
@@ -12,11 +11,11 @@ import (
 // it uses proxy routing to resolve names
 // /foo becomes namespace.foo
 // /v1/foo becomes namespace.v1.foo
-type Resolver struct {
+type apiResolver struct {
 	opts resolver.Options
 }
 
-func (r *Resolver) Resolve(req *http.Request, opts ...resolver.ResolveOption) (*resolver.Endpoint, error) {
+func (r *apiResolver) Resolve(req *http.Request, opts ...resolver.ResolveOption) (*resolver.Endpoint, error) {
 	options := resolver.NewResolveOptions(opts...)
 
 	var name, method string
@@ -52,13 +51,13 @@ func (r *Resolver) Resolve(req *http.Request, opts ...resolver.ResolveOption) (*
 	}, nil
 }
 
-func (r *Resolver) String() string {
+func (r *apiResolver) String() string {
 	return "micro"
 }
 
 // NewResolver creates a new micro resolver
 func NewResolver(opts ...resolver.Option) resolver.Resolver {
-	return &Resolver{
+	return &apiResolver{
 		opts: resolver.NewOptions(opts...),
 	}
 }

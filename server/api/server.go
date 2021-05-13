@@ -8,6 +8,8 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
+	"github.com/micro/micro/v3/plugin"
+	"github.com/micro/micro/v3/server"
 	ahandler "github.com/micro/micro/v3/server/api/handler"
 	aapi "github.com/micro/micro/v3/server/api/handler/api"
 	"github.com/micro/micro/v3/server/api/handler/event"
@@ -22,20 +24,17 @@ import (
 	"github.com/micro/micro/v3/server/api/router"
 	regRouter "github.com/micro/micro/v3/server/api/router/registry"
 	apiserver "github.com/micro/micro/v3/server/api/server"
-	"github.com/micro/micro/v3/util/acme"
-	"github.com/micro/micro/v3/util/acme/autocert"
-	"github.com/micro/micro/v3/util/acme/certmagic"
 	httpapi "github.com/micro/micro/v3/server/api/server/http"
-	"github.com/micro/micro/v3/util/helper"
-	rrmicro "github.com/micro/micro/v3/util/resolver/api"
-	"github.com/micro/micro/v3/util/sync/memory"
-	"github.com/micro/micro/v3/plugin"
-	"github.com/micro/micro/v3/server"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api/auth"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/util/acme"
+	"github.com/micro/micro/v3/util/acme/autocert"
+	"github.com/micro/micro/v3/util/acme/certmagic"
+	"github.com/micro/micro/v3/util/helper"
+	"github.com/micro/micro/v3/util/sync/memory"
 	"github.com/urfave/cli/v2"
 )
 
@@ -198,7 +197,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// default resolver
-	rr := rrmicro.NewResolver(ropts...)
+	rr := NewResolver(ropts...)
 
 	switch Resolver {
 	case "subdomain":

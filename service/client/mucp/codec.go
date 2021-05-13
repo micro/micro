@@ -20,6 +20,8 @@ import (
 	"bytes"
 	errs "errors"
 
+	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/util/codec"
 	raw "github.com/micro/micro/v3/util/codec/bytes"
 	"github.com/micro/micro/v3/util/codec/grpc"
@@ -28,8 +30,6 @@ import (
 	"github.com/micro/micro/v3/util/codec/proto"
 	"github.com/micro/micro/v3/util/codec/protorpc"
 	"github.com/micro/micro/v3/util/network/transport"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/registry"
 )
 
 const (

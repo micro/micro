@@ -22,8 +22,8 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/micro/micro/v3/util/auth/token"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/util/auth/token"
 )
 
 // authClaims to be encoded in the JWT

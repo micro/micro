@@ -20,10 +20,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/util/kubernetes/api"
-	"github.com/micro/micro/v3/util/kubernetes/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/util/kubernetes/api"
+	"github.com/micro/micro/v3/util/kubernetes/client"
 )
 
 var (

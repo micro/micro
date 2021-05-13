@@ -28,12 +28,12 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	raw "github.com/micro/micro/v3/util/codec/bytes"
-	"github.com/micro/micro/v3/util/router"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
+	raw "github.com/micro/micro/v3/util/codec/bytes"
+	"github.com/micro/micro/v3/util/router"
 )
 
 const (

@@ -4,12 +4,12 @@ import (
 	"context"
 	"strings"
 
-	inauth "github.com/micro/micro/v3/util/auth"
-	"github.com/micro/micro/v3/util/auth/namespace"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/server"
+	inauth "github.com/micro/micro/v3/util/auth"
+	"github.com/micro/micro/v3/util/auth/namespace"
 )
 
 // authHandler wraps a server handler to perform auth

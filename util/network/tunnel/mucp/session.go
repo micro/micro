@@ -21,9 +21,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/util/network/transport"
 	"github.com/micro/micro/v3/util/network/tunnel"
-	"github.com/micro/micro/v3/service/logger"
 )
 
 // session is our pseudo session for transport.Socket

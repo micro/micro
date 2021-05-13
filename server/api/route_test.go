@@ -1,4 +1,4 @@
-package micro
+package api
 
 import (
 	"testing"

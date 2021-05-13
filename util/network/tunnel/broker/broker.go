@@ -18,10 +18,10 @@ package broker
 import (
 	"context"
 
+	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/util/network/transport"
 	"github.com/micro/micro/v3/util/network/tunnel"
 	"github.com/micro/micro/v3/util/network/tunnel/mucp"
-	"github.com/micro/micro/v3/service/broker"
 )
 
 type tunBroker struct {

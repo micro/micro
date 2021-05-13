@@ -20,11 +20,11 @@ import (
 	"crypto/tls"
 	"net"
 
+	pb "github.com/micro/micro/v3/proto/transport"
 	maddr "github.com/micro/micro/v3/util/addr"
 	mnet "github.com/micro/micro/v3/util/net"
 	"github.com/micro/micro/v3/util/network/transport"
 	mls "github.com/micro/micro/v3/util/tls"
-	pb "github.com/micro/micro/v3/proto/transport"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

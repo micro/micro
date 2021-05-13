@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"github.com/micro/micro/v3/util/auth/token"
-	"github.com/micro/micro/v3/util/auth/token/jwt"
 	pb "github.com/micro/micro/v3/proto/auth"
 	authHandler "github.com/micro/micro/v3/server/auth/auth"
 	rulesHandler "github.com/micro/micro/v3/server/auth/rules"
@@ -11,6 +9,8 @@ import (
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
 	mustore "github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/util/auth/token"
+	"github.com/micro/micro/v3/util/auth/token/jwt"
 	"github.com/urfave/cli/v2"
 )
 

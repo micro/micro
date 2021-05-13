@@ -25,12 +25,12 @@ import (
 	"sync"
 
 	"github.com/micro/micro/v3/server/api/router"
-	rutil "github.com/micro/micro/v3/util/registry"
-	util "github.com/micro/micro/v3/util/router"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
+	rutil "github.com/micro/micro/v3/util/registry"
+	util "github.com/micro/micro/v3/util/router"
 )
 
 type endpoint struct {

@@ -37,10 +37,10 @@ var flags = []cli.Flag{
 		Usage: "Set the environment variables e.g. foo=bar",
 	},
 	&cli.IntFlag{
-		Name:  "instances",
+		Name:    "instances",
 		Aliases: []string{"i"},
-		Usage: "Number of instances to run",
-		Value: 1,
+		Usage:   "Number of instances to run",
+		Value:   1,
 	},
 }
 
