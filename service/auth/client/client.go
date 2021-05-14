@@ -32,10 +32,8 @@ func (r *rulesCache) get(key string) []*auth.Rule {
 	entry := r.ruleCache[key]
 	r.RUnlock()
 	if entry != nil && time.Since(entry.t) < r.ttl {
-		logger.Infof("Cache hit %s", key)
 		return entry.v
 	}
-	logger.Infof("Cache miss %s", key)
 	return nil
 }
 
@@ -210,10 +208,6 @@ func (s *srv) Rules(opts ...auth.RulesOption) ([]*auth.Rule, error) {
 
 // Verify an account has access to a resource
 func (s *srv) Verify(acc *auth.Account, res *auth.Resource, opts ...auth.VerifyOption) error {
-	start := time.Now()
-	defer func() {
-		logger.Infof("verify took %s", time.Since(start))
-	}()
 	var options auth.VerifyOptions
 	for _, o := range opts {
 		o(&options)
@@ -231,17 +225,11 @@ func (s *srv) Verify(acc *auth.Account, res *auth.Resource, opts ...auth.VerifyO
 
 // Inspect a token
 func (s *srv) Inspect(token string) (*auth.Account, error) {
-	start := time.Now()
-	defer func() {
-		logger.Infof("inspect took %s", time.Since(start))
-	}()
-
 	// validate the request
 	if len(token) == 0 {
 		return nil, auth.ErrInvalidToken
 	}
 
-	logger.Infof("Checking %s %s", s.token.String(), strings.Count(token, "."))
 	// optimisation - is the key the right format for jwt auth?
 	if s.token.String() == "jwt" && strings.Count(token, ".") != 2 {
 		return nil, auth.ErrInvalidToken
