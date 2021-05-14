@@ -1,5 +1,3 @@
-// Copyright 2020 Asim Aslam
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,38 +10,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-micro/v3/util/pool/options.go
+// Original source: github.com/micro/go-micro/v3/network/transport/http/options.go
 
-package pool
+package http
 
 import (
-	"time"
+	"context"
+	"net/http"
 
 	"github.com/micro/micro/v3/service/network/transport"
 )
 
-type Options struct {
-	Transport transport.Transport
-	TTL       time.Duration
-	Size      int
-}
-
-type Option func(*Options)
-
-func Size(i int) Option {
-	return func(o *Options) {
-		o.Size = i
-	}
-}
-
-func Transport(t transport.Transport) Option {
-	return func(o *Options) {
-		o.Transport = t
-	}
-}
-
-func TTL(t time.Duration) Option {
-	return func(o *Options) {
-		o.TTL = t
+// Handle registers the handler for the given pattern.
+func Handle(pattern string, handler http.Handler) transport.Option {
+	return func(o *transport.Options) {
+		if o.Context == nil {
+			o.Context = context.Background()
+		}
+		handlers, ok := o.Context.Value("http_handlers").(map[string]http.Handler)
+		if !ok {
+			handlers = make(map[string]http.Handler)
+		}
+		handlers[pattern] = handler
+		o.Context = context.WithValue(o.Context, "http_handlers", handlers)
 	}
 }

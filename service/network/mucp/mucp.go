@@ -30,17 +30,17 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/network"
 	pb "github.com/micro/micro/v3/service/network/mucp/proto"
+	"github.com/micro/micro/v3/service/network/resolver/dns"
+	"github.com/micro/micro/v3/service/network/transport"
+	"github.com/micro/micro/v3/service/network/tunnel"
+	bun "github.com/micro/micro/v3/service/network/tunnel/broker"
+	tun "github.com/micro/micro/v3/service/network/tunnel/transport"
 	"github.com/micro/micro/v3/service/proxy"
 	"github.com/micro/micro/v3/service/registry/noop"
 	"github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/server"
 	smucp "github.com/micro/micro/v3/service/server/mucp"
 	"github.com/micro/micro/v3/util/backoff"
-	"github.com/micro/micro/v3/util/network/resolver/dns"
-	"github.com/micro/micro/v3/util/network/transport"
-	"github.com/micro/micro/v3/util/network/tunnel"
-	bun "github.com/micro/micro/v3/util/network/tunnel/broker"
-	tun "github.com/micro/micro/v3/util/network/tunnel/transport"
 )
 
 var (

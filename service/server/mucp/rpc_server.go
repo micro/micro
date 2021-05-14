@@ -31,6 +31,7 @@ import (
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/network/transport"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/server"
 	"github.com/micro/micro/v3/util/addr"
@@ -38,7 +39,6 @@ import (
 	"github.com/micro/micro/v3/util/codec"
 	raw "github.com/micro/micro/v3/util/codec/bytes"
 	mnet "github.com/micro/micro/v3/util/net"
-	"github.com/micro/micro/v3/util/network/transport"
 	"github.com/micro/micro/v3/util/socket"
 )
 

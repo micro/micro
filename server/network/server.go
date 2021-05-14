@@ -11,6 +11,10 @@ import (
 	log "github.com/micro/micro/v3/service/logger"
 	net "github.com/micro/micro/v3/service/network"
 	"github.com/micro/micro/v3/service/network/mucp"
+	"github.com/micro/micro/v3/service/network/transport"
+	"github.com/micro/micro/v3/service/network/transport/grpc"
+	"github.com/micro/micro/v3/service/network/tunnel"
+	tmucp "github.com/micro/micro/v3/service/network/tunnel/mucp"
 	"github.com/micro/micro/v3/service/proxy"
 	grpcProxy "github.com/micro/micro/v3/service/proxy/grpc"
 	mucpProxy "github.com/micro/micro/v3/service/proxy/mucp"
@@ -19,10 +23,6 @@ import (
 	mucpServer "github.com/micro/micro/v3/service/server/mucp"
 	"github.com/micro/micro/v3/util/helper"
 	"github.com/micro/micro/v3/util/muxer"
-	"github.com/micro/micro/v3/util/network/transport"
-	"github.com/micro/micro/v3/util/network/transport/grpc"
-	"github.com/micro/micro/v3/util/network/tunnel"
-	tmucp "github.com/micro/micro/v3/util/network/tunnel/mucp"
 	"github.com/urfave/cli/v2"
 )
 

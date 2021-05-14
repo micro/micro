@@ -21,8 +21,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/micro/micro/v3/service/network/transport"
 	"github.com/micro/micro/v3/util/codec"
-	"github.com/micro/micro/v3/util/network/transport"
 )
 
 // testCodec is a dummy codec that only knows how to encode nil bodies

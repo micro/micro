@@ -17,8 +17,8 @@
 package mucp
 
 import (
+	"github.com/micro/micro/v3/service/network/transport"
 	"github.com/micro/micro/v3/util/codec"
-	"github.com/micro/micro/v3/util/network/transport"
 )
 
 type rpcResponse struct {

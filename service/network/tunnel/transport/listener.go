@@ -1,5 +1,3 @@
-// Copyright 2020 Asim Aslam
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,38 +10,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-micro/v3/util/pool/options.go
+// Original source: github.com/micro/go-micro/v3/network/tunnel/transport/listener.go
 
-package pool
+package transport
 
 import (
-	"time"
-
 	"github.com/micro/micro/v3/service/network/transport"
+	"github.com/micro/micro/v3/service/network/tunnel"
 )
 
-type Options struct {
-	Transport transport.Transport
-	TTL       time.Duration
-	Size      int
+type tunListener struct {
+	l tunnel.Listener
 }
 
-type Option func(*Options)
-
-func Size(i int) Option {
-	return func(o *Options) {
-		o.Size = i
-	}
+func (t *tunListener) Addr() string {
+	return t.l.Channel()
 }
 
-func Transport(t transport.Transport) Option {
-	return func(o *Options) {
-		o.Transport = t
-	}
+func (t *tunListener) Close() error {
+	return t.l.Close()
 }
 
-func TTL(t time.Duration) Option {
-	return func(o *Options) {
-		o.TTL = t
+func (t *tunListener) Accept(fn func(socket transport.Socket)) error {
+	for {
+		// accept connection
+		c, err := t.l.Accept()
+		if err != nil {
+			return err
+		}
+		// execute the function
+		go fn(c)
 	}
 }

@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/util/network/transport"
+	"github.com/micro/micro/v3/service/network/transport"
 )
 
 func TestCallOptions(t *testing.T) {

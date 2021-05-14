@@ -1,5 +1,3 @@
-// Copyright 2020 Asim Aslam
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,38 +10,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-micro/v3/util/pool/options.go
+// Original source: github.com/micro/go-micro/v3/network/resolver/noop/noop.go
 
-package pool
+// Package noop is a noop resolver
+package noop
 
 import (
-	"time"
-
-	"github.com/micro/micro/v3/service/network/transport"
+	"github.com/micro/micro/v3/service/network/resolver"
 )
 
-type Options struct {
-	Transport transport.Transport
-	TTL       time.Duration
-	Size      int
-}
+type Resolver struct{}
 
-type Option func(*Options)
-
-func Size(i int) Option {
-	return func(o *Options) {
-		o.Size = i
-	}
-}
-
-func Transport(t transport.Transport) Option {
-	return func(o *Options) {
-		o.Transport = t
-	}
-}
-
-func TTL(t time.Duration) Option {
-	return func(o *Options) {
-		o.TTL = t
-	}
+// Resolve returns the list of nodes
+func (r *Resolver) Resolve(name string) ([]*resolver.Record, error) {
+	return []*resolver.Record{}, nil
 }

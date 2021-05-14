@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"sync"
 
+	"github.com/micro/micro/v3/service/network/transport"
 	"github.com/micro/micro/v3/util/codec"
 	raw "github.com/micro/micro/v3/util/codec/bytes"
 	"github.com/micro/micro/v3/util/codec/grpc"
@@ -27,7 +28,6 @@ import (
 	"github.com/micro/micro/v3/util/codec/jsonrpc"
 	"github.com/micro/micro/v3/util/codec/proto"
 	"github.com/micro/micro/v3/util/codec/protorpc"
-	"github.com/micro/micro/v3/util/network/transport"
 	"github.com/oxtoacart/bpool"
 	"github.com/pkg/errors"
 )

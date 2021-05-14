@@ -19,9 +19,9 @@ package mucp
 import (
 	"bytes"
 
+	"github.com/micro/micro/v3/service/network/transport"
 	"github.com/micro/micro/v3/util/client/buf"
 	"github.com/micro/micro/v3/util/codec"
-	"github.com/micro/micro/v3/util/network/transport"
 )
 
 type rpcRequest struct {
