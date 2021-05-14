@@ -18,7 +18,6 @@ import (
 	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/registry"
-	clic "github.com/micro/micro/v3/util/command"
 )
 
 func quit(c *cli.Context, args []string) ([]byte, error) {
@@ -50,7 +49,7 @@ func help(c *cli.Context, args []string) ([]byte, error) {
 func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 	if c.String("all") == "builtin" {
 
-		sl, err := clic.ListServices(c)
+		sl, err := ListServices(c, args)
 		if err != nil {
 			return nil, err
 		}
@@ -75,7 +74,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	if c.String("all") == "custom" {
-		sl, err := clic.ListServices(c)
+		sl, err := ListServices(c, args)
 		if err != nil {
 			return nil, err
 		}
