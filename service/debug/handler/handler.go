@@ -6,7 +6,6 @@ import (
 	"time"
 
 	pb "github.com/micro/micro/v3/proto/debug"
-	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/debug"
 	"github.com/micro/micro/v3/service/debug/log"
 	"github.com/micro/micro/v3/service/debug/stats"
@@ -14,7 +13,7 @@ import (
 )
 
 // NewHandler returns an instance of the Debug Handler
-func NewHandler(c client.Client) *Debug {
+func NewHandler() *Debug {
 	return &Debug{
 		log:   debug.DefaultLog,
 		stats: debug.DefaultStats,

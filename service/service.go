@@ -172,7 +172,7 @@ func (s *Service) Run() error {
 	// register the debug handler
 	s.Server().Handle(
 		s.Server().NewHandler(
-			debug.NewHandler(s.Client()),
+			debug.NewHandler(),
 			server.InternalHandler(true),
 		),
 	)

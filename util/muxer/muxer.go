@@ -5,7 +5,6 @@ import (
 	"context"
 	"sync"
 
-	"github.com/micro/micro/v3/service/client/grpc"
 	debug "github.com/micro/micro/v3/service/debug/handler"
 	"github.com/micro/micro/v3/service/proxy"
 	"github.com/micro/micro/v3/service/server"
@@ -54,7 +53,7 @@ func New(name string, p proxy.Proxy) *Server {
 		r.Handle(
 			// inject the debug handler
 			r.NewHandler(
-				debug.NewHandler(grpc.NewClient()),
+				debug.NewHandler(),
 				server.InternalHandler(true),
 			),
 		)
