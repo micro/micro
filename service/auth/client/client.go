@@ -2,6 +2,7 @@ package client
 
 import (
 	"strings"
+	"sync"
 	"time"
 
 	pb "github.com/micro/micro/v3/proto/auth"
@@ -10,17 +11,50 @@ import (
 	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/util/auth/rules"
 	"github.com/micro/micro/v3/util/auth/token"
 	"github.com/micro/micro/v3/util/auth/token/jwt"
 )
 
+const (
+	ruleCacheTTL = 2 * time.Minute
+)
+
+type rulesCache struct {
+	sync.RWMutex
+	ruleCache map[string]*cacheEntry
+	ttl       time.Duration
+}
+
+func (r *rulesCache) get(key string) []*auth.Rule {
+	r.RLock()
+	entry := r.ruleCache[key]
+	r.RUnlock()
+	if entry != nil && time.Since(entry.t) < r.ttl {
+		return entry.v
+	}
+	return nil
+}
+
+func (r *rulesCache) put(key string, v []*auth.Rule) {
+	r.Lock()
+	r.ruleCache[key] = &cacheEntry{t: time.Now(), v: v}
+	r.Unlock()
+}
+
+type cacheEntry struct {
+	t time.Time
+	v []*auth.Rule
+}
+
 // srv is the service implementation of the Auth interface
 type srv struct {
-	options auth.Options
-	auth    pb.AuthService
-	rules   pb.RulesService
-	token   token.Provider
+	options   auth.Options
+	auth      pb.AuthService
+	rules     pb.RulesService
+	token     token.Provider
+	ruleCache rulesCache
 }
 
 func (s *srv) String() string {
@@ -34,6 +68,10 @@ func (s *srv) Init(opts ...auth.Option) {
 	s.auth = pb.NewAuthService("auth", client.DefaultClient)
 	s.rules = pb.NewRulesService("auth", client.DefaultClient)
 	s.setupJWT()
+	s.ruleCache = rulesCache{
+		ruleCache: map[string]*cacheEntry{},
+		ttl:       ruleCacheTTL,
+	}
 }
 
 func (s *srv) Options() auth.Options {
@@ -112,7 +150,7 @@ func (s *srv) Grant(rule *auth.Rule) error {
 			Namespace: s.Options().Issuer,
 		},
 	}, s.callOpts()...)
-
+	go s.refreshRulesCache(s.Options().Issuer)
 	return err
 }
 
@@ -123,8 +161,26 @@ func (s *srv) Revoke(rule *auth.Rule) error {
 			Namespace: s.Options().Issuer,
 		},
 	}, s.callOpts()...)
-
+	go s.refreshRulesCache(s.Options().Issuer)
 	return err
+}
+
+func (s *srv) refreshRulesCache(ns string) error {
+	callOpts := append(s.callOpts(), cache.CallExpiry(time.Second*30))
+	rsp, err := s.rules.List(context.DefaultContext, &pb.ListRequest{
+		Options: &pb.Options{Namespace: ns},
+	}, callOpts...)
+	if err != nil {
+		logger.Errorf("Error refreshing rules cache %s", err)
+		return err
+	}
+
+	rules := make([]*auth.Rule, len(rsp.Rules))
+	for i, r := range rsp.Rules {
+		rules[i] = serializeRule(r)
+	}
+	s.ruleCache.put(ns, rules)
+	return nil
 }
 
 func (s *srv) Rules(opts ...auth.RulesOption) ([]*auth.Rule, error) {
@@ -139,20 +195,14 @@ func (s *srv) Rules(opts ...auth.RulesOption) ([]*auth.Rule, error) {
 		options.Namespace = s.options.Issuer
 	}
 
-	callOpts := append(s.callOpts(), cache.CallExpiry(time.Second*30))
-	rsp, err := s.rules.List(context.DefaultContext, &pb.ListRequest{
-		Options: &pb.Options{Namespace: options.Namespace},
-	}, callOpts...)
-	if err != nil {
+	if ret := s.ruleCache.get(options.Namespace); ret != nil {
+		return ret, nil
+	}
+	if err := s.refreshRulesCache(options.Namespace); err != nil {
 		return nil, err
 	}
 
-	rules := make([]*auth.Rule, len(rsp.Rules))
-	for i, r := range rsp.Rules {
-		rules[i] = serializeRule(r)
-	}
-
-	return rules, nil
+	return s.ruleCache.get(options.Namespace), nil
 }
 
 // Verify an account has access to a resource
@@ -176,6 +226,11 @@ func (s *srv) Verify(acc *auth.Account, res *auth.Resource, opts ...auth.VerifyO
 func (s *srv) Inspect(token string) (*auth.Account, error) {
 	// validate the request
 	if len(token) == 0 {
+		return nil, auth.ErrInvalidToken
+	}
+
+	// optimisation - is the key the right format for jwt auth?
+	if s.token.String() == "jwt" && strings.Count(token, ".") != 2 {
 		return nil, auth.ErrInvalidToken
 	}
 

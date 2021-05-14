@@ -101,6 +101,11 @@ func (j *JWT) Generate(acc *auth.Account, opts ...token.GenerateOption) (*token.
 
 // Inspect a JWT
 func (j *JWT) Inspect(t string) (*auth.Account, error) {
+	// simple validation should be of form xxx.yyy.zzz i.e. contain two dots
+	if len(strings.Split(t, ".")) != 3 {
+		return nil, token.ErrInvalidToken
+	}
+
 	var pub []byte
 	if strings.HasPrefix(j.opts.PublicKey, "-----BEGIN CERTIFICATE-----") {
 		pub = []byte(j.opts.PublicKey)
