@@ -24,7 +24,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/api/server/handler"
 	"github.com/micro/micro/v3/service/api/server/handler/rpc"
 	"github.com/micro/micro/v3/service/api/server/router"
