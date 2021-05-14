@@ -17,7 +17,7 @@ import (
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/source/git"
 	"github.com/micro/micro/v3/service/store"
-	kclient "github.com/micro/micro/v3/util/kubernetes/client"
+	kclient "github.com/micro/micro/v3/service/runtime/kubernetes/client"
 	"github.com/micro/micro/v3/util/namespace"
 )
 
