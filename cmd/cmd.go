@@ -398,7 +398,6 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// wrap the client
 	client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
-	client.DefaultClient = wrapper.CacheClient(client.DefaultClient)
 	client.DefaultClient = wrapper.TraceCall(client.DefaultClient)
 	client.DefaultClient = wrapper.LogClient(client.DefaultClient)
 

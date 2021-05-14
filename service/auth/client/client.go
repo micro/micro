@@ -8,7 +8,6 @@ import (
 	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
@@ -166,10 +165,9 @@ func (s *srv) Revoke(rule *auth.Rule) error {
 }
 
 func (s *srv) refreshRulesCache(ns string) error {
-	callOpts := append(s.callOpts(), cache.CallExpiry(time.Second*30))
 	rsp, err := s.rules.List(context.DefaultContext, &pb.ListRequest{
 		Options: &pb.Options{Namespace: ns},
-	}, callOpts...)
+	}, s.callOpts()...)
 	if err != nil {
 		logger.Errorf("Error refreshing rules cache %s", err)
 		return err
