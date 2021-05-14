@@ -34,10 +34,6 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"github.com/micro/micro/v3/internal/addr"
-	"github.com/micro/micro/v3/internal/backoff"
-	mgrpc "github.com/micro/micro/v3/internal/grpc"
-	mnet "github.com/micro/micro/v3/internal/net"
 	pberr "github.com/micro/micro/v3/proto/errors"
 	"github.com/micro/micro/v3/service/broker"
 	meta "github.com/micro/micro/v3/service/context/metadata"
@@ -45,6 +41,10 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/util/addr"
+	"github.com/micro/micro/v3/util/backoff"
+	mgrpc "github.com/micro/micro/v3/util/grpc"
+	mnet "github.com/micro/micro/v3/util/net"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/netutil"
 

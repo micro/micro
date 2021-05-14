@@ -10,7 +10,7 @@ import (
 
 	merrors "github.com/micro/micro/v3/service/errors"
 
-	"github.com/micro/micro/v3/internal/config"
+	"github.com/micro/micro/v3/util/config"
 	"github.com/urfave/cli/v2"
 )
 

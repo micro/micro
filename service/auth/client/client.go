@@ -5,9 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/internal/auth/rules"
-	"github.com/micro/micro/v3/internal/auth/token"
-	"github.com/micro/micro/v3/internal/auth/token/jwt"
 	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
@@ -15,6 +12,9 @@ import (
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/util/auth/rules"
+	"github.com/micro/micro/v3/util/auth/token"
+	"github.com/micro/micro/v3/util/auth/token/jwt"
 )
 
 const (
@@ -50,7 +50,6 @@ type cacheEntry struct {
 
 // srv is the service implementation of the Auth interface
 type srv struct {
-	sync.RWMutex
 	options   auth.Options
 	auth      pb.AuthService
 	rules     pb.RulesService

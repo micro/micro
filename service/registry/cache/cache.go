@@ -21,9 +21,9 @@ import (
 	"sync"
 	"time"
 
-	util "github.com/micro/micro/v3/internal/registry"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
+	util "github.com/micro/micro/v3/util/registry"
 )
 
 // Cache is the registry cache interface

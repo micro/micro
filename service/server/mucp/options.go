@@ -17,11 +17,11 @@
 package mucp
 
 import (
-	"github.com/micro/micro/v3/internal/codec"
-	thttp "github.com/micro/micro/v3/internal/network/transport/http"
 	"github.com/micro/micro/v3/service/broker/memory"
 	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/util/codec"
+	thttp "github.com/micro/micro/v3/util/network/transport/http"
 )
 
 func newOptions(opt ...server.Option) server.Options {

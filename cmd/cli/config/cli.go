@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/cmd/cli/namespace"
 	"github.com/micro/micro/v3/cmd/cli/util"
-	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/internal/helper"
 	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/util/helper"
 	"github.com/urfave/cli/v2"
 )
 

@@ -15,10 +15,10 @@ import (
 
 	"github.com/micro/micro/v3/cmd/cli/namespace"
 	"github.com/micro/micro/v3/cmd/cli/util"
-	clic "github.com/micro/micro/v3/internal/command"
 	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/registry"
+	clic "github.com/micro/micro/v3/util/command"
 )
 
 func quit(c *cli.Context, args []string) ([]byte, error) {

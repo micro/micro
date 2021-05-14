@@ -174,25 +174,25 @@ func (m *memoryStore) list(prefix string, order store.Order, limit, offset uint,
 		keys = append(keys, k)
 	}
 
-        if offset > 0 {
-                // offset is greater than the keys we have
-                if int(offset) >= len(keys) {
-                        return nil
-                }
+	if offset > 0 {
+		// offset is greater than the keys we have
+		if int(offset) >= len(keys) {
+			return nil
+		}
 
-                // otherwise set the offset for the keys
-                keys = keys[offset:]
-        }
+		// otherwise set the offset for the keys
+		keys = keys[offset:]
+	}
 
-        // check key limit
-        if v := int(limit); v == 0 || v > len(keys) {
-                limit = uint(len(keys))
-        }
+	// check key limit
+	if v := int(limit); v == 0 || v > len(keys) {
+		limit = uint(len(keys))
+	}
 
 	// gen the final key list
 	var keyList []string
 
-        for i := 0; i < int(limit); i++ {
+	for i := 0; i < int(limit); i++ {
 		keyList = append(keyList, keys[i])
 	}
 

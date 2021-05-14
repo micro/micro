@@ -15,11 +15,11 @@ import (
 
 	"github.com/micro/micro/v3/cmd/cli/namespace"
 	"github.com/micro/micro/v3/cmd/cli/util"
-	"github.com/micro/micro/v3/internal/config"
-	run "github.com/micro/micro/v3/internal/runtime"
-	"github.com/micro/micro/v3/internal/runtime/source/git"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/util/config"
+	run "github.com/micro/micro/v3/util/runtime"
+	"github.com/micro/micro/v3/util/runtime/source/git"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/codes"
@@ -245,12 +245,17 @@ func runService(ctx *cli.Context) error {
 	command := strings.TrimSpace(ctx.String("command"))
 	args := strings.TrimSpace(ctx.String("args"))
 	retries := DefaultRetries
-	image := ""
+	var image string
+	var instances int
+
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
 	}
 	if ctx.IsSet("image") {
 		image = ctx.String("image")
+	}
+	if ctx.IsSet("instances") {
+		instances = ctx.Int("instances")
 	}
 
 	// construct the service
@@ -297,6 +302,9 @@ func runService(ctx *cli.Context) error {
 		runtime.WithRetries(retries),
 		runtime.CreateImage(image),
 		runtime.CreateType(typ),
+	}
+	if instances > 0 {
+		opts = append(opts, runtime.CreateInstances(instances))
 	}
 	if len(command) > 0 {
 		opts = append(opts, runtime.WithCommand(strings.Split(command, " ")...))
@@ -497,6 +505,11 @@ func updateService(ctx *cli.Context) error {
 		return err
 	}
 	opts = append(opts, runtime.UpdateNamespace(ns))
+
+	// get number of instances to run
+	if ctx.IsSet("instances") {
+		opts = append(opts, runtime.UpdateInstances(ctx.Int("instances")))
+	}
 
 	// pass git credentials incase a private repo needs to be pulled
 	gitCreds, ok := getGitCredentials(source.Repo)

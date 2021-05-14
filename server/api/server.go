@@ -8,35 +8,33 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
-	"github.com/micro/micro/v3/server"
-	ahandler "github.com/micro/micro/v3/internal/api/handler"
-	aapi "github.com/micro/micro/v3/internal/api/handler/api"
-	"github.com/micro/micro/v3/internal/api/handler/event"
-	ahttp "github.com/micro/micro/v3/internal/api/handler/http"
-	arpc "github.com/micro/micro/v3/internal/api/handler/rpc"
-	"github.com/micro/micro/v3/internal/api/handler/web"
-	"github.com/micro/micro/v3/internal/api/resolver"
-	"github.com/micro/micro/v3/internal/api/resolver/grpc"
-	"github.com/micro/micro/v3/internal/api/resolver/host"
-	"github.com/micro/micro/v3/internal/api/resolver/path"
-	"github.com/micro/micro/v3/internal/api/resolver/subdomain"
-	"github.com/micro/micro/v3/internal/api/router"
-	regRouter "github.com/micro/micro/v3/internal/api/router/registry"
-	apiserver "github.com/micro/micro/v3/internal/api/server"
-	"github.com/micro/micro/v3/internal/api/server/acme"
-	"github.com/micro/micro/v3/internal/api/server/acme/autocert"
-	"github.com/micro/micro/v3/internal/api/server/acme/certmagic"
-	httpapi "github.com/micro/micro/v3/internal/api/server/http"
-	"github.com/micro/micro/v3/internal/handler"
-	"github.com/micro/micro/v3/internal/helper"
-	rrmicro "github.com/micro/micro/v3/internal/resolver/api"
-	"github.com/micro/micro/v3/internal/sync/memory"
 	"github.com/micro/micro/v3/plugin"
+	"github.com/micro/micro/v3/server"
+	ahandler "github.com/micro/micro/v3/server/api/handler"
+	aapi "github.com/micro/micro/v3/server/api/handler/api"
+	"github.com/micro/micro/v3/server/api/handler/event"
+	ahttp "github.com/micro/micro/v3/server/api/handler/http"
+	arpc "github.com/micro/micro/v3/server/api/handler/rpc"
+	"github.com/micro/micro/v3/server/api/handler/web"
+	"github.com/micro/micro/v3/server/api/resolver"
+	"github.com/micro/micro/v3/server/api/resolver/grpc"
+	"github.com/micro/micro/v3/server/api/resolver/host"
+	"github.com/micro/micro/v3/server/api/resolver/path"
+	"github.com/micro/micro/v3/server/api/resolver/subdomain"
+	"github.com/micro/micro/v3/server/api/router"
+	regRouter "github.com/micro/micro/v3/server/api/router/registry"
+	apiserver "github.com/micro/micro/v3/server/api/server"
+	httpapi "github.com/micro/micro/v3/server/api/server/http"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api/auth"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/util/acme"
+	"github.com/micro/micro/v3/util/acme/autocert"
+	"github.com/micro/micro/v3/util/acme/certmagic"
+	"github.com/micro/micro/v3/util/helper"
+	"github.com/micro/micro/v3/util/sync/memory"
 	"github.com/urfave/cli/v2"
 )
 
@@ -199,7 +197,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// default resolver
-	rr := rrmicro.NewResolver(ropts...)
+	rr := NewResolver(ropts...)
 
 	switch Resolver {
 	case "subdomain":
@@ -284,7 +282,7 @@ func Run(ctx *cli.Context) error {
 			router.WithResolver(rr),
 			router.WithRegistry(muregistry.DefaultRegistry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(srv, rt, Namespace))
+		r.PathPrefix(APIPath).Handler(Meta(srv, rt, Namespace))
 	}
 
 	// register all the http handler plugins

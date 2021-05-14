@@ -98,6 +98,8 @@ message CreateOptions {
 	string entrypoint = 9;
 	// volumes to mount
 	map<string,string> volumes = 10;
+	// number of instances
+	int64 instances = 11;
 }
 
 message CreateRequest {
@@ -143,6 +145,8 @@ message UpdateOptions {
 	string namespace = 1;
 	// entrypoint within the source
 	string entrypoint = 2;
+	// number of instances
+	int64 instances = 3;
 }
 
 message UpdateRequest {

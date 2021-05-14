@@ -2,7 +2,7 @@ package cli
 
 import (
 	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/util/helper"
 	"github.com/urfave/cli/v2"
 	// imported specifically for signup
 )

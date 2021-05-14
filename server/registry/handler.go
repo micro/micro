@@ -4,13 +4,13 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/registry"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/registry/util"
+	"github.com/micro/micro/v3/util/auth/namespace"
 )
 
 type Registry struct {

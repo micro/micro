@@ -9,13 +9,13 @@ import (
 	"runtime"
 
 	"github.com/micro/micro/v3/cmd"
-	signalutil "github.com/micro/micro/v3/internal/signal"
 	"github.com/micro/micro/v3/service/client"
 	mudebug "github.com/micro/micro/v3/service/debug"
 	debug "github.com/micro/micro/v3/service/debug/handler"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/server"
+	signalutil "github.com/micro/micro/v3/util/signal"
 	"github.com/urfave/cli/v2"
 )
 
