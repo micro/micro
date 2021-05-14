@@ -87,7 +87,7 @@ func init() {
 		&cli.Command{
 			Name:   "call",
 			Usage:  `Call a service e.g micro call greeter Say.Hello '{"name": "John"}'`,
-			Action: util.Print(callService),
+			Action: util.Print(CallService),
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:    "address",
@@ -109,6 +109,22 @@ func init() {
 					Usage: "timeout duration",
 				},
 			},
+		},
+		&cli.Command{
+			Name:  "get",
+			Usage: `Get resources from micro`,
+			Subcommands: []*cli.Command{
+				{
+					Name:   "service",
+					Usage:  "Get a specific service from the registry",
+					Action: util.Print(GetService),
+				},
+			},
+		},
+		&cli.Command{
+			Name:   "health",
+			Usage:  `Get the service health`,
+			Action: util.Print(QueryHealth),
 		},
 		&cli.Command{
 			Name:   "stream",
@@ -168,7 +184,7 @@ func init() {
 		&cli.Command{
 			Name:   "services",
 			Usage:  "List services in the registry",
-			Action: util.Print(listServices),
+			Action: util.Print(ListServices),
 		},
 	)
 }
