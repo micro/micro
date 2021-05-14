@@ -19,7 +19,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/util/debug/stats"
+	"github.com/micro/micro/v3/service/debug/stats"
 	"github.com/micro/micro/v3/util/ring"
 )
 

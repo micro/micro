@@ -21,7 +21,7 @@ import (
 	"net/http/pprof"
 	"sync"
 
-	"github.com/micro/micro/v3/util/debug/profile"
+	"github.com/micro/micro/v3/service/debug/profile"
 )
 
 type httpProfile struct {

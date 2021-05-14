@@ -23,7 +23,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/util/debug/profile"
+	"github.com/micro/micro/v3/service/debug/profile"
 )
 
 type profiler struct {

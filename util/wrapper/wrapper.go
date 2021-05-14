@@ -10,13 +10,13 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/debug"
+	"github.com/micro/micro/v3/service/debug/trace"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/metrics"
 	"github.com/micro/micro/v3/service/server"
 	inauth "github.com/micro/micro/v3/util/auth"
 	"github.com/micro/micro/v3/util/cache"
-	"github.com/micro/micro/v3/util/debug/trace"
 )
 
 type authWrapper struct {

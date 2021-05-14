@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/micro/v3/util/debug/trace"
+	"github.com/micro/micro/v3/service/debug/trace"
 	"github.com/micro/micro/v3/util/ring"
 )
 
