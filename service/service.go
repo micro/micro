@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"syscall"
 
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service/client"
@@ -15,7 +16,6 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/server"
-	signalutil "github.com/micro/micro/v3/util/signal"
 	"github.com/urfave/cli/v2"
 )
 
@@ -201,7 +201,7 @@ func (s *Service) Run() error {
 
 	ch := make(chan os.Signal, 1)
 	if s.opts.Signal {
-		signal.Notify(ch, signalutil.Shutdown()...)
+		signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL)
 	}
 
 	// wait on kill signal
