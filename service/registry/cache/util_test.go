@@ -12,7 +12,7 @@
 //
 // Original source: github.com/micro/go-micro/v3/util/registry/util_test.go
 
-package registry
+package cache
 
 import (
 	"os"

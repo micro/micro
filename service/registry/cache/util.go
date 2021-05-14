@@ -12,7 +12,7 @@
 //
 // Original source: github.com/micro/go-micro/v3/util/registry/util.go
 
-package registry
+package cache
 
 import (
 	"github.com/micro/micro/v3/service/registry"
