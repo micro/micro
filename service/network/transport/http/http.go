@@ -29,7 +29,7 @@ import (
 
 	"github.com/micro/micro/v3/service/network/transport"
 	maddr "github.com/micro/micro/v3/util/addr"
-	"github.com/micro/micro/v3/util/client/buf"
+	"github.com/micro/micro/v3/util/buf"
 	mnet "github.com/micro/micro/v3/util/net"
 	mls "github.com/micro/micro/v3/util/tls"
 	"golang.org/x/net/http2"

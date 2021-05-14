@@ -142,4 +142,3 @@ func TestRouterRegistryPcre(t *testing.T) {
 	time.Sleep(1 * time.Second)
 	check(t, hsrv.Addr, "http://%s/api/v0/test/call/TEST", `{"msg":"Hello TEST"}`)
 }
-
