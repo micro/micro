@@ -8,7 +8,6 @@ import (
 
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/util/cache"
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/debug"
 	"github.com/micro/micro/v3/service/errors"
@@ -16,6 +15,7 @@ import (
 	"github.com/micro/micro/v3/service/metrics"
 	"github.com/micro/micro/v3/service/server"
 	inauth "github.com/micro/micro/v3/util/auth"
+	"github.com/micro/micro/v3/util/cache"
 	"github.com/micro/micro/v3/util/debug/trace"
 )
 
