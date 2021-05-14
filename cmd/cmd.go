@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/cmd/cli/util"
+	_ "github.com/micro/micro/v3/cmd/usage"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth"
@@ -30,7 +31,6 @@ import (
 	uconf "github.com/micro/micro/v3/util/config"
 	"github.com/micro/micro/v3/util/helper"
 	"github.com/micro/micro/v3/util/report"
-	_ "github.com/micro/micro/v3/util/usage"
 	"github.com/micro/micro/v3/util/user"
 	"github.com/micro/micro/v3/util/wrapper"
 	"github.com/urfave/cli/v2"

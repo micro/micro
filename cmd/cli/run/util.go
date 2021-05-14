@@ -1,9 +1,9 @@
 package runtime
 
 import (
-	"io"
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -16,7 +16,6 @@ import (
 	"github.com/micro/micro/v3/service/runtime/source/git"
 	"github.com/urfave/cli/v2"
 )
-
 
 const bufferSize = 1024
 

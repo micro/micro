@@ -14,7 +14,7 @@ import (
 
 	"github.com/micro/micro/v3/cmd"
 	tmpl "github.com/micro/micro/v3/cmd/cli/new/template"
-	"github.com/micro/micro/v3/util/usage"
+	"github.com/micro/micro/v3/cmd/usage"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
 )
