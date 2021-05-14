@@ -23,7 +23,7 @@ require (
 	github.com/hpcloud/tail v1.0.0
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/kr/pretty v0.2.0
-	github.com/m3o/platform/profile/platform v0.0.0-20210512124342-e96941aa1668
+	github.com/m3o/platform/profile/platform v0.0.0-20210514113832-baec7d77b8f6
 	github.com/miekg/dns v1.1.27
 	github.com/nightlyone/lockfile v1.0.0
 	github.com/olekukonko/tablewriter v0.0.4
