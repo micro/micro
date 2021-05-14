@@ -35,14 +35,6 @@ Documentation, guides and quick starts for Micro
 - [FAQ](faq) - Frequently asked questions
 - [Blog](blog) - For the latest from us
 
-## Contributing
-
-See the [TODO](/todo) list, open a PR and start hacking away at the docs.
-
-## Community
-
-Join us in GitHub [Discussions](https://github.com/micro/micro/discussions) or [Slack](https://slack.m3o.com).
-
 ## License
 
 [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/)
