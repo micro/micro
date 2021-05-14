@@ -19,17 +19,16 @@ import (
 	ccli "github.com/urfave/cli/v2"
 
 	// services
-	"github.com/micro/micro/v3/server/api"
-	"github.com/micro/micro/v3/server/auth"
-	"github.com/micro/micro/v3/server/broker"
-	"github.com/micro/micro/v3/server/config"
-	"github.com/micro/micro/v3/server/events"
-	"github.com/micro/micro/v3/server/network"
-	"github.com/micro/micro/v3/server/proxy"
-	"github.com/micro/micro/v3/server/registry"
-	"github.com/micro/micro/v3/server/router"
-	"github.com/micro/micro/v3/server/runtime"
-	"github.com/micro/micro/v3/server/store"
+	api "github.com/micro/micro/v3/service/api/server"
+	auth "github.com/micro/micro/v3/service/auth/server"
+	broker "github.com/micro/micro/v3/service/broker/server"
+	config "github.com/micro/micro/v3/service/config/server"
+	events "github.com/micro/micro/v3/service/events/server"
+	network "github.com/micro/micro/v3/service/network/server"
+	proxy "github.com/micro/micro/v3/service/proxy/server"
+	registry "github.com/micro/micro/v3/service/registry/server"
+	runtime "github.com/micro/micro/v3/service/runtime/server"
+	store "github.com/micro/micro/v3/service/store/server"
 
 	// misc commands
 	"github.com/micro/micro/v3/cmd/service/handler/exec"
@@ -176,11 +175,6 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "registry",
 		Command: registry.Run,
-	},
-	{
-		Name:    "router",
-		Command: router.Run,
-		Flags:   router.Flags,
 	},
 	{
 		Name:    "runtime",
