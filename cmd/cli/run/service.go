@@ -18,8 +18,7 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/util/config"
-	run "github.com/micro/micro/v3/util/runtime"
-	"github.com/micro/micro/v3/util/runtime/source/git"
+	"github.com/micro/micro/v3/service/runtime/source/git"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/codes"
@@ -275,7 +274,7 @@ func runService(ctx *cli.Context) error {
 		}
 
 		// vendor the dependencies
-		if err := run.VendorDependencies(source.LocalRepoRoot); err != nil {
+		if err := vendorDependencies(source.LocalRepoRoot); err != nil {
 			return err
 		}
 
@@ -466,7 +465,7 @@ func updateService(ctx *cli.Context) error {
 		}
 
 		// vendor the dependencies
-		if err := run.VendorDependencies(source.LocalRepoRoot); err != nil {
+		if err := vendorDependencies(source.LocalRepoRoot); err != nil {
 			return err
 		}
 
