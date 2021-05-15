@@ -206,12 +206,6 @@ var (
 			Usage:   "Address to run the service on",
 			EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
 		},
-		&cli.BoolFlag{
-			Name:    "prompt_update",
-			Usage:   "Provide an update prompt when a new binary is available. Enabled for release binaries only.",
-			Value:   true,
-			EnvVars: []string{"MICRO_PROMPT_UPDATE"},
-		},
 		&cli.StringFlag{
 			Name:    "config_secret_key",
 			Usage:   "Key to use when encoding/decoding secret config values. Will be generated and saved to file if not provided.",
@@ -310,30 +304,6 @@ func (c *command) Options() Options {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
-	if v := ctx.Args().First(); len(v) > 0 {
-		switch v {
-		case "service", "server":
-			// do nothing
-		default:
-			// check for the latest release
-			// TODO: write a local file to detect
-			// when we last checked so we don't do it often
-			updated, err := confirmAndSelfUpdate(ctx)
-			if err != nil {
-				return err
-			}
-			// if updated we expect to re-execute the command
-			// TODO: maybe require relogin or update of the
-			// config...
-			if updated {
-				// considering nil actually continues
-				// we need to os.Exit(0)
-				os.Exit(0)
-				return nil
-			}
-		}
-	}
-
 	// set the config file if specified
 	if cf := ctx.String("c"); len(cf) > 0 {
 		uconf.SetConfig(cf)
