@@ -86,8 +86,9 @@ var (
 		},
 		&cli.StringFlag{
 			Name:    "profile",
-			Usage:   "Set the micro server profile: e.g. local or kubernetes",
+			Usage:   "Set the micro server profile: e.g. local, kubernetes, client, service",
 			EnvVars: []string{"MICRO_PROFILE"},
+			Value:   "local",
 		},
 		&cli.StringFlag{
 			Name:    "namespace",
@@ -430,7 +431,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(ctx.String("auth_public_key")) > 0 || len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
-	} else if ctx.Args().First() == "server" || ctx.Args().First() == "service" {
+	} else if ctx.Args().First() == "server" || ctx.Args().First() == "service" || prof == "local" {
 		privKey, pubKey, err := user.GetJWTCerts()
 		if err != nil {
 			logger.Fatalf("Error getting keys: %v", err)
