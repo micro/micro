@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/micro/micro/v3/service/api/server/resolver"
-	"github.com/micro/micro/v3/service/api/server/resolver/subdomain"
-	"github.com/micro/micro/v3/service/api/server/server"
+	"github.com/micro/micro/v3/service/api"
+	"github.com/micro/micro/v3/service/api/resolver"
+	"github.com/micro/micro/v3/service/api/resolver/subdomain"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/logger"
 	inauth "github.com/micro/micro/v3/util/auth"
@@ -18,7 +18,7 @@ import (
 )
 
 // Wrapper wraps a handler and authenticates requests
-func Wrapper(r resolver.Resolver, prefix string) server.Wrapper {
+func Wrapper(r resolver.Resolver, prefix string) api.Wrapper {
 	return func(h http.Handler) http.Handler {
 		return authWrapper{
 			handler:       h,
