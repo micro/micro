@@ -4,7 +4,6 @@ go 1.15
 
 require (
 	github.com/bitly/go-simplejson v0.5.0
-	github.com/blang/semver v3.5.1+incompatible
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/caddyserver/certmagic v0.10.6
 	github.com/chzyer/logex v1.1.10 // indirect
@@ -42,7 +41,6 @@ require (
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
-	github.com/rhysd/go-github-selfupdate v1.2.2
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/stoewer/go-strcase v1.2.0
