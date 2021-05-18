@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/micro/micro/v3/service/api/server/resolver"
+	"github.com/micro/micro/v3/service/api/resolver"
 	"github.com/micro/micro/v3/service/registry"
 )
 

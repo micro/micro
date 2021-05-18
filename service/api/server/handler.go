@@ -4,17 +4,17 @@ import (
 	"net/http"
 
 	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/api/server/handler"
-	"github.com/micro/micro/v3/service/api/server/handler/event"
-	"github.com/micro/micro/v3/service/api/server/router"
+	"github.com/micro/micro/v3/service/api/handler"
+	"github.com/micro/micro/v3/service/api/handler/event"
+	"github.com/micro/micro/v3/service/api/router"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 
 	// TODO: only import handler package
-	aapi "github.com/micro/micro/v3/service/api/server/handler/api"
-	ahttp "github.com/micro/micro/v3/service/api/server/handler/http"
-	arpc "github.com/micro/micro/v3/service/api/server/handler/rpc"
-	aweb "github.com/micro/micro/v3/service/api/server/handler/web"
+	aapi "github.com/micro/micro/v3/service/api/handler/api"
+	ahttp "github.com/micro/micro/v3/service/api/handler/http"
+	arpc "github.com/micro/micro/v3/service/api/handler/rpc"
+	aweb "github.com/micro/micro/v3/service/api/handler/web"
 )
 
 type metaHandler struct {
