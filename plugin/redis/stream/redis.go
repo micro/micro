@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 
 type redisStream struct {
 	redisClient *redis.Client
+	attempts    map[string]int
 }
 
 func NewStream(opts ...Option) (events.Stream, error) {
@@ -31,6 +33,7 @@ func NewStream(opts ...Option) (events.Stream, error) {
 	})
 	rs := &redisStream{
 		redisClient: rc,
+		attempts:    map[string]int{},
 	}
 	return rs, nil
 }
@@ -75,8 +78,8 @@ func (r *redisStream) Publish(topic string, msg interface{}, opts ...events.Publ
 	}
 
 	return r.redisClient.XAdd(context.Background(), &redis.XAddArgs{
-		Stream: event.Topic,
-		Values: []string{"event", string(bytes)},
+		Stream: fmt.Sprintf("stream-%s", event.Topic),
+		Values: map[string]interface{}{"event": string(bytes), "attempt": 1},
 	}).Err()
 
 }
@@ -98,6 +101,7 @@ func (r *redisStream) Consume(topic string, opts ...events.ConsumeOption) (<-cha
 }
 
 func (r *redisStream) consumeWithGroup(topic, group string, options events.ConsumeOptions) (<-chan events.Event, error) {
+	topic = fmt.Sprintf("stream-%s", topic)
 	lastRead := "$"
 	if !options.Offset.IsZero() {
 		lastRead = fmt.Sprintf("%d", options.Offset.Unix()*1000)
@@ -118,7 +122,7 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 				Block:    0,
 			})
 
-			if err := r.processStreamRes(res, ch, topic, group, options.AutoAck); err != nil {
+			if err := r.processStreamRes(res, ch, topic, group, options.AutoAck, options.RetryLimit); err != nil {
 				close(ch)
 				return
 			}
@@ -127,7 +131,8 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 	return ch, nil
 }
 
-func (r *redisStream) processStreamRes(res *redis.XStreamSliceCmd, ch chan events.Event, topic, group string, autoAck bool) error {
+func (r *redisStream) processStreamRes(res *redis.XStreamSliceCmd, ch chan events.Event, topic, group string, autoAck bool, retryLimit int) error {
+	topic = fmt.Sprintf("stream-%s", topic)
 	sl, err := res.Result()
 	if err != nil {
 		logger.Errorf("Error reading from stream %s", err)
@@ -135,26 +140,49 @@ func (r *redisStream) processStreamRes(res *redis.XStreamSliceCmd, ch chan event
 	}
 	if sl == nil {
 		logger.Errorf("No data received from stream")
-		return fmt.Errorf("No data received from stream")
+		return fmt.Errorf("no data received from stream")
 	}
 
 	for _, v := range sl[0].Messages {
 		evBytes := v.Values["event"]
 		var ev events.Event
-		good, ok := evBytes.(string)
+		bStr, ok := evBytes.(string)
 		if !ok {
 			logger.Warnf("Failed to convert to bytes, discarding %s", v.ID)
-			r.redisClient.XAck(context.TODO(), topic, group, v.ID)
+			r.redisClient.XAck(context.Background(), topic, group, v.ID)
 			continue
 		}
-		if err := json.Unmarshal([]byte(good), &ev); err != nil {
+		if err := json.Unmarshal([]byte(bStr), &ev); err != nil {
 			logger.Warnf("Failed to unmarshal event, discarding %s %s", err, v.ID)
-			r.redisClient.XAck(context.TODO(), topic, group, v.ID)
+			r.redisClient.XAck(context.Background(), topic, group, v.ID)
 			continue
 		}
+		r.attempts[v.ID], _ = strconv.Atoi(v.Values["attempt"].(string))
+
 		if !autoAck {
 			ev.SetAckFunc(func() error {
-				return r.redisClient.XAck(context.TODO(), topic, group, v.ID).Err()
+				delete(r.attempts, v.ID)
+				return r.redisClient.XAck(context.Background(), topic, group, v.ID).Err()
+			})
+			ev.SetNackFunc(func() error {
+				// no way to nack a message. Best you can do is to ack and readd
+				if err := r.redisClient.XAck(context.Background(), topic, group, v.ID).Err(); err != nil {
+					return err
+				}
+				attempt := r.attempts[v.ID]
+				if retryLimit > 0 && attempt > retryLimit {
+					// don't readd
+					delete(r.attempts, v.ID)
+					return nil
+				}
+				bytes, err := json.Marshal(ev)
+				if err != nil {
+					return errors.Wrap(err, "Error encoding event")
+				}
+				return r.redisClient.XAdd(context.Background(), &redis.XAddArgs{
+					Stream: fmt.Sprintf("stream-%s", ev.Topic),
+					Values: map[string]interface{}{"event": string(bytes), "attempt": attempt + 1},
+				}).Err()
 			})
 		}
 		ch <- ev
@@ -162,7 +190,7 @@ func (r *redisStream) processStreamRes(res *redis.XStreamSliceCmd, ch chan event
 			continue
 		}
 		// TODO check for error
-		r.redisClient.XAck(context.TODO(), topic, group, v.ID)
+		r.redisClient.XAck(context.Background(), topic, group, v.ID)
 	}
 	return nil
 }
