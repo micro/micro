@@ -83,7 +83,7 @@ func (r *redisBroker) Subscribe(topic string, h broker.Handler, opts ...broker.S
 	if len(topic) == 0 {
 		return nil, events.ErrMissingTopic
 	}
-	topic = fmt.Sprintf("broker-%s", topic)
+
 	opt := broker.SubscribeOptions{
 		Context: context.Background(),
 	}
@@ -96,7 +96,7 @@ func (r *redisBroker) Subscribe(topic string, h broker.Handler, opts ...broker.S
 	if len(group) == 0 {
 		group = uuid.New().String()
 	}
-	err := r.consumeWithGroup(topic, group, h, opt.ErrorHandler)
+	err := r.consumeWithGroup(fmt.Sprintf("broker-%s", topic), group, h, opt.ErrorHandler)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,6 @@ func (r *redisBroker) consumeWithGroup(topic, group string, h broker.Handler, eh
 				Streams:  []string{topic, ">"},
 				Block:    0,
 			})
-
 			if err := r.processStreamRes(res, topic, group, h, eh); err != nil {
 				return
 			}
@@ -165,7 +164,6 @@ func (r *redisBroker) processStreamRes(res *redis.XStreamSliceCmd, topic, group 
 			continue
 		}
 		if err := h(&msg); err != nil {
-			logger.Error(err)
 			if eh != nil {
 				eh(&msg, err)
 			}
