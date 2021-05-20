@@ -3,6 +3,7 @@ package broker
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 	"testing"
 	"time"
@@ -18,7 +19,15 @@ type testObj struct {
 }
 
 func TestBroker(t *testing.T) {
-	b := NewBroker(broker.Addrs("localhost:6379"))
+	host := os.Getenv("REDIS_HOST")
+	if len(host) == 0 {
+		host = "localhost"
+	}
+	port := os.Getenv("REDIS_PORT")
+	if len(port) == 0 {
+		port = "6379"
+	}
+	b := NewBroker(broker.Addrs(fmt.Sprintf("%s:%s", host, port)))
 
 	assert.NoError(t, b.Connect())
 
