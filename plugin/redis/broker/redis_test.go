@@ -27,7 +27,7 @@ func TestBroker(t *testing.T) {
 	if len(port) == 0 {
 		port = "6379"
 	}
-	b := NewBroker(broker.Addrs(fmt.Sprintf("%s:%s", host, port)))
+	b := NewBroker(broker.Addrs(fmt.Sprintf("redis://%s:%s", host, port)))
 
 	assert.NoError(t, b.Connect())
 

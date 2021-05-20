@@ -1,10 +1,15 @@
 package broker
 
-import "crypto/tls"
+import (
+	"context"
+	"crypto/tls"
+
+	"github.com/micro/micro/v3/service/broker"
+)
 
 type optionsKey struct{}
 
-// Options which are used to configure the nats stream
+// Options which are used to configure the redis broker
 type Options struct {
 	Address   string
 	User      string
@@ -36,5 +41,14 @@ func Password(password string) Option {
 func TLSConfig(tlsConfig *tls.Config) Option {
 	return func(o *Options) {
 		o.TLSConfig = tlsConfig
+	}
+}
+
+func RedisOptions(opts Options) broker.Option {
+	return func(o *broker.Options) {
+		if o.Context == nil {
+			o.Context = context.Background()
+		}
+		o.Context = context.WithValue(o.Context, optionsKey{}, opts)
 	}
 }
