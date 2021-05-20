@@ -2,7 +2,7 @@ package stream
 
 import "crypto/tls"
 
-// Options which are used to configure the nats stream
+// Options which are used to configure the redis stream
 type Options struct {
 	Address   string
 	User      string
