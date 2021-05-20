@@ -18,10 +18,10 @@ package grpc
 
 import (
 	"context"
-	"io"
 	"fmt"
-	"strings"
+	"io"
 	"os"
+	"strings"
 	"sync"
 
 	"google.golang.org/grpc/codes"
