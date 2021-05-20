@@ -194,8 +194,20 @@ func (r *redisBroker) setOption(opts ...broker.Option) {
 	for _, o := range opts {
 		o(&r.opts)
 	}
+	// if no specific redis options passed then parse the broker address
 	if ropts, ok := r.opts.Context.Value(optionsKey{}).(Options); ok {
 		r.ropts = ropts
+	} else {
+		url, err := redis.ParseURL(r.opts.Addrs[0])
+		if err != nil {
+			panic(err)
+		}
+		r.ropts = Options{
+			Address:   url.Addr,
+			User:      url.Username,
+			Password:  url.Password,
+			TLSConfig: url.TLSConfig,
+		}
 	}
 	rc := redis.NewClient(&redis.Options{
 		Addr:      r.ropts.Address,
