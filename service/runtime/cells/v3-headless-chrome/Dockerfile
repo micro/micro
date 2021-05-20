@@ -1,4 +1,4 @@
-FROM micro/cells:v3
+FROM micro/cells:v3 as builder
 
 #
 # headless chrome
