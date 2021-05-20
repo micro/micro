@@ -122,7 +122,12 @@ func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Str
 				mutex.Unlock()
 			}
 		}
-		ev, ok := <-evChan
+		var ev events.Event
+		var ok bool
+		select {
+		case <-rsp.Context().Done():
+		case ev, ok = <-evChan:
+		}
 		if !ok {
 			rsp.Close()
 			return nil
