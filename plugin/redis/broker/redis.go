@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
@@ -12,6 +13,10 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/pkg/errors"
+)
+
+var (
+	errHandler = fmt.Errorf("error from handler")
 )
 
 type redisBroker struct {
@@ -96,17 +101,18 @@ func (r *redisBroker) Subscribe(topic string, h broker.Handler, opts ...broker.S
 	if len(group) == 0 {
 		group = uuid.New().String()
 	}
-	err := r.consumeWithGroup(fmt.Sprintf("broker-%s", topic), group, h, opt.ErrorHandler)
-	if err != nil {
-		return nil, err
-	}
-	s := subscriber{
+	ret := subscriber{
 		opts:   opt,
 		broker: r,
 		topic:  topic,
 		queue:  group,
 	}
-	return &s, nil
+
+	err := r.consumeWithGroup(fmt.Sprintf("broker-%s", topic), group, h, opt.ErrorHandler)
+	if err != nil {
+		return nil, err
+	}
+	return &ret, nil
 
 }
 
@@ -123,33 +129,72 @@ func (r *redisBroker) consumeWithGroup(topic, group string, h broker.Handler, eh
 	}
 	consumerName := uuid.New().String()
 	go func() {
+		defer func() {
+			// try to clean up the consumer
+			r.redisClient.XGroupDelConsumer(context.Background(), topic, group, consumerName)
+		}()
+		// only stop processing if we get an error while from the handler, in all other cases continue
 		for {
-			res := r.redisClient.XReadGroup(context.Background(), &redis.XReadGroupArgs{
-				Group:    group,
-				Consumer: consumerName,
-				Streams:  []string{topic, ">"},
-				Block:    0,
-			})
-			if err := r.processStreamRes(res, topic, group, h, eh); err != nil {
+			// sweep up any old pending messages
+			pend, err := r.redisClient.XPendingExt(context.Background(), &redis.XPendingExtArgs{
+				Stream: topic,
+				Group:  group,
+				Start:  "-",
+				End:    "+",
+				Count:  50,
+			}).Result()
+			if err != nil && err != redis.Nil {
+				logger.Errorf("Error finding pending messages %s", err)
 				return
 			}
+			pendingIDs := make([]string, len(pend))
+			for i, p := range pend {
+				pendingIDs[i] = p.ID
+			}
+			if len(pendingIDs) > 0 {
+				msgs, err := r.redisClient.XClaim(context.Background(), &redis.XClaimArgs{
+					Stream:   topic,
+					Group:    group,
+					Consumer: consumerName,
+					MinIdle:  60 * time.Second,
+				}).Result()
+				if err != nil && err != redis.Nil {
+					logger.Errorf("Error claiming message %s", err)
+					continue
+				}
+				if err := r.processMessages(msgs, topic, group, h, eh); err == errHandler {
+					logger.Errorf("Error processing message %s", err)
+					return
+				}
+			}
+			for {
+				res := r.redisClient.XReadGroup(context.Background(), &redis.XReadGroupArgs{
+					Group:    group,
+					Consumer: consumerName,
+					Streams:  []string{topic, ">"},
+					Block:    0,
+				})
+				sl, err := res.Result()
+				if err != nil {
+					logger.Errorf("Error reading from stream %s", err)
+					continue
+				}
+				if sl == nil || len(sl) == 0 {
+					logger.Errorf("No data received from stream")
+					continue
+				}
+				if err := r.processMessages(sl[0].Messages, topic, group, h, eh); err == errHandler {
+					return
+				}
+			}
 		}
+
 	}()
 	return nil
 }
 
-func (r *redisBroker) processStreamRes(res *redis.XStreamSliceCmd, topic, group string, h broker.Handler, eh broker.ErrorHandler) error {
-	sl, err := res.Result()
-	if err != nil {
-		logger.Errorf("Error reading from stream %s", err)
-		return err
-	}
-	if sl == nil {
-		logger.Errorf("No data received from stream")
-		return fmt.Errorf("no data received from stream")
-	}
-
-	for _, v := range sl[0].Messages {
+func (r *redisBroker) processMessages(msgs []redis.XMessage, topic, group string, h broker.Handler, eh broker.ErrorHandler) error {
+	for _, v := range msgs {
 		evBytes := v.Values["event"]
 		bStr, ok := evBytes.(string)
 		if !ok {
@@ -167,6 +212,7 @@ func (r *redisBroker) processStreamRes(res *redis.XStreamSliceCmd, topic, group 
 			if eh != nil {
 				eh(&msg, err)
 			}
+			return errHandler
 		}
 
 		// TODO check for error
@@ -210,10 +256,11 @@ func (r *redisBroker) setOption(opts ...broker.Option) {
 		}
 	}
 	rc := redis.NewClient(&redis.Options{
-		Addr:      r.ropts.Address,
-		Username:  r.ropts.User,
-		Password:  r.ropts.Password,
-		TLSConfig: r.ropts.TLSConfig,
+		Addr:        r.ropts.Address,
+		Username:    r.ropts.User,
+		Password:    r.ropts.Password,
+		TLSConfig:   r.ropts.TLSConfig,
+		ReadTimeout: 5 * time.Second,
 	})
 	r.redisClient = rc
 }

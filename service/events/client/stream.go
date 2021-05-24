@@ -87,12 +87,15 @@ func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan eve
 			evt := util.DeserializeEvent(ev)
 			if !options.AutoAck {
 				evt.SetNackFunc(func() error {
+					log.Infof("Nacking %s", evt.ID)
 					return stream.SendMsg(&pb.AckRequest{Id: evt.ID, Success: false})
 				})
 				evt.SetAckFunc(func() error {
+					log.Infof("Acking %s", evt.ID)
 					return stream.SendMsg(&pb.AckRequest{Id: evt.ID, Success: true})
 				})
 			}
+			log.Infof("Received event %s %s", evt.Topic, evt.ID)
 			evChan <- evt
 		}
 	}()
