@@ -26,6 +26,7 @@ import (
 	"github.com/micro/micro/v3/service/api/router"
 	regRouter "github.com/micro/micro/v3/service/api/router/registry"
 	httpapi "github.com/micro/micro/v3/service/api/server/http"
+	"github.com/micro/micro/v3/service/config"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/store"
@@ -33,7 +34,11 @@ import (
 	"github.com/micro/micro/v3/util/acme/autocert"
 	"github.com/micro/micro/v3/util/acme/certmagic"
 	"github.com/micro/micro/v3/util/helper"
+	"github.com/micro/micro/v3/util/opentelemetry"
+	"github.com/micro/micro/v3/util/opentelemetry/jaeger"
 	"github.com/micro/micro/v3/util/sync/memory"
+	"github.com/micro/micro/v3/util/wrapper"
+	"github.com/opentracing/opentracing-go"
 	"github.com/urfave/cli/v2"
 )
 
@@ -325,6 +330,25 @@ func Run(ctx *cli.Context) error {
 			h = v(h)
 		}
 	}
+
+	// Retrieve config:
+	jaegerAddress, _ := config.Get("jaegeraddress")
+
+	// Create a new Jaeger opentracer:
+	openTracer, traceCloser, err := jaeger.New(
+		opentelemetry.WithServiceName("API"),
+		opentelemetry.WithTraceReporterAddress(jaegerAddress.String(jaeger.DefaultReporterAddress)),
+	)
+	defer traceCloser.Close() // Make sure we flush any pending traces before shutdown:
+	if err != nil {
+		log.Warnf("Unable to prepare a Jaeger tracer: %s", err)
+	} else {
+		// Set the global default opentracing tracer:
+		opentracing.SetGlobalTracer(openTracer)
+	}
+
+	// append the opentelemetry wrapper
+	h = wrapper.HTTPWrapper(h)
 
 	// append the auth wrapper
 	h = auth.Wrapper(rr, Namespace)(h)
