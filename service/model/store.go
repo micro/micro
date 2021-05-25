@@ -95,8 +95,11 @@ func New(instance interface{}, options *Options) Model {
 	}
 	// the default index
 	idx := DefaultIndex
+	if options.IdIndex != nil {
+		idx = *options.IdIndex
+	}
 
-	if len(options.Key) > 0 {
+	if len(options.Key) > 0 && idx.And == nil {
 		idx = newIndex(options.Key)
 	}
 
@@ -481,23 +484,33 @@ func (d *model) list(query Query, resultSlicePointer interface{}) error {
 }
 
 func (d *model) queryToListKey(i Index, q Query) string {
-	if q.Value == nil {
-		return fmt.Sprintf("%v:%v", d.namespace, indexPrefix(i))
+	ix := []Index{i}
+	if i.And != nil {
+		ix = i.And
+	}
+	if q.Value == nil && q.And == nil {
+		ret := []string{}
+		for _, i := range ix {
+			ret = append(ret, fmt.Sprintf("%v:%v", d.namespace, indexPrefix(i)))
+		}
+		return strings.Join(ret, ":")
 	}
 	if i.FieldName != i.Order.FieldName && i.Order.FieldName != "" {
 		return fmt.Sprintf("%v:%v:%v", d.namespace, indexPrefix(i), q.Value)
 	}
 
 	var val interface{}
-	switch d.instance.(type) {
-	case map[string]interface{}:
-		val = map[string]interface{}{}
-	default:
-		val = reflect.New(reflect.ValueOf(d.instance).Type()).Interface()
-	}
+	for _, i := range ix {
+		switch d.instance.(type) {
+		case map[string]interface{}:
+			val = map[string]interface{}{}
+		default:
+			val = reflect.New(reflect.ValueOf(d.instance).Type()).Interface()
+		}
 
-	if q.Value != nil {
-		d.setFieldValue(val, i.FieldName, q.Value)
+		if q.Value != nil {
+			d.setFieldValue(val, i.FieldName, q.Value)
+		}
 	}
 	return d.indexToKey(i, val, false)
 }
@@ -514,27 +527,28 @@ func (d *model) indexToKey(i Index, entry interface{}, appendID bool) string {
 	if i.Type == indexTypeAll {
 		return fmt.Sprintf("%v:%v", d.namespace, indexPrefix(i))
 	}
-	if i.FieldName == "ID" {
-		i.FieldName = d.options.Key
-	}
-
-	format := "%v:%v"
-	values := []interface{}{d.namespace, indexPrefix(i)}
-	filterFieldValue := d.getFieldValue(entry, i.FieldName)
-	orderFieldValue := d.getFieldValue(entry, i.FieldName)
-	orderFieldKey := i.FieldName
-
-	if i.FieldName != i.Order.FieldName && i.Order.FieldName != "" {
-		orderFieldValue = d.getFieldValue(entry, i.Order.FieldName)
-		orderFieldKey = i.Order.FieldName
-	}
 
 	ix := i.And
 	if len(ix) == 0 {
 		ix = []Index{i}
 	}
+	format := "%v:%v"
+	values := []interface{}{d.namespace, indexPrefix(i)}
 
 	for _, i := range ix {
+		if i.FieldName == "ID" {
+			i.FieldName = d.options.Key
+		}
+
+		filterFieldValue := d.getFieldValue(entry, i.FieldName)
+		orderFieldValue := d.getFieldValue(entry, i.FieldName)
+		orderFieldKey := i.FieldName
+
+		if i.FieldName != i.Order.FieldName && i.Order.FieldName != "" {
+			orderFieldValue = d.getFieldValue(entry, i.Order.FieldName)
+			orderFieldKey = i.Order.FieldName
+		}
+
 		switch i.Type {
 		case indexTypeEq:
 			// If the filtering field is different than the ordering field,
@@ -613,10 +627,18 @@ func (d *model) indexToKey(i Index, entry interface{}, appendID bool) string {
 			panic("bug in code, unhandled type: " + typName + " for field '" + orderFieldKey + "' on type '" + reflect.TypeOf(d.instance).String() + "'")
 		}
 
-		id := d.getFieldValue(entry, d.idIndex.FieldName)
-		if appendID {
+	}
+	if appendID {
+		if d.idIndex.And == nil {
+			id := d.getFieldValue(entry, d.idIndex.FieldName)
 			format += ":%v"
 			values = append(values, id)
+		} else {
+			for _, v := range d.idIndex.And {
+				id := d.getFieldValue(entry, v.FieldName)
+				format += ":%v"
+				values = append(values, id)
+			}
 		}
 	}
 	return fmt.Sprintf(format, values...)
