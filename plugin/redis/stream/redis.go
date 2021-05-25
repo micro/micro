@@ -147,7 +147,6 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 				pendingIDs[i] = p.ID
 			}
 
-			logger.Infof("Claiming %d pending messages", len(pendingIDs))
 			msgs, err := r.redisClient.XClaim(context.Background(), &redis.XClaimArgs{
 				Stream:   topic,
 				Group:    group,
@@ -167,7 +166,7 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 			if len(pendingIDs) < 50 {
 				break
 			}
-			start = pendingIDs[49]
+			start = incrementID(pendingIDs[49])
 		}
 		for {
 			res := r.redisClient.XReadGroup(context.Background(), &redis.XReadGroupArgs{
@@ -181,7 +180,6 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 				logger.Errorf("Error reading from stream %s", err)
 				return
 			}
-			logger.Infof("Reading from group %s %s %s %s returned %d %d", group, consumerName, topic, lastRead, len(sl), len(sl[0].Messages))
 			if sl == nil || len(sl) == 0 || len(sl[0].Messages) == 0 {
 				logger.Errorf("No data received from stream")
 				return
@@ -199,7 +197,6 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 func (r *redisStream) processMessages(msgs []redis.XMessage, ch chan events.Event, topic, group string, autoAck bool, retryLimit int) error {
 	for _, v := range msgs {
 		vid := v.ID
-		logger.Infof("Processing %s %s %s %b", topic, group, vid, autoAck)
 		evBytes := v.Values["event"]
 		var ev events.Event
 		bStr, ok := evBytes.(string)
@@ -261,4 +258,21 @@ func (r *redisStream) processMessages(msgs []redis.XMessage, ch chan events.Even
 		r.redisClient.XAck(context.Background(), topic, group, vid)
 	}
 	return nil
+}
+
+func incrementID(id string) string {
+	// id is of form 12345-0
+	parts := strings.Split(id, "-")
+	if len(parts) != 2 {
+		// not sure what to do with this
+		return id
+	}
+	i, err := strconv.Atoi(parts[1])
+	if err != nil {
+		// not sure what to do with this
+		return id
+	}
+	i++
+	return fmt.Sprintf("%s-%d", parts[0], i)
+
 }

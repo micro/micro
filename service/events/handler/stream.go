@@ -110,9 +110,7 @@ func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Str
 			mutex.RLock()
 			ev, ok := ackMap[req.Id]
 			mutex.RUnlock()
-			logger.Infof("Acking %s %b", req.Id, req.Success)
 			if !ok {
-				logger.Infof("Not found %s", req.Id)
 				// not found, probably timed out after ackWait
 				continue
 			}
@@ -136,7 +134,6 @@ func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Str
 			mutex.Lock()
 			for k, v := range ackMap {
 				if v.sent.Add(2 * time.Duration(req.AckWait)).Before(now) {
-					logger.Infof("Deleting ack map key %s", k)
 					delete(ackMap, k)
 				}
 			}
@@ -158,7 +155,6 @@ func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Str
 				ackMap[ev.ID] = eventSent{event: ev, sent: time.Now()}
 				mutex.Unlock()
 			}
-			logger.Infof("Sending %s %s", ev.Topic, ev.ID)
 			if err := rsp.Send(util.SerializeEvent(&ev)); err != nil {
 				return
 			}
