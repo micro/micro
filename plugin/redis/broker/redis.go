@@ -3,7 +3,9 @@ package broker
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
@@ -12,6 +14,10 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/pkg/errors"
+)
+
+var (
+	errHandler = fmt.Errorf("error from handler")
 )
 
 type redisBroker struct {
@@ -96,17 +102,18 @@ func (r *redisBroker) Subscribe(topic string, h broker.Handler, opts ...broker.S
 	if len(group) == 0 {
 		group = uuid.New().String()
 	}
-	err := r.consumeWithGroup(fmt.Sprintf("broker-%s", topic), group, h, opt.ErrorHandler)
-	if err != nil {
-		return nil, err
-	}
-	s := subscriber{
+	ret := subscriber{
 		opts:   opt,
 		broker: r,
 		topic:  topic,
 		queue:  group,
 	}
-	return &s, nil
+
+	err := r.consumeWithGroup(fmt.Sprintf("broker-%s", topic), group, h, opt.ErrorHandler)
+	if err != nil {
+		return nil, err
+	}
+	return &ret, nil
 
 }
 
@@ -115,6 +122,7 @@ func (r *redisBroker) String() string {
 }
 
 func (r *redisBroker) consumeWithGroup(topic, group string, h broker.Handler, eh broker.ErrorHandler) error {
+	topic = fmt.Sprintf("broker-%s", topic)
 	lastRead := "$"
 	if err := r.redisClient.XGroupCreateMkStream(context.Background(), topic, group, lastRead).Err(); err != nil {
 		if !strings.HasPrefix(err.Error(), "BUSYGROUP") {
@@ -123,33 +131,98 @@ func (r *redisBroker) consumeWithGroup(topic, group string, h broker.Handler, eh
 	}
 	consumerName := uuid.New().String()
 	go func() {
+		defer func() {
+			// try to clean up the consumer
+			r.redisClient.XGroupDelConsumer(context.Background(), topic, group, consumerName)
+		}()
+		// only stop processing if we get an error while from the handler, in all other cases continue
+		start := "-"
 		for {
-			res := r.redisClient.XReadGroup(context.Background(), &redis.XReadGroupArgs{
-				Group:    group,
-				Consumer: consumerName,
-				Streams:  []string{topic, ">"},
-				Block:    0,
-			})
-			if err := r.processStreamRes(res, topic, group, h, eh); err != nil {
+			// sweep up any old pending messages
+			pend, err := r.redisClient.XPendingExt(context.Background(), &redis.XPendingExtArgs{
+				Stream: topic,
+				Group:  group,
+				Start:  start,
+				End:    "+",
+				Count:  50,
+			}).Result()
+			if err != nil && err != redis.Nil {
+				logger.Errorf("Error finding pending messages %s", err)
 				return
 			}
+			if len(pend) == 0 {
+				break
+			}
+			pendingIDs := make([]string, len(pend))
+			for i, p := range pend {
+				pendingIDs[i] = p.ID
+			}
+			msgs, err := r.redisClient.XClaim(context.Background(), &redis.XClaimArgs{
+				Stream:   topic,
+				Group:    group,
+				Consumer: consumerName,
+				MinIdle:  60 * time.Second,
+				Messages: pendingIDs,
+			}).Result()
+			if err != nil && err != redis.Nil {
+				logger.Errorf("Error claiming message %s", err)
+				continue
+			}
+			if err := r.processMessages(msgs, topic, group, h, eh); err == errHandler {
+				logger.Errorf("Error processing message %s", err)
+				return
+			}
+			if len(pendingIDs) < 50 {
+				break
+			}
+			start = incrementID(pendingIDs[49])
 		}
+		for {
+			for {
+				res := r.redisClient.XReadGroup(context.Background(), &redis.XReadGroupArgs{
+					Group:    group,
+					Consumer: consumerName,
+					Streams:  []string{topic, ">"},
+					Block:    0,
+				})
+				sl, err := res.Result()
+				if err != nil && err != redis.Nil {
+					logger.Errorf("Error reading from stream %s", err)
+					continue
+				}
+				if sl == nil || len(sl) == 0 || len(sl[0].Messages) == 0 {
+					logger.Errorf("No data received from stream")
+					continue
+				}
+				if err := r.processMessages(sl[0].Messages, topic, group, h, eh); err == errHandler {
+					return
+				}
+			}
+		}
+
 	}()
 	return nil
 }
 
-func (r *redisBroker) processStreamRes(res *redis.XStreamSliceCmd, topic, group string, h broker.Handler, eh broker.ErrorHandler) error {
-	sl, err := res.Result()
+func incrementID(id string) string {
+	// id is of form 12345-0
+	parts := strings.Split(id, "-")
+	if len(parts) != 2 {
+		// not sure what to do with this
+		return id
+	}
+	i, err := strconv.Atoi(parts[1])
 	if err != nil {
-		logger.Errorf("Error reading from stream %s", err)
-		return err
+		// not sure what to do with this
+		return id
 	}
-	if sl == nil {
-		logger.Errorf("No data received from stream")
-		return fmt.Errorf("no data received from stream")
-	}
+	i++
+	return fmt.Sprintf("%s-%d", parts[0], i)
 
-	for _, v := range sl[0].Messages {
+}
+
+func (r *redisBroker) processMessages(msgs []redis.XMessage, topic, group string, h broker.Handler, eh broker.ErrorHandler) error {
+	for _, v := range msgs {
 		evBytes := v.Values["event"]
 		bStr, ok := evBytes.(string)
 		if !ok {
@@ -167,6 +240,7 @@ func (r *redisBroker) processStreamRes(res *redis.XStreamSliceCmd, topic, group 
 			if eh != nil {
 				eh(&msg, err)
 			}
+			return errHandler
 		}
 
 		// TODO check for error
@@ -210,10 +284,11 @@ func (r *redisBroker) setOption(opts ...broker.Option) {
 		}
 	}
 	rc := redis.NewClient(&redis.Options{
-		Addr:      r.ropts.Address,
-		Username:  r.ropts.User,
-		Password:  r.ropts.Password,
-		TLSConfig: r.ropts.TLSConfig,
+		Addr:        r.ropts.Address,
+		Username:    r.ropts.User,
+		Password:    r.ropts.Password,
+		TLSConfig:   r.ropts.TLSConfig,
+		ReadTimeout: 5 * time.Second,
 	})
 	r.redisClient = rc
 }
