@@ -7,6 +7,7 @@ import (
 
 // Index represents a data model index for fast access
 type Index struct {
+	And       []Index
 	FieldName string
 	// Type of index, eg. equality
 	Type  string
@@ -62,6 +63,10 @@ func ByEquality(fieldName string) Index {
 		Float64Max:           92233720368547,
 		Float32Max:           922337,
 	}
+}
+
+func IndexAnd(indexes ...Index) Index {
+	return Index{Type: "and", And: indexes}
 }
 
 func indexMatchesQuery(i Index, q Query) bool {

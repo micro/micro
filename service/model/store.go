@@ -304,7 +304,6 @@ func (d *model) Create(instance interface{}) error {
 		}
 	}
 
-	id := d.getFieldValue(instance, d.idIndex.FieldName)
 	for _, index := range append(d.options.Indexes, d.idIndex) {
 		// delete non id index keys to prevent stale index values
 		// ie.
@@ -323,14 +322,14 @@ func (d *model) Create(instance interface{}) error {
 			oldEntryFound &&
 			!reflect.DeepEqual(d.getFieldValue(oldEntry, index.FieldName), d.getFieldValue(instance, index.FieldName)) {
 
-			k := d.indexToKey(index, id, oldEntry, true)
+			k := d.indexToKey(index, oldEntry, true)
 			// TODO: set the table name in the query
 			err = d.options.Store.Delete(k, store.DeleteFrom(d.database, d.table))
 			if err != nil {
 				return err
 			}
 		}
-		k := d.indexToKey(index, id, instance, true)
+		k := d.indexToKey(index, instance, true)
 		if d.options.Debug {
 			fmt.Printf("Saving key '%v', value: '%v'\n", k, string(js))
 		}
@@ -500,7 +499,7 @@ func (d *model) queryToListKey(i Index, q Query) string {
 	if q.Value != nil {
 		d.setFieldValue(val, i.FieldName, q.Value)
 	}
-	return d.indexToKey(i, "", val, false)
+	return d.indexToKey(i, val, false)
 }
 
 // appendID true should be used when saving, false when querying
@@ -511,7 +510,7 @@ func (d *model) queryToListKey(i Index, q Query) string {
 // users/30/1
 // users/30/2
 // without ids we could only have one 30 year old user in the index
-func (d *model) indexToKey(i Index, id interface{}, entry interface{}, appendID bool) string {
+func (d *model) indexToKey(i Index, entry interface{}, appendID bool) string {
 	if i.Type == indexTypeAll {
 		return fmt.Sprintf("%v:%v", d.namespace, indexPrefix(i))
 	}
@@ -530,87 +529,95 @@ func (d *model) indexToKey(i Index, id interface{}, entry interface{}, appendID 
 		orderFieldKey = i.Order.FieldName
 	}
 
-	switch i.Type {
-	case indexTypeEq:
-		// If the filtering field is different than the ordering field,
-		// append the filter key to the key.
-		if i.FieldName != i.Order.FieldName && i.Order.FieldName != "" {
-			format += ":%v"
-			values = append(values, filterFieldValue)
-		}
+	ix := i.And
+	if len(ix) == 0 {
+		ix = []Index{i}
 	}
 
-	// Handle the ordering part of the key.
-	// The filter and the ordering field might be the same
-	typ := reflect.TypeOf(orderFieldValue)
-	typName := "nil"
-	if typ != nil {
-		typName = typ.String()
-	}
-	format += ":%v"
+	for _, i := range ix {
+		switch i.Type {
+		case indexTypeEq:
+			// If the filtering field is different than the ordering field,
+			// append the filter key to the key.
+			if i.FieldName != i.Order.FieldName && i.Order.FieldName != "" {
+				format += ":%v"
+				values = append(values, filterFieldValue)
+			}
+		}
 
-	switch v := orderFieldValue.(type) {
-	case string:
-		if i.Order.Type != OrderTypeUnordered {
-			values = append(values, d.getOrderedStringFieldKey(i, v))
-			break
+		// Handle the ordering part of the key.
+		// The filter and the ordering field might be the same
+		typ := reflect.TypeOf(orderFieldValue)
+		typName := "nil"
+		if typ != nil {
+			typName = typ.String()
 		}
-		values = append(values, v)
-	case int64:
-		// int64 gets padded to 19 characters as the maximum value of an int64
-		// is 9223372036854775807
-		// @todo handle negative numbers
-		if i.Order.Type == OrderTypeDesc {
-			values = append(values, fmt.Sprintf("%019d", math.MaxInt64-v))
-			break
-		}
-		values = append(values, fmt.Sprintf("%019d", v))
-	case float32:
-		// @todo fix display and padding of floats
-		if i.Order.Type == OrderTypeDesc {
-			values = append(values, fmt.Sprintf(i.FloatFormat, i.Float32Max-v))
-			break
-		}
-		values = append(values, fmt.Sprintf(i.FloatFormat, v))
-	case float64:
-		// @todo fix display and padding of floats
-		if i.Order.Type == OrderTypeDesc {
-			values = append(values, fmt.Sprintf(i.FloatFormat, i.Float64Max-v))
-			break
-		}
-		values = append(values, fmt.Sprintf(i.FloatFormat, v))
-	case int:
-		// int gets padded to the same length as int64 to gain
-		// resiliency in case of model type changes.
-		// This could be removed once migrations are implemented
-		// so savings in space for a type reflect in savings in space in the index too.
-		if i.Order.Type == OrderTypeDesc {
-			values = append(values, fmt.Sprintf("%019d", math.MaxInt32-v))
-			break
-		}
-		values = append(values, fmt.Sprintf("%019d", v))
-	case int32:
-		// int gets padded to the same length as int64 to gain
-		// resiliency in case of model type changes.
-		// This could be removed once migrations are implemented
-		// so savings in space for a type reflect in savings in space in the index too.
-		if i.Order.Type == OrderTypeDesc {
-			values = append(values, fmt.Sprintf("%019d", math.MaxInt32-v))
-			break
-		}
-		values = append(values, fmt.Sprintf("%019d", v))
-	case bool:
-		if i.Order.Type == OrderTypeDesc {
-			v = !v
-		}
-		values = append(values, v)
-	default:
-		panic("bug in code, unhandled type: " + typName + " for field '" + orderFieldKey + "' on type '" + reflect.TypeOf(d.instance).String() + "'")
-	}
-
-	if appendID {
 		format += ":%v"
-		values = append(values, id)
+
+		switch v := orderFieldValue.(type) {
+		case string:
+			if i.Order.Type != OrderTypeUnordered {
+				values = append(values, d.getOrderedStringFieldKey(i, v))
+				break
+			}
+			values = append(values, v)
+		case int64:
+			// int64 gets padded to 19 characters as the maximum value of an int64
+			// is 9223372036854775807
+			// @todo handle negative numbers
+			if i.Order.Type == OrderTypeDesc {
+				values = append(values, fmt.Sprintf("%019d", math.MaxInt64-v))
+				break
+			}
+			values = append(values, fmt.Sprintf("%019d", v))
+		case float32:
+			// @todo fix display and padding of floats
+			if i.Order.Type == OrderTypeDesc {
+				values = append(values, fmt.Sprintf(i.FloatFormat, i.Float32Max-v))
+				break
+			}
+			values = append(values, fmt.Sprintf(i.FloatFormat, v))
+		case float64:
+			// @todo fix display and padding of floats
+			if i.Order.Type == OrderTypeDesc {
+				values = append(values, fmt.Sprintf(i.FloatFormat, i.Float64Max-v))
+				break
+			}
+			values = append(values, fmt.Sprintf(i.FloatFormat, v))
+		case int:
+			// int gets padded to the same length as int64 to gain
+			// resiliency in case of model type changes.
+			// This could be removed once migrations are implemented
+			// so savings in space for a type reflect in savings in space in the index too.
+			if i.Order.Type == OrderTypeDesc {
+				values = append(values, fmt.Sprintf("%019d", math.MaxInt32-v))
+				break
+			}
+			values = append(values, fmt.Sprintf("%019d", v))
+		case int32:
+			// int gets padded to the same length as int64 to gain
+			// resiliency in case of model type changes.
+			// This could be removed once migrations are implemented
+			// so savings in space for a type reflect in savings in space in the index too.
+			if i.Order.Type == OrderTypeDesc {
+				values = append(values, fmt.Sprintf("%019d", math.MaxInt32-v))
+				break
+			}
+			values = append(values, fmt.Sprintf("%019d", v))
+		case bool:
+			if i.Order.Type == OrderTypeDesc {
+				v = !v
+			}
+			values = append(values, v)
+		default:
+			panic("bug in code, unhandled type: " + typName + " for field '" + orderFieldKey + "' on type '" + reflect.TypeOf(d.instance).String() + "'")
+		}
+
+		id := d.getFieldValue(entry, d.idIndex.FieldName)
+		if appendID {
+			format += ":%v"
+			values = append(values, id)
+		}
 	}
 	return fmt.Sprintf(format, values...)
 }
@@ -684,7 +691,7 @@ func (d *model) Delete(query Query) error {
 	// be deletable by id again but the maintained.options.Indexes
 	// will be stuck in limbo
 	for _, index := range append(d.options.Indexes, d.idIndex) {
-		key := d.indexToKey(index, d.getFieldValue(oldEntry, d.idIndex.FieldName), oldEntry, true)
+		key := d.indexToKey(index, oldEntry, true)
 		if d.options.Debug {
 			fmt.Printf("Deleting key '%v'\n", key)
 		}
