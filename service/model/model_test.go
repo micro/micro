@@ -52,6 +52,42 @@ func TestQueryEqualsByID(t *testing.T) {
 	}
 }
 
+type UserWrapper struct {
+	NewId string
+	*User
+}
+
+func TestEmbeddedQueryEqualsByID(t *testing.T) {
+	table := New(UserWrapper{}, &Options{
+		Store:     fs.NewStore(),
+		Key:       "NewId",
+		Namespace: uuid.Must(uuid.NewV4()).String(),
+	})
+
+	err := table.Create(UserWrapper{NewId: "1", User: &User{
+		Age: 12,
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = table.Create(UserWrapper{NewId: "2", User: &User{
+		Age: 25,
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	users := []UserWrapper{}
+	q := QueryEquals("NewId", "1")
+	q.Order.Type = OrderTypeUnordered
+	err = table.Read(q, &users)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 1 {
+		t.Fatal(users)
+	}
+}
+
 type User1 struct {
 	Id      string `json:"id"`
 	Age     int    `json:"age"`
