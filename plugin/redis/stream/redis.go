@@ -28,11 +28,10 @@ func NewStream(opts ...Option) (events.Stream, error) {
 		o(&options)
 	}
 	rc := redis.NewClient(&redis.Options{
-		Addr:        options.Address,
-		Username:    options.User,
-		Password:    options.Password,
-		TLSConfig:   options.TLSConfig,
-		ReadTimeout: 5 * time.Second,
+		Addr:      options.Address,
+		Username:  options.User,
+		Password:  options.Password,
+		TLSConfig: options.TLSConfig,
 	})
 	rs := &redisStream{
 		redisClient: rc,
@@ -221,7 +220,6 @@ func (r *redisStream) processMessages(msgs []redis.XMessage, ch chan events.Even
 				delete(r.attempts, attemptsKey)
 				r.Unlock()
 				err := r.redisClient.XAck(context.Background(), topic, group, vid).Err()
-				logger.Infof("Acking %s %s %s %s", topic, group, vid, err)
 				return err
 			})
 			ev.SetNackFunc(func() error {
@@ -249,7 +247,6 @@ func (r *redisStream) processMessages(msgs []redis.XMessage, ch chan events.Even
 				}).Err()
 			})
 		}
-		logger.Infof("Sending %s %s %s", topic, ev.ID, vid)
 		ch <- ev
 		if !autoAck {
 			continue

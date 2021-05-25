@@ -102,18 +102,18 @@ func (r *redisBroker) Subscribe(topic string, h broker.Handler, opts ...broker.S
 	if len(group) == 0 {
 		group = uuid.New().String()
 	}
-	ret := subscriber{
+
+	err := r.consumeWithGroup(topic, group, h, opt.ErrorHandler)
+	if err != nil {
+		return nil, err
+	}
+	s := subscriber{
 		opts:   opt,
 		broker: r,
 		topic:  topic,
 		queue:  group,
 	}
-
-	err := r.consumeWithGroup(fmt.Sprintf("broker-%s", topic), group, h, opt.ErrorHandler)
-	if err != nil {
-		return nil, err
-	}
-	return &ret, nil
+	return &s, nil
 
 }
 
@@ -178,25 +178,23 @@ func (r *redisBroker) consumeWithGroup(topic, group string, h broker.Handler, eh
 			start = incrementID(pendingIDs[49])
 		}
 		for {
-			for {
-				res := r.redisClient.XReadGroup(context.Background(), &redis.XReadGroupArgs{
-					Group:    group,
-					Consumer: consumerName,
-					Streams:  []string{topic, ">"},
-					Block:    0,
-				})
-				sl, err := res.Result()
-				if err != nil && err != redis.Nil {
-					logger.Errorf("Error reading from stream %s", err)
-					continue
-				}
-				if sl == nil || len(sl) == 0 || len(sl[0].Messages) == 0 {
-					logger.Errorf("No data received from stream")
-					continue
-				}
-				if err := r.processMessages(sl[0].Messages, topic, group, h, eh); err == errHandler {
-					return
-				}
+			res := r.redisClient.XReadGroup(context.Background(), &redis.XReadGroupArgs{
+				Group:    group,
+				Consumer: consumerName,
+				Streams:  []string{topic, ">"},
+				Block:    0,
+			})
+			sl, err := res.Result()
+			if err != nil && err != redis.Nil {
+				logger.Errorf("Error reading from stream %s", err)
+				continue
+			}
+			if sl == nil || len(sl) == 0 || len(sl[0].Messages) == 0 {
+				logger.Errorf("No data received from stream")
+				continue
+			}
+			if err := r.processMessages(sl[0].Messages, topic, group, h, eh); err == errHandler {
+				return
 			}
 		}
 
@@ -284,11 +282,10 @@ func (r *redisBroker) setOption(opts ...broker.Option) {
 		}
 	}
 	rc := redis.NewClient(&redis.Options{
-		Addr:        r.ropts.Address,
-		Username:    r.ropts.User,
-		Password:    r.ropts.Password,
-		TLSConfig:   r.ropts.TLSConfig,
-		ReadTimeout: 5 * time.Second,
+		Addr:      r.ropts.Address,
+		Username:  r.ropts.User,
+		Password:  r.ropts.Password,
+		TLSConfig: r.ropts.TLSConfig,
 	})
 	r.redisClient = rc
 }
