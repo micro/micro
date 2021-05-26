@@ -62,8 +62,8 @@ func (s *serviceSub) run() error {
 		// TODO: do not fail silently
 		msg, err := s.stream.Recv()
 		if err != nil {
-			if logger.V(logger.DebugLevel, logger.DefaultLogger) {
-				logger.Debugf("Streaming error for subcription to topic %s: %v", s.Topic(), err)
+			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+				logger.Errorf("Streaming error for subscription to topic %s: %v", s.Topic(), err)
 			}
 
 			// close the exit channel
