@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -16,6 +17,7 @@ import (
 )
 
 type redisStream struct {
+	sync.RWMutex
 	redisClient *redis.Client
 	attempts    map[string]int
 }
@@ -114,6 +116,57 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 	consumerName := uuid.New().String()
 	ch := make(chan events.Event)
 	go func() {
+		defer func() {
+			// try to clean up the consumer
+			r.redisClient.XGroupDelConsumer(context.Background(), topic, group, consumerName)
+			close(ch)
+
+		}()
+
+		start := "-"
+		for {
+
+			// sweep up any old pending messages
+			pend, err := r.redisClient.XPendingExt(context.Background(), &redis.XPendingExtArgs{
+				Stream: topic,
+				Group:  group,
+				Start:  start,
+				End:    "+",
+				Count:  50,
+			}).Result()
+			if err != nil && err != redis.Nil {
+				logger.Errorf("Error finding pending messages %s", err)
+				return
+			}
+			if len(pend) == 0 {
+				break
+			}
+			pendingIDs := make([]string, len(pend))
+			for i, p := range pend {
+				pendingIDs[i] = p.ID
+			}
+
+			msgs, err := r.redisClient.XClaim(context.Background(), &redis.XClaimArgs{
+				Stream:   topic,
+				Group:    group,
+				Consumer: consumerName,
+				MinIdle:  60 * time.Second,
+				Messages: pendingIDs,
+			}).Result()
+			if err != nil {
+				logger.Errorf("Error claiming message %s", err)
+				return
+			}
+			if err := r.processMessages(msgs, ch, topic, group, options.AutoAck, options.RetryLimit); err != nil {
+				logger.Errorf("Error reprocessing message %s", err)
+				return
+			}
+
+			if len(pendingIDs) < 50 {
+				break
+			}
+			start = incrementID(pendingIDs[49])
+		}
 		for {
 			res := r.redisClient.XReadGroup(context.Background(), &redis.XReadGroupArgs{
 				Group:    group,
@@ -121,9 +174,18 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 				Streams:  []string{topic, ">"},
 				Block:    0,
 			})
+			sl, err := res.Result()
+			if err != nil && err != redis.Nil {
+				logger.Errorf("Error reading from stream %s", err)
+				return
+			}
+			if sl == nil || len(sl) == 0 || len(sl[0].Messages) == 0 {
+				logger.Errorf("No data received from stream")
+				return
+			}
 
-			if err := r.processStreamRes(res, ch, topic, group, options.AutoAck, options.RetryLimit); err != nil {
-				close(ch)
+			if err := r.processMessages(sl[0].Messages, ch, topic, group, options.AutoAck, options.RetryLimit); err != nil {
+				logger.Errorf("Error processing message %s", err)
 				return
 			}
 		}
@@ -131,48 +193,48 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 	return ch, nil
 }
 
-func (r *redisStream) processStreamRes(res *redis.XStreamSliceCmd, ch chan events.Event, topic, group string, autoAck bool, retryLimit int) error {
-	topic = fmt.Sprintf("stream-%s", topic)
-	sl, err := res.Result()
-	if err != nil {
-		logger.Errorf("Error reading from stream %s", err)
-		return err
-	}
-	if sl == nil {
-		logger.Errorf("No data received from stream")
-		return fmt.Errorf("no data received from stream")
-	}
-
-	for _, v := range sl[0].Messages {
+func (r *redisStream) processMessages(msgs []redis.XMessage, ch chan events.Event, topic, group string, autoAck bool, retryLimit int) error {
+	for _, v := range msgs {
+		vid := v.ID
 		evBytes := v.Values["event"]
 		var ev events.Event
 		bStr, ok := evBytes.(string)
 		if !ok {
-			logger.Warnf("Failed to convert to bytes, discarding %s", v.ID)
-			r.redisClient.XAck(context.Background(), topic, group, v.ID)
+			logger.Warnf("Failed to convert to bytes, discarding %s", vid)
+			r.redisClient.XAck(context.Background(), topic, group, vid)
 			continue
 		}
 		if err := json.Unmarshal([]byte(bStr), &ev); err != nil {
-			logger.Warnf("Failed to unmarshal event, discarding %s %s", err, v.ID)
-			r.redisClient.XAck(context.Background(), topic, group, v.ID)
+			logger.Warnf("Failed to unmarshal event, discarding %s %s", err, vid)
+			r.redisClient.XAck(context.Background(), topic, group, vid)
 			continue
 		}
-		r.attempts[v.ID], _ = strconv.Atoi(v.Values["attempt"].(string))
+		attemptsKey := fmt.Sprintf("%s:%s:%s", topic, group, vid)
+		r.Lock()
+		r.attempts[attemptsKey], _ = strconv.Atoi(v.Values["attempt"].(string))
+		r.Unlock()
 
 		if !autoAck {
 			ev.SetAckFunc(func() error {
-				delete(r.attempts, v.ID)
-				return r.redisClient.XAck(context.Background(), topic, group, v.ID).Err()
+				r.Lock()
+				delete(r.attempts, attemptsKey)
+				r.Unlock()
+				err := r.redisClient.XAck(context.Background(), topic, group, vid).Err()
+				return err
 			})
 			ev.SetNackFunc(func() error {
 				// no way to nack a message. Best you can do is to ack and readd
-				if err := r.redisClient.XAck(context.Background(), topic, group, v.ID).Err(); err != nil {
+				if err := r.redisClient.XAck(context.Background(), topic, group, vid).Err(); err != nil {
 					return err
 				}
-				attempt := r.attempts[v.ID]
+				r.RLock()
+				attempt := r.attempts[attemptsKey]
+				r.RUnlock()
 				if retryLimit > 0 && attempt > retryLimit {
 					// don't readd
-					delete(r.attempts, v.ID)
+					r.Lock()
+					delete(r.attempts, attemptsKey)
+					r.Unlock()
 					return nil
 				}
 				bytes, err := json.Marshal(ev)
@@ -190,7 +252,24 @@ func (r *redisStream) processStreamRes(res *redis.XStreamSliceCmd, ch chan event
 			continue
 		}
 		// TODO check for error
-		r.redisClient.XAck(context.Background(), topic, group, v.ID)
+		r.redisClient.XAck(context.Background(), topic, group, vid)
 	}
 	return nil
+}
+
+func incrementID(id string) string {
+	// id is of form 12345-0
+	parts := strings.Split(id, "-")
+	if len(parts) != 2 {
+		// not sure what to do with this
+		return id
+	}
+	i, err := strconv.Atoi(parts[1])
+	if err != nil {
+		// not sure what to do with this
+		return id
+	}
+	i++
+	return fmt.Sprintf("%s-%d", parts[0], i)
+
 }
