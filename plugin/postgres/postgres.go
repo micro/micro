@@ -14,8 +14,8 @@
 //
 // Original source: github.com/micro/go-plugins/v3/store/cockroach/cockroach.go
 
-// Package cockroach implements the cockroach store
-package cockroach
+// Package postgres implements the postgres store
+package postgres
 
 import (
 	"database/sql"
@@ -167,9 +167,19 @@ func (s *sqlStore) initDB(database, table string) error {
 		return err
 	}
 	// Create the namespace's database
-	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", database))
-	if err != nil {
+	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE %s;", database))
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
 		return err
+	}
+
+	var version string
+	if err = db.QueryRow("select version()").Scan(&version); err == nil {
+		if strings.Contains(version, "PostgreSQL") {
+			_, err = db.Exec(fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s;", database))
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	// Create a table for the namespace's prefix
