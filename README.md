@@ -1,4 +1,4 @@
-# Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro) [![Slack](https://img.shields.io/badge/slack-join-white)](https://slack.m3o.com/) [![M3O](https://img.shields.io/badge/micro-cloud-red)](https://m3o.cloud/) 
+# Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro) [![M3O](https://img.shields.io/badge/micro-cloud-red)](https://m3o.cloud/) 
 
 Micro is a distributed OS built for the Cloud.
 
