@@ -16,6 +16,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+var (
+	consumerTimeout  = 10 * time.Second
+	readGroupTimeout = 60 * time.Second
+	pendingIdleTime  = 60 * time.Second
+)
+
 type redisStream struct {
 	sync.RWMutex
 	redisClient *redis.Client
@@ -153,7 +159,7 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 				Stream:   topic,
 				Group:    group,
 				Consumer: consumerName,
-				MinIdle:  60 * time.Second,
+				MinIdle:  pendingIdleTime,
 				Messages: pendingIDs,
 			}).Result()
 			if err != nil {
@@ -175,7 +181,7 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 				Group:    group,
 				Consumer: consumerName,
 				Streams:  []string{topic, ">"},
-				Block:    60 * time.Second,
+				Block:    readGroupTimeout,
 			})
 			sl, err := res.Result()
 			if err != nil && err != redis.Nil {
@@ -186,7 +192,7 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 				// test the channel is still being read from
 				select {
 				case ch <- events.Event{}:
-				case <-time.After(10 * time.Second):
+				case <-time.After(consumerTimeout):
 					logger.Errorf("Timed out waiting for consumer")
 					return
 				}
@@ -258,7 +264,7 @@ func (r *redisStream) processMessages(msgs []redis.XMessage, ch chan events.Even
 		}
 		select {
 		case ch <- ev:
-		case <-time.After(10 * time.Second):
+		case <-time.After(consumerTimeout):
 			// If event is not consumed from channel after 10 secs we assume that something is
 			// wrong with the consumer so we bomb out
 			return errors.Errorf("timed out waiting for consumer")
