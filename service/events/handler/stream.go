@@ -149,6 +149,10 @@ func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Str
 			if !ok {
 				return
 			}
+			if len(ev.ID) == 0 {
+				// ignore
+				continue
+			}
 			if !req.AutoAck {
 				// track the acks
 				mutex.Lock()

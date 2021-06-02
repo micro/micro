@@ -175,7 +175,7 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 				Group:    group,
 				Consumer: consumerName,
 				Streams:  []string{topic, ">"},
-				Block:    0,
+				Block:    60 * time.Second,
 			})
 			sl, err := res.Result()
 			if err != nil && err != redis.Nil {
@@ -183,8 +183,14 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 				return
 			}
 			if sl == nil || len(sl) == 0 || len(sl[0].Messages) == 0 {
-				logger.Errorf("No data received from stream")
-				return
+				// test the channel is still being read from
+				select {
+				case ch <- events.Event{}:
+				case <-time.After(10 * time.Second):
+					logger.Errorf("Timed out waiting for consumer")
+					return
+				}
+				continue
 			}
 
 			if err := r.processMessages(sl[0].Messages, ch, topic, group, options.AutoAck, options.RetryLimit); err != nil {
