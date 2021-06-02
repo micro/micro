@@ -117,6 +117,7 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 	ch := make(chan events.Event)
 	go func() {
 		defer func() {
+			logger.Infof("Deleting consumer %s %s %s", topic, group, consumerName)
 			// try to clean up the consumer
 			if err := r.redisClient.XGroupDelConsumer(context.Background(), topic, group, consumerName).Err(); err != nil {
 				logger.Errorf("Error deleting consumer %s", err)
@@ -249,7 +250,14 @@ func (r *redisStream) processMessages(msgs []redis.XMessage, ch chan events.Even
 				}).Err()
 			})
 		}
-		ch <- ev
+		select {
+		case ch <- ev:
+		case <-time.After(10 * time.Second):
+			// If event is not consumed from channel after 10 secs we assume that something is
+			// wrong with the consumer so we bomb out
+			return errors.Errorf("timed out waiting for consumer")
+		}
+
 		if !autoAck {
 			continue
 		}
