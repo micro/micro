@@ -118,7 +118,9 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 	go func() {
 		defer func() {
 			// try to clean up the consumer
-			r.redisClient.XGroupDelConsumer(context.Background(), topic, group, consumerName)
+			if err := r.redisClient.XGroupDelConsumer(context.Background(), topic, group, consumerName).Err(); err != nil {
+				logger.Errorf("Error deleting consumer %s", err)
+			}
 			close(ch)
 
 		}()
