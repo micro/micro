@@ -17,9 +17,9 @@ import (
 )
 
 var (
-	consumerTimeout  = 10 * time.Second
-	readGroupTimeout = 60 * time.Second
-	pendingIdleTime  = 60 * time.Second
+	consumerTimeout  = 10 * time.Second // how long to wait trying to send event to a consumer's channel until we consider it has timed out
+	readGroupTimeout = 60 * time.Second // how long to block on call to redis
+	pendingIdleTime  = 60 * time.Second // how long in pending before we claim a message from a different consumer
 )
 
 type redisStream struct {
@@ -43,6 +43,7 @@ func NewStream(opts ...Option) (events.Stream, error) {
 		redisClient: rc,
 		attempts:    map[string]int{},
 	}
+	rs.runJanitor()
 	return rs, nil
 }
 
