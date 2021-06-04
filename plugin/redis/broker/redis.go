@@ -187,7 +187,7 @@ func (r *redisBroker) consumeWithGroup(topic, group string, h broker.Handler, eh
 			sl, err := res.Result()
 			if err != nil && err != redis.Nil {
 				logger.Errorf("Error reading from stream %s", err)
-				continue
+				return
 			}
 			if sl == nil || len(sl) == 0 || len(sl[0].Messages) == 0 {
 				logger.Errorf("No data received from stream")

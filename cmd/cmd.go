@@ -378,6 +378,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		server.WrapHandler(wrapper.HandlerStats()),
 		server.WrapHandler(wrapper.LogHandler()),
 		server.WrapHandler(wrapper.MetricsHandler()),
+		server.WrapHandler(wrapper.OpenTraceHandler()),
 	)
 
 	// setup auth

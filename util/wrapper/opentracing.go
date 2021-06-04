@@ -25,6 +25,7 @@ func OpenTraceHandler() server.HandlerWrapper {
 
 			// Concatenate the operation name:
 			operationName := fmt.Sprintf(req.Service() + "." + req.Endpoint())
+			logger.Infof("Tracing call using (%s)", reflect.TypeOf(opentelemetry.DefaultOpenTracer))
 
 			// Don't trace calls to debug:
 			if strings.HasPrefix(req.Endpoint(), "Debug.") {
