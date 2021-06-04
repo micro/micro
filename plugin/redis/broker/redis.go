@@ -12,7 +12,6 @@ import (
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/pkg/errors"
 )
 
@@ -252,7 +251,6 @@ func NewBroker(opts ...broker.Option) broker.Broker {
 		// Default codec
 		Codec:    Marshaler{},
 		Context:  context.Background(),
-		Registry: mdns.NewRegistry(),
 	}
 
 	rs := &redisBroker{
