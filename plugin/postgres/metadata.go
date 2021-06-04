@@ -14,7 +14,7 @@
 //
 // Original source: github.com/micro/go-plugins/v3/store/cockroach/metadata.go
 
-package cockroach
+package postgres
 
 import (
 	"database/sql/driver"
