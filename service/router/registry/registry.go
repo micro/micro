@@ -27,9 +27,7 @@ import (
 
 var (
 	// RefreshInterval is the time at which we completely refresh the table
-	RefreshInterval = time.Second * 120
-	// PruneInterval is how often we prune the routing table
-	PruneInterval = time.Second * 10
+	RefreshInterval = time.Second * 30
 )
 
 // rtr implements router interface
@@ -429,11 +427,6 @@ func (r *rtr) start() error {
 			case <-r.exit:
 				return
 			case <-refresh:
-				// don't refresh if we've done so in the past minute
-				if !lastRefresh.IsZero() && time.Since(lastRefresh) < time.Minute {
-					continue
-				}
-
 				// load new routes
 				if err := r.loadRoutes(r.options.Registry); err != nil {
 					logger.Debugf("failed refreshing registry routes: %s", err)
