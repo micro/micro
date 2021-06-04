@@ -195,7 +195,7 @@ func TestMemoryRegistryTTL(t *testing.T) {
 
 	for name := range testData {
 		svcs, err := m.GetService(name)
-		if err != nil {
+		if err != registry.ErrNotFound {
 			t.Fatal(err)
 		}
 
@@ -232,7 +232,7 @@ func TestMemoryRegistryTTLConcurrent(t *testing.T) {
 			<-syncChan
 			for name := range testData {
 				svcs, err := m.GetService(name)
-				if err != nil {
+				if err != registry.ErrNotFound {
 					errChan <- err
 					return
 				}
