@@ -21,7 +21,6 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/micro/v3/service/router"
 	k8sRouter "github.com/micro/micro/v3/service/router/kubernetes"
@@ -94,9 +93,32 @@ var Local = &Profile{
 		microStore.DefaultStore = file.NewStore(file.WithDir(filepath.Join(user.Dir, "server", "store")))
 		SetupConfigSecretKey(ctx)
 		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
-		SetupBroker(memBroker.NewBroker())
-		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
+
+		// the registry service uses the memory registry, the other core services will use the default
+		// rpc client and call the registry service
+		if ctx.Args().Get(1) == "registry" {
+			SetupRegistry(memory.NewRegistry())
+		} else {
+			// set the registry address
+			registry.DefaultRegistry.Init(
+				registry.Addrs("localhost:8000"),
+			)
+
+			SetupRegistry(registry.DefaultRegistry)
+		}
+
+
+		// the broker service uses the memory broker, the other core services will use the default
+		// rpc client and call the broker service
+		if ctx.Args().Get(1) == "broker" {
+			SetupBroker(memBroker.NewBroker())
+		} else {
+			broker.DefaultBroker.Init(
+				broker.Addrs("localhost:8003"),
+			)
+			SetupBroker(broker.DefaultBroker)
+		}
 
 		// set the store in the model
 		model.DefaultModel = model.NewModel(

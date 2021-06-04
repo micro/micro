@@ -286,6 +286,10 @@ func registerService(service *registry.Service, entries []*mdnsEntry, options re
 			continue
 		}
 
+		if options.TTL > time.Duration(0) {
+			s.TTL = uint32(options.TTL.Seconds())
+		}
+
 		srv, err := mdns.NewServer(&mdns.Config{Zone: s, LocalhostChecking: true})
 		if err != nil {
 			lastError = err

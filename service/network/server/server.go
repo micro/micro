@@ -138,6 +138,7 @@ func Run(ctx *cli.Context) error {
 		router.Network(networkName),
 		router.Id(id),
 		router.Gateway(gateway),
+		router.Cache(),
 	)
 
 	// create new network
