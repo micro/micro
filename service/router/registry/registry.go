@@ -185,15 +185,36 @@ func (r *rtr) manageRoutes(service *registry.Service, action, network string) er
 	return nil
 }
 
-// manageRegistryRoutes applies action to all routes of each service found in the registry.
+// loadRoutes applies action to all routes of each service found in the registry.
 // It returns error if either the services failed to be listed or the routing table action fails.
-func (r *rtr) loadRoutes(reg registry.Registry) error {
-	services, err := reg.ListServices(registry.ListDomain(registry.WildcardDomain))
+func (r *rtr) loadRoutes(name, domain string) error {
+	var services []*registry.Service
+	var err error
+
+	if len(domain) == 0 {
+		domain = registry.WildcardDomain
+	}
+
+	if len(name) > 0 {
+		services, err = r.options.Registry.GetService(name, registry.GetDomain(domain))
+	} else {
+		services, err = r.options.Registry.ListServices(registry.ListDomain(domain))
+	}
+
 	if err != nil {
 		return fmt.Errorf("failed listing services: %v", err)
 	}
 
-	// add each service node as a separate route
+	// delete the services first
+	for _, service := range services {
+		// get the services domain from metadata. Fallback to wildcard.
+		domain := getDomain(service)
+
+		// delete the existing service
+		r.table.deleteService(service.Name, domain)
+	}
+
+	// add each service version as a separate set of routes
 	for _, service := range services {
 		// get the services domain from metadata. Fallback to wildcard.
 		domain := getDomain(service)
@@ -222,7 +243,7 @@ func (r *rtr) loadRoutes(reg registry.Registry) error {
 		// otherwise get all the service info
 
 		// get the service to retrieve all its info
-		srvs, err := reg.GetService(service.Name, registry.GetDomain(domain))
+		srvs, err := r.options.Registry.GetService(service.Name, registry.GetDomain(domain))
 		if err != nil {
 			logger.Tracef("Failed to get service %s domain: %s", service.Name, domain)
 			continue
@@ -358,13 +379,16 @@ func (r *rtr) watchRegistry(w registry.Watcher) error {
 			continue
 		}
 
-		logger.Tracef("Router dealing with next route %s %+v\n", res.Action, res.Service)
+		logger.Tracef("Router dealing with next event %s %+v\n", res.Action, res.Service)
+
+		// we only use the registry notifications as events
+		// then go on to actually query it for the full list
 
 		// get the services domain from metadata. Fallback to wildcard.
 		domain := getDomain(res.Service)
 
-		// create/update or delete the route
-		if err := r.manageRoutes(res.Service, res.Action, domain); err != nil {
+		// load routes for this service
+		if err := r.loadRoutes(res.Service.Name, domain); err != nil {
 			return err
 		}
 	}
@@ -428,7 +452,7 @@ func (r *rtr) start() error {
 				return
 			case <-refresh:
 				// load new routes
-				if err := r.loadRoutes(r.options.Registry); err != nil {
+				if err := r.loadRoutes("", ""); err != nil {
 					logger.Debugf("failed refreshing registry routes: %s", err)
 					// in this don't prune
 					continue
