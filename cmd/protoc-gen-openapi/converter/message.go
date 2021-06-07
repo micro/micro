@@ -162,16 +162,18 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 	}
 
 	isList := false
-	for _, message := range c.plug.Files[0].Messages {
-		for _, f := range message.Fields {
-			parts := strings.Split(f.GoIdent.GoName, "_")
-			messageName := parts[0]
-			if messageName != *msg.Name {
-				continue
-			}
-			fieldName := parts[1]
-			if strings.ToLower(fieldName) == *desc.Name {
-				isList = f.Desc.IsList()
+	if c.plug != nil && len(c.plug.Files) > 0 {
+		for _, message := range c.plug.Files[0].Messages {
+			for _, f := range message.Fields {
+				parts := strings.Split(f.GoIdent.GoName, "_")
+				messageName := parts[0]
+				if messageName != *msg.Name {
+					continue
+				}
+				fieldName := parts[1]
+				if strings.ToLower(fieldName) == *desc.Name {
+					isList = f.Desc.IsList()
+				}
 			}
 		}
 	}
