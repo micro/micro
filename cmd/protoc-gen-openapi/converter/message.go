@@ -8,6 +8,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/micro/micro/v3/service/logger"
+	"google.golang.org/protobuf/compiler/protogen"
 )
 
 const (
@@ -162,12 +163,14 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 	}
 
 	isList := false
+	var field *protogen.Field
 	for _, message := range c.plug.Files[0].Messages {
 		// @todo field name match does not mean message also matches,
 		// correlate the message name
-		for _, field := range message.Fields {
-			if strings.ToLower(strings.Split(field.GoIdent.GoName, "_")[1]) == *desc.Name {
-				isList = field.Desc.IsList()
+		for _, f := range message.Fields {
+			if strings.ToLower(strings.Split(f.GoIdent.GoName, "_")[1]) == *desc.Name {
+				isList = f.Desc.IsList()
+				field = f
 			}
 		}
 	}
@@ -212,8 +215,8 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 		// Maps:
 		case recordType.Options.GetMapEntry():
 			logger.Tracef("Found a map (%s.%s)", *msg.Name, recordType.GetName())
-			componentSchema.Type = "map"
-			// componentSchema.AdditionalProperties = openapi3.NewSchemaRef("", recursedComponentSchema)
+			componentSchema.Type = openAPITypeObject
+			//componentSchema.AdditionalProperties = openapi3.NewSchemaRef("", recursedComponentSchema)
 		// Objects:
 		default:
 			componentSchema.Properties = recursedComponentSchema.Properties
