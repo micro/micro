@@ -8,7 +8,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/micro/micro/v3/service/logger"
-	"google.golang.org/protobuf/compiler/protogen"
 )
 
 const (
@@ -163,14 +162,16 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 	}
 
 	isList := false
-	var field *protogen.Field
 	for _, message := range c.plug.Files[0].Messages {
-		// @todo field name match does not mean message also matches,
-		// correlate the message name
 		for _, f := range message.Fields {
-			if strings.ToLower(strings.Split(f.GoIdent.GoName, "_")[1]) == *desc.Name {
+			parts := strings.Split(f.GoIdent.GoName, "_")
+			messageName := parts[0]
+			if messageName != *msg.Name {
+				continue
+			}
+			fieldName := parts[1]
+			if strings.ToLower(fieldName) == *desc.Name {
 				isList = f.Desc.IsList()
-				field = f
 			}
 		}
 	}
