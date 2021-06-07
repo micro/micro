@@ -20,7 +20,7 @@ import (
 	"github.com/micro/micro/v3/service/api/resolver"
 	"github.com/micro/micro/v3/service/api/resolver/vpath"
 	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/registry/mdns"
+	"github.com/micro/micro/v3/service/registry/memory"
 )
 
 type Options struct {
@@ -34,7 +34,7 @@ type Option func(o *Options)
 func NewOptions(opts ...Option) Options {
 	options := Options{
 		Handler:  "meta",
-		Registry: mdns.NewRegistry(),
+		Registry: memory.NewRegistry(),
 	}
 
 	for _, o := range opts {
