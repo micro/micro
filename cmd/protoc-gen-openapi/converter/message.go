@@ -161,8 +161,19 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 		return nil, fmt.Errorf("unrecognized field type: %s", desc.GetType().String())
 	}
 
+	isList := false
+	for _, message := range c.plug.Files[0].Messages {
+		// @todo field name match does not mean message also matches,
+		// correlate the message name
+		for _, field := range message.Fields {
+			if strings.ToLower(strings.Split(field.GoIdent.GoName, "_")[1]) == *desc.Name {
+				isList = field.Desc.IsList()
+			}
+		}
+	}
+
 	// Recurse array of primitive types:
-	if desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REPEATED && componentSchema.Type != openAPITypeObject {
+	if isList && componentSchema.Type != openAPITypeObject {
 		componentSchema.Items = &openapi3.SchemaRef{
 			Value: &openapi3.Schema{
 				Type: componentSchema.Type,
@@ -189,20 +200,20 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 		// Maps, arrays, and objects are structured in different ways:
 		switch {
 		// Arrays:
-		case desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REPEATED:
+		case isList:
 			componentSchema.Items = &openapi3.SchemaRef{
 				Value: &openapi3.Schema{
 					Type:       openAPITypeObject,
 					Properties: recursedComponentSchema.Properties,
 				},
 			}
+
 			componentSchema.Type = openAPITypeArray
 		// Maps:
 		case recordType.Options.GetMapEntry():
 			logger.Tracef("Found a map (%s.%s)", *msg.Name, recordType.GetName())
-			componentSchema.Type = openAPITypeObject
-			componentSchema.AdditionalProperties = openapi3.NewSchemaRef("", recursedComponentSchema)
-
+			componentSchema.Type = "map"
+			// componentSchema.AdditionalProperties = openapi3.NewSchemaRef("", recursedComponentSchema)
 		// Objects:
 		default:
 			componentSchema.Properties = recursedComponentSchema.Properties
