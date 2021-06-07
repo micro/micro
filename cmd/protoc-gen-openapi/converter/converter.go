@@ -14,6 +14,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
+	prot "google.golang.org/protobuf/compiler/protogen"
 )
 
 // Converter is everything you need to convert Micro protos into an OpenAPI spec:
@@ -21,6 +22,8 @@ type Converter struct {
 	microServiceName string
 	openAPISpec      *openapi3.Swagger
 	sourceInfo       *sourceCodeInfo
+	req              *plugin.CodeGeneratorRequest
+	plug             *prot.Plugin
 }
 
 // New returns a configured converter:
@@ -43,7 +46,13 @@ func (c *Converter) ConvertFrom(rd io.Reader) (*plugin.CodeGeneratorResponse, er
 		logger.Errorf("Can't unmarshal input: %v", err)
 		return nil, err
 	}
-
+	c.req = req
+	opts := &prot.Options{}
+	plug, err := opts.New(c.req)
+	if err != nil {
+		return nil, err
+	}
+	c.plug = plug
 	c.defaultSpec()
 
 	logger.Debugf("Converting input: %v", err)
