@@ -249,8 +249,8 @@ func (r *redisBroker) processMessages(msgs []redis.XMessage, topic, group string
 func NewBroker(opts ...broker.Option) broker.Broker {
 	boptions := broker.Options{
 		// Default codec
-		Codec:    Marshaler{},
-		Context:  context.Background(),
+		Codec:   Marshaler{},
+		Context: context.Background(),
 	}
 
 	rs := &redisBroker{
