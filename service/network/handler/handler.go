@@ -181,7 +181,7 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 		routes, err = n.Network.Options().Router.Lookup(req.Query.Service, qOpts...)
 	} else {
 		// otherwise list and filter
-		routes, err := n.Network.Options().Router.Table().Read()
+		routes, err = n.Network.Options().Router.Table().Read()
 		if err == nil {
 			// filter the routes
 			routes = router.Filter(routes, router.NewLookup(qOpts...))
@@ -192,10 +192,8 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 		return errors.InternalServerError("network.Network.Routes", "failed to list routes: %s", err)
 	}
 
-	respRoutes := make([]*pbRtr.Route, 0, len(routes))
-
 	for _, route := range routes {
-		respRoute := &pbRtr.Route{
+		resp.Routes = append(resp.Routes, &pbRtr.Route{
 			Service: route.Service,
 			Address: route.Address,
 			Gateway: route.Gateway,
@@ -203,11 +201,8 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 			Router:  route.Router,
 			Link:    route.Link,
 			Metric:  int64(route.Metric),
-		}
-		respRoutes = append(respRoutes, respRoute)
+		})
 	}
-
-	resp.Routes = respRoutes
 
 	return nil
 }
