@@ -202,9 +202,9 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 				Block:    readGroupTimeout,
 			})
 			sl, err := res.Result()
-			if err != nil {
+			if err != nil && err != redis.Nil {
 				logger.Errorf("Error reading from stream %s", err)
-				if !isTimeoutError(err) && err != redis.Nil {
+				if !isTimeoutError(err) {
 					return
 				}
 				sleepWithJitter(2 * time.Second)
