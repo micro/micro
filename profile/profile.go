@@ -108,7 +108,6 @@ var Local = &Profile{
 			SetupRegistry(registry.DefaultRegistry)
 		}
 
-
 		// the broker service uses the memory broker, the other core services will use the default
 		// rpc client and call the broker service
 		if ctx.Args().Get(1) == "broker" {
