@@ -156,7 +156,7 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 				})
 				return pendingCmd.Err()
 			}, 2)
-			if err != nil {
+			if err != nil && err != redis.Nil {
 				logger.Errorf("Error finding pending messages %s", err)
 				return
 			}
@@ -204,7 +204,7 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 			sl, err := res.Result()
 			if err != nil {
 				logger.Errorf("Error reading from stream %s", err)
-				if !isTimeoutError(err) {
+				if !isTimeoutError(err) && err != redis.Nil {
 					return
 				}
 				sleepWithJitter(2 * time.Second)
