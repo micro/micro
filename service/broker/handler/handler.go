@@ -60,6 +60,9 @@ func (h *Broker) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream
 	}
 	ns := acc.Issuer
 
+	if len(req.Topic) == 0 {
+		return errors.BadRequest("broker.Broker.Subscribe", "Missing topic")
+	}
 	errChan := make(chan error, 1)
 
 	// message Broker to stream back messages from broker
@@ -79,7 +82,11 @@ func (h *Broker) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream
 	}
 
 	logger.Debugf("Subscribing to %s topic in namespace %v", req.Topic, ns)
-	sub, err := broker.DefaultBroker.Subscribe(ns+"."+req.Topic, Broker, broker.Queue(ns+"."+req.Queue))
+	opts := []broker.SubscribeOption{}
+	if len(req.Queue) > 0 {
+		opts = append(opts, broker.Queue(req.Queue))
+	}
+	sub, err := broker.DefaultBroker.Subscribe(ns+"."+req.Topic, Broker, opts...)
 	if err != nil {
 		return errors.InternalServerError("broker.Broker.Subscribe", err.Error())
 	}
