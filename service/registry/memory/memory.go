@@ -101,6 +101,16 @@ func (m *Registry) ttlPrune() {
 								delete(m.records[domain][service][version].Nodes, id)
 							}
 						}
+
+						// if there are no nodes then delete the version
+						if len(m.records[domain][service][version].Nodes) == 0 {
+							delete(m.records[domain][service], version)
+						}
+					}
+
+					// if there are no versions left delete the service
+					if len(m.records[domain][service]) == 0 {
+						delete(m.records[domain], service)
 					}
 				}
 			}

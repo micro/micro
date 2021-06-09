@@ -16,12 +16,12 @@ import (
 var (
 	// list of services managed
 	services = []string{
+		"registry", // :8000
+		"broker",   // :8003
 		"network",  // :8443
 		"runtime",  // :8088
-		"registry", // :8000
 		"config",   // :8001
 		"store",    // :8002
-		"broker",   // :8003
 		"events",   // :unset
 		"auth",     // :8010
 		"proxy",    // :8081

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"strconv"
 	"strings"
 	"sync"
@@ -18,8 +19,12 @@ import (
 
 var (
 	consumerTimeout  = 10 * time.Second // how long to wait trying to send event to a consumer's channel until we consider it has timed out
-	readGroupTimeout = 60 * time.Second // how long to block on call to redis
+	readGroupTimeout = 10 * time.Second // how long to block on call to redis
 	pendingIdleTime  = 60 * time.Second // how long in pending before we claim a message from a different consumer
+)
+
+const (
+	errMsgPoolTimeout = "redis: connection pool timeout"
 )
 
 type redisStream struct {
@@ -115,7 +120,9 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 	if !options.Offset.IsZero() {
 		lastRead = fmt.Sprintf("%d", options.Offset.Unix()*1000)
 	}
-	if err := r.redisClient.XGroupCreateMkStream(context.Background(), topic, group, lastRead).Err(); err != nil {
+	if err := callWithRetry(func() error {
+		return r.redisClient.XGroupCreateMkStream(context.Background(), topic, group, lastRead).Err()
+	}, 2); err != nil {
 		if !strings.HasPrefix(err.Error(), "BUSYGROUP") {
 			return nil, err
 		}
@@ -126,7 +133,9 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 		defer func() {
 			logger.Infof("Deleting consumer %s %s %s", topic, group, consumerName)
 			// try to clean up the consumer
-			if err := r.redisClient.XGroupDelConsumer(context.Background(), topic, group, consumerName).Err(); err != nil {
+			if err := callWithRetry(func() error {
+				return r.redisClient.XGroupDelConsumer(context.Background(), topic, group, consumerName).Err()
+			}, 2); err != nil {
 				logger.Errorf("Error deleting consumer %s", err)
 			}
 			close(ch)
@@ -135,19 +144,23 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 
 		start := "-"
 		for {
-
 			// sweep up any old pending messages
-			pend, err := r.redisClient.XPendingExt(context.Background(), &redis.XPendingExtArgs{
-				Stream: topic,
-				Group:  group,
-				Start:  start,
-				End:    "+",
-				Count:  50,
-			}).Result()
+			var pendingCmd *redis.XPendingExtCmd
+			err := callWithRetry(func() error {
+				pendingCmd = r.redisClient.XPendingExt(context.Background(), &redis.XPendingExtArgs{
+					Stream: topic,
+					Group:  group,
+					Start:  start,
+					End:    "+",
+					Count:  50,
+				})
+				return pendingCmd.Err()
+			}, 2)
 			if err != nil && err != redis.Nil {
 				logger.Errorf("Error finding pending messages %s", err)
 				return
 			}
+			pend := pendingCmd.Val()
 			if len(pend) == 0 {
 				break
 			}
@@ -155,18 +168,22 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 			for i, p := range pend {
 				pendingIDs[i] = p.ID
 			}
-
-			msgs, err := r.redisClient.XClaim(context.Background(), &redis.XClaimArgs{
-				Stream:   topic,
-				Group:    group,
-				Consumer: consumerName,
-				MinIdle:  pendingIdleTime,
-				Messages: pendingIDs,
-			}).Result()
+			var claimCmd *redis.XMessageSliceCmd
+			err = callWithRetry(func() error {
+				claimCmd = r.redisClient.XClaim(context.Background(), &redis.XClaimArgs{
+					Stream:   topic,
+					Group:    group,
+					Consumer: consumerName,
+					MinIdle:  pendingIdleTime,
+					Messages: pendingIDs,
+				})
+				return claimCmd.Err()
+			}, 2)
 			if err != nil {
 				logger.Errorf("Error claiming message %s", err)
 				return
 			}
+			msgs := claimCmd.Val()
 			if err := r.processMessages(msgs, ch, topic, group, options.AutoAck, options.RetryLimit); err != nil {
 				logger.Errorf("Error reprocessing message %s", err)
 				return
@@ -187,7 +204,11 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 			sl, err := res.Result()
 			if err != nil && err != redis.Nil {
 				logger.Errorf("Error reading from stream %s", err)
-				return
+				if !isTimeoutError(err) {
+					return
+				}
+				sleepWithJitter(2 * time.Second)
+				continue
 			}
 			if sl == nil || len(sl) == 0 || len(sl[0].Messages) == 0 {
 				// test the channel is still being read from
@@ -207,6 +228,31 @@ func (r *redisStream) consumeWithGroup(topic, group string, options events.Consu
 		}
 	}()
 	return ch, nil
+}
+
+// callWithRetry tries the call and reattempts uf we see a connection pool timeout error
+func callWithRetry(f func() error, retries int) error {
+	var err error
+	for i := 0; i < retries; i++ {
+		err = f()
+		if err == nil {
+			return nil
+		}
+		if !isTimeoutError(err) {
+			break
+		}
+		sleepWithJitter(2 * time.Second)
+	}
+	return err
+}
+
+func sleepWithJitter(max time.Duration) {
+	// jitter the duration
+	time.Sleep(max * time.Duration(rand.Int63n(200)) / 200)
+}
+
+func isTimeoutError(err error) bool {
+	return err != nil && strings.Contains(err.Error(), errMsgPoolTimeout)
 }
 
 func (r *redisStream) processMessages(msgs []redis.XMessage, ch chan events.Event, topic, group string, autoAck bool, retryLimit int) error {
