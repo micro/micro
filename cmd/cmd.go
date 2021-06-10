@@ -279,6 +279,7 @@ func New(opts ...Option) *command {
 	if setupOnlyFromContext(options.Context) {
 		cmd.service = true
 		cmd.app.Action = func(ctx *cli.Context) error { return nil }
+		cmd.app.Before = func(ctx *cli.Context) error { return nil }
 	}
 
 	//flags to add
@@ -370,6 +371,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
 	client.DefaultClient = wrapper.TraceCall(client.DefaultClient)
 	client.DefaultClient = wrapper.LogClient(client.DefaultClient)
+	client.DefaultClient = wrapper.OpentraceClient(client.DefaultClient)
 
 	// wrap the server
 	server.DefaultServer.Init(
