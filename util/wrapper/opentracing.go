@@ -25,15 +25,16 @@ func OpenTraceHandler() server.HandlerWrapper {
 
 			// Concatenate the operation name:
 			operationName := fmt.Sprintf(req.Service() + "." + req.Endpoint())
-			logger.Infof("Tracing call using (%s)", reflect.TypeOf(opentelemetry.DefaultOpenTracer))
 
 			// Don't trace calls to debug:
 			if strings.HasPrefix(req.Endpoint(), "Debug.") {
 				return h(ctx, req, rsp)
 			}
+			logger.Infof("Tracing call using (%s)", reflect.TypeOf(opentelemetry.DefaultOpenTracer))
 
 			// Start a span from context:
 			span, newCtx := opentracing.StartSpanFromContextWithTracer(ctx, opentelemetry.DefaultOpenTracer, operationName)
+			ext.SamplingPriority.Set(span, 1)
 			defer span.Finish()
 
 			// Make the service call, and include error info (if any):
@@ -58,16 +59,13 @@ func (hw *httpWrapper) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 	// Initialise a statusRecorder with an assumed 200 status:
 	statusRecorder := &statusRecorder{rsp, 200}
 
-	// Pass the request down the chain:
-	hw.handler.ServeHTTP(statusRecorder, req)
-
 	// Start a span:
 	span, newCtx := opentracing.StartSpanFromContext(req.Context(), operationName)
 	ext.SamplingPriority.Set(span, 1)
 	defer span.Finish()
 
 	// Handle the request:
-	hw.handler.ServeHTTP(rsp, req.WithContext(newCtx))
+	hw.handler.ServeHTTP(statusRecorder, req.WithContext(newCtx))
 
 	// Add trace metadata:
 	span.SetTag("req.method", req.Method)
