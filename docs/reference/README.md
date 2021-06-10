@@ -453,6 +453,8 @@ If we want to prevent unauthorized users from calling our services, we can creat
 ```sh
 # This command creates a rule that enables only logged in users to call the micro server
 micro auth create rule  --access=granted --scope='*' --resource="*:*:*" onlyloggedin
+# Create the rule which allows us to login
+micro auth create rule --access=granted --resource="service:auth:*" auth-public
 ```
 
 and delete the default one.
@@ -461,6 +463,7 @@ Here, the scope `*` is markedly different from the `<public>` scope we have seen
 ```sh
 $ micro auth list rules
 ID            Scope         Access       Resource       Priority
+auth-public   <public>      GRANTED      service:auth:* 0
 onlyloggedin  *             GRANTED      *:*:*          0
 default       <public>      GRANTED      *:*:*          0
 ```
