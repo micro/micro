@@ -55,6 +55,7 @@ func OpenTraceHandler() server.HandlerWrapper {
 			// Make the service call, and include error info (if any):
 			if err := h(newCtx, req, rsp); err != nil {
 				span.SetBaggageItem("error", err.Error())
+				return err
 			}
 
 			return nil
