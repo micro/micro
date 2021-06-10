@@ -279,7 +279,6 @@ func (g *grpcServer) handler(srv interface{}, stream grpc.ServerStream) (err err
 
 	delete(md, "x-content-type")
 	delete(md, "timeout")
-
 	// create new context
 	ctx := meta.NewContext(stream.Context(), md)
 

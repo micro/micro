@@ -32,6 +32,8 @@ import (
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
 	raw "github.com/micro/micro/v3/util/codec/bytes"
+	"github.com/micro/micro/v3/util/opentelemetry"
+	"github.com/opentracing/opentracing-go"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -102,10 +104,13 @@ func (g *grpcClient) call(ctx context.Context, addr string, req client.Request, 
 	header["timeout"] = fmt.Sprintf("%d", opts.RequestTimeout)
 	// set the content type for the request
 	header["x-content-type"] = req.ContentType()
-
 	md := gmetadata.New(header)
-	ctx = gmetadata.NewOutgoingContext(ctx, md)
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		opentelemetry.DefaultOpenTracer.Inject(span.Context(), opentracing.HTTPHeaders, opentelemetry.MetadataReaderWriter{md})
+	}
 
+	ctx = gmetadata.NewOutgoingContext(ctx, md)
 	cf, err := g.newGRPCCodec(req.ContentType())
 	if err != nil {
 		return errors.InternalServerError("go.micro.client", err.Error())

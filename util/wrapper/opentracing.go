@@ -12,6 +12,7 @@ import (
 	"github.com/micro/micro/v3/util/opentelemetry"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
+	"google.golang.org/grpc/metadata"
 )
 
 // OpenTraceHandler wraps a server handler to perform opentracing:
@@ -32,8 +33,22 @@ func OpenTraceHandler() server.HandlerWrapper {
 			}
 			logger.Infof("Tracing call using (%s)", reflect.TypeOf(opentelemetry.DefaultOpenTracer))
 
+			// TODO hardcodes grpc as the impl
+			md, ok := metadata.FromIncomingContext(ctx)
+			if !ok {
+
+			}
+			spanCtx, err := opentelemetry.DefaultOpenTracer.Extract(opentracing.HTTPHeaders, opentelemetry.MetadataReaderWriter{md})
+			if err != nil && err != opentracing.ErrSpanContextNotFound {
+				logger.Errorf("Error reconstructing span %s", err)
+			}
+			var opts []opentracing.StartSpanOption
+			if spanCtx != nil {
+				opts = append(opts, ext.RPCServerOption(spanCtx))
+			}
 			// Start a span from context:
-			span, newCtx := opentracing.StartSpanFromContextWithTracer(ctx, opentelemetry.DefaultOpenTracer, operationName)
+			span, newCtx := opentracing.StartSpanFromContextWithTracer(ctx, opentelemetry.DefaultOpenTracer, operationName, opts...)
+			// TODO remove me
 			ext.SamplingPriority.Set(span, 1)
 			defer span.Finish()
 
