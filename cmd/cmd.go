@@ -11,6 +11,7 @@ import (
 	"runtime/debug"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/micro/micro/v3/cmd/cli/util"
@@ -66,6 +67,8 @@ type command struct {
 
 var (
 	DefaultCmd Cmd = New()
+
+	onceBefore sync.Once
 
 	// name of the binary
 	name = "micro"
@@ -279,7 +282,6 @@ func New(opts ...Option) *command {
 	if setupOnlyFromContext(options.Context) {
 		cmd.service = true
 		cmd.app.Action = func(ctx *cli.Context) error { return nil }
-		cmd.app.Before = func(ctx *cli.Context) error { return nil }
 	}
 
 	//flags to add
@@ -367,21 +369,23 @@ func (c *command) Before(ctx *cli.Context) error {
 		client.Lookup(network.Lookup),
 	)
 
-	// wrap the client
-	client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
-	client.DefaultClient = wrapper.TraceCall(client.DefaultClient)
-	client.DefaultClient = wrapper.LogClient(client.DefaultClient)
-	client.DefaultClient = wrapper.OpentraceClient(client.DefaultClient)
+	onceBefore.Do(func() {
+		// wrap the client
+		client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
+		client.DefaultClient = wrapper.TraceCall(client.DefaultClient)
+		client.DefaultClient = wrapper.LogClient(client.DefaultClient)
+		client.DefaultClient = wrapper.OpentraceClient(client.DefaultClient)
 
-	// wrap the server
-	server.DefaultServer.Init(
-		server.WrapHandler(wrapper.AuthHandler()),
-		server.WrapHandler(wrapper.TraceHandler()),
-		server.WrapHandler(wrapper.HandlerStats()),
-		server.WrapHandler(wrapper.LogHandler()),
-		server.WrapHandler(wrapper.MetricsHandler()),
-		server.WrapHandler(wrapper.OpenTraceHandler()),
-	)
+		// wrap the server
+		server.DefaultServer.Init(
+			server.WrapHandler(wrapper.AuthHandler()),
+			server.WrapHandler(wrapper.TraceHandler()),
+			server.WrapHandler(wrapper.HandlerStats()),
+			server.WrapHandler(wrapper.LogHandler()),
+			server.WrapHandler(wrapper.MetricsHandler()),
+			server.WrapHandler(wrapper.OpenTraceHandler()),
+		)
+	})
 
 	// setup auth
 	authOpts := []auth.Option{}
