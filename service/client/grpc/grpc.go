@@ -103,6 +103,9 @@ func (g *grpcClient) call(ctx context.Context, addr string, req client.Request, 
 	// set the content type for the request
 	header["x-content-type"] = req.ContentType()
 
+	md := gmetadata.New(header)
+	ctx = gmetadata.NewOutgoingContext(ctx, md)
+
 	cf, err := g.newGRPCCodec(req.ContentType())
 	if err != nil {
 		return errors.InternalServerError("go.micro.client", err.Error())
