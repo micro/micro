@@ -8,6 +8,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/micro/micro/v3/service/logger"
+	"google.golang.org/protobuf/compiler/protogen"
 )
 
 const (
@@ -162,22 +163,27 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 	}
 
 	isList := false
+	var field *protogen.Field
 	if c.plug != nil && len(c.plug.Files) > 0 {
-		for _, message := range c.plug.Files[0].Messages {
-			for _, f := range message.Fields {
-				parts := strings.Split(f.GoIdent.GoName, "_")
-				messageName := parts[0]
-				if messageName != *msg.Name {
-					continue
-				}
-				fieldName := parts[1]
-				if strings.ToLower(fieldName) == *desc.Name {
-					isList = f.Desc.IsList()
+		for _, file := range c.plug.Files {
+			for _, message := range file.Messages {
+				for _, f := range message.Fields {
+					parts := strings.Split(string(f.GoIdent.GoName), "_")
+					messageName := parts[0]
+
+					if messageName != *msg.Name {
+						continue
+					}
+					fieldName := parts[1]
+					if strings.ToLower(fieldName) == *desc.Name {
+						isList = f.Desc.IsList()
+						field = f
+					}
 				}
 			}
 		}
-	}
 
+	}
 	// Recurse array of primitive types:
 	if isList && componentSchema.Type != openAPITypeObject {
 		componentSchema.Items = &openapi3.SchemaRef{
@@ -205,6 +211,8 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 
 		// Maps, arrays, and objects are structured in different ways:
 		switch {
+		case field != nil && field.Desc.Message().FullName() == "google.protobuf.Struct":
+			componentSchema.Type = openAPITypeObject
 		// Arrays:
 		case isList:
 			componentSchema.Items = &openapi3.SchemaRef{
