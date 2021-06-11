@@ -111,14 +111,30 @@ func (o *opentraceWrapper) Call(ctx context.Context, req client.Request, rsp int
 	var span opentracing.Span
 	ctx, span = o.wrapContext(ctx, req, opts...)
 	defer span.Finish()
-	return o.Client.Call(ctx, req, rsp, opts...)
+	err := o.Client.Call(ctx, req, rsp, opts...)
+	if err != nil {
+		span.SetBaggageItem("error", err.Error())
+		return err
+	}
+	return nil
+
 }
 
 func (o *opentraceWrapper) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Stream, error) {
 	var span opentracing.Span
 	ctx, span = o.wrapContext(ctx, req, opts...)
-	defer span.Finish()
-	return o.Client.Stream(ctx, req, opts...)
+	s, err := o.Client.Stream(ctx, req, opts...)
+	if err != nil {
+		span.SetBaggageItem("error", err.Error())
+		span.Finish()
+		return s, err
+	}
+	go func() {
+		<-s.Context().Done()
+		span.Finish()
+	}()
+	return s, nil
+
 }
 
 func (o *opentraceWrapper) wrapContext(ctx context.Context, req client.Request, opts ...client.CallOption) (context.Context, opentracing.Span) {
