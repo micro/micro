@@ -110,6 +110,15 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 			},
 		}
 
+		// check if it's a streaming response
+		if method.GetServerStreaming() {
+			pathItem.Post.Responses["stream"] = &openapi3.ResponseRef{
+				Ref: responseBodySchemaPath(responseBodyName),
+			}
+		}
+
+		// TODO: check for method.GetClientStreaming()
+
 		// Generate a description from src comments (if available)
 		if src := c.sourceInfo.GetService(svc); src != nil {
 			pathItem.Description = formatDescription(src)
