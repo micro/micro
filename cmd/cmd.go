@@ -215,6 +215,11 @@ var (
 			Value:   "",
 			EnvVars: []string{"MICRO_CONFIG_SECRET_KEY"},
 		},
+		&cli.StringFlag{
+			Name:    "tracing_reporter_address",
+			Usage:   "The host:port of the opentracing agent e.g. localhost:6831",
+			EnvVars: []string{"MICRO_TRACING_REPORTER_ADDRESS"},
+		},
 	}
 )
 

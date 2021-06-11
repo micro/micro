@@ -33,7 +33,7 @@ func OpenTraceHandler() server.HandlerWrapper {
 			if !ok {
 				md = mmd.Metadata{}
 			}
-			spanCtx, err := opentelemetry.DefaultOpenTracer.Extract(opentracing.HTTPHeaders, opentelemetry.MicroMetadataReaderWriter{md})
+			spanCtx, err := opentelemetry.DefaultOpenTracer.Extract(opentracing.TextMap, opentelemetry.MicroMetadataReaderWriter{md})
 			if err != nil && err != opentracing.ErrSpanContextNotFound {
 				logger.Errorf("Error reconstructing span %s", err)
 			}
@@ -126,8 +126,10 @@ func (o *opentraceWrapper) wrapContext(ctx context.Context, req client.Request, 
 	md := mmd.Metadata{}
 	operationName := fmt.Sprintf(req.Service() + "." + req.Endpoint())
 	span, newCtx := opentracing.StartSpanFromContextWithTracer(ctx, opentelemetry.DefaultOpenTracer, operationName, ext.SpanKindRPCClient)
-	opentelemetry.DefaultOpenTracer.Inject(span.Context(), opentracing.TextMap, opentelemetry.MicroMetadataReaderWriter{md})
-	ctx = mmd.MergeContext(newCtx, md, false)
+	if err := opentelemetry.DefaultOpenTracer.Inject(span.Context(), opentracing.TextMap, opentelemetry.MicroMetadataReaderWriter{md}); err != nil {
+		logger.Errorf("Error injecting span %s", err)
+	}
+	ctx = mmd.MergeContext(newCtx, md, true)
 
 	return ctx, span
 }

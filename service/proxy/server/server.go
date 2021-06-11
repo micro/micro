@@ -9,7 +9,6 @@ import (
 	"github.com/micro/micro/v3/service"
 	bmem "github.com/micro/micro/v3/service/broker/memory"
 	muclient "github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/config"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/proxy"
 	"github.com/micro/micro/v3/service/proxy/grpc"
@@ -170,12 +169,10 @@ func Run(ctx *cli.Context) error {
 		serverOpts = append(serverOpts, server.TLSConfig(config))
 	}
 
-	// Retrieve config:
-	jaegerAddress, err := config.Get("jaegeraddress")
-	if err != nil {
-		log.Errorf("Error retrieving Jaeger config %s", err)
+	reporterAddress := ctx.String("tracing_reporter_address")
+	if len(reporterAddress) == 0 {
+		reporterAddress = jaeger.DefaultReporterAddress
 	}
-	reporterAddress := jaegerAddress.String(jaeger.DefaultReporterAddress)
 
 	// Create a new Jaeger opentracer:
 	openTracer, traceCloser, err := jaeger.New(

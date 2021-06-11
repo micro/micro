@@ -26,7 +26,6 @@ import (
 	"github.com/micro/micro/v3/service/api/router"
 	regRouter "github.com/micro/micro/v3/service/api/router/registry"
 	httpapi "github.com/micro/micro/v3/service/api/server/http"
-	"github.com/micro/micro/v3/service/config"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/store"
@@ -331,12 +330,10 @@ func Run(ctx *cli.Context) error {
 		}
 	}
 
-	// Retrieve config:
-	jaegerAddress, err := config.Get("jaegeraddress")
-	if err != nil {
-		log.Errorf("Error retrieving Jaeger config %s", err)
+	reporterAddress := ctx.String("tracing_reporter_address")
+	if len(reporterAddress) == 0 {
+		reporterAddress = jaeger.DefaultReporterAddress
 	}
-	reporterAddress := jaegerAddress.String(jaeger.DefaultReporterAddress)
 	// Create a new Jaeger opentracer:
 	openTracer, traceCloser, err := jaeger.New(
 		opentelemetry.WithServiceName("API"),
