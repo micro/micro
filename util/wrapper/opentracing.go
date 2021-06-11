@@ -60,7 +60,6 @@ type httpWrapper struct {
 }
 
 func (hw *httpWrapper) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
-
 	// We'll use this for the operation name:
 	operationName := req.RequestURI
 
@@ -126,7 +125,7 @@ func (o *opentraceWrapper) wrapContext(ctx context.Context, req client.Request, 
 	// set the open tracing headers
 	md := mmd.Metadata{}
 	operationName := fmt.Sprintf(req.Service() + "." + req.Endpoint())
-	span, newCtx := opentracing.StartSpanFromContext(ctx, operationName, ext.SpanKindRPCClient)
+	span, newCtx := opentracing.StartSpanFromContextWithTracer(ctx, opentelemetry.DefaultOpenTracer, operationName, ext.SpanKindRPCClient)
 	opentelemetry.DefaultOpenTracer.Inject(span.Context(), opentracing.TextMap, opentelemetry.MicroMetadataReaderWriter{md})
 	ctx = mmd.MergeContext(newCtx, md, false)
 
