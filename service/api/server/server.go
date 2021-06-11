@@ -332,13 +332,17 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// Retrieve config:
-	jaegerAddress, _ := config.Get("jaegeraddress")
-
+	jaegerAddress, err := config.Get("jaegeraddress")
+	if err != nil {
+		log.Errorf("Error retrieving Jaeger config %s", err)
+	}
+	reporterAddress := jaegerAddress.String(jaeger.DefaultReporterAddress)
 	// Create a new Jaeger opentracer:
 	openTracer, traceCloser, err := jaeger.New(
 		opentelemetry.WithServiceName("API"),
-		opentelemetry.WithTraceReporterAddress(jaegerAddress.String(jaeger.DefaultReporterAddress)),
+		opentelemetry.WithTraceReporterAddress(reporterAddress),
 	)
+	log.Infof("Setting jaeger global tracer to %s", reporterAddress)
 	defer traceCloser.Close() // Make sure we flush any pending traces before shutdown:
 	if err != nil {
 		log.Warnf("Unable to prepare a Jaeger tracer: %s", err)
@@ -346,6 +350,7 @@ func Run(ctx *cli.Context) error {
 		// Set the global default opentracing tracer:
 		opentracing.SetGlobalTracer(openTracer)
 	}
+	opentelemetry.DefaultOpenTracer = openTracer
 
 	// append the opentelemetry wrapper
 	h = wrapper.HTTPWrapper(h)

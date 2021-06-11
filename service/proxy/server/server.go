@@ -175,13 +175,14 @@ func Run(ctx *cli.Context) error {
 	if err != nil {
 		log.Errorf("Error retrieving Jaeger config %s", err)
 	}
+	reporterAddress := jaegerAddress.String(jaeger.DefaultReporterAddress)
 
 	// Create a new Jaeger opentracer:
 	openTracer, traceCloser, err := jaeger.New(
 		opentelemetry.WithServiceName("proxy"),
-		opentelemetry.WithTraceReporterAddress(jaegerAddress.String("jaeger-agent:6831")),
+		opentelemetry.WithTraceReporterAddress(reporterAddress),
 	)
-	log.Infof("Setting jaeger global tracer to %s", jaegerAddress.String("jaeger-agent:6831"))
+	log.Infof("Setting jaeger global tracer to %s", reporterAddress)
 	defer traceCloser.Close() // Make sure we flush any pending traces before shutdown:
 	if err != nil {
 		log.Warnf("Unable to prepare a Jaeger tracer: %s", err)
