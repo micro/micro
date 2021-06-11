@@ -9,6 +9,7 @@ import (
 	"github.com/micro/micro/v3/service"
 	bmem "github.com/micro/micro/v3/service/broker/memory"
 	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/config"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/proxy"
 	"github.com/micro/micro/v3/service/proxy/grpc"
@@ -24,7 +25,11 @@ import (
 	"github.com/micro/micro/v3/util/acme/certmagic"
 	"github.com/micro/micro/v3/util/helper"
 	"github.com/micro/micro/v3/util/muxer"
+	"github.com/micro/micro/v3/util/opentelemetry"
+	"github.com/micro/micro/v3/util/opentelemetry/jaeger"
 	"github.com/micro/micro/v3/util/sync/memory"
+	"github.com/micro/micro/v3/util/wrapper"
+	"github.com/opentracing/opentracing-go"
 	"github.com/urfave/cli/v2"
 )
 
@@ -165,6 +170,27 @@ func Run(ctx *cli.Context) error {
 		serverOpts = append(serverOpts, server.TLSConfig(config))
 	}
 
+	// Retrieve config:
+	jaegerAddress, err := config.Get("jaegeraddress")
+	if err != nil {
+		log.Errorf("Error retrieving Jaeger config %s", err)
+	}
+
+	// Create a new Jaeger opentracer:
+	openTracer, traceCloser, err := jaeger.New(
+		opentelemetry.WithServiceName("proxy"),
+		opentelemetry.WithTraceReporterAddress(jaegerAddress.String("jaeger-agent:6831")),
+	)
+	log.Infof("Setting jaeger global tracer to %s", jaegerAddress.String("jaeger-agent:6831"))
+	defer traceCloser.Close() // Make sure we flush any pending traces before shutdown:
+	if err != nil {
+		log.Warnf("Unable to prepare a Jaeger tracer: %s", err)
+	} else {
+		// Set the global default opentracing tracer:
+		opentracing.SetGlobalTracer(openTracer)
+	}
+	opentelemetry.DefaultOpenTracer = openTracer
+
 	// new proxy
 	var p proxy.Proxy
 
@@ -184,6 +210,7 @@ func Run(ctx *cli.Context) error {
 	authOpt := server.WrapHandler(authHandler())
 	serverOpts = append(serverOpts, authOpt)
 	serverOpts = append(serverOpts, server.WithRouter(p))
+	serverOpts = append(serverOpts, server.WrapHandler(wrapper.OpenTraceHandler()))
 
 	if len(Endpoint) > 0 {
 		log.Infof("Proxy [%s] serving endpoint: %s", p.String(), Endpoint)

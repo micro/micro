@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 	"strings"
 
 	"github.com/micro/micro/v3/service/client"
@@ -23,7 +22,6 @@ func OpenTraceHandler() server.HandlerWrapper {
 
 		// return a function that returns a function
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
-
 			// Concatenate the operation name:
 			operationName := fmt.Sprintf(req.Service() + "." + req.Endpoint())
 
@@ -31,23 +29,17 @@ func OpenTraceHandler() server.HandlerWrapper {
 			if strings.HasPrefix(req.Endpoint(), "Debug.") {
 				return h(ctx, req, rsp)
 			}
-			logger.Infof("Tracing call using (%s)", reflect.TypeOf(opentelemetry.DefaultOpenTracer))
-
 			md, ok := mmd.FromContext(ctx)
 			if !ok {
-
+				md = mmd.Metadata{}
 			}
 			spanCtx, err := opentelemetry.DefaultOpenTracer.Extract(opentracing.HTTPHeaders, opentelemetry.MicroMetadataReaderWriter{md})
 			if err != nil && err != opentracing.ErrSpanContextNotFound {
 				logger.Errorf("Error reconstructing span %s", err)
 			}
-			var opts []opentracing.StartSpanOption
-			if spanCtx != nil {
-				logger.Infof("Reconstructing the span")
-				opts = append(opts, ext.RPCServerOption(spanCtx))
-			}
+
 			// Start a span from context:
-			span, newCtx := opentracing.StartSpanFromContextWithTracer(ctx, opentelemetry.DefaultOpenTracer, operationName, opts...)
+			span, newCtx := opentracing.StartSpanFromContextWithTracer(ctx, opentelemetry.DefaultOpenTracer, operationName, opentracing.ChildOf(spanCtx), ext.SpanKindRPCServer)
 			// TODO remove me
 			ext.SamplingPriority.Set(span, 1)
 			defer span.Finish()
@@ -76,7 +68,7 @@ func (hw *httpWrapper) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 	statusRecorder := &statusRecorder{rsp, 200}
 
 	// Start a span:
-	span, newCtx := opentracing.StartSpanFromContext(req.Context(), operationName)
+	span, newCtx := opentracing.StartSpanFromContext(req.Context(), operationName, ext.SpanKindRPCServer)
 	ext.SamplingPriority.Set(span, 1)
 	defer span.Finish()
 
@@ -95,9 +87,6 @@ func (hw *httpWrapper) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 
 // HTTPWrapper returns an HTTP handler wrapper:
 func HTTPWrapper(h http.Handler) http.Handler {
-
-	logger.Infof("Preparing an OpenTelemetry HTTPWrapper (%s)", reflect.TypeOf(opentelemetry.DefaultOpenTracer))
-
 	return &httpWrapper{
 		handler: h,
 	}
@@ -120,26 +109,28 @@ type opentraceWrapper struct {
 }
 
 func (o *opentraceWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
-	ctx = o.wrapContext(ctx, opts...)
+	var span opentracing.Span
+	ctx, span = o.wrapContext(ctx, req, opts...)
+	defer span.Finish()
 	return o.Client.Call(ctx, req, rsp, opts...)
 }
 
 func (o *opentraceWrapper) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Stream, error) {
-	ctx = o.wrapContext(ctx, opts...)
+	var span opentracing.Span
+	ctx, span = o.wrapContext(ctx, req, opts...)
+	defer span.Finish()
 	return o.Client.Stream(ctx, req, opts...)
 }
 
-func (o *opentraceWrapper) wrapContext(ctx context.Context, opts ...client.CallOption) context.Context {
+func (o *opentraceWrapper) wrapContext(ctx context.Context, req client.Request, opts ...client.CallOption) (context.Context, opentracing.Span) {
 	// set the open tracing headers
 	md := mmd.Metadata{}
-	span := opentracing.SpanFromContext(ctx)
-	if span != nil {
-		opentelemetry.DefaultOpenTracer.Inject(span.Context(), opentracing.TextMap, opentelemetry.MicroMetadataReaderWriter{md})
-	}
+	operationName := fmt.Sprintf(req.Service() + "." + req.Endpoint())
+	span, newCtx := opentracing.StartSpanFromContext(ctx, operationName, ext.SpanKindRPCClient)
+	opentelemetry.DefaultOpenTracer.Inject(span.Context(), opentracing.TextMap, opentelemetry.MicroMetadataReaderWriter{md})
+	ctx = mmd.MergeContext(newCtx, md, false)
 
-	ctx = mmd.MergeContext(ctx, md, true)
-
-	return ctx
+	return ctx, span
 }
 
 // OpentraceClient wraps requests with the open tracing headers
