@@ -610,7 +610,9 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	for {
 		if output == "raw" {
 			rsp := cbytes.Frame{}
-			if err := stream.Recv(&rsp); err != nil {
+			if err := stream.Recv(&rsp); err != nil && err.Error() == "EOF" {
+				return nil, nil
+			} else if err != nil {
 				if cerr := util.CliError(err); cerr.ExitCode() != 128 {
 					return nil, cerr
 				}
@@ -619,7 +621,9 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 			fmt.Print(string(rsp.Data))
 		} else {
 			var response map[string]interface{}
-			if err := stream.Recv(&response); err != nil {
+			if err := stream.Recv(&response); err != nil && err.Error() == "EOF" {
+				return nil, nil
+			} else if err != nil {
 				if cerr := util.CliError(err); cerr.ExitCode() != 128 {
 					return nil, cerr
 				}
