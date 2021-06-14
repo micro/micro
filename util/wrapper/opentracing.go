@@ -1,8 +1,10 @@
 package wrapper
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"strings"
 
@@ -95,6 +97,11 @@ func HTTPWrapper(h http.Handler) http.Handler {
 type statusRecorder struct {
 	http.ResponseWriter
 	statusCode int
+}
+
+// Hijack returns the underlying connection
+func (sr *statusRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	return sr.ResponseWriter.(http.Hijacker).Hijack()
 }
 
 // WriteHeader is where we capture the status:
