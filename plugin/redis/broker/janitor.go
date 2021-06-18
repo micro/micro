@@ -1,4 +1,4 @@
-package stream
+package broker
 
 import (
 	"context"
@@ -15,7 +15,7 @@ var (
 	defaultTrimDuration    = 5 * 24 * time.Hour // oldest event in stream
 )
 
-func (r *redisStream) runJanitor() {
+func (r *redisBroker) runJanitor() {
 	// Some times it's possible that a consumer group has old consumers that have failed to be deleted.
 	// Janitor will clean up any consumers that haven't been seen for X duration
 	go func() {
@@ -29,10 +29,10 @@ func (r *redisStream) runJanitor() {
 
 }
 
-func (r *redisStream) cleanupConsumers() error {
+func (r *redisBroker) cleanupConsumers() error {
 	ctx := context.Background()
 	now := time.Now()
-	keys, err := r.redisClient.Keys(ctx, "stream-*").Result()
+	keys, err := r.redisClient.Keys(ctx, "broker-*").Result()
 	if err != nil {
 		return err
 	}
