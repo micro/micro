@@ -306,6 +306,7 @@ func NewBroker(opts ...broker.Option) broker.Broker {
 		opts: boptions,
 	}
 	rs.setOption(opts...)
+	rs.runJanitor()
 	return rs
 }
 
