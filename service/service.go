@@ -52,12 +52,11 @@ func New(opts ...Option) *Service {
 	// function are applied after (taking precedence)
 	before := func(ctx *cli.Context) error {
 		if n := ctx.String("service_name"); len(n) > 0 {
-			opts = append([]Option{Name(n)}, opts...)
+			opts = append(opts, Name(n))
 		}
 		if v := ctx.String("service_version"); len(v) > 0 {
-			opts = append([]Option{Version(v)}, opts...)
+			opts = append(opts, Version(v))
 		}
-
 		// service address injected by the runtime takes priority as the service port must match the
 		// port the server is running on
 		if a := ctx.String("service_address"); len(a) > 0 {
