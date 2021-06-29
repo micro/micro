@@ -385,6 +385,7 @@ const Signup = `{
           "name": "Micro-Namespace",
           "required": true,
           "schema": {
+            "default": "micro",
             "type": "string"
           }
         }
@@ -416,6 +417,7 @@ const Signup = `{
           "name": "Micro-Namespace",
           "required": true,
           "schema": {
+            "default": "micro",
             "type": "string"
           }
         }
@@ -447,6 +449,7 @@ const Signup = `{
           "name": "Micro-Namespace",
           "required": true,
           "schema": {
+            "default": "micro",
             "type": "string"
           }
         }
@@ -478,6 +481,7 @@ const Signup = `{
           "name": "Micro-Namespace",
           "required": true,
           "schema": {
+            "default": "micro",
             "type": "string"
           }
         }
@@ -509,6 +513,7 @@ const Signup = `{
           "name": "Micro-Namespace",
           "required": true,
           "schema": {
+            "default": "micro",
             "type": "string"
           }
         }
@@ -540,6 +545,7 @@ const Signup = `{
           "name": "Micro-Namespace",
           "required": true,
           "schema": {
+            "default": "micro",
             "type": "string"
           }
         }
@@ -567,12 +573,8 @@ const Signup = `{
   },
   "servers": [
     {
-      "url": "https://api.m3o.dev",
-      "description": "Micro DEV environment"
-    },
-    {
-      "url": "https://api.m3o.com",
-      "description": "Micro LIVE environment"
+      "url": "https://api.m3o.com/v1",
+      "description": "Micro M3O environment"
     }
   ]
 }`
