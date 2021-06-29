@@ -83,7 +83,8 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 						Required: true,
 						Schema: &openapi3.SchemaRef{
 							Value: &openapi3.Schema{
-								Type: "string",
+								Type:    "string",
+								Default: "micro",
 							},
 						},
 					},
