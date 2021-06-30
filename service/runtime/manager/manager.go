@@ -311,6 +311,7 @@ func (m *manager) createServiceInRuntime(srv *service) error {
 		runtime.WithArgs(srv.Options.Args...),
 		runtime.WithCommand(srv.Options.Command...),
 		runtime.WithEnv(m.runtimeEnv(srv.Service, srv.Options)),
+		runtime.CreateInstances(srv.Options.Instances),
 	}
 
 	// add the secrets
