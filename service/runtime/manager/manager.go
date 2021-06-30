@@ -759,6 +759,15 @@ func (m *manager) Update(resource runtime.Resource, opts ...runtime.UpdateOption
 		service := srvs[0]
 		service.Service.Source = srv.Source
 		service.UpdatedAt = time.Now()
+		if options.Instances > 0 {
+			service.Options.Instances = options.Instances
+		}
+		if len(options.Entrypoint) > 0 {
+			service.Options.Entrypoint = options.Entrypoint
+		}
+		if len(options.Secrets) > 0 {
+			service.Options.Secrets = options.Secrets
+		}
 
 		// if there is not a build configured, update the service and then write it to the store
 		if build.DefaultBuilder == nil {
