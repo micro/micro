@@ -7,15 +7,15 @@ import (
 	"{{.Dir}}/handler"
 	pb "{{.Dir}}/proto"
 
-	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/logger"
+	"github.com/asim/go-micro/v3"
+	"github.com/asim/go-micro/v3/logger"
 )
 
 func main() {
 	// Create service
-	srv := service.New(
-		service.Name("{{lower .Alias}}"),
-		service.Version("latest"),
+	srv := micro.NewService(
+		micro.Name("{{lower .Alias}}"),
+		micro.Version("latest"),
 	)
 
 	// Register handler
