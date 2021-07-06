@@ -21,6 +21,10 @@ with the complexity of distributed systems and provides simpler programmable abs
 - [FAQ](https://micro.mu/faq) - Frequently asked questions
 - [Blog](https://micro.mu/blog) - For the latest from us
 
+## Cloud
+
+Find the cloud hosted version at [m3o.com](https://m3o.com)
+
 ## Usage
 
 See the [docs](https://micro.mu) for detailed information on the architecture, installation and use of the platform.
@@ -31,4 +35,4 @@ See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproj
 
 ## Notes
 
-This is not an open source project and there is no support of its use to anyone.
+This is not an open source project and there is no support of its use.
