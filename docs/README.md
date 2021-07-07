@@ -1,6 +1,4 @@
 <div>
-  <a href="https://twitter.com/microhq"><img src="https://img.shields.io/github/last-commit/micro/micro" /></a>
-  <a href="https://github.com/micro/micro/network/members"><img src="https://img.shieelds.io/github/forks/micro/micro?style=social" /></a>
   <a href="https://github.com/micro/micro/stargazers"><img src="https://img.shields.io/github/stars/micro/micro?style=social" /></a>
   <a href="https://m3o.com"><img src="https://img.shields.io/badge/micro-cloud-orange" /></a>
 </div>
