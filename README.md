@@ -17,9 +17,7 @@ with the complexity of distributed systems and provides simpler programmable abs
 - [Reference](https://micro.mu/reference) - In-depth reference for Micro CLI and services
 - [Resources](https://micro.mu/resources) - External resources and contributions
 - [Roadmap](https://micro.mu/roadmap) - Stuff on our agenda over the long haul
-- [Users](https://micro.mu/users) - Developers and companies using Micro in production
 - [FAQ](https://micro.mu/faq) - Frequently asked questions
-- [Blog](https://micro.mu/blog) - For the latest from us
 
 ## Cloud
 
