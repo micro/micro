@@ -33,4 +33,4 @@ See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproj
 
 ## Notes
 
-This is not an open source project and there is no support of its use.
+There is no support for this project
