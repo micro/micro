@@ -30,7 +30,3 @@ See the [docs](https://micro.mu) for detailed information on the architecture, i
 ## License
 
 See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/).
-
-## Notes
-
-There is no support for this project
