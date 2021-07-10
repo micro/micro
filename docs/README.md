@@ -3,7 +3,7 @@
   <a href="https://m3o.com"><img src="https://img.shields.io/badge/micro-cloud-orange" /></a>
 </div>
 
-Micro is a distributed operating system built for the Cloud.
+Micro is a cloud platform for API development.
 
 ## Overview
 
