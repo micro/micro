@@ -1,6 +1,7 @@
 package model
 
 type Query struct {
+	And []Query
 	Index
 	Order  Order
 	Value  interface{}
@@ -34,6 +35,12 @@ func QueryAll() Query {
 			Type:      queryTypeAll,
 			FieldName: "ID",
 		},
+	}
+}
+
+func QueryAnd(queries ...Query) Query {
+	return Query{
+		And: queries,
 	}
 }
 

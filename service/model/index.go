@@ -7,6 +7,7 @@ import (
 
 // Index represents a data model index for fast access
 type Index struct {
+	And       []Index
 	FieldName string
 	// Type of index, eg. equality
 	Type  string
@@ -47,6 +48,21 @@ func (i Index) ToQuery(value interface{}) Query {
 	}
 }
 
+func (i Index) ToQueries(values ...interface{}) Query {
+	if len(i.And) != len(values) {
+		panic("index does not match query argument number")
+	}
+	ret := []Query{}
+	for ind, value := range values {
+		ret = append(ret, Query{
+			Index: i.And[ind],
+			Value: value,
+			Order: i.And[ind].Order,
+		})
+	}
+	return QueryAnd(ret...)
+}
+
 // ByEquality constructs an equiality index on `fieldName`
 func ByEquality(fieldName string) Index {
 	return Index{
@@ -62,6 +78,10 @@ func ByEquality(fieldName string) Index {
 		Float64Max:           92233720368547,
 		Float32Max:           922337,
 	}
+}
+
+func IndexAnd(indexes ...Index) Index {
+	return Index{Type: "and", And: indexes}
 }
 
 func indexMatchesQuery(i Index, q Query) bool {
@@ -84,27 +104,36 @@ func indexesMatch(i, j Index) bool {
 
 // indexPrefix returns the first part of the keys, the namespace + index name
 func indexPrefix(i Index) string {
-	var ordering string
-	switch i.Order.Type {
-	case OrderTypeUnordered:
-		ordering = "Unord"
-	case OrderTypeAsc:
-		ordering = "Asc"
-	case OrderTypeDesc:
-		ordering = "Desc"
+	ix := []Index{i}
+	if i.And != nil {
+		ix = i.And
 	}
-	typ := i.Type
-	// hack for all listing where we use the eq ID index
-	// without a value to list all
-	if i.Type == indexTypeAll {
-		typ = indexTypeEq
+	ret := ""
+	for _, i := range ix {
+		var ordering string
+		switch i.Order.Type {
+		case OrderTypeUnordered:
+			ordering = "Unord"
+		case OrderTypeAsc:
+			ordering = "Asc"
+		case OrderTypeDesc:
+			ordering = "Desc"
+		}
+		typ := i.Type
+		// hack for all listing where we use the eq ID index
+		// without a value to list all
+		if i.Type == indexTypeAll {
+			typ = indexTypeEq
+		}
+		orderingField := i.Order.FieldName
+		if len(orderingField) == 0 {
+			orderingField = i.FieldName
+		}
+		filterField := i.FieldName
+		ret += fmt.Sprintf("%vBy%v%vBy%v", typ, strings.Title(filterField), ordering, strings.Title(orderingField))
 	}
-	orderingField := i.Order.FieldName
-	if len(orderingField) == 0 {
-		orderingField = i.FieldName
-	}
-	filterField := i.FieldName
-	return fmt.Sprintf("%vBy%v%vBy%v", typ, strings.Title(filterField), ordering, strings.Title(orderingField))
+
+	return ret
 }
 
 func newIndex(v string) Index {

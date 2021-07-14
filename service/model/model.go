@@ -74,6 +74,7 @@ type Options struct {
 	Debug bool
 	// The indexes to use for queries
 	Indexes []Index
+	IdIndex *Index
 	// Namespace to scope to
 	Namespace string
 	// Store is the storage engine
