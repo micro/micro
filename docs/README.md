@@ -1,6 +1,7 @@
 <div>
   <a href="https://github.com/micro/micro/stargazers"><img src="https://img.shields.io/github/stars/micro/micro?style=social" /></a>
   <a href="https://m3o.com"><img src="https://img.shields.io/badge/micro-cloud-orange" /></a>
+  <a href="https://slack.m3o.com"><img src="https://img.shields.io/badge/micro-slack-red" /></a>
   <a href="https://discord.gg/TBR9bRjd6Z"><img src="https://img.shields.io/badge/discord-chat-purple" /></a>
 </div>
 
