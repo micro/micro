@@ -1,4 +1,4 @@
-# Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![M3O](https://img.shields.io/badge/micro-cloud-orange)](https://m3o.cloud/) [![Discord](https://img.shields.io/badge/discord-chat-purple)](https://discord.gg/TBR9bRjd6Z) 
+# Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![M3O](https://img.shields.io/badge/micro-cloud-orange)](https://m3o.cloud/) [![Discord](https://img.shields.io/badge/discord-chat-purple)](https://discord.gg/TBR9bRjd6Z)  [![M3O](https://img.shields.io/badge/micro-slack-red)](https://slack.m3o.com) 
 
 Micro is a cloud platform for API development.
 
