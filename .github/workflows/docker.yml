@@ -15,6 +15,9 @@ jobs:
     - name: Clone repo
       uses: actions/checkout@v2
 
+    - name: Fetch tags
+      run: git fetch --prune --unshallow
+
     - name: Unique tag
       id: unique_tag
       run: echo "::set-output name=tag::$(date +%Y%m%d%H%M%S)$(git rev-parse --short HEAD)"
