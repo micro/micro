@@ -108,8 +108,9 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 		req := &pb.BlobWriteRequest{
 			Key: key,
 			Options: &pb.BlobOptions{
-				Namespace: options.Namespace,
-				Public:    options.Public,
+				Namespace:   options.Namespace,
+				Public:      options.Public,
+				ContentType: options.ContentType,
 			},
 			Blob: buffer[:num],
 		}
