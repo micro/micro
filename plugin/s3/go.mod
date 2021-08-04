@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/aws/aws-sdk-go v1.23.0
-	github.com/micro/micro/v3 v3.2.2-0.20210520154937-d69eb589fa2a
+	github.com/micro/micro/v3 v3.3.1-0.20210803122146-2a2fa437600d
 	github.com/stretchr/testify v1.7.0
 )
 
