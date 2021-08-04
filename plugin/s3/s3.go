@@ -140,7 +140,7 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 			Key:         &k,
 			Body:        strings.NewReader(buf.String()),
 			ACL:         aws.String(acl),
-			ContentType: &s.options.ContentType,
+			ContentType: &options.ContentType,
 		}
 		_, err := s.client.PutObject(&object)
 		return err
@@ -156,7 +156,7 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 		Key:         &k,
 		Body:        strings.NewReader(buf.String()),
 		ACL:         aws.String(acl),
-		ContentType: &s.options.ContentType,
+		ContentType: &options.ContentType,
 	}
 	_, err = s.client.PutObject(&object)
 	return err
