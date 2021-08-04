@@ -117,6 +117,7 @@ message TablesResponse {
 message BlobOptions {
 	string namespace = 1;
 	bool public = 2;
+	string contentType = 3;
 }
 
 message BlobReadRequest {

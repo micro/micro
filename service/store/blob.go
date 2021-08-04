@@ -34,8 +34,9 @@ type BlobStore interface {
 // BlobOptions contains options to use when interacting with the store
 type BlobOptions struct {
 	// Namespace to  from
-	Namespace string
-	Public    bool
+	Namespace   string
+	Public      bool
+	ContentType string
 }
 
 // BlobOption sets one or more BlobOptions
@@ -52,5 +53,12 @@ func BlobNamespace(ns string) BlobOption {
 func BlobPublic(p bool) BlobOption {
 	return func(o *BlobOptions) {
 		o.Public = p
+	}
+}
+
+// BlobNamespace sets the Public option
+func BlobContentType(contentType string) BlobOption {
+	return func(o *BlobOptions) {
+		o.ContentType = contentType
 	}
 }
