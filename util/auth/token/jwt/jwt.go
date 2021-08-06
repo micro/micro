@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/util/auth/token"
 )

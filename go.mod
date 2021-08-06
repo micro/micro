@@ -10,26 +10,32 @@ require (
 	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
+	github.com/cloudflare/cloudflare-go v0.10.9 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dustin/go-humanize v1.0.0
 	github.com/evanphx/json-patch/v5 v5.0.0
 	github.com/getkin/kin-openapi v0.26.0
 	github.com/go-acme/lego/v3 v3.4.0
 	github.com/gofrs/uuid v3.2.0+incompatible
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang/protobuf v1.4.3
+	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/websocket v1.4.2
+	github.com/hashicorp/go-hclog v0.14.1 // indirect
 	github.com/hashicorp/go-version v1.2.1
 	github.com/hpcloud/tail v1.0.0
 	github.com/improbable-eng/grpc-web v0.13.0
+	github.com/klauspost/cpuid v1.3.1 // indirect
 	github.com/kr/pretty v0.2.0
 	github.com/miekg/dns v1.1.27
 	github.com/nightlyone/lockfile v1.0.0
 	github.com/olekukonko/tablewriter v0.0.4
+	github.com/onsi/ginkgo v1.15.0 // indirect
 	github.com/onsi/gomega v1.10.5
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
@@ -47,9 +53,11 @@ require (
 	github.com/xanzy/go-gitlab v0.35.1
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	go.etcd.io/bbolt v1.3.5
+	go.uber.org/atomic v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897
 	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.27.0
 	google.golang.org/protobuf v1.25.0
+	gopkg.in/square/go-jose.v2 v2.4.1 // indirect
 )
