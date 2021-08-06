@@ -116,15 +116,10 @@ func Run(context *cli.Context) error {
 		// all things run by the server are `micro service [name]`
 		cmdArgs := []string{"service"}
 
-		// override the profile for api & proxy
 		env := envvars
-		if service == "proxy" || service == "api" {
-			env = append(env, "MICRO_PROFILE=client")
-		} else {
-			env = append(env, "MICRO_PROFILE="+context.String("profile"))
-		}
+		env = append(env, "MICRO_PROFILE="+context.String("profile"))
 
-		// set the proxy addres, default to the network running locally
+		// set the proxy address, default to the network running locally
 		if service != "network" {
 			proxy := context.String("proxy_address")
 			if len(proxy) == 0 {
