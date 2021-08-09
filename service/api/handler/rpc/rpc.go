@@ -77,7 +77,7 @@ func jsonMarshal(t interface{}) ([]byte, error) {
 	encoder := json.NewEncoder(buffer)
 	encoder.SetEscapeHTML(false)
 	err := encoder.Encode(t)
-	return buffer.Bytes(), err
+	return bts.TrimRight(buffer.Bytes(), "\n"), err
 }
 
 func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
