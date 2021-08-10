@@ -53,7 +53,12 @@ func readLoop(r server.Request, s client.Stream) error {
 
 	for {
 		// get data from client
-		//  no need to decode it
+		// no need to decode it
+		select {
+		case <-s.Context().Done():
+			return nil
+		default:
+		}
 		body, err := r.Read()
 		if err == io.EOF {
 			return s.Close()
