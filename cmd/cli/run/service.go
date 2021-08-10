@@ -295,6 +295,21 @@ func runService(ctx *cli.Context) error {
 		"source": source.RuntimeSource(),
 	}
 
+	if md := ctx.StringSlice("metadata"); len(md) > 0 {
+		for _, val := range md {
+			split := strings.Split(val, "=")
+			if len(split) != 2 {
+				return fmt.Errorf("invalid metadata string, must be of form foo=bar %s", val)
+			}
+			if split[0] == "source" {
+				// reserved
+				return fmt.Errorf("invalid metadata string, 'source' is a reserved key")
+			}
+
+			srv.Metadata[split[0]] = split[1]
+		}
+	}
+
 	// specify the options
 	opts := []runtime.CreateOption{
 		runtime.WithOutput(os.Stdout),
