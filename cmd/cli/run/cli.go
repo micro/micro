@@ -44,7 +44,7 @@ var flags = []cli.Flag{
 	},
 	&cli.StringSliceFlag{
 		Name:  "metadata",
-		Usage: "Set metadata on the service e.g. foo=bar",
+		Usage: "Set any metadata on the service e.g. foo=bar",
 	},
 }
 
