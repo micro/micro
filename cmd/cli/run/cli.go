@@ -42,6 +42,10 @@ var flags = []cli.Flag{
 		Usage:   "Number of instances to run",
 		Value:   1,
 	},
+	&cli.StringSliceFlag{
+		Name:  "metadata",
+		Usage: "Set any metadata on the service e.g. foo=bar",
+	},
 }
 
 func init() {
