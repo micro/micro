@@ -16,15 +16,13 @@ type BlockList struct {
 	redisClient *redis.Client
 }
 
-func New(addr, user, pass string) *BlockList {
+func New(addr, user, pass string, tlsConf *tls.Config) *BlockList {
 	return &BlockList{
 		redisClient: redis.NewClient(&redis.Options{
-			Addr:     addr,
-			Username: user,
-			Password: pass,
-			TLSConfig: &tls.Config{
-				InsecureSkipVerify: false,
-			},
+			Addr:      addr,
+			Username:  user,
+			Password:  pass,
+			TLSConfig: tlsConf,
 		}),
 	}
 }
