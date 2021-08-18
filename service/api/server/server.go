@@ -9,6 +9,7 @@ import (
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/micro/v3/plugin"
+	pb "github.com/micro/micro/v3/proto/api"
 	"github.com/micro/micro/v3/service"
 	apiserver "github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/api/auth"
@@ -366,6 +367,8 @@ func Run(ctx *cli.Context) error {
 	if err := api.Start(); err != nil {
 		log.Fatal(err)
 	}
+
+	pb.RegisterApiHandler(srv.Server(), &ahandler.APIHandler{})
 
 	// Run server
 	if err := srv.Run(); err != nil {

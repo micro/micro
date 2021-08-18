@@ -76,7 +76,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Get the account using the token, some are unauthenticated, so the lack of an
-	// account doesn't necesserially mean a forbidden request
+	// account doesn't necessarily mean a forbidden request
 	acc, _ := auth.Inspect(token)
 
 	// Determine the namespace and set it in the header. If the user passed auth creds
@@ -89,6 +89,14 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	} else if len(ns) == 0 {
 		ns = endpoint.Domain
 		req.Header.Set(namespace.NamespaceKey, ns)
+	}
+
+	// Is this account on the blocklist?
+	if acc != nil {
+		if blocked, _ := DefaultBlockList.IsBlocked(req.Context(), acc.ID, acc.Issuer); blocked {
+			http.Error(w, "unauthorized request", http.StatusUnauthorized)
+			return
+		}
 	}
 
 	// Ensure accounts only issued by the namespace are valid.
