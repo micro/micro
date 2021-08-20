@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/service/events"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/store/memory"
 	"github.com/pkg/errors"
@@ -41,7 +42,11 @@ func NewStore(opts ...Option) events.Store {
 	}
 
 	// return the store
-	return &evStore{options}
+	evs := &evStore{options}
+	if options.LongTermStore != nil {
+		go evs.backupLoop()
+	}
+	return evs
 }
 
 type evStore struct {
@@ -102,8 +107,12 @@ func (s *evStore) Write(event *events.Event, opts ...events.WriteOption) error {
 	if err != nil {
 		return errors.Wrap(err, "Error mashaling event to JSON")
 	}
+	// suffix event ID with hour resolution for easy retrieval in batches
+	timeSuffix := time.Now().Format("2006010215")
+
 	record := &store.Record{
-		Key:    event.Topic + joinKey + event.ID,
+		// key is such that reading by prefix indexes by topic and reading by suffix indexes by time
+		Key:    event.Topic + joinKey + event.ID + joinKey + timeSuffix,
 		Value:  bytes,
 		Expiry: options.TTL,
 	}
@@ -114,4 +123,19 @@ func (s *evStore) Write(event *events.Event, opts ...events.WriteOption) error {
 	}
 
 	return nil
+}
+
+func (s *evStore) backupLoop() {
+	for {
+		err := s.opts.LongTermStore.Backup(s.opts.Store)
+		if err != nil {
+			logger.Errorf("Error running backup %s", err)
+		}
+
+		time.Sleep(1 * time.Hour)
+	}
+}
+
+type LongTermStore interface {
+	Backup(st store.Store) error
 }

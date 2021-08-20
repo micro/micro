@@ -49,6 +49,7 @@ func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Pu
 		Topic:     req.Topic,
 		Timestamp: time.Unix(req.Timestamp, 0),
 	}
+
 	if err := events.DefaultStore.Write(&event, events.WithTTL(time.Hour*24)); err != nil {
 		logger.Errorf("Error writing event %v to store: %v", event.ID, err)
 	}
