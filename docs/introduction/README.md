@@ -107,7 +107,7 @@ Micro provides an API gateway that handles HTTP/JSON requests externally and con
 massively simplifies the experience of building efficient highly performant services on the backend which are decoupled 
 from each other but presenting a single view to the consumers.
 
-## Remote Access
+## Remote First
 
 Micro was built with the knowledge that not only do we exist in a multi-environment model but one that's remote first. Because 
 of that we build in a gRPC identity proxy for CLI and local services that enables you to remotely connect to any Micro server 
