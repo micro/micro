@@ -43,7 +43,7 @@ func NewStore(opts ...Option) events.Store {
 
 	// return the store
 	evs := &evStore{options}
-	if options.LongTermStore != nil {
+	if options.Backup != nil {
 		go evs.backupLoop()
 	}
 	return evs
@@ -127,7 +127,7 @@ func (s *evStore) Write(event *events.Event, opts ...events.WriteOption) error {
 
 func (s *evStore) backupLoop() {
 	for {
-		err := s.opts.LongTermStore.Backup(s.opts.Store)
+		err := s.opts.Backup.Snapshot(s.opts.Store)
 		if err != nil {
 			logger.Errorf("Error running backup %s", err)
 		}
@@ -136,6 +136,7 @@ func (s *evStore) backupLoop() {
 	}
 }
 
-type LongTermStore interface {
-	Backup(st store.Store) error
+// Backup is an interface for snapshotting the events store to long term storage
+type Backup interface {
+	Snapshot(st store.Store) error
 }

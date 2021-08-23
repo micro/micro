@@ -21,7 +21,7 @@ type impl struct {
 	opts   Options
 }
 
-func NewLongTermStore(opts ...Option) store2.LongTermStore {
+func NewBackup(opts ...Option) store2.Backup {
 	// parse the options
 	options := Options{Secure: true}
 	for _, o := range opts {
@@ -38,10 +38,7 @@ func NewLongTermStore(opts ...Option) store2.LongTermStore {
 	return &impl{client: client, opts: options}
 }
 
-func (i *impl) Backup(st store.Store) error {
-	// TODO
-	// We need to back up the existing stuff.
-
+func (i *impl) Snapshot(st store.Store) error {
 	// find latest S3 backup file
 	out, err := i.client.ListObjects(&sthree.ListObjectsInput{
 		Bucket: aws.String(i.opts.Bucket),

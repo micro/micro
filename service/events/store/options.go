@@ -21,9 +21,9 @@ import (
 )
 
 type Options struct {
-	Store         store.Store
-	TTL           time.Duration
-	LongTermStore LongTermStore
+	Store  store.Store
+	TTL    time.Duration
+	Backup Backup
 }
 
 type Option func(o *Options)
@@ -42,8 +42,8 @@ func WithTTL(ttl time.Duration) Option {
 	}
 }
 
-func WithLongTermStore(lts LongTermStore) Option {
+func WithBackup(back Backup) Option {
 	return func(o *Options) {
-		o.LongTermStore = lts
+		o.Backup = back
 	}
 }
