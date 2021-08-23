@@ -87,7 +87,7 @@ dateLoop:
 		buf := &bytes.Buffer{}
 		for {
 			recs, err := st.Read("/"+next, store.ReadSuffix(), store.ReadLimit(uint(limit)), store.ReadOffset(uint(offset)))
-			if err == store.ErrNotFound {
+			if err == store.ErrNotFound || len(recs) == 0 {
 				logger.Errorf("No records found")
 				break
 			} else if err != nil {
