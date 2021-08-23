@@ -589,8 +589,11 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	// ignore error
 	json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
 
+        ctx := callContext(c)
+	opts := []client.CallOption{client.WithAuthToken()}
+
 	req := client.DefaultClient.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
-	stream, err := client.DefaultClient.Stream(context.Background(), req)
+	stream, err := client.DefaultClient.Stream(ctx, req, opts...)
 	if err != nil {
 		if cerr := util.CliError(err); cerr.ExitCode() != 128 {
 			return nil, cerr
