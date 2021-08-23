@@ -88,11 +88,13 @@ dateLoop:
 		for {
 			recs, err := st.Read("/"+next, store.ReadSuffix(), store.ReadLimit(uint(limit)), store.ReadOffset(uint(offset)))
 			if err == store.ErrNotFound {
+				logger.Errorf("No records found")
 				break
 			} else if err != nil {
 				logger.Errorf("Error reading recs %s", err)
 				return err
 			}
+			logger.Infof("Processing %d records", len(recs))
 			// process
 			for _, rec := range recs {
 				// 1 record per line
@@ -126,6 +128,7 @@ dateLoop:
 			}
 		}
 	}
+	logger.Infof("Backup complete")
 
 	return nil
 }
