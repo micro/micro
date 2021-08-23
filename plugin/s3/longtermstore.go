@@ -122,7 +122,8 @@ dateLoop:
 		d := t.Format("2006010215")
 		for num := 1; num <= rollBackNum; num++ {
 			if _, err := i.client.DeleteObject(&sthree.DeleteObjectInput{
-				Key: aws.String(fmt.Sprintf("%s-%s", d, num)),
+				Bucket: aws.String(i.opts.Bucket),
+				Key:    aws.String(fmt.Sprintf("%s-%s", d, num)),
 			}); err != nil {
 				logger.Errorf("Error during rollback %s", err)
 			}
@@ -138,9 +139,10 @@ func (i *impl) uploadToS3(key string, buf *bytes.Buffer) error {
 		return nil
 	}
 	_, err := i.client.PutObject(&sthree.PutObjectInput{
-		Body: bytes.NewReader(buf.Bytes()),
-		Key:  aws.String(key),
-		ACL:  aws.String("private"),
+		Bucket: aws.String(i.opts.Bucket),
+		Body:   bytes.NewReader(buf.Bytes()),
+		Key:    aws.String(key),
+		ACL:    aws.String("private"),
 	})
 	if err != nil {
 		logger.Errorf("Error uploading %s", err)
