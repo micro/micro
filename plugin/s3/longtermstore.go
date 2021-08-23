@@ -123,7 +123,7 @@ dateLoop:
 		for num := 1; num <= rollBackNum; num++ {
 			if _, err := i.client.DeleteObject(&sthree.DeleteObjectInput{
 				Bucket: aws.String(i.opts.Bucket),
-				Key:    aws.String(fmt.Sprintf("%s-%s", d, num)),
+				Key:    aws.String(fmt.Sprintf("micro/eventsBackup/%s-%s", d, num)),
 			}); err != nil {
 				logger.Errorf("Error during rollback %s", err)
 			}
@@ -141,7 +141,7 @@ func (i *impl) uploadToS3(key string, buf *bytes.Buffer) error {
 	_, err := i.client.PutObject(&sthree.PutObjectInput{
 		Bucket: aws.String(i.opts.Bucket),
 		Body:   bytes.NewReader(buf.Bytes()),
-		Key:    aws.String(key),
+		Key:    aws.String(fmt.Sprintf("micro/eventsBackup/%s", key)),
 		ACL:    aws.String("private"),
 	})
 	if err != nil {
