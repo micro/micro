@@ -107,7 +107,7 @@ Micro provides an API gateway that handles HTTP/JSON requests externally and con
 massively simplifies the experience of building efficient highly performant services on the backend which are decoupled 
 from each other but presenting a single view to the consumers.
 
-## Remote Access
+## Remote First
 
 Micro was built with the knowledge that not only do we exist in a multi-environment model but one that's remote first. Because 
 of that we build in a gRPC identity proxy for CLI and local services that enables you to remotely connect to any Micro server 
@@ -115,9 +115,9 @@ securely and access those services and resources with your credentials stored in
 
 You can assume not only are your services built for a Cloud first era but that your access to them is in that manner also.
 
-## Sample Services
+## Micro Services
 
-Check out the [micro/services](https://github.com/micro/services) open source repository for example services like the blog.
+Check out the [micro/services](https://github.com/micro/services) repository for example services.
 
 ## Getting Started
 
