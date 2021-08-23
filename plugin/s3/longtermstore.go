@@ -39,6 +39,9 @@ func NewLongTermStore(opts ...Option) store2.LongTermStore {
 }
 
 func (i *impl) Backup(st store.Store) error {
+	// TODO
+	// We need to back up the existing stuff.
+
 	// find latest S3 backup file
 	out, err := i.client.ListObjects(&sthree.ListObjectsInput{
 		Bucket: aws.String(i.opts.Bucket),
@@ -48,7 +51,7 @@ func (i *impl) Backup(st store.Store) error {
 		logger.Errorf("Error retrieving objects from bucket %s", err)
 		return err
 	}
-	latest := time.Now().Format("2006010215") // default to now
+	latest := time.Now().Add(-12 * time.Hour).Format("2006010215") // default to now
 	// list operations results are returned in utf8 binary order
 	for _, obj := range out.Contents {
 		parts := strings.Split(*obj.Key, "/")
@@ -66,14 +69,17 @@ func (i *impl) Backup(st store.Store) error {
 		return ferr
 	}
 	// loop until all the eligible backup periods are completed
+	rollBackNum := 0
+dateLoop:
 	for {
 		t = t.Add(1 * time.Hour)
 		if time.Since(t) < 1*time.Hour {
 			// our work is done here
 			logger.Info("No more backups to be completed right now")
-			break
+			break dateLoop
 		}
 		next := t.Format("2006010215")
+		logger.Infof("Performing backup for %s", next)
 		// read all the entries
 		uploadNum := 0
 		offset := 0
@@ -94,15 +100,31 @@ func (i *impl) Backup(st store.Store) error {
 				buf.WriteString("\n")
 				if buf.Len() >= 50000000 { // 50MB to help constrain the process size
 					uploadNum++
-					i.uploadToS3(fmt.Sprintf("%s-%d", next, uploadNum), buf)
+					if err := i.uploadToS3(fmt.Sprintf("%s-%d", next, uploadNum), buf); err != nil {
+						rollBackNum = uploadNum
+						break dateLoop
+					}
 				}
-
 			}
 			offset += limit
 		}
 		// write anything leftover to file and upload
 		uploadNum++
-		i.uploadToS3(fmt.Sprintf("%s-%d", next, uploadNum), buf)
+		if err := i.uploadToS3(fmt.Sprintf("%s-%d", next, uploadNum), buf); err != nil {
+			rollBackNum = uploadNum
+			break dateLoop
+		}
+	}
+	if rollBackNum > 0 {
+		// rollback this date so we can retry later
+		d := t.Format("2006010215")
+		for num := 1; num <= rollBackNum; num++ {
+			if _, err := i.client.DeleteObject(&sthree.DeleteObjectInput{
+				Key: aws.String(fmt.Sprintf("%s-%s", d, num)),
+			}); err != nil {
+				logger.Errorf("Error during rollback %s", err)
+			}
+		}
 	}
 
 	return nil
@@ -118,6 +140,7 @@ func (i *impl) uploadToS3(key string, buf *bytes.Buffer) error {
 		ACL:  aws.String("private"),
 	})
 	if err != nil {
+		logger.Errorf("Error uploading %s", err)
 		return err
 	}
 	buf.Reset()
