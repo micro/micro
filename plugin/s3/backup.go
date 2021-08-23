@@ -16,7 +16,7 @@ import (
 	"github.com/micro/micro/v3/service/store"
 )
 
-type impl struct {
+type backupImpl struct {
 	client *sthree.S3
 	opts   Options
 }
@@ -35,10 +35,10 @@ func NewBackup(opts ...Option) store2.Backup {
 	}))
 	client := sthree.New(sess)
 
-	return &impl{client: client, opts: options}
+	return &backupImpl{client: client, opts: options}
 }
 
-func (i *impl) Snapshot(st store.Store) error {
+func (i *backupImpl) Snapshot(st store.Store) error {
 	// find latest S3 backup file
 	out, err := i.client.ListObjects(&sthree.ListObjectsInput{
 		Bucket: aws.String(i.opts.Bucket),
@@ -131,7 +131,7 @@ dateLoop:
 	return nil
 }
 
-func (i *impl) uploadToS3(key string, buf *bytes.Buffer) error {
+func (i *backupImpl) uploadToS3(key string, buf *bytes.Buffer) error {
 	if buf.Len() == 0 {
 		return nil
 	}
