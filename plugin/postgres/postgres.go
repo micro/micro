@@ -52,12 +52,14 @@ var (
 
 	// the sql statements we prepare and use
 	statements = map[string]string{
-		"list":       "SELECT key, value, metadata, expiry FROM %s.%s WHERE key LIKE $1 ORDER BY key ASC LIMIT $2 OFFSET $3;",
-		"read":       "SELECT key, value, metadata, expiry FROM %s.%s WHERE key = $1;",
-		"readMany":   "SELECT key, value, metadata, expiry FROM %s.%s WHERE key LIKE $1 ORDER BY key ASC;",
-		"readOffset": "SELECT key, value, metadata, expiry FROM %s.%s WHERE key LIKE $1 ORDER BY key ASC LIMIT $2 OFFSET $3;",
-		"write":      "INSERT INTO %s.%s(key, value, metadata, expiry) VALUES ($1, $2::bytea, $3, $4) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, metadata = EXCLUDED.metadata, expiry = EXCLUDED.expiry;",
-		"delete":     "DELETE FROM %s.%s WHERE key = $1;",
+		"list":          "SELECT key, value, metadata, expiry FROM %s.%s WHERE key LIKE $1 ORDER BY key ASC LIMIT $2 OFFSET $3;",
+		"read":          "SELECT key, value, metadata, expiry FROM %s.%s WHERE key = $1;",
+		"readMany":      "SELECT key, value, metadata, expiry FROM %s.%s WHERE key LIKE $1 ORDER BY key ASC;",
+		"readOffset":    "SELECT key, value, metadata, expiry FROM %s.%s WHERE key LIKE $1 ORDER BY key ASC LIMIT $2 OFFSET $3;",
+		"write":         "INSERT INTO %s.%s(key, value, metadata, expiry) VALUES ($1, $2::bytea, $3, $4) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, metadata = EXCLUDED.metadata, expiry = EXCLUDED.expiry;",
+		"delete":        "DELETE FROM %s.%s WHERE key = $1;",
+		"deleteExpired": "DELETE FROM %s.%s WHERE expiry < now();",
+		"showTables":    "SELECT schemaname, tablename FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';",
 	}
 )
 
@@ -608,7 +610,62 @@ func NewStore(opts ...store.Option) store.Store {
 			logger.Error("Error configuring store ", err)
 		}
 	}
-
+	go s.expiryLoop()
 	// return store
 	return s
+}
+
+func (s *sqlStore) expiryLoop() {
+	for {
+		s.expireRows()
+		time.Sleep(1 * time.Hour)
+	}
+}
+
+func (s *sqlStore) expireRows() error {
+	db, err := s.db()
+	if err != nil {
+		logger.Errorf("Error getting DB connection %s", err)
+		return err
+	}
+	stmt, err := db.Prepare(statements["showTables"])
+	if err != nil {
+		logger.Errorf("Error prepping show tables query %s", err)
+		return err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query()
+	if err != nil {
+		logger.Errorf("Error running show tables query %s", err)
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var schemaName, tableName string
+		if err := rows.Scan(&schemaName, &tableName); err != nil {
+			logger.Errorf("Error parsing result %s", err)
+			return err
+		}
+		db, err = s.db()
+		if err != nil {
+			logger.Errorf("Error prepping delete expired query %s", err)
+			return err
+		}
+		delStmt, err := db.Prepare(fmt.Sprintf(statements["deleteExpired"], schemaName, tableName))
+		if err != nil {
+			logger.Errorf("Error prepping delete expired query %s", err)
+			return err
+		}
+		defer delStmt.Close()
+		res, err := delStmt.Exec()
+		if err != nil {
+			logger.Errorf("Error cleaning up %s", err)
+			return err
+		}
+
+		r, _ := res.RowsAffected()
+		logger.Infof("Cleaning up %s %s: %d rows deleted", schemaName, tableName, r)
+
+	}
+	return nil
 }
