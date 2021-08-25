@@ -646,6 +646,11 @@ func (s *sqlStore) expireRows() error {
 			logger.Errorf("Error parsing result %s", err)
 			return err
 		}
+		db, err = s.db()
+		if err != nil {
+			logger.Errorf("Error prepping delete expired query %s", err)
+			return err
+		}
 		delStmt, err := db.Prepare(fmt.Sprintf(statements["deleteExpired"], schemaName, tableName))
 		if err != nil {
 			logger.Errorf("Error prepping delete expired query %s", err)
