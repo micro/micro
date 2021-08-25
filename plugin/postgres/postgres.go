@@ -657,7 +657,6 @@ func (s *sqlStore) expireRows() error {
 			return err
 		}
 		defer delStmt.Close()
-		logger.Infof("Cleaning up %s %s", schemaName, tableName)
 		res, err := delStmt.Exec()
 		if err != nil {
 			logger.Errorf("Error cleaning up %s", err)
@@ -665,7 +664,7 @@ func (s *sqlStore) expireRows() error {
 		}
 
 		r, _ := res.RowsAffected()
-		logger.Infof("Cleaning up %s %s %d", schemaName, tableName, r)
+		logger.Infof("Cleaning up %s %s: %d rows deleted", schemaName, tableName, r)
 
 	}
 	return nil
