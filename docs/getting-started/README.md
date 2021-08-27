@@ -213,7 +213,7 @@ import (
 )
 
 func main() {
-	// create and initialise a new service
+	// create and initialize a new service
 	srv := service.New()
 
 		// create the proto client for helloworld
