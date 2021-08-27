@@ -37,7 +37,9 @@ type protoCodec struct{}
 type bytesCodec struct{}
 type wrapCodec struct{ encoding.Codec }
 
-var jsonpbMarshaler = &jsonpb.Marshaler{}
+var jsonpbMarshaler = &jsonpb.Marshaler{
+	EmitDefaults: true,
+}
 var useNumber bool
 
 // create buffer pool with 16 instances each preallocated with 256 bytes
