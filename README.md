@@ -25,7 +25,7 @@ Find the cloud hosted services at [m3o.com](https://m3o.com)
 
 ## Usage
 
-See the [docs](https://micro.mu) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://micro.mu/docs) for detailed information on the architecture, installation and use of the platform.
 
 ## License
 
