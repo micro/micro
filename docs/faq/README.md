@@ -13,7 +13,7 @@ The FAQ should provide quick answers to the most common questions.
 
 ## What is Micro?
 
-Micro is a platform for API driven Go microservices development.
+Micro is a platform for API driven development.
 
 ## Is it open source?
 
