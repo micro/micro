@@ -28,9 +28,6 @@ Documentation, guides and quick starts for Micro
 
 ## Contributing
 
-See the [TODO](/todo) list, open a PR and start hacking away at the docs.
+Look at the issues list, start hacking away and open a PR.
 
-## More Resources
-
-Check out [Awesome Micro](https://github.com/micro/awesome-micro) for more resources
 

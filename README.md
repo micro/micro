@@ -1,4 +1,4 @@
-# Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![M3O](https://img.shields.io/badge/micro-cloud-orange)](https://m3o.cloud/) [![Discord](https://img.shields.io/badge/discord-chat-purple)](https://discord.gg/TBR9bRjd6Z)  [![M3O](https://img.shields.io/badge/micro-slack-yellow)](https://slack.m3o.com) 
+# Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![M3O](https://img.shields.io/badge/micro-cloud-orange)](https://m3o.cloud/) [![M3O](https://img.shields.io/badge/micro-slack-yellow)](https://slack.m3o.com) 
 
 Micro is a cloud platform for API development.
 
@@ -21,11 +21,11 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 ## Cloud
 
-Find the cloud hosted version at [m3o.com](https://m3o.com)
+Find the cloud hosted services at [m3o.com](https://m3o.com)
 
 ## Usage
 
-See the [docs](https://micro.mu) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://micro.mu/docs) for detailed information on the architecture, installation and use of the platform.
 
 ## License
 
