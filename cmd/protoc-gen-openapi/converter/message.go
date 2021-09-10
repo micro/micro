@@ -259,7 +259,18 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 		// Maps, arrays, and objects are structured in different ways:
 		switch {
 		case field != nil && field.Desc.Message().FullName() == "google.protobuf.Struct":
-			componentSchema.Type = openAPITypeObject
+			if !isList {
+				componentSchema.Type = openAPITypeObject
+			} else {
+				componentSchema.Items = &openapi3.SchemaRef{
+					Value: &openapi3.Schema{
+						Type:       openAPITypeObject,
+						Properties: map[string]*openapi3.SchemaRef{},
+					},
+				}
+
+				componentSchema.Type = openAPITypeArray
+			}
 		// Arrays:
 		case isList:
 			componentSchema.Items = &openapi3.SchemaRef{
