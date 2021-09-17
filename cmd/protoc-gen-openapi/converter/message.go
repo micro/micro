@@ -86,6 +86,53 @@ componentLoop:
 	return desc, true
 }
 
+// @todo a bit of a copypaste from the function below, i did not know what to do
+// with enums in the callsite of this function
+func toTypeAndFormat(desc *descriptor.FieldDescriptorProto) (string, string, error) {
+	switch desc.GetType() {
+	case descriptor.FieldDescriptorProto_TYPE_DOUBLE,
+		descriptor.FieldDescriptorProto_TYPE_FLOAT:
+		return openAPITypeNumber, openAPIFormatDouble, nil
+
+	case descriptor.FieldDescriptorProto_TYPE_INT32,
+		descriptor.FieldDescriptorProto_TYPE_UINT32,
+		descriptor.FieldDescriptorProto_TYPE_FIXED32,
+		descriptor.FieldDescriptorProto_TYPE_SFIXED32,
+		descriptor.FieldDescriptorProto_TYPE_SINT32:
+		return openAPITypeNumber, openAPIFormatInt32, nil
+
+	case descriptor.FieldDescriptorProto_TYPE_INT64,
+		descriptor.FieldDescriptorProto_TYPE_UINT64,
+		descriptor.FieldDescriptorProto_TYPE_FIXED64,
+		descriptor.FieldDescriptorProto_TYPE_SFIXED64,
+		descriptor.FieldDescriptorProto_TYPE_SINT64:
+		return openAPITypeNumber, openAPIFormatInt64, nil
+
+	case descriptor.FieldDescriptorProto_TYPE_STRING:
+		return openAPITypeString, "", nil
+
+	case descriptor.FieldDescriptorProto_TYPE_BYTES:
+		return openAPITypeString, openAPIFormatByte, nil
+
+	case descriptor.FieldDescriptorProto_TYPE_ENUM:
+		return "string", "", nil
+
+	case descriptor.FieldDescriptorProto_TYPE_BOOL:
+		return openAPITypeBoolean, "", nil
+
+	case descriptor.FieldDescriptorProto_TYPE_GROUP, descriptor.FieldDescriptorProto_TYPE_MESSAGE:
+		switch desc.GetTypeName() {
+		case ".google.protobuf.Timestamp":
+			return openAPITypeString, openAPIFormatDateTime, nil
+		default:
+			return openAPITypeObject, "", nil
+		}
+
+	default:
+		return "", "", fmt.Errorf("unrecognized field type: %s", desc.GetType().String())
+	}
+}
+
 // Convert a proto "field" (essentially a type-switch with some recursion):
 func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, msg *descriptor.DescriptorProto) (*openapi3.Schema, error) {
 
@@ -212,7 +259,18 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 		// Maps, arrays, and objects are structured in different ways:
 		switch {
 		case field != nil && field.Desc.Message().FullName() == "google.protobuf.Struct":
-			componentSchema.Type = openAPITypeObject
+			if !isList {
+				componentSchema.Type = openAPITypeObject
+			} else {
+				componentSchema.Items = &openapi3.SchemaRef{
+					Value: &openapi3.Schema{
+						Type:       openAPITypeObject,
+						Properties: map[string]*openapi3.SchemaRef{},
+					},
+				}
+
+				componentSchema.Type = openAPITypeArray
+			}
 		// Arrays:
 		case isList:
 			componentSchema.Items = &openapi3.SchemaRef{
@@ -227,7 +285,18 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 		case recordType.Options.GetMapEntry():
 			logger.Tracef("Found a map (%s.%s)", *msg.Name, recordType.GetName())
 			componentSchema.Type = openAPITypeObject
-			//componentSchema.AdditionalProperties = openapi3.NewSchemaRef("", recursedComponentSchema)
+			// fields of a map: key, value. we need the type of value here as key is always string
+			// see https://swagger.io/docs/specification/data-models/dictionaries/
+			typ, format, err := toTypeAndFormat(recordType.Field[1])
+			if err != nil {
+				return nil, err
+			}
+			componentSchema.AdditionalProperties = &openapi3.SchemaRef{
+				Value: &openapi3.Schema{
+					Type:   typ,
+					Format: format,
+				},
+			}
 		// Objects:
 		default:
 			componentSchema.Properties = recursedComponentSchema.Properties

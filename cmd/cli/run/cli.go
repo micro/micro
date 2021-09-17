@@ -111,7 +111,7 @@ func init() {
 				&cli.BoolFlag{
 					Name:    "follow",
 					Aliases: []string{"f"},
-					Usage:   "Set to stream logs continuously (default: true)",
+					Usage:   "Set to stream logs continuously",
 				},
 				&cli.StringFlag{
 					Name:  "since",
