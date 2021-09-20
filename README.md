@@ -1,4 +1,4 @@
-# Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![M3O](https://img.shields.io/badge/micro-cloud-orange)](https://m3o.cloud/) [![M3O](https://img.shields.io/badge/micro-slack-yellow)](https://slack.m3o.com) 
+# Micro [![License](https://img.shields.io/badge/license-apache-blue)](https://opensource.org/licenses/Apache-2.0) [![M3O](https://img.shields.io/badge/micro-cloud-orange)](https://m3o.cloud/) [![M3O](https://img.shields.io/badge/micro-slack-yellow)](https://slack.m3o.com) 
 
 Micro is a cloud platform for API development.
 
@@ -29,4 +29,4 @@ See the [docs](https://micro.mu/docs) for detailed information on the architectu
 
 ## License
 
-See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/)
+See [LICENSE](LICENSE) which makes use of [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
