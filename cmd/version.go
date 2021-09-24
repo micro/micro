@@ -12,7 +12,7 @@ var (
 	GitTag    string
 	BuildDate string
 
-	version    = "v3.4.0"
+	version    = "v3.5.0"
 	prerelease = "" // blank if full release
 )
 
