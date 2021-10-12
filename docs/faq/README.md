@@ -17,7 +17,7 @@ Micro is a platform for API driven development.
 
 ## Is it open source?
 
-Micro is source available and makes use of the Polyform Shield license.
+Yes, Micro is Apache 2.0 licensed.
 
 ## Where do I start?
 
