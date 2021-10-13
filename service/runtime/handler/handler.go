@@ -95,7 +95,8 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 
 	// request the logs from the backend
 	logStream, err := r.Runtime.Logs(&runtime.Service{
-		Name: req.GetService(),
+		Name:    req.GetService(),
+		Version: req.GetVersion(),
 	}, opts...)
 	if err != nil {
 		return err

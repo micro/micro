@@ -13,6 +13,10 @@ SRC_DIR=$(GOPATH)/src
 
 all: build
 
+.PHONY: api
+api:
+	find proto/ -name '*.proto' -exec protoc --proto_path=$(PROTO_PATH) --openapi_out=${SRC_DIR} {} \;
+
 vendor:
 	go mod vendor
 

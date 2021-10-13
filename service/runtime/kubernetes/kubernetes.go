@@ -76,7 +76,7 @@ func (k *kubernetes) Logs(resource runtime.Resource, options ...runtime.LogsOpti
 			return nil, runtime.ErrInvalidResource
 		}
 
-		klo := newLog(k.client, s.Name, options...)
+		klo := newLog(k.client, s.Name, s.Version, options...)
 
 		// if its not a stream then read the records, return and close
 		if !klo.options.Stream {

@@ -29,6 +29,7 @@ import (
 type klog struct {
 	client      client.Client
 	serviceName string
+	version     string
 	options     runtime.LogsOptions
 }
 
@@ -91,6 +92,11 @@ func (k *klog) getMatchingPods() ([]string, error) {
 	l := make(map[string]string)
 
 	l["name"] = client.Format(k.serviceName)
+
+	if len(k.version) > 0 {
+		l["version"] = client.Format(k.version)
+	}
+
 	// TODO: specify micro:service
 	// l["micro"] = "service"
 
@@ -219,7 +225,7 @@ func (k *klog) Stream() (runtime.LogStream, error) {
 }
 
 // NewLog returns a configured Kubernetes logger
-func newLog(c client.Client, serviceName string, opts ...runtime.LogsOption) *klog {
+func newLog(c client.Client, serviceName, version string, opts ...runtime.LogsOption) *klog {
 	options := runtime.LogsOptions{
 		Namespace: client.DefaultNamespace,
 	}
@@ -229,6 +235,7 @@ func newLog(c client.Client, serviceName string, opts ...runtime.LogsOption) *kl
 
 	klog := &klog{
 		serviceName: serviceName,
+		version:     version,
 		client:      c,
 		options:     options,
 	}
