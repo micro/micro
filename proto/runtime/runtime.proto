@@ -187,6 +187,8 @@ message LogsRequest{
 	int64 since = 4;
 	// options to use
 	LogsOptions options = 5;
+	// service version
+	string version = 6;
 }
 
 message LogRecord {
