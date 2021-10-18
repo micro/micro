@@ -202,6 +202,7 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 
 		ls, err := s.runtime.Logs(context.DefaultContext, &pb.LogsRequest{
 			Service: service.Name,
+			Version: service.Version,
 			Stream:  opts.Stream,
 			Count:   opts.Count,
 			Options: &pb.LogsOptions{
@@ -214,6 +215,7 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 
 		logStream := &serviceLogs{
 			service: service.Name,
+			version: service.Version,
 			stream:  make(chan runtime.Log),
 			stop:    make(chan bool),
 		}
@@ -266,7 +268,9 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 
 type serviceLogs struct {
 	service string
+	version string
 	stream  chan runtime.Log
+
 	sync.Mutex
 	stop chan bool
 	err  error

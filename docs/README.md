@@ -4,7 +4,7 @@
   <a href="https://slack.m3o.com"><img src="https://img.shields.io/badge/micro-slack-red" /></a>
 </div>
 
-Micro is a cloud platform for API development.
+Micro is an operating system built for the cloud.
 
 ## Overview
 

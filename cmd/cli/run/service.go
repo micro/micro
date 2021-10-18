@@ -459,14 +459,32 @@ func updateService(ctx *cli.Context) error {
 	}
 
 	name := ctx.String("name")
+
+	if v := ctx.Args().Get(0); len(v) > 0 {
+		name = v
+	}
+
 	if len(name) == 0 {
 		name = source.RuntimeName()
 	}
 
-	// construct the service
+	var ref string
+
+	if parts := strings.Split(name, "@"); len(parts) > 1 {
+		name = parts[0]
+		ref = parts[1]
+	}
+
+	// set source ref
+	if len(ref) == 0 && len(source.Ref) > 0 {
+		ref = source.Ref
+	} else if len(ref) == 0 {
+		ref = "latest"
+	}
+
 	srv := &runtime.Service{
 		Name:    name,
-		Version: source.Ref,
+		Version: ref,
 	}
 
 	if source.Local {
@@ -715,6 +733,23 @@ func getLogs(ctx *cli.Context) error {
 	//	readSince = time.Now().Add(-d)
 	//}
 
+	var ref string
+
+	if parts := strings.Split(name, "@"); len(parts) > 1 {
+		name = parts[0]
+		ref = parts[1]
+	}
+
+	// set source ref
+	if len(ref) == 0 {
+		ref = "latest"
+	}
+
+	srv := &runtime.Service{
+		Name:    name,
+		Version: ref,
+	}
+
 	// determine the namespace
 	env, err := util.GetEnv(ctx)
 	if err != nil {
@@ -726,7 +761,7 @@ func getLogs(ctx *cli.Context) error {
 	}
 	options = append(options, runtime.LogsNamespace(ns))
 
-	logs, err := runtime.Logs(&runtime.Service{Name: name}, options...)
+	logs, err := runtime.Logs(srv, options...)
 
 	if err != nil {
 		return util.CliError(err)
