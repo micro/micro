@@ -196,7 +196,7 @@ curl "http://localhost:8080/helloworld?name=John"
 ### With the Framework
 
 Let's write a small client we can use to call the helloworld service.
-Normally you'll make a service call inside another service so this is just a sample of a function you may write. We'll [learn how to write a full fledged service soon](#writing-a-service).
+Normally you'll make a service call inside another service so this is just a sample of a function you may write. We'll [learn how to write a full fledged service soon](#creating-a-service).
 
 Let's take the following file:
 
