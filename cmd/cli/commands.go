@@ -574,7 +574,7 @@ func delEnv(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
 		return nil, cli.ShowSubcommandHelp(c)
 	}
-	return nil, util.DelEnv(args[0])
+	return nil, util.DelEnv(c, args[0])
 }
 
 // TODO: stream via HTTP
