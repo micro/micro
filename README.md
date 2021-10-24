@@ -21,7 +21,7 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 ## Cloud
 
-Find the cloud hosted services at [m3o.com](https://m3o.com)
+A living, breathing version of Micro is run as a public cloud platform called [M3O](https://m3o.com).
 
 ## Usage
 
