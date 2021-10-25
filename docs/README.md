@@ -4,7 +4,7 @@
   <a href="https://slack.m3o.com"><img src="https://img.shields.io/badge/micro-slack-red" /></a>
 </div>
 
-Micro is an operating system built for the cloud.
+Micro is a distributed operating system built for the cloud.
 
 ## Overview
 
@@ -35,7 +35,7 @@ Documentation, guides and quick starts for Micro
 
 ## Cloud
 
-Find the cloud hosted version at [m3o.com](https://m3o.com)
+A living, breathing version of Micro is run as a public cloud platform called [M3O](https://m3o.com).
 
 ## License
 
