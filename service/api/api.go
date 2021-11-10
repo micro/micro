@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
@@ -308,6 +309,27 @@ func RequestPayload(r *http.Request) ([]byte, error) {
 		}
 
 		// marshal
+		return json.Marshal(vals)
+	case strings.Contains(ct, "multipart/form-data"):
+		// 10MB buffer
+		if err := r.ParseMultipartForm(int64(10 << 20)); err != nil {
+			return nil, err
+		}
+		vals := make(map[string]interface{})
+		for k, v := range r.MultipartForm.Value {
+			vals[k] = strings.Join(v, ",")
+		}
+		for k, _ := range r.MultipartForm.File {
+			f, _, err := r.FormFile(k)
+			if err != nil {
+				return nil, err
+			}
+			b, err := ioutil.ReadAll(f)
+			if err != nil {
+				return nil, err
+			}
+			vals[k] = b
+		}
 		return json.Marshal(vals)
 		// TODO: application/grpc
 	}
