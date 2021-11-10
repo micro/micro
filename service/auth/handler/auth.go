@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -30,10 +31,11 @@ const (
 )
 
 var defaultAccount = auth.Account{
-	ID:     "admin",
-	Type:   "user",
-	Scopes: []string{"admin"},
-	Secret: "micro",
+	ID:       "admin",
+	Type:     "user",
+	Scopes:   []string{"admin"},
+	Secret:   "micro",
+	Metadata: map[string]string{},
 }
 
 // Auth processes RPC calls
@@ -103,6 +105,7 @@ func (a *Auth) setupDefaultAccount(ns string) error {
 	if !hasUser {
 		acc := defaultAccount
 		acc.Issuer = ns
+		acc.Metadata["created"] = fmt.Sprintf("%d", time.Now().Unix())
 		if err := a.createAccount(&acc); err != nil {
 			return err
 		}
@@ -173,11 +176,20 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 		return errors.BadRequest("auth.Auth.Generate", "Account with this ID already exists")
 	}
 	if acc.Metadata == nil {
-		acc.Metadata = map[string]string{}
+		acc.Metadata = map[string]string{
+			"created": fmt.Sprintf("%d", time.Now().Unix()),
+		}
 	}
+
+	// set created time if not defined
+	if _, ok := acc.Metadata["created"]; !ok {
+		acc.Metadata["created"] = fmt.Sprintf("%d", time.Now().Unix())
+	}
+
 	if acc.Name == "" {
 		acc.Name = acc.ID
 	}
+
 	usernameKey := strings.Join([]string{storePrefixAccountsByName, acc.Issuer, acc.Name}, joinKey)
 	if _, err := store.Read(usernameKey); err != store.ErrNotFound {
 		return errors.BadRequest("auth.Auth.Generate", "Account with this Name already exists")
