@@ -387,7 +387,7 @@ func (g *grpcServer) processRequest(stream grpc.ServerStream, service *service, 
 			argIsValue = true
 		}
 
-		if defaultGRPCCodecs[ct].Name() != "json" {
+		if cd := defaultGRPCCodecs[ct]; cd.Name() != "json" {
 			if err := stream.RecvMsg(argv.Interface()); err != nil {
 				return err
 			}
@@ -400,7 +400,7 @@ func (g *grpcServer) processRequest(stream grpc.ServerStream, service *service, 
 			}
 
 			// first try parsing it as normal
-			if err := json.Unmarshal(raw, argv.Interface()); err != nil {
+			if err := cd.Unmarshal(raw, argv.Interface()); err != nil {
 				// let's try parsing it manually
 				var gen map[string]interface{}
 				if err := json.Unmarshal(raw, &gen); err != nil {
