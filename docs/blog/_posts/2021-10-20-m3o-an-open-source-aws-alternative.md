@@ -8,7 +8,8 @@ date:   2021-10-20 10:00:00
 
 <p style="text-align: center;">
   <a href="https://m3o.com"><img src="https://avatars.githubusercontent.com/u/65984637?s=200&v=4" /></a>
-  <h1><a href="https://m3o.com">M3O</a></h1>
+  <br>
+  <a href="https://m3o.com">**M3O**</a>
 </p>
 <p align="center">M3O is an open source public cloud platform.<br>We are building an AWS alternative for the next generation of developers.</p>
 
