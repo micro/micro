@@ -1,16 +1,18 @@
 ---
 layout: post
-title:  "M3O - An open source public cloud platform"
+title:  "M3O - An open source AWS alternative"
 author: Asim Aslam
 date:   2021-10-20 10:00:00
 ---
 <br>
 
-<p align="center">
-  <a href="https://m3o.com">
-    <img src="https://avatars.githubusercontent.com/u/65984637?s=200&v=4" />
-  </a>
-  <h1 align="center"><a href="https://m3o.com">M3O</a></h1>
+<p style="text-align: center">
+  <div>
+    <a href="https://m3o.com">
+      <img src="https://avatars.githubusercontent.com/u/65984637?s=200&v=4" />
+    </a>
+  </div>
+  <h1><a href="https://m3o.com">M3O</a></h1>
 </p>
 <p align="center">M3O is an open source public cloud platform.<br>We are building an AWS alternative for the next generation of developers.</p>
 
