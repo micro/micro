@@ -39,6 +39,10 @@ Documentation, guides and quick starts for Micro
 
 A living, breathing version of Micro is run as a public cloud platform called [M3O](https://m3o.com).
 
+## Services
+
+Services built with Micro live in [github.com/micro/services](https://github.com/micro/services).
+
 ## License
 
 [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
