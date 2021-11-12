@@ -23,6 +23,14 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 A living, breathing version of Micro is run as a public cloud platform called [M3O](https://m3o.com).
 
+## Services
+
+Services built with Micro live in [github.com/micro/services](https://github.com/micro/services).
+
+## Network
+
+Future ideas about where Micro is going live in [github.com/micro/network](https://github.com/micro/network).
+
 ## Usage
 
 See the [docs](https://micro.mu/docs) for detailed information on the architecture, installation and use of the platform.
