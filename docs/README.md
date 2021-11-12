@@ -3,7 +3,7 @@
 <div>
   <a href="https://github.com/micro/micro/stargazers"><img src="https://img.shields.io/github/stars/micro/micro?style=social" /></a>
   <a href="https://m3o.com"><img src="https://img.shields.io/badge/micro-cloud-orange" /></a>
-  <a href="https://slack.m3o.com"><img src="https://img.shields.io/badge/micro-slack-red" /></a>
+  <a href="https://slack.m3o.com"><img src="https://img.shields.io/badge/micro-community-red" /></a>
 </div>
 
 Micro is a distributed operating system built for the cloud.
@@ -38,6 +38,10 @@ Documentation, guides and quick starts for Micro
 ## Cloud
 
 A living, breathing version of Micro is run as a public cloud platform called [M3O](https://m3o.com).
+
+## Services
+
+Services built with Micro live in [github.com/micro/services](https://github.com/micro/services).
 
 ## License
 
