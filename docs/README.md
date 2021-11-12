@@ -1,6 +1,6 @@
 ## Programming the Real World
 
-Micro is a distributed operating system built for the cloud.
+Micro is a distributed cloud operating system.
 
 ## Overview
 
