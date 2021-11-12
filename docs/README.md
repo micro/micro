@@ -36,3 +36,7 @@ A living, breathing version of Micro is run as a public cloud platform called [M
 ## Services
 
 Services built with Micro live in [github.com/micro/services](https://github.com/micro/services).
+
+## Network
+
+Future ideas about where Micro is going live in [github.com/micro/network](https://github.com/micro/network).
