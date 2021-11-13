@@ -4,8 +4,6 @@ title:  "M3O - An open source AWS alternative"
 author: Asim Aslam
 date:   2021-10-20 10:00:00
 ---
-<br>
-
 <p style="text-align: center;">
   <a href="https://m3o.com"><img src="https://avatars.githubusercontent.com/u/65984637?s=200&v=4" /></a>
   <br>
