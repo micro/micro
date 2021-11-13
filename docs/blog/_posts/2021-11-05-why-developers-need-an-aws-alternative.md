@@ -5,7 +5,6 @@ author: Asim Aslam
 date:   2021-11-05 10:00:00
 image: "/assets/images/xaas.jpg"
 ---
-<br>
 <center>
 <img src="{{ site.baseurl }}/blog/images/xaas.jpg" style="width: 100%; height: auto;" />
 </center>
