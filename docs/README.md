@@ -2,7 +2,7 @@
 
 Micro is a distributed cloud operating system built for real world programming.
 
-## Overview
+## About
 
 Micro addresses the key requirements for building services in the cloud. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
