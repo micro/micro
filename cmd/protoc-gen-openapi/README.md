@@ -34,4 +34,3 @@ Links
 -----
 
 - https://micro.mu/reference#api
-- https://docs.m3o.com/getting-started/public-apis
