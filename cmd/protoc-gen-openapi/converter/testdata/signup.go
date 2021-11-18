@@ -573,8 +573,8 @@ const Signup = `{
   },
   "servers": [
     {
-      "url": "https://api.m3o.com/v1",
-      "description": "Micro M3O environment"
+      "url": "http://localhost:8080",
+      "description": "Micro dev environment"
     }
   ]
 }`
