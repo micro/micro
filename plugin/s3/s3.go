@@ -136,10 +136,11 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 	if len(s.options.Bucket) > 0 {
 		k := filepath.Join(options.Namespace, key)
 		object := sthree.PutObjectInput{
-			Bucket: &s.options.Bucket,
-			Key:    &k,
-			Body:   strings.NewReader(buf.String()),
-			ACL:    aws.String(acl),
+			Bucket:      &s.options.Bucket,
+			Key:         &k,
+			Body:        strings.NewReader(buf.String()),
+			ACL:         aws.String(acl),
+			ContentType: &options.ContentType,
 		}
 		_, err := s.client.PutObject(&object)
 		return err
@@ -151,10 +152,11 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 
 	k := filepath.Join(options.Namespace, key)
 	object := sthree.PutObjectInput{
-		Bucket: &s.options.Bucket,
-		Key:    &k,
-		Body:   strings.NewReader(buf.String()),
-		ACL:    aws.String(acl),
+		Bucket:      &s.options.Bucket,
+		Key:         &k,
+		Body:        strings.NewReader(buf.String()),
+		ACL:         aws.String(acl),
+		ContentType: &options.ContentType,
 	}
 	_, err = s.client.PutObject(&object)
 	return err

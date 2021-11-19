@@ -8,6 +8,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/micro/micro/v3/service/logger"
+	"google.golang.org/protobuf/compiler/protogen"
 )
 
 const (
@@ -83,6 +84,53 @@ componentLoop:
 		return nil, false
 	}
 	return desc, true
+}
+
+// @todo a bit of a copypaste from the function below, i did not know what to do
+// with enums in the callsite of this function
+func toTypeAndFormat(desc *descriptor.FieldDescriptorProto) (string, string, error) {
+	switch desc.GetType() {
+	case descriptor.FieldDescriptorProto_TYPE_DOUBLE,
+		descriptor.FieldDescriptorProto_TYPE_FLOAT:
+		return openAPITypeNumber, openAPIFormatDouble, nil
+
+	case descriptor.FieldDescriptorProto_TYPE_INT32,
+		descriptor.FieldDescriptorProto_TYPE_UINT32,
+		descriptor.FieldDescriptorProto_TYPE_FIXED32,
+		descriptor.FieldDescriptorProto_TYPE_SFIXED32,
+		descriptor.FieldDescriptorProto_TYPE_SINT32:
+		return openAPITypeNumber, openAPIFormatInt32, nil
+
+	case descriptor.FieldDescriptorProto_TYPE_INT64,
+		descriptor.FieldDescriptorProto_TYPE_UINT64,
+		descriptor.FieldDescriptorProto_TYPE_FIXED64,
+		descriptor.FieldDescriptorProto_TYPE_SFIXED64,
+		descriptor.FieldDescriptorProto_TYPE_SINT64:
+		return openAPITypeNumber, openAPIFormatInt64, nil
+
+	case descriptor.FieldDescriptorProto_TYPE_STRING:
+		return openAPITypeString, "", nil
+
+	case descriptor.FieldDescriptorProto_TYPE_BYTES:
+		return openAPITypeString, openAPIFormatByte, nil
+
+	case descriptor.FieldDescriptorProto_TYPE_ENUM:
+		return "string", "", nil
+
+	case descriptor.FieldDescriptorProto_TYPE_BOOL:
+		return openAPITypeBoolean, "", nil
+
+	case descriptor.FieldDescriptorProto_TYPE_GROUP, descriptor.FieldDescriptorProto_TYPE_MESSAGE:
+		switch desc.GetTypeName() {
+		case ".google.protobuf.Timestamp":
+			return openAPITypeString, openAPIFormatDateTime, nil
+		default:
+			return openAPITypeObject, "", nil
+		}
+
+	default:
+		return "", "", fmt.Errorf("unrecognized field type: %s", desc.GetType().String())
+	}
 }
 
 // Convert a proto "field" (essentially a type-switch with some recursion):
@@ -161,8 +209,30 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 		return nil, fmt.Errorf("unrecognized field type: %s", desc.GetType().String())
 	}
 
+	isList := false
+	var field *protogen.Field
+	if c.plug != nil && len(c.plug.Files) > 0 {
+		for _, file := range c.plug.Files {
+			for _, message := range file.Messages {
+				for _, f := range message.Fields {
+					parts := strings.Split(string(f.GoIdent.GoName), "_")
+					messageName := parts[0]
+
+					if messageName != *msg.Name {
+						continue
+					}
+					fieldName := parts[1]
+					if strings.ToLower(fieldName) == *desc.Name {
+						isList = f.Desc.IsList()
+						field = f
+					}
+				}
+			}
+		}
+
+	}
 	// Recurse array of primitive types:
-	if desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REPEATED && componentSchema.Type != openAPITypeObject {
+	if isList && componentSchema.Type != openAPITypeObject {
 		componentSchema.Items = &openapi3.SchemaRef{
 			Value: &openapi3.Schema{
 				Type: componentSchema.Type,
@@ -188,21 +258,45 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 
 		// Maps, arrays, and objects are structured in different ways:
 		switch {
+		case field != nil && field.Desc.Message().FullName() == "google.protobuf.Struct":
+			if !isList {
+				componentSchema.Type = openAPITypeObject
+			} else {
+				componentSchema.Items = &openapi3.SchemaRef{
+					Value: &openapi3.Schema{
+						Type:       openAPITypeObject,
+						Properties: map[string]*openapi3.SchemaRef{},
+					},
+				}
+
+				componentSchema.Type = openAPITypeArray
+			}
 		// Arrays:
-		case desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REPEATED:
+		case isList:
 			componentSchema.Items = &openapi3.SchemaRef{
 				Value: &openapi3.Schema{
 					Type:       openAPITypeObject,
 					Properties: recursedComponentSchema.Properties,
 				},
 			}
+
 			componentSchema.Type = openAPITypeArray
 		// Maps:
 		case recordType.Options.GetMapEntry():
 			logger.Tracef("Found a map (%s.%s)", *msg.Name, recordType.GetName())
 			componentSchema.Type = openAPITypeObject
-			componentSchema.AdditionalProperties = openapi3.NewSchemaRef("", recursedComponentSchema)
-
+			// fields of a map: key, value. we need the type of value here as key is always string
+			// see https://swagger.io/docs/specification/data-models/dictionaries/
+			typ, format, err := toTypeAndFormat(recordType.Field[1])
+			if err != nil {
+				return nil, err
+			}
+			componentSchema.AdditionalProperties = &openapi3.SchemaRef{
+				Value: &openapi3.Schema{
+					Type:   typ,
+					Format: format,
+				},
+			}
 		// Objects:
 		default:
 			componentSchema.Properties = recursedComponentSchema.Properties

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
 	net "github.com/micro/micro/v3/service/network"
 	"github.com/micro/micro/v3/service/network/handler"
@@ -131,6 +132,11 @@ func Run(ctx *cli.Context) error {
 	tun := tmucp.NewTunnel(tunOpts...)
 	id := service.Server().Options().Id
 
+	// increase the client retries
+	client.DefaultClient.Init(
+		client.Retries(3),
+	)
+
 	// local tunnel router
 	rtr := router.DefaultRouter
 
@@ -138,6 +144,7 @@ func Run(ctx *cli.Context) error {
 		router.Network(networkName),
 		router.Id(id),
 		router.Gateway(gateway),
+		router.Cache(),
 	)
 
 	// create new network

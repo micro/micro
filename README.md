@@ -1,6 +1,6 @@
-# Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro) [![Slack](https://img.shields.io/badge/slack-join-white)](https://slack.m3o.com/) [![M3O](https://img.shields.io/badge/micro-cloud-red)](https://m3o.cloud/) 
+# Micro [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/micro/micro/v3?tab=doc) [![License](https://img.shields.io/badge/license-apache-blue)](https://opensource.org/licenses/Apache-2.0) 
 
-Micro is a distributed OS built for the Cloud.
+Micro is a distributed cloud operating system.
 
 ## Overview
 
@@ -17,14 +17,12 @@ with the complexity of distributed systems and provides simpler programmable abs
 - [Reference](https://micro.mu/reference) - In-depth reference for Micro CLI and services
 - [Resources](https://micro.mu/resources) - External resources and contributions
 - [Roadmap](https://micro.mu/roadmap) - Stuff on our agenda over the long haul
-- [Users](https://micro.mu/users) - Developers and companies using Micro in production
 - [FAQ](https://micro.mu/faq) - Frequently asked questions
-- [Blog](https://micro.mu/blog) - For the latest from us
 
 ## Usage
 
-See the [docs](https://micro.mu) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://micro.mu/docs) for detailed information on the architecture, installation and use of the platform.
 
 ## License
 
-See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/).
+See [LICENSE](LICENSE) which makes use of [Apache 2.0](https://opensource.org/licenses/Apache-2.0)

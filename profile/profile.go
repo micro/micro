@@ -21,7 +21,6 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/micro/v3/service/router"
 	k8sRouter "github.com/micro/micro/v3/service/router/kubernetes"
@@ -31,6 +30,8 @@ import (
 	"github.com/micro/micro/v3/service/server"
 	"github.com/micro/micro/v3/service/store/file"
 	mem "github.com/micro/micro/v3/service/store/memory"
+	"github.com/micro/micro/v3/util/opentelemetry"
+	"github.com/micro/micro/v3/util/opentelemetry/jaeger"
 	"github.com/urfave/cli/v2"
 
 	microAuth "github.com/micro/micro/v3/service/auth"
@@ -94,9 +95,31 @@ var Local = &Profile{
 		microStore.DefaultStore = file.NewStore(file.WithDir(filepath.Join(user.Dir, "server", "store")))
 		SetupConfigSecretKey(ctx)
 		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
-		SetupBroker(memBroker.NewBroker())
-		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
+
+		// the registry service uses the memory registry, the other core services will use the default
+		// rpc client and call the registry service
+		if ctx.Args().Get(1) == "registry" {
+			SetupRegistry(memory.NewRegistry())
+		} else {
+			// set the registry address
+			registry.DefaultRegistry.Init(
+				registry.Addrs("localhost:8000"),
+			)
+
+			SetupRegistry(registry.DefaultRegistry)
+		}
+
+		// the broker service uses the memory broker, the other core services will use the default
+		// rpc client and call the broker service
+		if ctx.Args().Get(1) == "broker" {
+			SetupBroker(memBroker.NewBroker())
+		} else {
+			broker.DefaultBroker.Init(
+				broker.Addrs("localhost:8003"),
+			)
+			SetupBroker(broker.DefaultBroker)
+		}
 
 		// set the store in the model
 		model.DefaultModel = model.NewModel(
@@ -120,6 +143,20 @@ var Local = &Profile{
 		if err != nil {
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
+
+		// Configure tracing with Jaeger (forced tracing):
+		tracingServiceName := ctx.Args().Get(1)
+		if len(tracingServiceName) == 0 {
+			tracingServiceName = "Micro"
+		}
+		openTracer, _, err := jaeger.New(
+			opentelemetry.WithServiceName(tracingServiceName),
+			opentelemetry.WithSamplingRate(1),
+		)
+		if err != nil {
+			logger.Fatalf("Error configuring opentracing: %v", err)
+		}
+		opentelemetry.DefaultOpenTracer = openTracer
 
 		return nil
 	},
@@ -175,6 +212,21 @@ var Kubernetes = &Profile{
 		// Use k8s routing which is DNS based
 		router.DefaultRouter = k8sRouter.NewRouter()
 		client.DefaultClient.Init(client.Router(router.DefaultRouter))
+
+		// Configure tracing with Jaeger:
+		tracingServiceName := ctx.Args().Get(1)
+		if len(tracingServiceName) == 0 {
+			tracingServiceName = "Micro"
+		}
+		openTracer, _, err := jaeger.New(
+			opentelemetry.WithServiceName(tracingServiceName),
+			opentelemetry.WithTraceReporterAddress("localhost:6831"),
+		)
+		if err != nil {
+			logger.Fatalf("Error configuring opentracing: %v", err)
+		}
+		opentelemetry.DefaultOpenTracer = openTracer
+
 		return nil
 	},
 }

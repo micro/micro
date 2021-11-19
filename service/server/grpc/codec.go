@@ -38,7 +38,7 @@ type wrapCodec struct{ encoding.Codec }
 
 var jsonpbMarshaler = &jsonpb.Marshaler{
 	EnumsAsInts:  false,
-	EmitDefaults: false,
+	EmitDefaults: true,
 	OrigName:     true,
 }
 
@@ -52,6 +52,7 @@ var (
 		"application/grpc+json":    jsonCodec{},
 		"application/grpc+proto":   protoCodec{},
 		"application/grpc+bytes":   bytesCodec{},
+		"multipart/form-data":      jsonCodec{},
 	}
 )
 

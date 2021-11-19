@@ -1,12 +1,8 @@
-<div>
-  <a href="https://twitter.com/microhq"><img src="https://img.shields.io/github/last-commit/micro/micro" /></a>
-  <a href="https://github.com/micro/micro/network/members"><img src="https://img.shields.io/github/forks/micro/micro?style=social" /></a>
-  <a href="https://github.com/micro/micro/stargazers"><img src="https://img.shields.io/github/stars/micro/micro?style=social" /></a>
-</div>
+## Programming the Real World
 
-Micro is a distributed OS built for the Cloud.
+Micro is a distributed cloud operating system built for real world programming.
 
-## Overview
+## About
 
 Micro addresses the key requirements for building services in the cloud. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
@@ -31,10 +27,16 @@ Documentation, guides and quick starts for Micro
 - [Reference](reference) - In-depth reference for Micro CLI and services
 - [Resources](resources) - External resources and contributions
 - [Roadmap](roadmap) - Stuff on our agenda over the long haul
-- [Users](users) - Developers and companies using Micro in production
 - [FAQ](faq) - Frequently asked questions
-- [Blog](blog) - For the latest from us
 
-## License
+## Cloud
 
-[Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/)
+A living, breathing version of Micro is run as a public cloud platform called [M3O](https://m3o.com).
+
+## Services
+
+Services built with Micro live in [github.com/micro/services](https://github.com/micro/services).
+
+## Network
+
+Future ideas about where Micro is going live in [github.com/micro/network](https://github.com/micro/network).

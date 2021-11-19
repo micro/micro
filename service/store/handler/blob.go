@@ -100,7 +100,7 @@ func (b *BlobStore) Write(ctx context.Context, stream pb.BlobStore_WriteStream) 
 	}
 
 	// execute the request
-	err := store.DefaultBlobStore.Write(key, buf, store.BlobNamespace(options.Namespace), store.BlobPublic(options.Public))
+	err := store.DefaultBlobStore.Write(key, buf, store.BlobNamespace(options.Namespace), store.BlobPublic(options.Public), store.BlobContentType(options.ContentType))
 	if err == store.ErrMissingKey {
 		return errors.BadRequest("store.Blob.Write", "Missing key")
 	} else if err != nil {

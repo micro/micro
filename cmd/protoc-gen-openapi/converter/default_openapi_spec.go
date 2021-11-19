@@ -34,19 +34,11 @@ func (c *Converter) defaultSpec() {
 		Paths:   make(openapi3.Paths),
 	}
 
-	// Add the DEV platform server:
+	// Add the local platform server:
 	c.openAPISpec.AddServer(
 		&openapi3.Server{
-			URL:         "https://api.m3o.dev",
-			Description: "Micro DEV environment",
-		},
-	)
-
-	// Add the LIVE platform server:
-	c.openAPISpec.AddServer(
-		&openapi3.Server{
-			URL:         "https://api.m3o.com",
-			Description: "Micro LIVE environment",
+			URL:         "http://localhost:8080",
+			Description: "Micro dev environment",
 		},
 	)
 

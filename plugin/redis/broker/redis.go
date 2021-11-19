@@ -3,15 +3,26 @@ package broker
 import (
 	"context"
 	"fmt"
+	"math/rand"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/pkg/errors"
+)
+
+var (
+	errHandler       = fmt.Errorf("error from handler")
+	readGroupTimeout = 10 * time.Second // how long to block on call to redis
+)
+
+const (
+	errMsgPoolTimeout = "redis: connection pool timeout"
 )
 
 type redisBroker struct {
@@ -96,7 +107,8 @@ func (r *redisBroker) Subscribe(topic string, h broker.Handler, opts ...broker.S
 	if len(group) == 0 {
 		group = uuid.New().String()
 	}
-	err := r.consumeWithGroup(fmt.Sprintf("broker-%s", topic), group, h, opt.ErrorHandler)
+
+	err := r.consumeWithGroup(topic, group, h, opt.ErrorHandler)
 	if err != nil {
 		return nil, err
 	}
@@ -115,41 +127,148 @@ func (r *redisBroker) String() string {
 }
 
 func (r *redisBroker) consumeWithGroup(topic, group string, h broker.Handler, eh broker.ErrorHandler) error {
+	topic = fmt.Sprintf("broker-%s", topic)
 	lastRead := "$"
-	if err := r.redisClient.XGroupCreateMkStream(context.Background(), topic, group, lastRead).Err(); err != nil {
+
+	if err := callWithRetry(func() error {
+		return r.redisClient.XGroupCreateMkStream(context.Background(), topic, group, lastRead).Err()
+	}, 2); err != nil {
 		if !strings.HasPrefix(err.Error(), "BUSYGROUP") {
 			return err
 		}
 	}
 	consumerName := uuid.New().String()
 	go func() {
+		defer func() {
+			// try to clean up the consumer
+			if err := callWithRetry(func() error {
+				return r.redisClient.XGroupDelConsumer(context.Background(), topic, group, consumerName).Err()
+			}, 2); err != nil {
+				logger.Errorf("Error deleting consumer %s", err)
+			}
+		}()
+		// only stop processing if we get an error while from the handler, in all other cases continue
+		start := "-"
+		for {
+			// sweep up any old pending messages
+			var pendingCmd *redis.XPendingExtCmd
+			err := callWithRetry(func() error {
+				pendingCmd = r.redisClient.XPendingExt(context.Background(), &redis.XPendingExtArgs{
+					Stream: topic,
+					Group:  group,
+					Start:  start,
+					End:    "+",
+					Count:  50,
+				})
+				return pendingCmd.Err()
+			}, 2)
+			if err != nil && err != redis.Nil {
+				logger.Errorf("Error finding pending messages %s", err)
+				return
+			}
+			pend := pendingCmd.Val()
+			if len(pend) == 0 {
+				break
+			}
+			pendingIDs := make([]string, len(pend))
+			for i, p := range pend {
+				pendingIDs[i] = p.ID
+			}
+			var claimCmd *redis.XMessageSliceCmd
+			err = callWithRetry(func() error {
+				claimCmd = r.redisClient.XClaim(context.Background(), &redis.XClaimArgs{
+					Stream:   topic,
+					Group:    group,
+					Consumer: consumerName,
+					MinIdle:  60 * time.Second,
+					Messages: pendingIDs,
+				})
+				return claimCmd.Err()
+			}, 2)
+			if err != nil {
+				logger.Errorf("Error claiming message %s", err)
+				continue
+			}
+			msgs := claimCmd.Val()
+			if err := r.processMessages(msgs, topic, group, h, eh); err == errHandler {
+				logger.Errorf("Error processing message %s", err)
+				return
+			}
+			if len(pendingIDs) < 50 {
+				break
+			}
+			start = incrementID(pendingIDs[49])
+		}
 		for {
 			res := r.redisClient.XReadGroup(context.Background(), &redis.XReadGroupArgs{
 				Group:    group,
 				Consumer: consumerName,
 				Streams:  []string{topic, ">"},
-				Block:    0,
+				Block:    readGroupTimeout,
 			})
-			if err := r.processStreamRes(res, topic, group, h, eh); err != nil {
+			sl, err := res.Result()
+			if err != nil {
+				logger.Errorf("Error reading from stream %s", err)
+				sleepWithJitter(2 * time.Second)
+				continue
+			}
+			if sl == nil || len(sl) == 0 || len(sl[0].Messages) == 0 {
+				logger.Errorf("No data received from stream")
+				continue
+			}
+			if err := r.processMessages(sl[0].Messages, topic, group, h, eh); err == errHandler {
 				return
 			}
 		}
+
 	}()
 	return nil
 }
 
-func (r *redisBroker) processStreamRes(res *redis.XStreamSliceCmd, topic, group string, h broker.Handler, eh broker.ErrorHandler) error {
-	sl, err := res.Result()
-	if err != nil {
-		logger.Errorf("Error reading from stream %s", err)
-		return err
+// callWithRetry tries the call and reattempts uf we see a connection pool timeout error
+func callWithRetry(f func() error, retries int) error {
+	var err error
+	for i := 0; i < retries; i++ {
+		err = f()
+		if err == nil {
+			return nil
+		}
+		if !isTimeoutError(err) {
+			break
+		}
+		sleepWithJitter(2 * time.Second)
 	}
-	if sl == nil {
-		logger.Errorf("No data received from stream")
-		return fmt.Errorf("no data received from stream")
-	}
+	return err
+}
 
-	for _, v := range sl[0].Messages {
+func sleepWithJitter(max time.Duration) {
+	// jitter the duration
+	time.Sleep(max * time.Duration(rand.Int63n(200)) / 200)
+}
+
+func isTimeoutError(err error) bool {
+	return err != nil && strings.Contains(err.Error(), errMsgPoolTimeout)
+}
+
+func incrementID(id string) string {
+	// id is of form 12345-0
+	parts := strings.Split(id, "-")
+	if len(parts) != 2 {
+		// not sure what to do with this
+		return id
+	}
+	i, err := strconv.Atoi(parts[1])
+	if err != nil {
+		// not sure what to do with this
+		return id
+	}
+	i++
+	return fmt.Sprintf("%s-%d", parts[0], i)
+
+}
+
+func (r *redisBroker) processMessages(msgs []redis.XMessage, topic, group string, h broker.Handler, eh broker.ErrorHandler) error {
+	for _, v := range msgs {
 		evBytes := v.Values["event"]
 		bStr, ok := evBytes.(string)
 		if !ok {
@@ -167,6 +286,7 @@ func (r *redisBroker) processStreamRes(res *redis.XStreamSliceCmd, topic, group 
 			if eh != nil {
 				eh(&msg, err)
 			}
+			return errHandler
 		}
 
 		// TODO check for error
@@ -178,15 +298,15 @@ func (r *redisBroker) processStreamRes(res *redis.XStreamSliceCmd, topic, group 
 func NewBroker(opts ...broker.Option) broker.Broker {
 	boptions := broker.Options{
 		// Default codec
-		Codec:    Marshaler{},
-		Context:  context.Background(),
-		Registry: mdns.NewRegistry(),
+		Codec:   Marshaler{},
+		Context: context.Background(),
 	}
 
 	rs := &redisBroker{
 		opts: boptions,
 	}
 	rs.setOption(opts...)
+	rs.runJanitor()
 	return rs
 }
 

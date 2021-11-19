@@ -18,6 +18,7 @@ package client
 
 import (
 	"context"
+	"strings"
 
 	"github.com/micro/micro/v3/service/errors"
 )
@@ -48,6 +49,24 @@ func RetryOnError(ctx context.Context, req Request, retryCount int, err error) (
 	default:
 		return false, nil
 	}
+}
+
+// RetryOnConnectFailure will return true if "connection refused" is returned
+func RetryOnConnectFailure(ctx context.Context, req Request, retryCount int, err error) (bool, error) {
+	if err == nil {
+		return false, nil
+	}
+
+	e := errors.Parse(err.Error())
+	if e == nil {
+		return false, nil
+	}
+
+	if strings.Contains(e.Detail, "connection refused") {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // RetryNever never retries a request

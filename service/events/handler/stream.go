@@ -49,6 +49,7 @@ func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Pu
 		Topic:     req.Topic,
 		Timestamp: time.Unix(req.Timestamp, 0),
 	}
+
 	if err := events.DefaultStore.Write(&event, events.WithTTL(time.Hour*24)); err != nil {
 		logger.Errorf("Error writing event %v to store: %v", event.ID, err)
 	}
@@ -89,8 +90,20 @@ func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Str
 	}
 	ackMap := map[string]eventSent{}
 	mutex := sync.RWMutex{}
+	recvErrChan := make(chan error)
+	sendErrChan := make(chan error)
 	go func() {
+		// process messages from the consumer (probably just ACK messages
+		defer close(recvErrChan)
 		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-sendErrChan:
+				return
+			default:
+			}
+
 			req := pb.AckRequest{}
 			if err := rsp.RecvMsg(&req); err != nil {
 				return
@@ -112,35 +125,53 @@ func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Str
 			mutex.Unlock()
 		}
 	}()
-	for {
-		// Do any clean up of ackMap where we haven't got a response
-		now := time.Now()
-		for k, v := range ackMap {
-			if v.sent.Add(2 * time.Duration(req.AckWait)).Before(now) {
+	go func() {
+		// process messages coming from the stream
+		defer close(sendErrChan)
+		for {
+			// Do any clean up of ackMap where we haven't got a response
+			now := time.Now()
+
+			mutex.Lock()
+			for k, v := range ackMap {
+				if v.sent.Add(2 * time.Duration(req.AckWait)).Before(now) {
+					delete(ackMap, k)
+				}
+			}
+			mutex.Unlock()
+			var ev events.Event
+			var ok bool
+			select {
+			case <-recvErrChan:
+			case <-rsp.Context().Done():
+			case <-ctx.Done():
+			case ev, ok = <-evChan:
+			}
+			if !ok {
+				return
+			}
+			if len(ev.ID) == 0 {
+				// ignore
+				continue
+			}
+			if !req.AutoAck {
+				// track the acks
 				mutex.Lock()
-				delete(ackMap, k)
+				ackMap[ev.ID] = eventSent{event: ev, sent: time.Now()}
 				mutex.Unlock()
 			}
+			if err := rsp.Send(util.SerializeEvent(&ev)); err != nil {
+				return
+			}
 		}
-		var ev events.Event
-		var ok bool
-		select {
-		case <-rsp.Context().Done():
-		case ev, ok = <-evChan:
-		}
-		if !ok {
-			rsp.Close()
-			return nil
-		}
-		if !req.AutoAck {
-			// track the acks
-			mutex.Lock()
-			ackMap[ev.ID] = eventSent{event: ev, sent: time.Now()}
-			mutex.Unlock()
-		}
+	}()
 
-		if err := rsp.Send(util.SerializeEvent(&ev)); err != nil {
-			return err
-		}
+	select {
+	case <-ctx.Done():
+	case <-recvErrChan:
+	case <-sendErrChan:
+	case <-rsp.Context().Done():
 	}
+	return nil
+
 }

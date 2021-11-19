@@ -27,13 +27,11 @@ import (
 
 var (
 	// RefreshInterval is the time at which we completely refresh the table
-	RefreshInterval = time.Second * 120
-	// PruneInterval is how often we prune the routing table
-	PruneInterval = time.Second * 10
+	RefreshInterval = time.Second * 30
 )
 
-// rtr implements router interface
-type rtr struct {
+// router implements router interface
+type registryRouter struct {
 	sync.RWMutex
 
 	running  bool
@@ -54,39 +52,63 @@ func NewRouter(opts ...router.Option) router.Router {
 	}
 
 	// construct the router
-	r := &rtr{
+	r := &registryRouter{
 		options:  options,
-		initChan: make(chan bool),
+		initChan: make(chan bool, 1),
+		table:    newTable(),
+		exit:     make(chan bool),
 	}
 
-	// create the new table, passing the fetchRoute method in as a fallback if
-	// the table doesn't contain the result for a query.
-	r.table = newTable()
+	// initialise the router
+	r.Init()
 
-	// start the router
-	r.start()
 	return r
 }
 
 // Init initializes router with given options
-func (r *rtr) Init(opts ...router.Option) error {
+func (r *registryRouter) Init(opts ...router.Option) error {
 	r.Lock()
 	for _, o := range opts {
 		o(&r.options)
 	}
 	r.Unlock()
 
+	// add default gateway into routing table
+	if r.options.Gateway != "" {
+		// note, the only non-default value is the gateway
+		route := router.Route{
+			Service: "*",
+			Address: "*",
+			Gateway: r.options.Gateway,
+			Network: "*",
+			Router:  r.options.Id,
+			Link:    router.DefaultLink,
+			Metric:  router.DefaultMetric,
+		}
+		if err := r.table.Create(route); err != nil && err != router.ErrDuplicateRoute {
+			return fmt.Errorf("failed adding default gateway route: %s", err)
+		}
+	}
+
+	// only cache if told to do so
+	if r.options.Cache {
+		r.run()
+	}
+
 	// push a message to the init chan so the watchers
 	// can reset in the case the registry was changed
 	go func() {
-		r.initChan <- true
+		select {
+		case r.initChan <- true:
+		default:
+		}
 	}()
 
 	return nil
 }
 
 // Options returns router options
-func (r *rtr) Options() router.Options {
+func (r *registryRouter) Options() router.Options {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -96,7 +118,7 @@ func (r *rtr) Options() router.Options {
 }
 
 // Table returns routing table
-func (r *rtr) Table() router.Table {
+func (r *registryRouter) Table() router.Table {
 	r.Lock()
 	defer r.Unlock()
 	return r.table
@@ -117,7 +139,7 @@ func getDomain(srv *registry.Service) string {
 }
 
 // manageRoute applies action on a given route
-func (r *rtr) manageRoute(route router.Route, action string) error {
+func (r *registryRouter) manageRoute(route router.Route, action string) error {
 	switch action {
 	case "create":
 		if err := r.table.Create(route); err != nil && err != router.ErrDuplicateRoute {
@@ -139,7 +161,7 @@ func (r *rtr) manageRoute(route router.Route, action string) error {
 }
 
 // createRoutes turns a service into a list routes basically converting nodes to routes
-func (r *rtr) createRoutes(service *registry.Service, network string) []router.Route {
+func (r *registryRouter) createRoutes(service *registry.Service, network string) []router.Route {
 	var routes []router.Route
 
 	for _, node := range service.Nodes {
@@ -160,7 +182,7 @@ func (r *rtr) createRoutes(service *registry.Service, network string) []router.R
 
 // manageServiceRoutes applies action to all routes of the service.
 // It returns error of the action fails with error.
-func (r *rtr) manageRoutes(service *registry.Service, action, network string) error {
+func (r *registryRouter) manageRoutes(service *registry.Service, action, network string) error {
 	// action is the routing table action
 	action = strings.ToLower(action)
 
@@ -187,15 +209,36 @@ func (r *rtr) manageRoutes(service *registry.Service, action, network string) er
 	return nil
 }
 
-// manageRegistryRoutes applies action to all routes of each service found in the registry.
+// loadRoutes applies action to all routes of each service found in the registry.
 // It returns error if either the services failed to be listed or the routing table action fails.
-func (r *rtr) loadRoutes(reg registry.Registry) error {
-	services, err := reg.ListServices(registry.ListDomain(registry.WildcardDomain))
+func (r *registryRouter) loadRoutes(name, domain string) error {
+	var services []*registry.Service
+	var err error
+
+	if len(domain) == 0 {
+		domain = registry.WildcardDomain
+	}
+
+	if len(name) > 0 {
+		services, err = r.options.Registry.GetService(name, registry.GetDomain(domain))
+	} else {
+		services, err = r.options.Registry.ListServices(registry.ListDomain(domain))
+	}
+
 	if err != nil {
 		return fmt.Errorf("failed listing services: %v", err)
 	}
 
-	// add each service node as a separate route
+	// delete the services first
+	for _, service := range services {
+		// get the services domain from metadata. Fallback to wildcard.
+		domain := getDomain(service)
+
+		// delete the existing service
+		r.table.deleteService(service.Name, domain)
+	}
+
+	// add each service version as a separate set of routes
 	for _, service := range services {
 		// get the services domain from metadata. Fallback to wildcard.
 		domain := getDomain(service)
@@ -224,7 +267,7 @@ func (r *rtr) loadRoutes(reg registry.Registry) error {
 		// otherwise get all the service info
 
 		// get the service to retrieve all its info
-		srvs, err := reg.GetService(service.Name, registry.GetDomain(domain))
+		srvs, err := r.options.Registry.GetService(service.Name, registry.GetDomain(domain))
 		if err != nil {
 			logger.Tracef("Failed to get service %s domain: %s", service.Name, domain)
 			continue
@@ -256,7 +299,7 @@ func (r *rtr) loadRoutes(reg registry.Registry) error {
 }
 
 // Close the router
-func (r *rtr) Close() error {
+func (r *registryRouter) Close() error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -276,7 +319,7 @@ func (r *rtr) Close() error {
 }
 
 // lookup retrieves all the routes for a given service and creates them in the routing table
-func (r *rtr) Lookup(service string, opts ...router.LookupOption) ([]router.Route, error) {
+func (r *registryRouter) Lookup(service string, opts ...router.LookupOption) ([]router.Route, error) {
 	q := router.NewLookup(opts...)
 
 	// if we find the routes filter and return them
@@ -324,7 +367,7 @@ func (r *rtr) Lookup(service string, opts ...router.LookupOption) ([]router.Rout
 
 // watchRegistry watches registry and updates routing table based on the received events.
 // It returns error if either the registry watcher fails with error or if the routing table update fails.
-func (r *rtr) watchRegistry(w registry.Watcher) error {
+func (r *registryRouter) watchRegistry(w registry.Watcher) error {
 	exit := make(chan bool)
 
 	defer func() {
@@ -360,13 +403,16 @@ func (r *rtr) watchRegistry(w registry.Watcher) error {
 			continue
 		}
 
-		logger.Tracef("Router dealing with next route %s %+v\n", res.Action, res.Service)
+		logger.Tracef("Router dealing with next event %s %+v\n", res.Action, res.Service)
+
+		// we only use the registry notifications as events
+		// then go on to actually query it for the full list
 
 		// get the services domain from metadata. Fallback to wildcard.
 		domain := getDomain(res.Service)
 
-		// create/update or delete the route
-		if err := r.manageRoutes(res.Service, res.Action, domain); err != nil {
+		// load routes for this service
+		if err := r.loadRoutes(res.Service.Name, domain); err != nil {
 			return err
 		}
 	}
@@ -375,36 +421,13 @@ func (r *rtr) watchRegistry(w registry.Watcher) error {
 }
 
 // start the router. Should be called under lock.
-func (r *rtr) start() error {
+func (r *registryRouter) run() error {
 	if r.running {
 		return nil
 	}
 
-	// add default gateway into routing table
-	if r.options.Gateway != "" {
-		// note, the only non-default value is the gateway
-		route := router.Route{
-			Service: "*",
-			Address: "*",
-			Gateway: r.options.Gateway,
-			Network: "*",
-			Router:  r.options.Id,
-			Link:    router.DefaultLink,
-			Metric:  router.DefaultMetric,
-		}
-		if err := r.table.Create(route); err != nil {
-			return fmt.Errorf("failed adding default gateway route: %s", err)
-		}
-	}
-
-	// create error and exit channels
-	r.exit = make(chan bool)
+	// set running
 	r.running = true
-
-	// only cache if told to do so
-	if !r.options.Cache {
-		return nil
-	}
 
 	// create a refresh notify channel
 	refresh := make(chan bool, 1)
@@ -429,13 +452,8 @@ func (r *rtr) start() error {
 			case <-r.exit:
 				return
 			case <-refresh:
-				// don't refresh if we've done so in the past minute
-				if !lastRefresh.IsZero() && time.Since(lastRefresh) < time.Minute {
-					continue
-				}
-
 				// load new routes
-				if err := r.loadRoutes(r.options.Registry); err != nil {
+				if err := r.loadRoutes("", ""); err != nil {
 					logger.Debugf("failed refreshing registry routes: %s", err)
 					// in this don't prune
 					continue
@@ -491,11 +509,11 @@ func (r *rtr) start() error {
 }
 
 // Watch routes
-func (r *rtr) Watch(opts ...router.WatchOption) (router.Watcher, error) {
+func (r *registryRouter) Watch(opts ...router.WatchOption) (router.Watcher, error) {
 	return r.table.Watch(opts...)
 }
 
 // String prints debugging information about router
-func (r *rtr) String() string {
+func (r *registryRouter) String() string {
 	return "registry"
 }

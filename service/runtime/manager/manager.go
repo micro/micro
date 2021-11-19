@@ -311,6 +311,7 @@ func (m *manager) createServiceInRuntime(srv *service) error {
 		runtime.WithArgs(srv.Options.Args...),
 		runtime.WithCommand(srv.Options.Command...),
 		runtime.WithEnv(m.runtimeEnv(srv.Service, srv.Options)),
+		runtime.CreateInstances(srv.Options.Instances),
 	}
 
 	// add the secrets
@@ -758,6 +759,15 @@ func (m *manager) Update(resource runtime.Resource, opts ...runtime.UpdateOption
 		service := srvs[0]
 		service.Service.Source = srv.Source
 		service.UpdatedAt = time.Now()
+		if options.Instances > 0 {
+			service.Options.Instances = options.Instances
+		}
+		if len(options.Entrypoint) > 0 {
+			service.Options.Entrypoint = options.Entrypoint
+		}
+		if len(options.Secrets) > 0 {
+			service.Options.Secrets = options.Secrets
+		}
 
 		// if there is not a build configured, update the service and then write it to the store
 		if build.DefaultBuilder == nil {

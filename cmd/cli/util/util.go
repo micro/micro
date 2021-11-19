@@ -211,7 +211,14 @@ func SetEnv(envName string) error {
 }
 
 // DelEnv deletes an env from config
-func DelEnv(envName string) error {
+func DelEnv(ctx *cli.Context, envName string) error {
+	env, err := GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	if env.Name == envName {
+		return fmt.Errorf("Environment '%v' is your current environment. Before deleting it, please change your current environment.", envName)
+	}
 	envs, err := getEnvs()
 	if err != nil {
 		return err

@@ -574,7 +574,7 @@ func delEnv(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
 		return nil, cli.ShowSubcommandHelp(c)
 	}
-	return nil, util.DelEnv(args[0])
+	return nil, util.DelEnv(c, args[0])
 }
 
 // TODO: stream via HTTP
@@ -589,8 +589,11 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	// ignore error
 	json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
 
+	ctx := callContext(c)
+	opts := []client.CallOption{client.WithAuthToken()}
+
 	req := client.DefaultClient.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
-	stream, err := client.DefaultClient.Stream(context.Background(), req)
+	stream, err := client.DefaultClient.Stream(ctx, req, opts...)
 	if err != nil {
 		if cerr := util.CliError(err); cerr.ExitCode() != 128 {
 			return nil, cerr
@@ -610,7 +613,9 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	for {
 		if output == "raw" {
 			rsp := cbytes.Frame{}
-			if err := stream.Recv(&rsp); err != nil {
+			if err := stream.Recv(&rsp); err != nil && err.Error() == "EOF" {
+				return nil, nil
+			} else if err != nil {
 				if cerr := util.CliError(err); cerr.ExitCode() != 128 {
 					return nil, cerr
 				}
@@ -619,7 +624,9 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 			fmt.Print(string(rsp.Data))
 		} else {
 			var response map[string]interface{}
-			if err := stream.Recv(&response); err != nil {
+			if err := stream.Recv(&response); err != nil && err.Error() == "EOF" {
+				return nil, nil
+			} else if err != nil {
 				if cerr := util.CliError(err); cerr.ExitCode() != 128 {
 					return nil, cerr
 				}

@@ -11,6 +11,7 @@ import (
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 	"github.com/stretchr/testify/assert"
+	prot "google.golang.org/protobuf/compiler/protogen"
 
 	"github.com/micro/micro/v3/cmd/protoc-gen-openapi/converter/testdata"
 )
@@ -51,6 +52,12 @@ func testConvertSampleProto(t *testing.T, sampleProto sampleProto) {
 		FileToGenerate: sampleProto.FilesToGenerate,
 		ProtoFile:      fileDescriptorSet.GetFile(),
 	}
+	opts := &prot.Options{}
+	plug, err := opts.New(&codeGeneratorRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	protoConverter.plug = plug
 
 	// Perform the conversion:
 	response, err := protoConverter.convert(&codeGeneratorRequest)

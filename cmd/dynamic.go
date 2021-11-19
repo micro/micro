@@ -88,9 +88,6 @@ func formatServiceUsage(srv *registry.Service, c *cli.Context) string {
 		endpoints[i] = e
 	}
 
-	// sort the command names alphabetically
-	sort.Strings(commands)
-
 	result := ""
 	if len(subcommand) > 0 && subcommand != "--help" {
 		result += fmt.Sprintf("NAME:\n\tmicro %v %v\n\n", alias, subcommand)
@@ -103,6 +100,9 @@ func formatServiceUsage(srv *registry.Service, c *cli.Context) string {
 			}
 		}
 	} else {
+		// sort the command names alphabetically
+		sort.Strings(commands)
+
 		result += fmt.Sprintf("NAME:\n\tmicro %v\n\n", alias)
 		result += fmt.Sprintf("VERSION:\n\t%v\n\n", srv.Version)
 		result += fmt.Sprintf("USAGE:\n\tmicro %v [command]\n\n", alias)

@@ -18,6 +18,7 @@
 package rpc
 
 import (
+	bts "bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -68,6 +69,15 @@ type buffer struct {
 
 func (b *buffer) Write(_ []byte) (int, error) {
 	return 0, nil
+}
+
+// see https://stackoverflow.com/questions/28595664/how-to-stop-json-marshal-from-escaping-and/28596225
+func jsonMarshal(t interface{}) ([]byte, error) {
+	buffer := &bts.Buffer{}
+	encoder := json.NewEncoder(buffer)
+	encoder.SetEscapeHTML(false)
+	err := encoder.Encode(t)
+	return bts.TrimRight(buffer.Bytes(), "\n"), err
 }
 
 func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -170,7 +180,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// create request/response
-		var response json.RawMessage
+		var response interface{}
 
 		req := c.NewRequest(
 			service.Name,
@@ -185,7 +195,8 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// marshall response
-		rsp, err = response.MarshalJSON()
+		// see https://play.golang.org/p/oBNxUjVTzus
+		rsp, err = jsonMarshal(response)
 		if err != nil {
 			writeError(w, r, err)
 			return

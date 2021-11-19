@@ -83,7 +83,8 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 						Required: true,
 						Schema: &openapi3.SchemaRef{
 							Value: &openapi3.Schema{
-								Type: "string",
+								Type:    "string",
+								Default: "micro",
 							},
 						},
 					},
@@ -109,6 +110,15 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 				Summary: fmt.Sprintf("%s.%s(%s)", svc.GetName(), method.GetName(), requestPayloadSchemaName),
 			},
 		}
+
+		// check if it's a streaming response
+		if method.GetServerStreaming() {
+			pathItem.Post.Responses["stream"] = &openapi3.ResponseRef{
+				Ref: responseBodySchemaPath(responseBodyName),
+			}
+		}
+
+		// TODO: check for method.GetClientStreaming()
 
 		// Generate a description from src comments (if available)
 		if src := c.sourceInfo.GetService(svc); src != nil {
