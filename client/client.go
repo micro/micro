@@ -20,19 +20,19 @@ const (
 
 // Options of the Client
 type Options struct {
-	// Token for authentication
+	// JWT token for authentication
 	Token string
 	// Address of the micro api
 	Address string
-	// set a timeout
+	// set a request timeout
 	Timeout time.Duration
 }
 
 // Request is the request of the generic `api-client` call
 type Request struct {
-	// eg. "go.micro.srv.greeter"
+	// eg. "helloworld"
 	Service string `json:"service"`
-	// eg. "Say.Hello"
+	// eg. "Call"
 	Endpoint string `json:"endpoint"`
 	// json and then base64 encoded body
 	Body string `json:"body"`
@@ -100,8 +100,8 @@ func (client *Client) SetTimeout(d time.Duration) {
 
 // Call enables you to access any endpoint of any service on Micro
 func (client *Client) Call(service, endpoint string, request, response interface{}) error {
-	// example curl: curl -XPOST -d '{"service": "go.micro.srv.greeter", "endpoint": "Say.Hello"}'
-	//  -H 'Content-Type: application/json' http://localhost:8080/client {"body":"eyJtc2ciOiJIZWxsbyAifQ=="}
+	// example curl: curl -XPOST -d '{"service": "helloworld", "endpoint": "Call"}'
+	//  -H 'Content-Type: application/json' http://localhost:8080/helloworld/Call
 	uri, err := url.Parse(client.options.Address)
 	if err != nil {
 		return err
