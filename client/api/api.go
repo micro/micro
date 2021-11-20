@@ -1,4 +1,4 @@
-// Package api provides an api client
+// Package api provides a micro api client
 package api
 
 import (
