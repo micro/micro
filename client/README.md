@@ -11,7 +11,7 @@ import (
     "fmt"
     "os"
 
-    micro "github.com/micro/micro/v3/client"
+    "github.com/micro/micro/v3/client/api"
 )
 
 type Request struct {
@@ -27,7 +27,7 @@ var (
 )
 
 func main() {
-	c := micro.NewClient(nil)
+	c := api.NewClient(nil)
 
 	// set your api token
 	c.SetToken(token)
@@ -57,7 +57,7 @@ package main
 import (
 	"fmt"
 
-	micro "github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/client/api"
 )
 
 type Request struct {
@@ -73,7 +73,7 @@ var (
 )
 
 func main() {
-	c := micro.NewClient(nil)
+	c := api.NewClient(nil)
 
 	// set your api token
 	c.SetToken(token)
