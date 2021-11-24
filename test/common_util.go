@@ -1,3 +1,4 @@
+//go:build integration || kind
 // +build integration kind
 
 package test

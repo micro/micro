@@ -118,3 +118,37 @@ func deleteAccount(ctx *cli.Context) error {
 
 	return nil
 }
+
+func updateAccount(ctx *cli.Context) error {
+	if ctx.Args().Len() == 0 {
+		return fmt.Errorf("Missing argument: ID")
+	}
+
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
+	if err != nil {
+		return fmt.Errorf("Error getting namespace: %v", err)
+	}
+	if len(ctx.String("namespace")) > 0 {
+		ns = ctx.String("namespace")
+	}
+
+	cli := pb.NewAccountsService("auth", client.DefaultClient)
+
+	_, err = cli.ChangeSecret(context.DefaultContext, &pb.ChangeSecretRequest{
+		Id:        ctx.Args().First(),
+		OldSecret: ctx.String("old_secret"),
+		NewSecret: ctx.String("new_secret"),
+		Options:   &pb.Options{Namespace: ns},
+	}, client.WithAuthToken())
+
+	if err != nil {
+		return fmt.Errorf("Error updating accounts: %v", err)
+	}
+
+	fmt.Printf("Account updated\n")
+	return nil
+}

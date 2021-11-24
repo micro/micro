@@ -43,6 +43,7 @@ var (
 		"auth",     // :8010
 		"proxy",    // :8081
 		"api",      // :8080
+		"web",
 		"events",
 	}
 )

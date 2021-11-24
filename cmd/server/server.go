@@ -3,10 +3,11 @@ package server
 
 import (
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
@@ -26,6 +27,7 @@ var (
 		"auth",     // :8010
 		"proxy",    // :8081
 		"api",      // :8080
+		"web",      // :8082
 	}
 )
 
@@ -116,8 +118,14 @@ func Run(context *cli.Context) error {
 		// all things run by the server are `micro service [name]`
 		cmdArgs := []string{"service"}
 
+		// TODO: remove hacks
+		profile := context.String("profile")
+		if service == "web" {
+			profile = "client"
+		}
+
 		env := envvars
-		env = append(env, "MICRO_PROFILE="+context.String("profile"))
+		env = append(env, "MICRO_PROFILE="+profile)
 
 		// set the proxy address, default to the network running locally
 		if service != "network" {
@@ -201,16 +209,9 @@ func Run(context *cli.Context) error {
 		return err
 	}
 
-	// internal server
-	srv := service.New(
-		service.Name(Name),
-		service.Address(Address),
-	)
-
-	// start the server
-	if err := srv.Run(); err != nil {
-		log.Fatalf("Error running server: %v", err)
-	}
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL)
+	<-ch
 
 	runtimeServer.Stop()
 	log.Info("Stopped server")

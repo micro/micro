@@ -77,7 +77,12 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// Get the account using the token, some are unauthenticated, so the lack of an
 	// account doesn't necessarily mean a forbidden request
-	acc, _ := auth.Inspect(token)
+	acc, err := auth.Inspect(token)
+	if err == nil {
+		// inject into the context
+		ctx := auth.ContextWithAccount(req.Context(), acc)
+		*req = *req.Clone(ctx)
+	}
 
 	// Determine the namespace and set it in the header. If the user passed auth creds
 	// on the request, use the namespace that issued the account, otherwise check for

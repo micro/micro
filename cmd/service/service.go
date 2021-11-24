@@ -29,6 +29,7 @@ import (
 	registry "github.com/micro/micro/v3/service/registry/server"
 	runtime "github.com/micro/micro/v3/service/runtime/server"
 	store "github.com/micro/micro/v3/service/store/server"
+	"github.com/micro/micro/v3/service/web"
 
 	// misc commands
 	"github.com/micro/micro/v3/cmd/service/handler/exec"
@@ -184,6 +185,10 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "store",
 		Command: store.Run,
+	},
+	{
+		Name:    "web",
+		Command: web.Run,
 	},
 }
 

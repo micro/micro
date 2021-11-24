@@ -1,3 +1,4 @@
+//go:build kind
 // +build kind
 
 package test
