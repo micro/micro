@@ -106,6 +106,8 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 		client.StreamingRequest(),
 	)
 
+	w.Header().Set("Content-Type", ct)
+
 	// create custom router
 	callOpt := client.WithRouter(router.New(service.Services))
 

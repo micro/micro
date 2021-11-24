@@ -5,9 +5,8 @@ author: Asim Aslam
 date:   2021-10-20 10:00:00
 ---
 <p style="text-align: center;">
-  <a href="https://m3o.com"><img src="https://avatars.githubusercontent.com/u/65984637?s=200&v=4" /></a>
+  <a href="https://m3o.com"><img src="https://raw.githubusercontent.com/m3o/m3o/main/images/m3o.png" /></a>
   <br>
-  <a href="https://m3o.com" style="font-size: 2em;">**M3O**</a>
 </p>
 <p align="center">M3O is an open source public cloud platform.<br>We are building an AWS alternative for the next generation of developers.</p>
 
