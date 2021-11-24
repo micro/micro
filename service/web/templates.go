@@ -55,7 +55,7 @@ var (
 {{define "layout"}}
 <html>
 	<head>
-		<title>Micro Web</title>
+		<title>{{ template "title" . }} | Micro</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 		<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
@@ -86,7 +86,7 @@ var (
 		    border-bottom: 1px solid whitesmoke;
 	 	 }
 		 pre {
-		    background-color: #fcfcfc;
+		    background-color: #EEF0F3;
 		    border: 1px solid whitesmoke;
 		 }
 		 .user {
@@ -157,7 +157,7 @@ var (
 {{end}}
 {{ define "head" }}{{end}}
 {{ define "script" }}{{end}}
-{{ define "title" }}{{end}}
+{{ define "title" }}Web{{end}}
 {{ define "heading" }}<h3>&nbsp;</h3>{{end}}
 `
 
@@ -261,7 +261,8 @@ jQuery(function($, undefined) {
 {{end}}
 `
 	callTemplate = `
-{{define "title"}}Call{{end}}
+{{define "title"}}Client{{end}}
+{{define "heading"}}<a href="/">&nbsp;< Back</a><h3>Micro Client</h3>{{end}}
 {{define "style"}}
 	pre {
 		word-wrap: break-word;
@@ -442,7 +443,7 @@ jQuery(function($, undefined) {
 {{end}}
 `
 	registryTemplate = `
-{{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
+{{define "heading"}}<a href="/">&nbsp;< Back</a><h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
 {{define "title"}}Services{{end}}
 {{define "content"}}
 	<p style="margin: 0;">&nbsp;</p>
@@ -472,7 +473,7 @@ jQuery(function($, undefined) {
 
 	serviceTemplate = `
 {{define "title"}}Service{{end}}
-{{define "heading"}}<h3>{{with $svc := index .Results 0}}{{$svc.Name}}{{end}}</h3>{{end}}
+{{define "heading"}}<a href="/">&nbsp;< Back</a><h3>Micro {{with $svc := index .Results 0}}{{Title $svc.Name}}{{end}}</h3>{{end}}
 {{define "style"}}
 .table>tbody>tr>th, .table>tbody>tr>td {
     border-top: none;
@@ -553,6 +554,154 @@ pre {padding: 20px;}
 	{{end}}
 {{end}}
 
+`
+
+	webTemplate = `
+{{define "title"}}{{Title .Name}}{{end}}
+{{define "heading"}}<a href="/">&nbsp;< Back</a><h3>&nbsp;Micro {{Title .Name}}</h3>{{end}}
+{{define "style"}}
+	pre {
+		word-wrap: break-word;
+		border: 0;
+	}
+	.form-control {
+		border: 1px solid whitesmoke;
+	}
+{{end}}
+{{define "content"}}
+<div class="row">
+  <div class="panel">
+    <div class="panel-body">
+	<div class="col-sm-5">
+		<form id="call-form" onsubmit="return call();">
+			<div class="form-group">
+				<select class="form-control" type=text name=service id=service style="display: none;"> 
+				{{range $key, $value := .Results}}
+				<option class = "list-group-item" value="{{$key}}" selected>{{$key}}</option>
+				{{end}}
+				</select>
+				<label for="endpoint">Endpoint</label>
+				<ul class="list-group">
+					<select class="form-control" type=text name=endpoint id=endpoint>
+					<option disabled selected> -- select an endpoint -- </option>
+					</select>
+				</ul>
+			</div>
+			<div class="form-group">
+			</div>
+			<div class="form-group">
+				<label for="request">Request</label>
+				<textarea class="form-control" name=request id=request rows=16>{}</textarea>
+			</div>
+			<div class="form-group">
+				<button class="btn btn-default" style="border-color: whitesmoke;">Call</button>
+			</div>
+		</form>
+	</div>
+	<div class="col-sm-7">
+		<p><b>Response</b><span class="pull-right"><a href="#" onclick="copyResponse()">Copy</a></p>
+		<pre id="response" style="min-height: 405px; max-height: 405px; overflow: scroll;">{}</pre>
+	</div>
+    </div>
+  </div>
+</div>
+{{end}}
+{{define "script"}}
+	<script>
+		function copyResponse() {
+			var copyText = document.getElementById("response");
+			const textArea = document.createElement('textarea');
+			textArea.textContent = copyText.innerText;
+			textArea.style = "position: absolute; left: -1000px; top: -1000px";	
+			document.body.append(textArea);
+			textArea.select();
+			textArea.setSelectionRange(0, 99999);
+			document.execCommand("copy");
+			document.body.removeChild(textArea);
+			return false;
+		}
+	</script>
+	<script>
+		$(document).ready(function(){
+			//Function executes on change of first select option field 
+			var select = $("#service option:selected").val();
+			$("#endpoint").empty();
+			$("#endpoint").append("<option disabled selected> -- select an endpoint -- </option>");
+			var s_map = {};
+			{{ range $service, $endpoints := .Results }}
+			var m_list = [];
+			{{range $index, $element := $endpoints}}
+			m_list[{{$index}}] = {{$element.Name}}
+			{{end}}
+			s_map[{{$service}}] = m_list
+			{{ end }}
+			if (select in s_map) {
+				var serviceEndpoints = s_map[select]
+				var len = serviceEndpoints.length;
+				for(var i = 0; i < len; i++) {
+					$("#endpoint").append("<option value=\""+serviceEndpoints[i]+"\">"+serviceEndpoints[i]+"</option>");	
+				}
+			}
+
+			//Function executes on change of second select option field 
+			$("#endpoint").change(function(){
+				var select = $("#endpoint option:selected").val();
+			});
+		});
+	</script>
+	<script>
+		function call() {
+			var req = new XMLHttpRequest()
+			req.onreadystatechange = function() {
+				if(req.readyState != 4) {
+					return
+				}
+				if (req.readyState == 4 && req.status == 200) {
+					document.getElementById("response").innerText = JSON.stringify(JSON.parse(req.responseText), null, 2);
+				} else if (req.responseText.slice(0, 1) == "{") {
+					document.getElementById("response").innerText = JSON.stringify(JSON.parse(req.responseText), null, 2);
+				} else if (req.responseText.length > 0) {
+					document.getElementById("response").innerText = req.responseText;
+				} else {
+					document.getElementById("response").innerText = "Request error " + req.status;
+				}
+				console.log(req.responseText);
+			}
+			var endpoint = document.forms[0].elements["endpoint"].value
+
+			var reqBody;
+			var headers;
+
+			try {
+				var rq = document.forms[0].elements["request"].value
+				if (rq.length > 0) {
+					reqBody = JSON.parse(rq);
+				};
+			} catch(e) {
+				document.getElementById("response").innerText = "Invalid request: " + e.message;
+				return false;
+			}
+
+			var request = {
+				"service": document.forms[0].elements["service"].value,
+				"endpoint": endpoint,
+				"request": reqBody
+			}
+			req.open("POST", "/rpc", true);
+			req.setRequestHeader("Content-type","application/json");
+
+			if (headers != undefined) {
+				for (let [key, value] of Object.entries(headers)) {
+					req.setRequestHeader(key, value);
+				}
+			}
+
+			req.send(JSON.stringify(request));
+
+			return false;
+		};	
+	</script>
+{{end}}
 `
 
 	notFoundTemplate = `

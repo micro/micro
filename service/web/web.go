@@ -193,7 +193,7 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 			name = strings.ToUpper(name)
 		}
 
-		webServices = append(webServices, webService{Name: name, Link: fmt.Sprintf("/%v/", name)})
+		webServices = append(webServices, webService{Name: name, Link: fmt.Sprintf("/%v", name)})
 	}
 
 	sort.Slice(webServices, func(i, j int) bool { return webServices[i].Name < webServices[j].Name })
@@ -405,7 +405,60 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 	s.render(w, r, callTemplate, serviceMap)
 }
 
-func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
+func (s *srv) serviceHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	name := vars["service"]
+	if len(name) == 0 {
+		return
+	}
+
+	// if we're using the subdomain resolver, we want to use a custom domain
+	domain := registry.DefaultDomain
+	if res, ok := s.resolver.(*subdomain.Resolver); ok {
+		domain = res.Domain(r)
+	}
+
+	services, err := s.registry.GetService(name, registry.GetDomain(domain))
+	if err != nil {
+		log.Errorf("Error getting service %s: %v", name, err)
+	}
+
+	sort.Sort(sortedServices{services})
+
+	serviceMap := make(map[string][]*registry.Endpoint)
+
+	for _, service := range services {
+		if len(service.Endpoints) > 0 {
+			serviceMap[service.Name] = service.Endpoints
+			continue
+		}
+	}
+
+	if r.Header.Get("Content-Type") == "application/json" {
+		b, err := json.Marshal(map[string]interface{}{
+			"services": services,
+		})
+		if err != nil {
+			http.Error(w, "Error occurred:"+err.Error(), 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
+		return
+	}
+
+	s.render(w, r, webTemplate, serviceMap, templateValue{
+		Key: "Name",
+		Value: name,
+	})
+}
+
+type templateValue struct {
+	Key string
+	Value interface{}
+}
+
+func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}, vals ...templateValue) {
 	t, err := template.New("template").Funcs(template.FuncMap{
 		"format": format,
 		"Title":  strings.Title,
@@ -438,12 +491,24 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 		loginLink = "/logout"
 	}
 
-	if err := t.ExecuteTemplate(w, "layout", map[string]interface{}{
+
+
+
+	templateData := map[string]interface{}{
 		"LoginTitle": loginTitle,
 		"LoginURL":   loginLink,
 		"Results":    data,
 		"User":       user,
-	}); err != nil {
+	}
+
+	// add extra values
+	for _, val := range vals {
+		templateData[val.Key] = val.Value
+	}
+
+	if err := t.ExecuteTemplate(w, "layout",
+		templateData,
+	); err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 	}
 }
@@ -515,7 +580,7 @@ func Run(ctx *cli.Context) error {
 	srv.HandleFunc("/services", srv.registryHandler)
 	srv.HandleFunc("/service/{name}", srv.registryHandler)
 	srv.Handle("/rpc", NewRPCHandler(resolver, s.Client()))
-	//srv.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
+	srv.HandleFunc("/{service}", srv.serviceHandler)
 	srv.HandleFunc("/", srv.indexHandler)
 
 	var opts []server.Option
