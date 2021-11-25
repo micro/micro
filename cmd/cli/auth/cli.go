@@ -12,7 +12,7 @@ var (
 	ruleFlags = []cli.Flag{
 		&cli.StringFlag{
 			Name:  "scope",
-			Usage: "The scope to amend, e.g. 'user' or '*', leave blank to make public",
+			Usage: "the scope to amend, e.g. 'user' or '*', leave blank to make public",
 		},
 		&cli.StringFlag{
 			Name:  "resource",
@@ -101,6 +101,31 @@ func init() {
 							Usage:  "Delete an auth account",
 							Flags:  accountFlags,
 							Action: deleteAccount,
+						},
+					},
+				},
+				{
+					Name:  "update",
+					Usage: "Update an auth resource",
+					Subcommands: []*cli.Command{
+						{
+							Name:  "secret",
+							Usage: "Update an auth account secret",
+							Flags: append(accountFlags,
+								&cli.StringFlag{
+									Name:  "namespace",
+									Usage: "Namespace to use when updating the account",
+								},
+								&cli.StringFlag{
+									Name:  "old_secret",
+									Usage: "The old account secret (password)",
+								},
+								&cli.StringFlag{
+									Name:  "new_secret",
+									Usage: "The new account secret (password)",
+								},
+							),
+							Action: updateAccount,
 						},
 					},
 				},
