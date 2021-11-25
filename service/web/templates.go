@@ -9,7 +9,7 @@ var (
 				.inner {
 					position: absolute;
 					left: 50%;
-					top: 50%;
+					top: 40%;
 					transform: translate(-50%, -50%);
 					max-width: 100vw;
 					width: 400px;
