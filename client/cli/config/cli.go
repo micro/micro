@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/cmd"
 	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"

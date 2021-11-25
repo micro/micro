@@ -7,9 +7,9 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/cmd"
 	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"

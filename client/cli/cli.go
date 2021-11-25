@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/chzyer/readline"
-	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/cmd"
 	"github.com/urfave/cli/v2"
 
 	_ "github.com/micro/micro/v3/client/cli/auth"
