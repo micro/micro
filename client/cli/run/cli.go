@@ -9,6 +9,10 @@ import (
 // flags is shared flags so we don't have to continually re-add
 var flags = []cli.Flag{
 	&cli.StringFlag{
+		Name:  "name",
+		Usage: "Set the name of the service. Otherwise defaults to directory name",
+	},
+	&cli.StringFlag{
 		Name:  "source",
 		Usage: "Set the source url of the service e.g github.com/micro/services",
 	},
@@ -31,6 +35,16 @@ var flags = []cli.Flag{
 	&cli.StringSliceFlag{
 		Name:  "env_vars",
 		Usage: "Set the environment variables e.g. foo=bar",
+	},
+	&cli.IntFlag{
+		Name:    "instances",
+		Aliases: []string{"i"},
+		Usage:   "Number of instances to run",
+		Value:   1,
+	},
+	&cli.StringSliceFlag{
+		Name:  "metadata",
+		Usage: "Set any metadata on the service e.g. foo=bar",
 	},
 }
 
@@ -97,7 +111,7 @@ func init() {
 				&cli.BoolFlag{
 					Name:    "follow",
 					Aliases: []string{"f"},
-					Usage:   "Set to stream logs continuously (default: true)",
+					Usage:   "Set to stream logs continuously",
 				},
 				&cli.StringFlag{
 					Name:  "since",

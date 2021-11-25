@@ -49,7 +49,7 @@ Things that need to be documented for v3
   - [x] messages
   - [x] notes
   - [x] chat
-  - [ ] blog
+  - [x] blog
   - [ ] books
 - Design patterns
   * [ ] event sourcing

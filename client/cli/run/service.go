@@ -15,11 +15,10 @@ import (
 
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
-	"github.com/micro/micro/v3/internal/config"
-	run "github.com/micro/micro/v3/internal/runtime"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/source/git"
+	"github.com/micro/micro/v3/util/config"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/codes"
@@ -234,22 +233,33 @@ func runService(ctx *cli.Context) error {
 		}
 	}
 
+	// get name from flag
+	name := ctx.String("name")
+	if len(name) == 0 {
+		name = source.RuntimeName()
+	}
+
 	// parse the various flags
 	typ := ctx.String("type")
 	command := strings.TrimSpace(ctx.String("command"))
 	args := strings.TrimSpace(ctx.String("args"))
 	retries := DefaultRetries
-	image := ""
+	var image string
+	var instances int
+
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
 	}
 	if ctx.IsSet("image") {
 		image = ctx.String("image")
 	}
+	if ctx.IsSet("instances") {
+		instances = ctx.Int("instances")
+	}
 
 	// construct the service
 	srv := &runtime.Service{
-		Name:    source.RuntimeName(),
+		Name:    name,
 		Version: source.Ref,
 	}
 
@@ -264,7 +274,7 @@ func runService(ctx *cli.Context) error {
 		}
 
 		// vendor the dependencies
-		if err := run.VendorDependencies(source.LocalRepoRoot); err != nil {
+		if err := vendorDependencies(source.LocalRepoRoot); err != nil {
 			return err
 		}
 
@@ -285,12 +295,30 @@ func runService(ctx *cli.Context) error {
 		"source": source.RuntimeSource(),
 	}
 
+	if md := ctx.StringSlice("metadata"); len(md) > 0 {
+		for _, val := range md {
+			split := strings.Split(val, "=")
+			if len(split) != 2 {
+				return fmt.Errorf("invalid metadata string, must be of form foo=bar %s", val)
+			}
+			if split[0] == "source" {
+				// reserved
+				return fmt.Errorf("invalid metadata string, 'source' is a reserved key")
+			}
+
+			srv.Metadata[split[0]] = split[1]
+		}
+	}
+
 	// specify the options
 	opts := []runtime.CreateOption{
 		runtime.WithOutput(os.Stdout),
 		runtime.WithRetries(retries),
 		runtime.CreateImage(image),
 		runtime.CreateType(typ),
+	}
+	if instances > 0 {
+		opts = append(opts, runtime.CreateInstances(instances))
 	}
 	if len(command) > 0 {
 		opts = append(opts, runtime.WithCommand(strings.Split(command, " ")...))
@@ -379,8 +407,14 @@ func killService(ctx *cli.Context) error {
 		return cli.ShowSubcommandHelp(ctx)
 	}
 
-	name := ctx.Args().Get(0)
-	ref := ""
+	// get name from flag
+	name := ctx.String("name")
+
+	if v := ctx.Args().Get(0); len(v) > 0 {
+		name = v
+	}
+
+	var ref string
 	if parts := strings.Split(name, "@"); len(parts) > 1 {
 		name = parts[0]
 		ref = parts[1]
@@ -424,10 +458,33 @@ func updateService(ctx *cli.Context) error {
 		return err
 	}
 
-	// construct the service
+	name := ctx.String("name")
+
+	if v := ctx.Args().Get(0); len(v) > 0 {
+		name = v
+	}
+
+	if len(name) == 0 {
+		name = source.RuntimeName()
+	}
+
+	var ref string
+
+	if parts := strings.Split(name, "@"); len(parts) > 1 {
+		name = parts[0]
+		ref = parts[1]
+	}
+
+	// set source ref
+	if len(ref) == 0 && len(source.Ref) > 0 {
+		ref = source.Ref
+	} else if len(ref) == 0 {
+		ref = "latest"
+	}
+
 	srv := &runtime.Service{
-		Name:    source.RuntimeName(),
-		Version: source.Ref,
+		Name:    name,
+		Version: ref,
 	}
 
 	if source.Local {
@@ -441,7 +498,7 @@ func updateService(ctx *cli.Context) error {
 		}
 
 		// vendor the dependencies
-		if err := run.VendorDependencies(source.LocalRepoRoot); err != nil {
+		if err := vendorDependencies(source.LocalRepoRoot); err != nil {
 			return err
 		}
 
@@ -481,6 +538,11 @@ func updateService(ctx *cli.Context) error {
 	}
 	opts = append(opts, runtime.UpdateNamespace(ns))
 
+	// get number of instances to run
+	if ctx.IsSet("instances") {
+		opts = append(opts, runtime.UpdateInstances(ctx.Int("instances")))
+	}
+
 	// pass git credentials incase a private repo needs to be pulled
 	gitCreds, ok := getGitCredentials(source.Repo)
 	if ok {
@@ -492,7 +554,7 @@ func updateService(ctx *cli.Context) error {
 }
 
 func getService(ctx *cli.Context) error {
-	name := ""
+	name := ctx.String("name")
 	version := "latest"
 	typ := ctx.String("type")
 
@@ -555,10 +617,12 @@ func getService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
 	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
+
 	readOpts = append(readOpts, runtime.ReadNamespace(ns))
 
 	// read the service
@@ -584,6 +648,7 @@ func getService(ctx *cli.Context) error {
 
 	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
 	fmt.Fprintln(writer, "NAME\tVERSION\tSOURCE\tSTATUS\tBUILD\tUPDATED\tMETADATA")
+
 	for _, service := range services {
 		// cut the commit down to first 7 characters
 		build := parse(service.Metadata["build"])
@@ -615,6 +680,7 @@ func getService(ctx *cli.Context) error {
 			updated,
 			metadata)
 	}
+
 	writer.Flush()
 	return nil
 }
@@ -630,7 +696,12 @@ func getLogs(ctx *cli.Context) error {
 		return cli.ShowSubcommandHelp(ctx)
 	}
 
-	name := ctx.Args().Get(0)
+	name := ctx.String("name")
+
+	// set name based on input arg if specified
+	if v := ctx.Args().Get(0); len(v) > 0 {
+		name = v
+	}
 
 	// must specify service name
 	if len(name) == 0 {
@@ -662,6 +733,23 @@ func getLogs(ctx *cli.Context) error {
 	//	readSince = time.Now().Add(-d)
 	//}
 
+	var ref string
+
+	if parts := strings.Split(name, "@"); len(parts) > 1 {
+		name = parts[0]
+		ref = parts[1]
+	}
+
+	// set source ref
+	if len(ref) == 0 {
+		ref = "latest"
+	}
+
+	srv := &runtime.Service{
+		Name:    name,
+		Version: ref,
+	}
+
 	// determine the namespace
 	env, err := util.GetEnv(ctx)
 	if err != nil {
@@ -673,35 +761,34 @@ func getLogs(ctx *cli.Context) error {
 	}
 	options = append(options, runtime.LogsNamespace(ns))
 
-	logs, err := runtime.Logs(&runtime.Service{Name: name}, options...)
+	logs, err := runtime.Logs(srv, options...)
 
 	if err != nil {
 		return util.CliError(err)
 	}
 
 	output := ctx.String("output")
-	for {
-		select {
-		case record, ok := <-logs.Chan():
-			if !ok {
-				if err := logs.Error(); err != nil {
-					if status.Convert(err).Code() == codes.NotFound {
-						return cli.Exit("Service not found", 1)
-					}
-					return util.CliError(fmt.Errorf("Error reading logs: %s\n", status.Convert(err).Message()))
-				}
-				return nil
-			}
-			switch output {
-			case "json":
-				b, _ := json.Marshal(record)
-				fmt.Printf("%v\n", string(b))
-			default:
-				fmt.Printf("%v\n", record.Message)
 
-			}
+	// range over all records until its closed
+	for record := range logs.Chan() {
+		switch output {
+		case "json":
+			b, _ := json.Marshal(record)
+			fmt.Printf("%v\n", string(b))
+		default:
+			fmt.Printf("%v\n", record.Message)
 		}
 	}
+
+	// check for an error
+	if err := logs.Error(); err != nil {
+		if status.Convert(err).Code() == codes.NotFound {
+			return cli.Exit("Service not found", 1)
+		}
+		return util.CliError(fmt.Errorf("Error reading logs: %s\n", status.Convert(err).Message()))
+	}
+
+	return nil
 }
 
 func humanizeStatus(status runtime.ServiceStatus) string {

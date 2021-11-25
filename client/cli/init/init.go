@@ -1,4 +1,4 @@
-// Package init provides the micro init command for initialising plugins and profiles
+// Package init provides the micro init command for initialising plugins and imports
 package init
 
 import (
@@ -12,14 +12,14 @@ import (
 )
 
 var (
-	// The import path we use for profiles
+	// The import path we use for imports
 	Import = "github.com/micro/micro/profile"
 	// Vesion of micro
 	Version = "v3"
 )
 
 func Run(ctx *cli.Context) error {
-	var profiles []string
+	var imports []string
 
 	for _, val := range ctx.StringSlice("profile") {
 		for _, profile := range strings.Split(val, ",") {
@@ -27,11 +27,16 @@ func Run(ctx *cli.Context) error {
 			if len(p) == 0 {
 				continue
 			}
-			profiles = append(profiles, p)
+			path := path.Join(Import, p, Version)
+			imports = append(imports, fmt.Sprintf("\t_ \"%s\"\n", path))
 		}
 	}
 
-	if len(profiles) == 0 {
+	if len(ctx.String("package")) > 0 {
+		imports = append(imports, fmt.Sprintf("\t_ \"%s\"\n", ctx.String("package")))
+	}
+
+	if len(imports) == 0 {
 		return nil
 	}
 
@@ -48,11 +53,9 @@ func Run(ctx *cli.Context) error {
 	fmt.Fprint(f, "package main\n\n")
 	fmt.Fprint(f, "import (\n")
 
-	// write the profiles
-	for _, profile := range profiles {
-		path := path.Join(Import, profile, Version)
-		line := fmt.Sprintf("\t_ \"%s\"\n", path)
-		fmt.Fprint(f, line)
+	// write the imports
+	for _, i := range imports {
+		fmt.Fprint(f, i)
 	}
 
 	fmt.Fprint(f, ")\n")
@@ -63,12 +66,16 @@ func init() {
 	cmd.Register(&cli.Command{
 		Name:        "init",
 		Usage:       "Generate a profile for micro plugins",
-		Description: `'micro init' generates a profile.go file defining plugins and profiles`,
+		Description: `'micro init' generates a profile.go file defining plugins and imports`,
 		Action:      Run,
 		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "package",
+				Usage: "The package to load, e.g. github.com/m3o/platform/profile/ci",
+			},
 			&cli.StringSliceFlag{
 				Name:  "profile",
-				Usage: "A comma separated list of profiles to load",
+				Usage: "A comma separated list of imports to load",
 				Value: cli.NewStringSlice(),
 			},
 			&cli.StringFlag{

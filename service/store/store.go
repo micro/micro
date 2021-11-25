@@ -17,8 +17,17 @@
 package store
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
+)
+
+// Order
+type Order string
+
+const (
+	OrderAsc  = Order("asc")
+	OrderDesc = Order("desc")
 )
 
 var (
@@ -33,9 +42,9 @@ var (
 // Store is a data storage interface
 type Store interface {
 	// Init initialises the store. It must perform any required setup on the backing storage implementation and check that it is ready for use, returning any errors.
-	Init(...StoreOption) error
+	Init(...Option) error
 	// Options allows you to view the current options.
-	Options() StoreOptions
+	Options() Options
 	// Read takes a single key name and optional ReadOptions. It returns matching []*Record or an error.
 	Read(key string, opts ...ReadOption) ([]*Record, error)
 	// Write() writes a record to the store, and returns an error if the record was not written.
@@ -62,28 +71,34 @@ type Record struct {
 	Expiry time.Duration `json:"expiry,omitempty"`
 }
 
+// NewRecord returns a record from key, val
+func NewRecord(key string, val interface{}) *Record {
+	b, _ := json.Marshal(val)
+	return &Record{
+		Key:   key,
+		Value: b,
+	}
+}
+
+// Encode will marshal any type into the byte Value field
+func (r *Record) Encode(v interface{}) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	r.Value = b
+	return nil
+}
+
+// Decode is a convenience helper for decoding records
+func (r *Record) Decode(v interface{}) error {
+	return json.Unmarshal(r.Value, v)
+}
+
 // Read records
-func Read(key string, opts ...Option) ([]*Record, error) {
-	var options Options
-	for _, o := range opts {
-		o(&options)
-	}
-
-	// convert the options
-	var readOpts []ReadOption
-	if len(options.Prefix) > 0 {
-		key = options.Prefix
-		readOpts = append(readOpts, ReadPrefix())
-	}
-	if options.Limit > 0 {
-		readOpts = append(readOpts, ReadLimit(options.Limit))
-	}
-	if options.Offset > 0 {
-		readOpts = append(readOpts, ReadOffset(options.Offset))
-	}
-
+func Read(key string, opts ...ReadOption) ([]*Record, error) {
 	// execute the query
-	return DefaultStore.Read(key, readOpts...)
+	return DefaultStore.Read(key, opts...)
 }
 
 // Write a record to the store
@@ -97,23 +112,6 @@ func Delete(key string) error {
 }
 
 // List returns any keys that match, or an empty list with no error if none matched.
-func List(opts ...Option) ([]string, error) {
-	var options Options
-	for _, o := range opts {
-		o(&options)
-	}
-
-	// convert the options
-	var listOpts []ListOption
-	if len(options.Prefix) > 0 {
-		listOpts = append(listOpts, ListPrefix(options.Prefix))
-	}
-	if options.Limit > 0 {
-		listOpts = append(listOpts, ListLimit(options.Limit))
-	}
-	if options.Offset > 0 {
-		listOpts = append(listOpts, ListOffset(options.Offset))
-	}
-
-	return DefaultStore.List(listOpts...)
+func List(opts ...ListOption) ([]string, error) {
+	return DefaultStore.List(opts...)
 }

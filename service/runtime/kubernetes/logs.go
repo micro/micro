@@ -17,17 +17,19 @@ package kubernetes
 import (
 	"bufio"
 	"strconv"
+	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/internal/kubernetes/client"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/kubernetes/client"
 )
 
 type klog struct {
 	client      client.Client
 	serviceName string
+	version     string
 	options     runtime.LogsOptions
 }
 
@@ -64,6 +66,9 @@ func (k *klog) podLogs(podName string, stream *kubeStream) error {
 				record := runtime.Log{
 					Message: s.Text(),
 				}
+
+				// send the records to the stream
+				// there can be multiple pods doing this
 				select {
 				case stream.stream <- record:
 				case <-stream.stop:
@@ -87,6 +92,11 @@ func (k *klog) getMatchingPods() ([]string, error) {
 	l := make(map[string]string)
 
 	l["name"] = client.Format(k.serviceName)
+
+	if len(k.version) > 0 {
+		l["version"] = client.Format(k.version)
+	}
+
 	// TODO: specify micro:service
 	// l["micro"] = "service"
 
@@ -175,6 +185,7 @@ func (k *klog) Stream() (runtime.LogStream, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if len(pods) == 0 {
 		return nil, errors.NotFound("runtime.logs", "no such service")
 	}
@@ -184,21 +195,37 @@ func (k *klog) Stream() (runtime.LogStream, error) {
 		stop:   make(chan bool),
 	}
 
+	var wg sync.WaitGroup
+
 	// stream from the individual pods
 	for _, pod := range pods {
+		wg.Add(1)
+
 		go func(podName string) {
-			err := k.podLogs(podName, stream)
-			if err != nil {
+			if err := k.podLogs(podName, stream); err != nil {
 				logger.Errorf("Error streaming from pod: %v", err)
 			}
+
+			wg.Done()
 		}(pod)
 	}
+
+	go func() {
+		// wait until all pod log watchers are done
+		wg.Wait()
+
+		// do any cleanup
+		stream.Stop()
+
+		// close the stream
+		close(stream.stream)
+	}()
 
 	return stream, nil
 }
 
 // NewLog returns a configured Kubernetes logger
-func newLog(c client.Client, serviceName string, opts ...runtime.LogsOption) *klog {
+func newLog(c client.Client, serviceName, version string, opts ...runtime.LogsOption) *klog {
 	options := runtime.LogsOptions{
 		Namespace: client.DefaultNamespace,
 	}
@@ -208,6 +235,7 @@ func newLog(c client.Client, serviceName string, opts ...runtime.LogsOption) *kl
 
 	klog := &klog{
 		serviceName: serviceName,
+		version:     version,
 		client:      c,
 		options:     options,
 	}

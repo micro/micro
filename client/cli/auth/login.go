@@ -8,11 +8,10 @@ import (
 	"syscall"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
-	"github.com/micro/micro/v3/client/cli/signup"
 	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
-	"github.com/micro/micro/v3/internal/report"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/util/report"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -20,11 +19,6 @@ import (
 // login flow.
 // For documentation of the flow please refer to https://github.com/micro/development/pull/223
 func login(ctx *cli.Context) error {
-	// assuming --otp go to platform.Signup
-	if isOTP := ctx.Bool("otp"); isOTP {
-		return signup.Run(ctx)
-	}
-
 	// otherwise assume username/password login
 
 	// get the environment
@@ -69,7 +63,10 @@ func login(ctx *cli.Context) error {
 		report.Errorf(ctx, "%v: Getting token: %v", username, err.Error())
 		return err
 	}
-	token.Save(ctx, tok)
+	if err := token.Save(ctx, tok); err != nil {
+		report.Errorf(ctx, "%s: Save token: %s", username, err.Error())
+		return err
+	}
 
 	fmt.Println("Successfully logged in.")
 	return nil

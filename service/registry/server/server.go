@@ -8,6 +8,7 @@ import (
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry/handler"
 	"github.com/micro/micro/v3/service/registry/util"
 	"github.com/urfave/cli/v2"
 )
@@ -102,7 +103,7 @@ func Run(ctx *cli.Context) error {
 	id := srv.Server().Options().Id
 
 	// register the handler
-	pb.RegisterRegistryHandler(srv.Server(), &Registry{
+	pb.RegisterRegistryHandler(srv.Server(), &handler.Registry{
 		ID:    id,
 		Event: service.NewEvent(topic),
 	})

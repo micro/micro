@@ -1,7 +1,8 @@
+## Programming the Real World
 
-Micro is an open source platform for cloud native application development.
+Micro is a distributed cloud operating system built for real world programming.
 
-## Overview
+## About
 
 Micro addresses the key requirements for building services in the cloud. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
@@ -26,22 +27,16 @@ Documentation, guides and quick starts for Micro
 - [Reference](reference) - In-depth reference for Micro CLI and services
 - [Resources](resources) - External resources and contributions
 - [Roadmap](roadmap) - Stuff on our agenda over the long haul
-- [Users](users) - Developers and companies using Micro in production
 - [FAQ](faq) - Frequently asked questions
-- [Blog](blog) - For the latest from us
 
-## Contributing
+## Cloud
 
-See the [TODO](/todo) list, open a PR and start hacking away at the docs.
+A living, breathing version of Micro is run as a public cloud platform called [M3O](https://m3o.com).
 
-## Community
+## Services
 
-Join us on [Discord](https://discord.gg/hbmJEct) or [Slack](https://slack.micro.mu). Follow [@microhq](https://twitter.com/microhq) on Twitter for updates.
+Services built with Micro live in [github.com/micro/services](https://github.com/micro/services).
 
-## Hosting
+## Network
 
-If you're interested in a hosted version of Micro see [m3o.com](https://m3o.com).
-
-## License
-
-[Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/)
+Future ideas about where Micro is going live in [github.com/micro/network](https://github.com/micro/network).

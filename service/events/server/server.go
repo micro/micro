@@ -3,6 +3,7 @@ package server
 import (
 	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/events/handler"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 )
@@ -15,8 +16,8 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// register the handlers
-	pb.RegisterStreamHandler(srv.Server(), new(Stream))
-	pb.RegisterStoreHandler(srv.Server(), new(Store))
+	pb.RegisterStreamHandler(srv.Server(), new(handler.Stream))
+	pb.RegisterStoreHandler(srv.Server(), new(handler.Store))
 
 	// run the service
 	if err := srv.Run(); err != nil {

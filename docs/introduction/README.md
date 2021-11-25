@@ -43,11 +43,13 @@ Think of Micro as Android for Cloud.
 
 ## Features
 
+Below are the core components that make up Micro.
+
+**Server**
+
 Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
 this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
 into any underlying system. 
-
-### Server
 
 The server is composed of the following services.
 
@@ -57,25 +59,25 @@ The server is composed of the following services.
 - **Config** - Dynamic configuration and secrets management for service level config without the need to restart
 - **Events** - Event streaming with ordered messaging, replay from offsets and persistent storage
 - **Network** - Inter-service networking, isolation and routing plane for all internal request traffic
-- **Proxy** - gRPC identity aware proxy used for remote access and any external grpc request traffic
-- **Runtime** - Service lifecyle and process management with support for source to running auto build
+- **Proxy** - An identity aware proxy used for remote access and any external grpc request traffic
+- **Runtime** - Service lifecycle and process management with support for source to running auto build
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
 
-### Framework
+**Framework**
 
-Micro additionaly now contains the incredibly popular [Go Micro](https://github.com/asim/go-micro) framework built in for service development. 
+Micro additionally now contains the incredibly popular Go Micro framework built in for service development. 
 The Go framework makes it drop dead simple to write your services without having to piece together lines and lines of boilerplate. Auto 
 configured and initialised by default, just import and get started quickly.
 
-### Command Line
+**Command Line**
 
 Micro brings not only a rich architectural model but a command line experience tailored for that need. The command line interface includes 
 dynamic command mapping for all services running on the platform. Turns any service instantly into a CLI command along with flag parsing 
 for inputs. Includes support for multiple environments and namespaces, automatic refreshing of auth credentials, creating and running 
 services, status info and log streaming, plus much, much more.
 
-### Environments
+**Environments**
 
 Finally Micro bakes in the concept of `Environments` and multi-tenancy through `Namespaces`. Run your server locally for 
 development and in the cloud for staging and production, seamlessly switch between them using the CLI commands `micro env set [environment]` 
@@ -105,7 +107,7 @@ Micro provides an API gateway that handles HTTP/JSON requests externally and con
 massively simplifies the experience of building efficient highly performant services on the backend which are decoupled 
 from each other but presenting a single view to the consumers.
 
-## Remote Access
+## Remote First
 
 Micro was built with the knowledge that not only do we exist in a multi-environment model but one that's remote first. Because 
 of that we build in a gRPC identity proxy for CLI and local services that enables you to remotely connect to any Micro server 
@@ -113,9 +115,9 @@ securely and access those services and resources with your credentials stored in
 
 You can assume not only are your services built for a Cloud first era but that your access to them is in that manner also.
 
-## Sample Services
+## Micro Services
 
-Check out the [micro/services](https://github.com/micro/services) open source repository for example services like the blog.
+Check out the [micro/services](https://github.com/micro/services) repository for example services.
 
 ## Getting Started
 

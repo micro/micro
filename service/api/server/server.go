@@ -8,35 +8,37 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
-	"github.com/micro/micro/v3/client"
-	ahandler "github.com/micro/micro/v3/internal/api/handler"
-	aapi "github.com/micro/micro/v3/internal/api/handler/api"
-	"github.com/micro/micro/v3/internal/api/handler/event"
-	ahttp "github.com/micro/micro/v3/internal/api/handler/http"
-	arpc "github.com/micro/micro/v3/internal/api/handler/rpc"
-	"github.com/micro/micro/v3/internal/api/handler/web"
-	"github.com/micro/micro/v3/internal/api/resolver"
-	"github.com/micro/micro/v3/internal/api/resolver/grpc"
-	"github.com/micro/micro/v3/internal/api/resolver/host"
-	"github.com/micro/micro/v3/internal/api/resolver/path"
-	"github.com/micro/micro/v3/internal/api/resolver/subdomain"
-	"github.com/micro/micro/v3/internal/api/router"
-	regRouter "github.com/micro/micro/v3/internal/api/router/registry"
-	"github.com/micro/micro/v3/internal/api/server"
-	"github.com/micro/micro/v3/internal/api/server/acme"
-	"github.com/micro/micro/v3/internal/api/server/acme/autocert"
-	"github.com/micro/micro/v3/internal/api/server/acme/certmagic"
-	httpapi "github.com/micro/micro/v3/internal/api/server/http"
-	"github.com/micro/micro/v3/internal/handler"
-	"github.com/micro/micro/v3/internal/helper"
-	rrmicro "github.com/micro/micro/v3/internal/resolver/api"
-	"github.com/micro/micro/v3/internal/sync/memory"
 	"github.com/micro/micro/v3/plugin"
+	pb "github.com/micro/micro/v3/proto/api"
 	"github.com/micro/micro/v3/service"
+	apiserver "github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/api/auth"
+	ahandler "github.com/micro/micro/v3/service/api/handler"
+	aapi "github.com/micro/micro/v3/service/api/handler/api"
+	"github.com/micro/micro/v3/service/api/handler/event"
+	ahttp "github.com/micro/micro/v3/service/api/handler/http"
+	arpc "github.com/micro/micro/v3/service/api/handler/rpc"
+	"github.com/micro/micro/v3/service/api/handler/web"
+	"github.com/micro/micro/v3/service/api/resolver"
+	"github.com/micro/micro/v3/service/api/resolver/grpc"
+	"github.com/micro/micro/v3/service/api/resolver/host"
+	"github.com/micro/micro/v3/service/api/resolver/path"
+	"github.com/micro/micro/v3/service/api/resolver/subdomain"
+	"github.com/micro/micro/v3/service/api/router"
+	regRouter "github.com/micro/micro/v3/service/api/router/registry"
+	httpapi "github.com/micro/micro/v3/service/api/server/http"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/util/acme"
+	"github.com/micro/micro/v3/util/acme/autocert"
+	"github.com/micro/micro/v3/util/acme/certmagic"
+	"github.com/micro/micro/v3/util/helper"
+	"github.com/micro/micro/v3/util/opentelemetry"
+	"github.com/micro/micro/v3/util/opentelemetry/jaeger"
+	"github.com/micro/micro/v3/util/sync/memory"
+	"github.com/micro/micro/v3/util/wrapper"
+	"github.com/opentracing/opentracing-go"
 	"github.com/urfave/cli/v2"
 )
 
@@ -54,7 +56,7 @@ var (
 )
 
 var (
-	Flags = append(client.Flags,
+	Flags = []cli.Flag{
 		&cli.StringFlag{
 			Name:    "address",
 			Usage:   "Set the api address e.g 0.0.0.0:8080",
@@ -81,7 +83,42 @@ var (
 			EnvVars: []string{"MICRO_API_ENABLE_CORS"},
 			Value:   true,
 		},
-	)
+		&cli.BoolFlag{
+			Name:    "enable_acme",
+			Usage:   "Enables ACME support via Let's Encrypt. ACME hosts should also be specified.",
+			EnvVars: []string{"MICRO_API_ENABLE_ACME"},
+		},
+		&cli.StringFlag{
+			Name:    "acme_hosts",
+			Usage:   "Comma separated list of hostnames to manage ACME certs for",
+			EnvVars: []string{"MICRO_API_ACME_HOSTS"},
+		},
+		&cli.StringFlag{
+			Name:    "acme_provider",
+			Usage:   "The provider that will be used to communicate with Let's Encrypt. Valid options: autocert, certmagic",
+			EnvVars: []string{"MICRO_API_ACME_PROVIDER"},
+		},
+		&cli.BoolFlag{
+			Name:    "enable_tls",
+			Usage:   "Enable TLS support. Expects cert and key file to be specified",
+			EnvVars: []string{"MICRO_API_ENABLE_TLS"},
+		},
+		&cli.StringFlag{
+			Name:    "tls_cert_file",
+			Usage:   "Path to the TLS Certificate file",
+			EnvVars: []string{"MICRO_API_TLS_CERT_FILE"},
+		},
+		&cli.StringFlag{
+			Name:    "tls_key_file",
+			Usage:   "Path to the TLS Key file",
+			EnvVars: []string{"MICRO_API_TLS_KEY_FILE"},
+		},
+		&cli.StringFlag{
+			Name:    "tls_client_ca_file",
+			Usage:   "Path to the TLS CA file to verify clients against",
+			EnvVars: []string{"MICRO_API_TLS_CLIENT_CA_FILE"},
+		},
+	}
 )
 
 func Run(ctx *cli.Context) error {
@@ -113,15 +150,15 @@ func Run(ctx *cli.Context) error {
 	srv := service.New(service.Name(Name))
 
 	// Init API
-	var opts []server.Option
+	var opts []apiserver.Option
 
 	if ctx.Bool("enable_acme") {
 		hosts := helper.ACMEHosts(ctx)
-		opts = append(opts, server.EnableACME(true))
-		opts = append(opts, server.ACMEHosts(hosts...))
+		opts = append(opts, apiserver.EnableACME(true))
+		opts = append(opts, apiserver.ACMEHosts(hosts...))
 		switch ACMEProvider {
 		case "autocert":
-			opts = append(opts, server.ACMEProvider(autocert.NewProvider()))
+			opts = append(opts, apiserver.ACMEProvider(autocert.NewProvider()))
 		case "certmagic":
 			if ACMEChallengeProvider != "cloudflare" {
 				log.Fatal("The only implemented DNS challenge provider is cloudflare")
@@ -146,7 +183,7 @@ func Run(ctx *cli.Context) error {
 			}
 
 			opts = append(opts,
-				server.ACMEProvider(
+				apiserver.ACMEProvider(
 					certmagic.NewProvider(
 						acme.AcceptToS(true),
 						acme.CA(ACMECA),
@@ -166,12 +203,12 @@ func Run(ctx *cli.Context) error {
 			return err
 		}
 
-		opts = append(opts, server.EnableTLS(true))
-		opts = append(opts, server.TLSConfig(config))
+		opts = append(opts, apiserver.EnableTLS(true))
+		opts = append(opts, apiserver.TLSConfig(config))
 	}
 
 	if ctx.Bool("enable_cors") {
-		opts = append(opts, server.EnableCORS(true))
+		opts = append(opts, apiserver.EnableCORS(true))
 	}
 
 	// create the router
@@ -199,7 +236,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// default resolver
-	rr := rrmicro.NewResolver(ropts...)
+	rr := NewResolver(ropts...)
 
 	switch Resolver {
 	case "subdomain":
@@ -284,7 +321,7 @@ func Run(ctx *cli.Context) error {
 			router.WithResolver(rr),
 			router.WithRegistry(muregistry.DefaultRegistry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(srv, rt, Namespace))
+		r.PathPrefix(APIPath).Handler(Meta(srv, rt, Namespace))
 	}
 
 	// register all the http handler plugins
@@ -293,6 +330,28 @@ func Run(ctx *cli.Context) error {
 			h = v(h)
 		}
 	}
+
+	reporterAddress := ctx.String("tracing_reporter_address")
+	if len(reporterAddress) == 0 {
+		reporterAddress = jaeger.DefaultReporterAddress
+	}
+	// Create a new Jaeger opentracer:
+	openTracer, traceCloser, err := jaeger.New(
+		opentelemetry.WithServiceName("API"),
+		opentelemetry.WithTraceReporterAddress(reporterAddress),
+	)
+	log.Infof("Setting jaeger global tracer to %s", reporterAddress)
+	defer traceCloser.Close() // Make sure we flush any pending traces before shutdown:
+	if err != nil {
+		log.Warnf("Unable to prepare a Jaeger tracer: %s", err)
+	} else {
+		// Set the global default opentracing tracer:
+		opentracing.SetGlobalTracer(openTracer)
+	}
+	opentelemetry.DefaultOpenTracer = openTracer
+
+	// append the opentelemetry wrapper
+	h = wrapper.HTTPWrapper(h)
 
 	// append the auth wrapper
 	h = auth.Wrapper(rr, Namespace)(h)
@@ -308,6 +367,8 @@ func Run(ctx *cli.Context) error {
 	if err := api.Start(); err != nil {
 		log.Fatal(err)
 	}
+
+	pb.RegisterApiHandler(srv.Server(), &ahandler.APIHandler{})
 
 	// Run server
 	if err := srv.Run(); err != nil {

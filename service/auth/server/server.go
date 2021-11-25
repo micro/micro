@@ -1,16 +1,15 @@
 package server
 
 import (
-	"github.com/micro/micro/v3/internal/auth/token"
-	"github.com/micro/micro/v3/internal/auth/token/jwt"
 	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
-	authHandler "github.com/micro/micro/v3/service/auth/server/auth"
-	rulesHandler "github.com/micro/micro/v3/service/auth/server/rules"
+	"github.com/micro/micro/v3/service/auth/handler"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
 	mustore "github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/util/auth/token"
+	"github.com/micro/micro/v3/util/auth/token/jwt"
 	"github.com/urfave/cli/v2"
 )
 
@@ -36,8 +35,8 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// setup the handlers
-	ruleH := &rulesHandler.Rules{}
-	authH := &authHandler.Auth{
+	ruleH := &handler.Rules{}
+	authH := &handler.Auth{
 		DisableAdmin: ctx.Bool("disable_admin"),
 	}
 

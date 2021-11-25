@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/micro/micro/v3/internal/network/transport"
 	"github.com/micro/micro/v3/service/broker"
+	"github.com/micro/micro/v3/service/network/transport"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/server"
 )

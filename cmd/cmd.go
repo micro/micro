@@ -11,16 +11,11 @@ import (
 	"runtime/debug"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/micro/micro/v3/client/cli/util"
-	uconf "github.com/micro/micro/v3/internal/config"
-	"github.com/micro/micro/v3/internal/helper"
-	"github.com/micro/micro/v3/internal/network"
-	"github.com/micro/micro/v3/internal/report"
-	_ "github.com/micro/micro/v3/internal/usage"
-	"github.com/micro/micro/v3/internal/user"
-	"github.com/micro/micro/v3/internal/wrapper"
+	_ "github.com/micro/micro/v3/cmd/usage"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth"
@@ -30,14 +25,18 @@ import (
 	configCli "github.com/micro/micro/v3/service/config/client"
 	storeConf "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/network"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/server"
 	"github.com/micro/micro/v3/service/store"
+	uconf "github.com/micro/micro/v3/util/config"
+	"github.com/micro/micro/v3/util/helper"
+	"github.com/micro/micro/v3/util/report"
+	"github.com/micro/micro/v3/util/user"
+	"github.com/micro/micro/v3/util/wrapper"
 	"github.com/urfave/cli/v2"
 
-	muregistry "github.com/micro/micro/v3/service/registry"
 	muruntime "github.com/micro/micro/v3/service/runtime"
-	mustore "github.com/micro/micro/v3/service/store"
 )
 
 type Cmd interface {
@@ -68,6 +67,8 @@ type command struct {
 
 var (
 	DefaultCmd Cmd = New()
+
+	onceBefore sync.Once
 
 	// name of the binary
 	name = "micro"
@@ -208,17 +209,16 @@ var (
 			Usage:   "Address to run the service on",
 			EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
 		},
-		&cli.BoolFlag{
-			Name:    "prompt_update",
-			Usage:   "Provide an update prompt when a new binary is available. Enabled for release binaries only.",
-			Value:   true,
-			EnvVars: []string{"MICRO_PROMPT_UPDATE"},
-		},
 		&cli.StringFlag{
 			Name:    "config_secret_key",
 			Usage:   "Key to use when encoding/decoding secret config values. Will be generated and saved to file if not provided.",
 			Value:   "",
 			EnvVars: []string{"MICRO_CONFIG_SECRET_KEY"},
+		},
+		&cli.StringFlag{
+			Name:    "tracing_reporter_address",
+			Usage:   "The host:port of the opentracing agent e.g. localhost:6831",
+			EnvVars: []string{"MICRO_TRACING_REPORTER_ADDRESS"},
 		},
 	}
 )
@@ -312,30 +312,6 @@ func (c *command) Options() Options {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
-	if v := ctx.Args().First(); len(v) > 0 {
-		switch v {
-		case "service", "server":
-			// do nothing
-		default:
-			// check for the latest release
-			// TODO: write a local file to detect
-			// when we last checked so we don't do it often
-			updated, err := confirmAndSelfUpdate(ctx)
-			if err != nil {
-				return err
-			}
-			// if updated we expect to re-execute the command
-			// TODO: maybe require relogin or update of the
-			// config...
-			if updated {
-				// considering nil actually continues
-				// we need to os.Exit(0)
-				os.Exit(0)
-				return nil
-			}
-		}
-	}
-
 	// set the config file if specified
 	if cf := ctx.String("c"); len(cf) > 0 {
 		uconf.SetConfig(cf)
@@ -346,6 +322,11 @@ func (c *command) Before(ctx *cli.Context) error {
 		if err := p.Init(ctx); err != nil {
 			return err
 		}
+	}
+
+	// certain commands don't require loading
+	if ctx.Args().First() == "env" {
+		return nil
 	}
 
 	// default the profile for the server
@@ -393,21 +374,23 @@ func (c *command) Before(ctx *cli.Context) error {
 		client.Lookup(network.Lookup),
 	)
 
-	// wrap the client
-	client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
-	client.DefaultClient = wrapper.CacheClient(client.DefaultClient)
-	client.DefaultClient = wrapper.TraceCall(client.DefaultClient)
-	client.DefaultClient = wrapper.FromService(client.DefaultClient)
-	client.DefaultClient = wrapper.LogClient(client.DefaultClient)
+	onceBefore.Do(func() {
+		// wrap the client
+		client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
+		client.DefaultClient = wrapper.TraceCall(client.DefaultClient)
+		client.DefaultClient = wrapper.LogClient(client.DefaultClient)
+		client.DefaultClient = wrapper.OpentraceClient(client.DefaultClient)
 
-	// wrap the server
-	server.DefaultServer.Init(
-		server.WrapHandler(wrapper.AuthHandler()),
-		server.WrapHandler(wrapper.TraceHandler()),
-		server.WrapHandler(wrapper.HandlerStats()),
-		server.WrapHandler(wrapper.LogHandler()),
-		server.WrapHandler(wrapper.MetricsHandler()),
-	)
+		// wrap the server
+		server.DefaultServer.Init(
+			server.WrapHandler(wrapper.AuthHandler()),
+			server.WrapHandler(wrapper.TraceHandler()),
+			server.WrapHandler(wrapper.HandlerStats()),
+			server.WrapHandler(wrapper.LogHandler()),
+			server.WrapHandler(wrapper.MetricsHandler()),
+			server.WrapHandler(wrapper.OpenTraceHandler()),
+		)
+	})
 
 	// setup auth
 	authOpts := []auth.Option{}
@@ -482,7 +465,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		addresses := strings.Split(ctx.String("registry_address"), ",")
 		registryOpts = append(registryOpts, registry.Addrs(addresses...))
 	}
-	if err := muregistry.DefaultRegistry.Init(registryOpts...); err != nil {
+	if err := registry.DefaultRegistry.Init(registryOpts...); err != nil {
 		logger.Fatalf("Error configuring registry: %v", err)
 	}
 
@@ -536,18 +519,18 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(ctx.String("service_name")) > 0 {
 		storeOpts = append(storeOpts, store.Table(ctx.String("service_name")))
 	}
-	if err := mustore.DefaultStore.Init(storeOpts...); err != nil {
+	if err := store.DefaultStore.Init(storeOpts...); err != nil {
 		logger.Fatalf("Error configuring store: %v", err)
 	}
 
 	// set the registry and broker in the client and server
 	client.DefaultClient.Init(
 		client.Broker(broker.DefaultBroker),
-		client.Registry(muregistry.DefaultRegistry),
+		client.Registry(registry.DefaultRegistry),
 	)
 	server.DefaultServer.Init(
 		server.Broker(broker.DefaultBroker),
-		server.Registry(muregistry.DefaultRegistry),
+		server.Registry(registry.DefaultRegistry),
 	)
 
 	// Setup config. Do this after auth is configured since it'll load the config
@@ -556,7 +539,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	if c.service && config.DefaultConfig == nil {
 		config.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
 	} else if config.DefaultConfig == nil {
-		config.DefaultConfig, _ = storeConf.NewConfig(mustore.DefaultStore, ctx.String("namespace"))
+		config.DefaultConfig, _ = storeConf.NewConfig(store.DefaultStore, ctx.String("namespace"))
 	}
 
 	return nil

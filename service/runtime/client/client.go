@@ -162,6 +162,7 @@ func (s *svc) Create(resource runtime.Resource, opts ...runtime.CreateOption) er
 				Secrets:    options.Secrets,
 				Entrypoint: options.Entrypoint,
 				Volumes:    options.Volumes,
+				Instances:  int64(options.Instances),
 			},
 		}
 
@@ -193,7 +194,6 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 		// noop (ResourceQuota is not supported by *kubernetes.Logs())
 		return nil, nil
 	case runtime.TypeService:
-
 		// Assert the resource back into a *runtime.Service
 		service, ok := resource.(*runtime.Service)
 		if !ok {
@@ -202,6 +202,7 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 
 		ls, err := s.runtime.Logs(context.DefaultContext, &pb.LogsRequest{
 			Service: service.Name,
+			Version: service.Version,
 			Stream:  opts.Stream,
 			Count:   opts.Count,
 			Options: &pb.LogsOptions{
@@ -211,8 +212,10 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 		if err != nil {
 			return nil, err
 		}
+
 		logStream := &serviceLogs{
 			service: service.Name,
+			version: service.Version,
 			stream:  make(chan runtime.Log),
 			stop:    make(chan bool),
 		}
@@ -232,21 +235,23 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 				select {
 				// @todo this never seems to return, investigate
 				case <-ls.Context().Done():
+					close(logStream.stream)
 					return
-				case _, ok := <-logStream.stream:
-					if !ok {
-						return
-					}
+				case <-logStream.stop:
+					close(logStream.stream)
+					return
 				default:
 					record := pb.LogRecord{}
-					err := ls.RecvMsg(&record)
-					if err != nil {
+
+					if err := ls.RecvMsg(&record); err != nil {
 						if err != io.EOF {
 							logStream.err = err
 						}
+						close(logStream.stream)
 						logStream.Stop()
 						return
 					}
+
 					logStream.stream <- runtime.Log{
 						Message:  record.GetMessage(),
 						Metadata: record.GetMetadata(),
@@ -254,6 +259,7 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 				}
 			}
 		}()
+
 		return logStream, nil
 	default:
 		return nil, runtime.ErrInvalidResource
@@ -262,7 +268,9 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 
 type serviceLogs struct {
 	service string
+	version string
 	stream  chan runtime.Log
+
 	sync.Mutex
 	stop chan bool
 	err  error
@@ -283,7 +291,6 @@ func (l *serviceLogs) Stop() error {
 	case <-l.stop:
 		return nil
 	default:
-		close(l.stream)
 		close(l.stop)
 	}
 	return nil
@@ -446,6 +453,7 @@ func (s *svc) Update(resource runtime.Resource, opts ...runtime.UpdateOption) er
 			Options: &pb.UpdateOptions{
 				Namespace:  options.Namespace,
 				Entrypoint: options.Entrypoint,
+				Instances:  int64(options.Instances),
 			},
 		}
 

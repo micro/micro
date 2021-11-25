@@ -36,15 +36,17 @@ const (
 	ScopePublic = ""
 	// ScopeAccount is the scope applied to a rule to limit to users with any valid account
 	ScopeAccount = "*"
+	// ScopeAnyNamespaceAccount is the scope applied to a rule to limit to users with any valid account regardless of issuer
+	ScopeAnyNamespaceAccount = "+"
 )
 
 // Account provided by an auth provider
 type Account struct {
 	// ID of the account e.g. UUID. Should not change
 	ID string `json:"id"`
-	// Type of the account, e.g. service
+	// Type of the account, e.g. api, client, service, user
 	Type string `json:"type"`
-	// Issuer of the account
+	// Issuer of the account e.g micro
 	Issuer string `json:"issuer"`
 	// Any other associated metadata
 	Metadata map[string]string `json:"metadata"`

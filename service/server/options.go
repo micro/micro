@@ -22,15 +22,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/internal/codec"
-	"github.com/micro/micro/v3/internal/debug/trace"
-	"github.com/micro/micro/v3/internal/network/transport"
-	thttp "github.com/micro/micro/v3/internal/network/transport/http"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/broker/memory"
+	"github.com/micro/micro/v3/service/debug/trace"
+	"github.com/micro/micro/v3/service/network/transport"
+	thttp "github.com/micro/micro/v3/service/network/transport/http"
 	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/registry/mdns"
+	memReg "github.com/micro/micro/v3/service/registry/memory"
+	"github.com/micro/micro/v3/util/codec"
 )
 
 type Options struct {
@@ -85,7 +85,7 @@ func newOptions(opt ...Option) Options {
 	}
 
 	if opts.Registry == nil {
-		opts.Registry = mdns.NewRegistry()
+		opts.Registry = memReg.NewRegistry()
 	}
 
 	if opts.Transport == nil {

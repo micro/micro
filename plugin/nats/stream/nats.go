@@ -19,6 +19,7 @@ package nats
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -31,7 +32,8 @@ import (
 )
 
 const (
-	defaultClusterID = "micro"
+	defaultClusterID      = "micro"
+	reconnectLoopDuration = 10 * time.Second
 )
 
 // NewStream returns an initialized nats stream or an error if the connection to the nats
@@ -46,7 +48,31 @@ func NewStream(opts ...Option) (events.Stream, error) {
 		o(&options)
 	}
 
-	// connect to nats
+	s := &stream{opts: options}
+	clusterConn, err := connectToStan(options, s.connectionLost)
+	if err != nil {
+		return nil, fmt.Errorf("error connecting to nats cluster %v: %v", options.ClusterID, err)
+	}
+	s.conn = clusterConn
+	s.status = statusConnected
+	return s, nil
+}
+
+type streamStatus string
+
+const (
+	statusConnected    streamStatus = "CONNECTED"
+	statusReconnecting streamStatus = "RECONNECTING"
+)
+
+type stream struct {
+	opts    Options
+	conn    stan.Conn
+	connMux sync.Mutex
+	status  streamStatus
+}
+
+func connectToStan(options Options, handler stan.ConnectionLostHandler) (stan.Conn, error) {
 	nopts := nats.GetDefaultOptions()
 	if options.TLSConfig != nil {
 		nopts.Secure = true
@@ -57,20 +83,36 @@ func NewStream(opts ...Option) (events.Stream, error) {
 	}
 	conn, err := nopts.Connect()
 	if err != nil {
-		return nil, fmt.Errorf("Error connecting to nats at %v with tls enabled (%v): %v", options.Address, nopts.TLSConfig != nil, err)
+		return nil, fmt.Errorf("error connecting to nats at %v with tls enabled (%v): %v", options.Address, nopts.TLSConfig != nil, err)
 	}
-
 	// connect to the cluster
-	clusterConn, err := stan.Connect(options.ClusterID, options.ClientID, stan.NatsConn(conn))
-	if err != nil {
-		return nil, fmt.Errorf("Error connecting to nats cluster %v: %v", options.ClusterID, err)
-	}
-
-	return &stream{clusterConn}, nil
+	return stan.Connect(options.ClusterID, options.ClientID, stan.NatsConn(conn), stan.SetConnectionLostHandler(handler))
 }
 
-type stream struct {
-	conn stan.Conn
+func (s *stream) connectionLost(conn stan.Conn, err error) {
+	// kick off a new connection
+	go func() {
+		s.connMux.Lock()
+		defer s.connMux.Unlock()
+		if s.status == statusReconnecting {
+			return
+		}
+		s.status = statusReconnecting
+		// loop until we connect successfully
+		for {
+			clusterConn, err := connectToStan(s.opts, s.connectionLost)
+			if err != nil {
+				logger.Errorf("Error trying to reconnect %s. Will retry in %s", err, reconnectLoopDuration)
+				time.Sleep(reconnectLoopDuration)
+				continue
+			}
+			logger.Infof("Successfully reconnected to stan cluster")
+			s.conn = clusterConn
+			s.status = statusConnected
+			return
+		}
+
+	}()
 }
 
 // Publish a message to a topic

@@ -7,9 +7,8 @@ import (
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	goruntime "github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/server/handler"
-	"github.com/micro/micro/v3/service/runtime/server/manager"
+	"github.com/micro/micro/v3/service/runtime/handler"
+	"github.com/micro/micro/v3/service/runtime/manager"
 	"github.com/urfave/cli/v2"
 )
 
@@ -51,7 +50,7 @@ func Run(ctx *cli.Context) error {
 
 	// create runtime
 	if ctx.IsSet("source") {
-		runtime.DefaultRuntime.Init(goruntime.WithSource(ctx.String("source")))
+		runtime.DefaultRuntime.Init(runtime.WithSource(ctx.String("source")))
 	}
 
 	// append name
@@ -71,8 +70,8 @@ func Run(ctx *cli.Context) error {
 
 	// register the handlers
 	pb.RegisterRuntimeHandler(srv.Server(), &handler.Runtime{Runtime: manager})
-	pb.RegisterBuildHandler(srv.Server(), new(Build))
-	pb.RegisterSourceHandler(srv.Server(), new(Source))
+	pb.RegisterBuildHandler(srv.Server(), new(handler.Build))
+	pb.RegisterSourceHandler(srv.Server(), new(handler.Source))
 
 	// start runtime service
 	if err := srv.Run(); err != nil {

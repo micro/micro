@@ -7,24 +7,24 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/micro/v3/internal/helper"
-	"github.com/micro/micro/v3/internal/muxer"
-	"github.com/micro/micro/v3/internal/network/transport"
-	"github.com/micro/micro/v3/internal/network/transport/grpc"
-	"github.com/micro/micro/v3/internal/network/tunnel"
-	tmucp "github.com/micro/micro/v3/internal/network/tunnel/mucp"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
 	net "github.com/micro/micro/v3/service/network"
+	"github.com/micro/micro/v3/service/network/handler"
 	"github.com/micro/micro/v3/service/network/mucp"
+	"github.com/micro/micro/v3/service/network/transport"
+	"github.com/micro/micro/v3/service/network/transport/grpc"
+	"github.com/micro/micro/v3/service/network/tunnel"
+	tmucp "github.com/micro/micro/v3/service/network/tunnel/mucp"
 	"github.com/micro/micro/v3/service/proxy"
 	grpcProxy "github.com/micro/micro/v3/service/proxy/grpc"
 	mucpProxy "github.com/micro/micro/v3/service/proxy/mucp"
-	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/router"
-	murouter "github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/server"
 	mucpServer "github.com/micro/micro/v3/service/server/mucp"
+	"github.com/micro/micro/v3/util/helper"
+	"github.com/micro/micro/v3/util/muxer"
 	"github.com/urfave/cli/v2"
 )
 
@@ -132,13 +132,17 @@ func Run(ctx *cli.Context) error {
 	tun := tmucp.NewTunnel(tunOpts...)
 	id := service.Server().Options().Id
 
+	// increase the client retries
+	client.DefaultClient.Init(
+		client.Retries(3),
+	)
+
 	// local tunnel router
-	rtr := murouter.DefaultRouter
+	rtr := router.DefaultRouter
 
 	rtr.Init(
 		router.Network(networkName),
 		router.Id(id),
-		router.Registry(muregistry.DefaultRegistry),
 		router.Gateway(gateway),
 		router.Cache(),
 	)
@@ -173,7 +177,7 @@ func Run(ctx *cli.Context) error {
 
 	// create a handler
 	h := mucpServer.DefaultRouter.NewHandler(
-		&Network{Network: netService},
+		&handler.Network{Network: netService},
 	)
 
 	// register the handler

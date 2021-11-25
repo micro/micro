@@ -17,12 +17,15 @@
 package grpc
 
 import (
+	"encoding/json"
 	"strings"
 
-	"github.com/micro/micro/v3/internal/codec"
-	"github.com/micro/micro/v3/internal/codec/bytes"
+	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/util/codec"
+	"github.com/micro/micro/v3/util/codec/bytes"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
+	"google.golang.org/grpc/status"
 )
 
 type response struct {
@@ -54,7 +57,26 @@ func (r *response) Header() map[string]string {
 func (r *response) Read() ([]byte, error) {
 	f := &bytes.Frame{}
 	if err := r.gcodec.ReadBody(f); err != nil {
+		gerr, ok := status.FromError(err)
+		if ok {
+			return nil, grpcErrToMicroErr(gerr)
+		}
 		return nil, err
 	}
 	return f.Data, nil
+}
+
+func grpcErrToMicroErr(stat *status.Status) error {
+	// try to pull our a micro error from the message. Sometimes this is deeply nested so loop
+	errBytes := []byte(stat.Message())
+	var ret error
+	ret = stat.Err()
+	for {
+		merr := &errors.Error{}
+		if err := json.Unmarshal(errBytes, merr); err != nil {
+			return ret
+		}
+		ret = merr
+		errBytes = []byte(merr.Detail)
+	}
 }

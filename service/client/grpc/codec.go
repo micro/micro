@@ -25,8 +25,8 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
-	"github.com/micro/micro/v3/internal/codec"
-	"github.com/micro/micro/v3/internal/codec/bytes"
+	"github.com/micro/micro/v3/util/codec"
+	"github.com/micro/micro/v3/util/codec/bytes"
 	"github.com/oxtoacart/bpool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
@@ -37,7 +37,9 @@ type protoCodec struct{}
 type bytesCodec struct{}
 type wrapCodec struct{ encoding.Codec }
 
-var jsonpbMarshaler = &jsonpb.Marshaler{}
+var jsonpbMarshaler = &jsonpb.Marshaler{
+	EmitDefaults: true,
+}
 var useNumber bool
 
 // create buffer pool with 16 instances each preallocated with 256 bytes
@@ -53,6 +55,7 @@ var (
 		"application/grpc+json":    jsonCodec{},
 		"application/grpc+proto":   protoCodec{},
 		"application/grpc+bytes":   bytesCodec{},
+		"multipart/form-data":      jsonCodec{},
 	}
 )
 

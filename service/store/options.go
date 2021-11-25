@@ -16,42 +16,8 @@ package store
 
 import "context"
 
-// Options to use when reading from the store
+// Options contains configuration for the Store
 type Options struct {
-	// Prefix scopes the query to records that are prefixed with key
-	Prefix string
-	// Limit limits the number of returned records
-	Limit uint
-	// Offset when combined with Limit supports pagination
-	Offset uint
-}
-
-// Option sets values in Options
-type Option func(o *Options)
-
-// Prefix returns all records that are prefixed with key
-func Prefix(p string) Option {
-	return func(r *Options) {
-		r.Prefix = p
-	}
-}
-
-// Limit limits the number of responses to l
-func Limit(l uint) Option {
-	return func(r *Options) {
-		r.Limit = l
-	}
-}
-
-// Offset starts returning responses from o. Use in conjunction with Limit for pagination
-func Offset(o uint) Option {
-	return func(r *Options) {
-		r.Offset = o
-	}
-}
-
-// StoreOptions contains configuration for the Store
-type StoreOptions struct {
 	// Nodes contains the addresses or other connection information of the backing storage.
 	// For example, an etcd implementation would contain the nodes of the cluster.
 	// A SQL implementation could contain one or more connection strings.
@@ -64,35 +30,38 @@ type StoreOptions struct {
 	Context context.Context
 }
 
-// StoreOption sets values in StoreOptions
-type StoreOption func(o *StoreOptions)
+type StoreOption = Option
+type StoreOptions = Options
+
+// Option sets values in Options
+type Option func(o *Options)
 
 // Nodes contains the addresses or other connection information of the backing storage.
 // For example, an etcd implementation would contain the nodes of the cluster.
 // A SQL implementation could contain one or more connection strings.
-func Nodes(a ...string) StoreOption {
-	return func(o *StoreOptions) {
+func Nodes(a ...string) Option {
+	return func(o *Options) {
 		o.Nodes = a
 	}
 }
 
 // Database allows multiple isolated stores to be kept in one backend, if supported.
-func Database(db string) StoreOption {
-	return func(o *StoreOptions) {
+func Database(db string) Option {
+	return func(o *Options) {
 		o.Database = db
 	}
 }
 
 // Table is analagous to a table in database backends or a key prefix in KV backends
-func Table(t string) StoreOption {
-	return func(o *StoreOptions) {
+func Table(t string) Option {
+	return func(o *Options) {
 		o.Table = t
 	}
 }
 
 // WithContext sets the stores context, for any extra configuration
-func WithContext(c context.Context) StoreOption {
-	return func(o *StoreOptions) {
+func WithContext(c context.Context) Option {
+	return func(o *Options) {
 		o.Context = c
 	}
 }
@@ -108,6 +77,8 @@ type ReadOptions struct {
 	Limit uint
 	// Offset when combined with Limit supports pagination
 	Offset uint
+	// Order of the data returned e.g asc or desc
+	Order Order
 }
 
 // ReadOption sets values in ReadOptions
@@ -118,6 +89,13 @@ func ReadFrom(database, table string) ReadOption {
 	return func(r *ReadOptions) {
 		r.Database = database
 		r.Table = table
+	}
+}
+
+// ReadOrder specifies the order to return the data
+func ReadOrder(o Order) ReadOption {
+	return func(r *ReadOptions) {
+		r.Order = o
 	}
 }
 
@@ -194,6 +172,8 @@ type ListOptions struct {
 	Limit uint
 	// Offset when combined with Limit supports pagination
 	Offset uint
+	// Order to list the data set
+	Order Order
 }
 
 // ListOption sets values in ListOptions
@@ -204,6 +184,13 @@ func ListFrom(database, table string) ListOption {
 	return func(l *ListOptions) {
 		l.Database = database
 		l.Table = table
+	}
+}
+
+// ListOrder specifies the order to return the data
+func ListOrder(o Order) ListOption {
+	return func(l *ListOptions) {
+		l.Order = o
 	}
 }
 

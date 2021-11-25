@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package test
@@ -11,7 +12,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
-	"github.com/micro/micro/v3/internal/config"
+	"github.com/micro/micro/v3/util/config"
 )
 
 // Test no default account generation in non-default namespaces

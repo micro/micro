@@ -14,11 +14,11 @@ import (
 
 	_ "github.com/micro/micro/v3/client/cli/auth"
 	_ "github.com/micro/micro/v3/client/cli/config"
+	_ "github.com/micro/micro/v3/client/cli/gen"
 	_ "github.com/micro/micro/v3/client/cli/init"
 	_ "github.com/micro/micro/v3/client/cli/network"
 	_ "github.com/micro/micro/v3/client/cli/new"
 	_ "github.com/micro/micro/v3/client/cli/run"
-	_ "github.com/micro/micro/v3/client/cli/signup"
 	_ "github.com/micro/micro/v3/client/cli/store"
 	_ "github.com/micro/micro/v3/client/cli/user"
 )
@@ -87,7 +87,7 @@ func init() {
 		&cli.Command{
 			Name:   "call",
 			Usage:  `Call a service e.g micro call greeter Say.Hello '{"name": "John"}'`,
-			Action: util.Print(callService),
+			Action: util.Print(CallService),
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:    "address",
@@ -111,6 +111,22 @@ func init() {
 			},
 		},
 		&cli.Command{
+			Name:  "get",
+			Usage: `Get resources from micro`,
+			Subcommands: []*cli.Command{
+				{
+					Name:   "service",
+					Usage:  "Get a specific service from the registry",
+					Action: util.Print(GetService),
+				},
+			},
+		},
+		&cli.Command{
+			Name:   "health",
+			Usage:  `Get the service health`,
+			Action: util.Print(QueryHealth),
+		},
+		&cli.Command{
 			Name:   "stream",
 			Usage:  `Create a service stream e.g. micro stream foo Bar.Baz '{"key": "value"}'`,
 			Action: util.Print(streamService),
@@ -129,8 +145,14 @@ func init() {
 		},
 		&cli.Command{
 			Name:   "stats",
-			Usage:  "Query the stats of a service",
+			Usage:  "Query the stats of specified service(s), e.g micro stats srv1 srv2 srv3",
 			Action: util.Print(queryStats),
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "all",
+					Usage: "to list all builtin services use --all builtin, for user's services use --all custom",
+				},
+			},
 		},
 		&cli.Command{
 			Name:   "env",
@@ -162,7 +184,7 @@ func init() {
 		&cli.Command{
 			Name:   "services",
 			Usage:  "List services in the registry",
-			Action: util.Print(listServices),
+			Action: util.Print(ListServices),
 		},
 	)
 }

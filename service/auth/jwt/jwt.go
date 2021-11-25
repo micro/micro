@@ -21,10 +21,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/internal/auth/rules"
-	"github.com/micro/micro/v3/internal/auth/token"
-	"github.com/micro/micro/v3/internal/auth/token/jwt"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/util/auth/rules"
+	"github.com/micro/micro/v3/util/auth/token"
+	"github.com/micro/micro/v3/util/auth/token/jwt"
 )
 
 // NewAuth returns a new instance of the Auth service
@@ -122,12 +122,7 @@ func (j *jwtAuth) Verify(acc *auth.Account, res *auth.Resource, opts ...auth.Ver
 	j.Lock()
 	defer j.Unlock()
 
-	var options auth.VerifyOptions
-	for _, o := range opts {
-		o(&options)
-	}
-
-	return rules.VerifyAccess(j.rules, acc, res)
+	return rules.VerifyAccess(j.rules, acc, res, opts...)
 }
 
 func (j *jwtAuth) Rules(opts ...auth.RulesOption) ([]*auth.Rule, error) {

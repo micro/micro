@@ -27,8 +27,7 @@ ls | while read dir; do
     continue
   fi
 
-  docker build -t $TAG .
-  docker push $TAG
+  docker buildx build --platform linux/amd64 --platform linux/arm64 --tag $TAG --push .
 
   popd &>/dev/null
 done

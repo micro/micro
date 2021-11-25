@@ -21,61 +21,144 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/micro/micro/v3/service/registry"
+	"github.com/stretchr/testify/assert"
 )
 
-type testHandler struct{}
+type TestHandler struct{}
 
-type testRequest struct{}
+type TestRequest struct{}
 
-type testResponse struct{}
+type TestResponse struct{}
 
-func (t *testHandler) Test(ctx context.Context, req *testRequest, rsp *testResponse) error {
+func (t *TestHandler) Test(ctx context.Context, req *TestRequest, rsp *TestResponse) error {
+	return nil
+}
+
+type TestRequest2 struct {
+	int64Arg        int64                         `json:"int64Arg,omitempty"`
+	stringArg       string                        `json:"stringArg,omitempty"`
+	stringSliceArg  []string                      `json:"stringSliceArg,omitempty"`
+	pointerSliceArg []*TestRequest                `json:"pointerSliceArg,omitempty"`
+	mapArg          map[string]bool               `json:"mapArg,omitempty"`
+	mapPointerArg   map[*TestRequest]TestResponse `json:"mapPointerArg,omitempty"`
+}
+type TestResponse2 struct {
+	int64Arg        int64                         `json:"int64Arg,omitempty"`
+	stringArg       string                        `json:"stringArg,omitempty"`
+	stringSliceArg  []string                      `json:"stringSliceArg,omitempty"`
+	pointerSliceArg []*TestRequest                `json:"pointerSliceArg,omitempty"`
+	mapArg          map[string]bool               `json:"mapArg,omitempty"`
+	mapPointerArg   map[*TestRequest]TestResponse `json:"mapPointerArg,omitempty"`
+}
+
+func (t *TestHandler) Test2(ctx context.Context, req *TestRequest2, rsp *TestResponse2) error {
 	return nil
 }
 
 func TestExtractEndpoint(t *testing.T) {
-	handler := &testHandler{}
+	handler := &TestHandler{}
 	typ := reflect.TypeOf(handler)
 
-	var endpoints []*registry.Endpoint
+	type param struct {
+		name  string
+		value string
+	}
+	tcs := []struct {
+		name    string
+		reqName string
+		reqType string
+		reqArgs []param
+		rspName string
+		rspType string
+		rspArgs []param
+	}{
+		{
+			name:    "Test",
+			reqName: "TestRequest",
+			reqType: "TestRequest",
+			rspName: "TestResponse",
+			rspType: "TestResponse",
+		},
+		{
+			name:    "Test2",
+			reqName: "TestRequest2",
+			reqType: "TestRequest2",
+			rspName: "TestResponse2",
+			rspType: "TestResponse2",
+			reqArgs: []param{
+				{
+					name:  "int64Arg",
+					value: "int64",
+				},
+				{
+					name:  "stringArg",
+					value: "string",
+				},
+				{
+					name:  "stringSliceArg",
+					value: "[]string",
+				},
+				{
+					name:  "pointerSliceArg",
+					value: "[]TestRequest",
+				},
+				{
+					name:  "mapArg",
+					value: "map[string]bool",
+				},
+				{
+					name:  "mapPointerArg",
+					value: "map[TestRequest]TestResponse",
+				},
+			},
+			rspArgs: []param{
+				{
+					name:  "int64Arg",
+					value: "int64",
+				},
+				{
+					name:  "stringArg",
+					value: "string",
+				},
+				{
+					name:  "stringSliceArg",
+					value: "[]string",
+				},
+				{
+					name:  "pointerSliceArg",
+					value: "[]TestRequest",
+				},
+				{
+					name:  "mapArg",
+					value: "map[string]bool",
+				},
+				{
+					name:  "mapPointerArg",
+					value: "map[TestRequest]TestResponse",
+				},
+			},
+		},
+	}
 
-	for m := 0; m < typ.NumMethod(); m++ {
-		if e := extractEndpoint(typ.Method(m)); e != nil {
-			endpoints = append(endpoints, e)
+	for _, tc := range tcs {
+		m, ok := typ.MethodByName(tc.name)
+		assert.True(t, ok)
+		e := extractEndpoint(m)
+		assert.Equal(t, tc.name, e.Name)
+		assert.NotNil(t, e.Request)
+		assert.NotNil(t, e.Response)
+		assert.Equal(t, tc.reqName, e.Request.Name)
+		assert.Equal(t, tc.reqType, e.Request.Type)
+		assert.Equal(t, tc.rspName, e.Response.Name)
+		assert.Equal(t, tc.rspType, e.Response.Type)
+		for i, v := range tc.reqArgs {
+			assert.Equal(t, v.name, e.Request.Values[i].Name)
+			assert.Equal(t, v.value, e.Request.Values[i].Type)
 		}
-	}
-
-	if i := len(endpoints); i != 1 {
-		t.Errorf("Expected 1 endpoint, have %d", i)
-	}
-
-	if endpoints[0].Name != "Test" {
-		t.Errorf("Expected handler Test, got %s", endpoints[0].Name)
-	}
-
-	if endpoints[0].Request == nil {
-		t.Error("Expected non nil request")
-	}
-
-	if endpoints[0].Response == nil {
-		t.Error("Expected non nil request")
-	}
-
-	if endpoints[0].Request.Name != "testRequest" {
-		t.Errorf("Expected testRequest got %s", endpoints[0].Request.Name)
-	}
-
-	if endpoints[0].Response.Name != "testResponse" {
-		t.Errorf("Expected testResponse got %s", endpoints[0].Response.Name)
-	}
-
-	if endpoints[0].Request.Type != "testRequest" {
-		t.Errorf("Expected testRequest type got %s", endpoints[0].Request.Type)
-	}
-
-	if endpoints[0].Response.Type != "testResponse" {
-		t.Errorf("Expected testResponse type got %s", endpoints[0].Response.Type)
+		for i, v := range tc.rspArgs {
+			assert.Equal(t, v.name, e.Response.Values[i].Name)
+			assert.Equal(t, v.value, e.Response.Values[i].Type)
+		}
 	}
 
 }

@@ -40,14 +40,14 @@ var (
 )
 
 // NewStore returns a file store
-func NewStore(opts ...store.StoreOption) store.Store {
+func NewStore(opts ...store.Option) store.Store {
 	s := &fileStore{}
 	s.init(opts...)
 	return s
 }
 
 type fileStore struct {
-	options store.StoreOptions
+	options store.Options
 	dir     string
 }
 
@@ -78,7 +78,7 @@ func (m *fileStore) delete(db *bolt.DB, key string) error {
 	})
 }
 
-func (m *fileStore) init(opts ...store.StoreOption) error {
+func (m *fileStore) init(opts ...store.Option) error {
 	for _, o := range opts {
 		o(&m.options)
 	}
@@ -140,8 +140,7 @@ func (f *fileStore) getDB(database, table string) (*bolt.DB, error) {
 	return bolt.Open(dbPath, 0700, &bolt.Options{Timeout: 5 * time.Second})
 }
 
-func (m *fileStore) list(db *bolt.DB, limit, offset uint, prefix, suffix string) []string {
-
+func (m *fileStore) list(db *bolt.DB, order store.Order, limit, offset uint, prefix, suffix string) []string {
 	var keys []string
 
 	db.View(func(tx *bolt.Tx) error {
@@ -167,6 +166,7 @@ func (m *fileStore) list(db *bolt.DB, limit, offset uint, prefix, suffix string)
 			}
 		}
 
+		// get all the key/vals
 		for ; k != nil && cont(k); k, v = c.Next() {
 			storedRecord := &record{}
 
@@ -181,22 +181,43 @@ func (m *fileStore) list(db *bolt.DB, limit, offset uint, prefix, suffix string)
 			if suffix != "" && !bytes.HasSuffix(k, []byte(suffix)) {
 				continue
 			}
-			if offset > 0 {
-				offset--
-				continue
-			}
-			keys = append(keys, string(k))
-			// this check still works if no limit was passed to begin with, you'll just end up with large -ve value
-			if limit == 1 {
-				break
-			}
-			limit--
 
+			keys = append(keys, string(k))
 		}
+
 		return nil
 	})
 
-	return keys
+	// now check if we need do ordering
+	if order == store.OrderDesc {
+		for i, j := 0, len(keys)-1; i < j; i, j = i+1, j-1 {
+			keys[i], keys[j] = keys[j], keys[i]
+		}
+	}
+
+	// build a new key set
+	var keyList []string
+
+	if offset > 0 {
+		// offset is greater than the keys we have
+		if int(offset) >= len(keys) {
+			return nil
+		}
+
+		// otherwise set the offset for the keys
+		keys = keys[offset:]
+	}
+
+	// check key limit
+	if v := int(limit); v == 0 || v > len(keys) {
+		limit = uint(len(keys))
+	}
+
+	for i := 0; i < int(limit); i++ {
+		keyList = append(keyList, keys[i])
+	}
+
+	return keyList
 }
 
 func (m *fileStore) get(db *bolt.DB, k string) (*store.Record, error) {
@@ -278,7 +299,7 @@ func (f *fileStore) Close() error {
 	return nil
 }
 
-func (f *fileStore) Init(opts ...store.StoreOption) error {
+func (f *fileStore) Init(opts ...store.Option) error {
 	return f.init(opts...)
 }
 
@@ -322,7 +343,7 @@ func (m *fileStore) Read(key string, opts ...store.ReadOption) ([]*store.Record,
 			suffix = key
 		}
 		// list the keys
-		keys = m.list(db, readOpts.Limit, readOpts.Offset, prefix, suffix)
+		keys = m.list(db, readOpts.Order, readOpts.Limit, readOpts.Offset, prefix, suffix)
 	} else {
 		keys = []string{key}
 	}
@@ -370,7 +391,7 @@ func (m *fileStore) Write(r *store.Record, opts ...store.WriteOption) error {
 	return m.set(db, r)
 }
 
-func (m *fileStore) Options() store.StoreOptions {
+func (m *fileStore) Options() store.Options {
 	return m.options
 }
 
@@ -387,7 +408,7 @@ func (m *fileStore) List(opts ...store.ListOption) ([]string, error) {
 	}
 	defer db.Close()
 
-	allKeys := m.list(db, listOptions.Limit, listOptions.Offset, listOptions.Prefix, listOptions.Suffix)
+	allKeys := m.list(db, listOptions.Order, listOptions.Limit, listOptions.Offset, listOptions.Prefix, listOptions.Suffix)
 
 	return allKeys, nil
 }

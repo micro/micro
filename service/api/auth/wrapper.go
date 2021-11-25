@@ -7,18 +7,18 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/micro/micro/v3/internal/api/resolver"
-	"github.com/micro/micro/v3/internal/api/resolver/subdomain"
-	"github.com/micro/micro/v3/internal/api/server"
-	inauth "github.com/micro/micro/v3/internal/auth"
-	"github.com/micro/micro/v3/internal/ctx"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/api"
+	"github.com/micro/micro/v3/service/api/resolver"
+	"github.com/micro/micro/v3/service/api/resolver/subdomain"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/logger"
+	inauth "github.com/micro/micro/v3/util/auth"
+	"github.com/micro/micro/v3/util/ctx"
+	"github.com/micro/micro/v3/util/namespace"
 )
 
 // Wrapper wraps a handler and authenticates requests
-func Wrapper(r resolver.Resolver, prefix string) server.Wrapper {
+func Wrapper(r resolver.Resolver, prefix string) api.Wrapper {
 	return func(h http.Handler) http.Handler {
 		return authWrapper{
 			handler:       h,
@@ -76,8 +76,13 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Get the account using the token, some are unauthenticated, so the lack of an
-	// account doesn't necesserially mean a forbidden request
-	acc, _ := auth.Inspect(token)
+	// account doesn't necessarily mean a forbidden request
+	acc, err := auth.Inspect(token)
+	if err == nil {
+		// inject into the context
+		ctx := auth.ContextWithAccount(req.Context(), acc)
+		*req = *req.Clone(ctx)
+	}
 
 	// Determine the namespace and set it in the header. If the user passed auth creds
 	// on the request, use the namespace that issued the account, otherwise check for
@@ -91,7 +96,15 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		req.Header.Set(namespace.NamespaceKey, ns)
 	}
 
-	// Ensure accounts only issued by the namesace are valid
+	// Is this account on the blocklist?
+	if acc != nil {
+		if blocked, _ := DefaultBlockList.IsBlocked(req.Context(), acc.ID, acc.Issuer); blocked {
+			http.Error(w, "unauthorized request", http.StatusUnauthorized)
+			return
+		}
+	}
+
+	// Ensure accounts only issued by the namespace are valid.
 	if acc != nil && acc.Issuer != ns {
 		acc = nil
 	}
@@ -116,6 +129,8 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		auth.VerifyNamespace(ns),
 	}
 
+	logger.Debugf("Resolving %v %v", resName, resEndpoint)
+
 	// Perform the verification check to see if the account has access to
 	// the resource they're requesting
 	res := &auth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint}
@@ -139,6 +154,21 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	loginURL := auth.DefaultAuth.Options().LoginURL
 	if loginURL == "" {
 		http.Error(w, "unauthorized request", http.StatusUnauthorized)
+		return
+	}
+
+	// this path is only executed where a login URL is specified
+
+	// get the full request path
+	uri := req.URL.Path
+	// if the login url has http:// then lets get the entire requested url
+	if strings.HasPrefix(loginURL, "https://") || strings.HasPrefix(loginURL, "http://") {
+		uri = req.URL.String()
+	}
+
+	// if the login url matches the request then we do nothing
+	// its the login page so we want to allow serving it
+	if uri == loginURL {
 		return
 	}
 

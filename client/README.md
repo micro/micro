@@ -1,37 +1,97 @@
-# Clients
+# Micro Go Client [![godoc](https://godoc.org/github.com/micro/micro/v3/client?status.svg)](https://godoc.org/github.com/micro/micro/v3/client) 
 
-This repo contains clients for accessing Micro
-
-## Overview
-
-Clients are proto generated multi-language SDKs, CLI code and related for accessing Micro via gRPC (port 8081). SDKs are generated 
-automatically based on the protos and the CLI is hand maintained code for specific commands built into the micro cli.
-
-## Clients
-
-- CLI (command line interface)
-- SDK (gRPC generated code)
-  * Go
-  * Java
-  * Node
-  * Python
-  * Ruby
-  * Rust
+This is the Go client to access APIs on the Micro Platform
 
 ## Usage
 
-The client/sdk directory contains gRPC generated clients for each language. Point your client at the micro proxy at `localhost:8081`.
+```go
+package main
 
-The client/cli directory contains code that enables CLI commands to be built and used which also make use of the proxy.
+import (
+    "fmt"
+    "os"
 
-## Contributing
+    "github.com/micro/micro/v3/client/api"
+)
 
-- Modify the scripts and GitHub actions to include more languages
-- Code exists in scripts/generate-clients.sh and cmd/protoc-gen-client
+type Request struct {
+	Name string `json:"name"`
+}
 
-## TODO
+type Response struct {
+	Msg string `json:"msg"`
+}
 
-- [ ] Publish client sdks to the relevant package managers
-- [ ] Add additional clients for different forms of access
-  * api http client
-  * web typescript
+var (
+	token, _ = os.Getenv("TOKEN")
+)
+
+func main() {
+	c := api.NewClient(nil)
+
+	// set your api token
+	c.SetToken(token)
+
+   	req := &Request{
+		Name: "John",
+	}
+	
+	var rsp Response
+
+	if err := c.Call("helloworld", "call", req, &rsp); err != nil {
+		fmt.Println(err)
+		return
+	}
+	
+	fmt.Println(rsp)
+}
+```
+
+## Streaming
+
+The client supports streaming
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/micro/micro/v3/client/api"
+)
+
+type Request struct {
+	Count string `json:"count"`
+}
+
+type Response struct {
+	Count string `json:"count"`
+}
+
+var (
+	token, _ = os.Getenv("TOKEN")
+)
+
+func main() {
+	c := api.NewClient(nil)
+
+	// set your api token
+	c.SetToken(token)
+	
+	stream, err := c.Stream("streams", "subscribe", Request{Count: "10"})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for {
+		var rsp Response
+		if err := stream.Recv(&rsp); err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("got", rsp.Count)
+	}
+}
+```
+

@@ -13,7 +13,6 @@ import (
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/store"
-	gostore "github.com/micro/micro/v3/service/store"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 )
@@ -37,17 +36,27 @@ func read(ctx *cli.Context) error {
 		return err
 	}
 
-	opts := []gostore.ReadOption{
-		gostore.ReadFrom(ns, ctx.String("table")),
+	opts := []store.ReadOption{
+		store.ReadFrom(ns, ctx.String("table")),
 	}
 	if ctx.Bool("prefix") {
-		opts = append(opts, gostore.ReadPrefix())
+		opts = append(opts, store.ReadPrefix())
+	}
+	if ctx.Bool("suffix") {
+		opts = append(opts, store.ReadSuffix())
 	}
 	if ctx.Uint("limit") != 0 {
-		opts = append(opts, gostore.ReadLimit(ctx.Uint("limit")))
+		opts = append(opts, store.ReadLimit(ctx.Uint("limit")))
 	}
 	if ctx.Uint("offset") != 0 {
-		opts = append(opts, gostore.ReadLimit(ctx.Uint("offset")))
+		opts = append(opts, store.ReadLimit(ctx.Uint("offset")))
+	}
+	if v := ctx.String("order"); len(v) > 0 {
+		order := store.OrderAsc
+		if v == "desc" {
+			order = store.OrderDesc
+		}
+		opts = append(opts, store.ReadOrder(order))
 	}
 
 	records, err := store.DefaultStore.Read(ctx.Args().First(), opts...)
@@ -101,7 +110,7 @@ func write(ctx *cli.Context) error {
 	if ctx.Args().Len() < 2 {
 		return errors.New("Key and Value args are required")
 	}
-	record := &gostore.Record{
+	record := &store.Record{
 		Key:   ctx.Args().First(),
 		Value: []byte(strings.Join(ctx.Args().Tail(), " ")),
 	}
@@ -123,7 +132,7 @@ func write(ctx *cli.Context) error {
 		return err
 	}
 
-	if err := store.DefaultStore.Write(record, gostore.WriteTo(ns, ctx.String("table"))); err != nil {
+	if err := store.DefaultStore.Write(record, store.WriteTo(ns, ctx.String("table"))); err != nil {
 		return errors.Wrap(err, "couldn't write")
 	}
 	return nil
@@ -145,17 +154,27 @@ func list(ctx *cli.Context) error {
 		return err
 	}
 
-	opts := []gostore.ListOption{
-		gostore.ListFrom(ns, ctx.String("table")),
+	opts := []store.ListOption{
+		store.ListFrom(ns, ctx.String("table")),
 	}
 	if ctx.Bool("prefix") {
-		opts = append(opts, gostore.ListPrefix(ctx.Args().First()))
+		opts = append(opts, store.ListPrefix(ctx.Args().First()))
+	}
+	if ctx.Bool("suffix") {
+		opts = append(opts, store.ListSuffix(ctx.Args().First()))
 	}
 	if ctx.Uint("limit") != 0 {
-		opts = append(opts, gostore.ListLimit(ctx.Uint("limit")))
+		opts = append(opts, store.ListLimit(ctx.Uint("limit")))
 	}
 	if ctx.Uint("offset") != 0 {
-		opts = append(opts, gostore.ListLimit(ctx.Uint("offset")))
+		opts = append(opts, store.ListLimit(ctx.Uint("offset")))
+	}
+	if v := ctx.String("order"); len(v) > 0 {
+		order := store.OrderAsc
+		if v == "desc" {
+			order = store.OrderDesc
+		}
+		opts = append(opts, store.ListOrder(order))
 	}
 
 	keys, err := store.DefaultStore.List(opts...)
@@ -196,20 +215,20 @@ func delete(ctx *cli.Context) error {
 		return err
 	}
 
-	if err := store.DefaultStore.Delete(ctx.Args().First(), gostore.DeleteFrom(ns, ctx.String("table"))); err != nil {
+	if err := store.DefaultStore.Delete(ctx.Args().First(), store.DeleteFrom(ns, ctx.String("table"))); err != nil {
 		return errors.Wrapf(err, "couldn't delete key %s", ctx.Args().First())
 	}
 	return nil
 }
 
 func initStore(ctx *cli.Context) error {
-	opts := []gostore.StoreOption{}
+	opts := []store.StoreOption{}
 
 	if len(ctx.String("database")) > 0 {
-		opts = append(opts, gostore.Database(ctx.String("database")))
+		opts = append(opts, store.Database(ctx.String("database")))
 	}
 	if len(ctx.String("table")) > 0 {
-		opts = append(opts, gostore.Table(ctx.String("table")))
+		opts = append(opts, store.Table(ctx.String("table")))
 	}
 
 	if err := store.DefaultStore.Init(opts...); err != nil {

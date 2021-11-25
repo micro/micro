@@ -17,9 +17,9 @@ package kubernetes
 import (
 	"strings"
 
-	"github.com/micro/micro/v3/internal/kubernetes/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/kubernetes/client"
 )
 
 func (k *kubernetes) ensureNamepaceExists(ns string) error {
@@ -103,7 +103,7 @@ func (k *kubernetes) createNamespace(namespace *runtime.Namespace) error {
 	err := k.client.Create(&client.Resource{
 		Kind: "namespace",
 		Name: namespace.Name,
-		Value: client.Namespace{
+		Value: &client.Namespace{
 			Metadata: &client.Metadata{
 				Name: namespace.Name,
 			},
@@ -122,7 +122,7 @@ func (k *kubernetes) deleteNamespace(namespace *runtime.Namespace) error {
 	err := k.client.Delete(&client.Resource{
 		Kind: "namespace",
 		Name: namespace.Name,
-		Value: client.Namespace{
+		Value: &client.Namespace{
 			Metadata: &client.Metadata{
 				Name: namespace.Name,
 			},

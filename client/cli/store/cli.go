@@ -7,7 +7,7 @@ package cli
 
 import (
 	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/util/helper"
 	"github.com/urfave/cli/v2"
 )
 
@@ -41,10 +41,20 @@ func init() {
 						Usage:   "read prefix",
 						Value:   false,
 					},
+					&cli.BoolFlag{
+						Name:    "suffix",
+						Aliases: []string{"s"},
+						Usage:   "read suffix",
+						Value:   false,
+					},
 					&cli.UintFlag{
 						Name:    "limit",
 						Aliases: []string{"l"},
 						Usage:   "list limit",
+					},
+					&cli.StringFlag{
+						Name:  "order",
+						Usage: "Set the order of records e.g asc or desc",
 					},
 					&cli.UintFlag{
 						Name:    "offset",
@@ -85,6 +95,10 @@ func init() {
 					&cli.StringFlag{
 						Name:  "output",
 						Usage: "output format (json)",
+					},
+					&cli.StringFlag{
+						Name:  "order",
+						Usage: "Set the order of records e.g asc or desc",
 					},
 					&cli.BoolFlag{
 						Name:    "prefix",
