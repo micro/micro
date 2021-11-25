@@ -157,6 +157,21 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// this path is only executed where a login URL is specified
+
+	// get the full request path
+	uri := req.URL.Path
+	// if the login url has http:// then lets get the entire requested url
+	if strings.HasPrefix(loginURL, "https://") || strings.HasPrefix(loginURL, "http://") {
+		uri = req.URL.String()
+	}
+
+	// if the login url matches the request then we do nothing
+	// its the login page so we want to allow serving it
+	if uri == loginURL {
+		return
+	}
+
 	// Redirect to the login path
 	params := url.Values{"redirect_to": {req.URL.String()}}
 	loginWithRedirect := fmt.Sprintf("%v?%v", loginURL, params.Encode())
