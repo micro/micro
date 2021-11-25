@@ -116,6 +116,7 @@ var (
                       Logged in as: {{.User}}
                     </span>
                   {{end}}
+	          <li><a href="/">Home</a></li>
 	          <li><a href="/client">Client</a></li>
 	          <li><a href="/services">Services</a></li>
 	          {{if .LoginURL}}<li><a href="{{.LoginURL}}" class="navbar-link">{{.LoginTitle}}</a></li>{{end}}
