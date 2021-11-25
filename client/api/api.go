@@ -98,6 +98,25 @@ func (client *Client) SetTimeout(d time.Duration) {
 	client.options.Timeout = d
 }
 
+// Handle is a http handler for serving requests to the API
+func (client *Client) Handle(service, endpoint string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.ParseForm()
+		b, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Error reading body", 500)
+			return
+		}
+		var resp json.RawMessage
+		err = client.Call(service, endpoint, json.RawMessage(b), &resp)
+		if err != nil {
+			http.Error(w, "Error reading body", 500)
+			return
+		}
+		w.Write(resp)
+	})
+}
+
 // Call enables you to access any endpoint of any service on Micro
 func (client *Client) Call(service, endpoint string, request, response interface{}) error {
 	// example curl: curl -XPOST -d '{"service": "helloworld", "endpoint": "Call"}'
