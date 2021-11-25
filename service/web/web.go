@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/fatih/camelcase"
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/micro/v3/cmd"
@@ -103,6 +104,11 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//if err != nil {
 	//	return
 	//}
+}
+
+func split(v string) string {
+	parts := camelcase.Split(strings.Replace(v, ".", "", 1))
+	return strings.Join(parts, " ")
 }
 
 func format(v *registry.Value) string {
@@ -448,18 +454,19 @@ func (s *srv) serviceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.render(w, r, webTemplate, serviceMap, templateValue{
-		Key: "Name",
+		Key:   "Name",
 		Value: name,
 	})
 }
 
 type templateValue struct {
-	Key string
+	Key   string
 	Value interface{}
 }
 
 func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}, vals ...templateValue) {
 	t, err := template.New("template").Funcs(template.FuncMap{
+		"Split":  split,
 		"format": format,
 		"Title":  strings.Title,
 		"First": func(s string) string {
@@ -490,9 +497,6 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 		loginTitle = "Logout"
 		loginLink = "/logout"
 	}
-
-
-
 
 	templateData := map[string]interface{}{
 		"LoginTitle": loginTitle,

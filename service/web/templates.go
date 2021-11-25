@@ -77,17 +77,17 @@ var (
 		    border-radius: 0;
 		    border: 0;
 		    box-shadow: none;
-		    border-bottom: 1px solid whitesmoke;
+		    border-bottom: 1px solid #ccc;
 		 }
 		 .search:focus {
 		    border-color: transparent;
 		    outline: 0;
 		    box-shadow: none;
-		    border-bottom: 1px solid whitesmoke;
+		    border-bottom: 1px solid #ccc;
 	 	 }
 		 pre {
 		    background-color: #EEF0F3;
-		    border: 1px solid whitesmoke;
+		    border: 1px solid #ccc;
 		 }
 		 .user {
 		    padding: 15px;
@@ -168,13 +168,13 @@ var (
   border-radius: 0;
   border: 0;
   box-shadow: none;
-  border-bottom: 1px solid whitesmoke;
+  border-bottom: 1px solid #ccc;
 }
 .search:focus {
   border-color: transparent;
   outline: 0;
   box-shadow: none;
-  border-bottom: 1px solid whitesmoke;
+  border-bottom: 1px solid #ccc;
 }
 .service {
 	margin: 5px 3px 5px 3px;
@@ -269,7 +269,7 @@ jQuery(function($, undefined) {
 		border: 0;
 	}
 	.form-control {
-		border: 1px solid whitesmoke;
+		border: 1px solid #ccc;
 	}
 {{end}}
 {{define "content"}}
@@ -314,7 +314,7 @@ jQuery(function($, undefined) {
 				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-default" style="border-color: whitesmoke;">Call</button>
+				<button class="btn btn-default">Call</button>
 			</div>
 		</form>
 	</div>
@@ -565,40 +565,35 @@ pre {padding: 20px;}
 		border: 0;
 	}
 	.form-control {
-		border: 1px solid whitesmoke;
+		border: 1px solid #ccc;
 	}
 {{end}}
 {{define "content"}}
 <div class="row">
   <div class="panel">
     <div class="panel-body">
-	<div class="col-sm-5">
+	<div class="col-sm-2">
+	    {{ range $service, $endpoints := .Results }}
+              {{ range $endpoint := $endpoints }}
+                <div><a id="{{$endpoint.Name}}" href="#{{$endpoint.Name}}" onclick="setEndpoint(this)">{{Split $endpoint.Name}}</a></div>
+              {{end}}
+	    {{end}}
+        </div>
+	<div class="col-sm-4">
 		<form id="call-form" onsubmit="return call();">
+			<input class="form-control" type=text name=service id=service style="display: none;">
+			<input class="form-control" type=text name=endpoint id=endpoint style="display: none;">
+			<input class="form-control" type=text name=request id=request style="display: none;">
 			<div class="form-group">
-				<select class="form-control" type=text name=service id=service style="display: none;"> 
-				{{range $key, $value := .Results}}
-				<option class = "list-group-item" value="{{$key}}" selected>{{$key}}</option>
-				{{end}}
-				</select>
-				<label for="endpoint">Endpoint</label>
-				<ul class="list-group">
-					<select class="form-control" type=text name=endpoint id=endpoint>
-					<option disabled selected> -- select an endpoint -- </option>
-					</select>
-				</ul>
+				<p><b>Request</b></p>
+				<div id="inputs"></div>
 			</div>
 			<div class="form-group">
-			</div>
-			<div class="form-group">
-				<label for="request">Request</label>
-				<textarea class="form-control" name=request id=request rows=16>{}</textarea>
-			</div>
-			<div class="form-group">
-				<button class="btn btn-default" style="border-color: whitesmoke;">Call</button>
+				<button class="btn btn-default">Submit</button>
 			</div>
 		</form>
 	</div>
-	<div class="col-sm-7">
+	<div class="col-sm-6">
 		<p><b>Response</b><span class="pull-right"><a href="#" onclick="copyResponse()">Copy</a></p>
 		<pre id="response" style="min-height: 405px; max-height: 405px; overflow: scroll;">{}</pre>
 	</div>
@@ -623,33 +618,61 @@ pre {padding: 20px;}
 	</script>
 	<script>
 		$(document).ready(function(){
-			//Function executes on change of first select option field 
-			var select = $("#service option:selected").val();
-			$("#endpoint").empty();
-			$("#endpoint").append("<option disabled selected> -- select an endpoint -- </option>");
-			var s_map = {};
-			{{ range $service, $endpoints := .Results }}
-			var m_list = [];
-			{{range $index, $element := $endpoints}}
-			m_list[{{$index}}] = {{$element.Name}}
-			{{end}}
-			s_map[{{$service}}] = m_list
-			{{ end }}
-			if (select in s_map) {
-				var serviceEndpoints = s_map[select]
-				var len = serviceEndpoints.length;
-				for(var i = 0; i < len; i++) {
-					$("#endpoint").append("<option value=\""+serviceEndpoints[i]+"\">"+serviceEndpoints[i]+"</option>");	
-				}
-			}
+			document.getElementById("service").value = "{{.Name}}";
 
-			//Function executes on change of second select option field 
-			$("#endpoint").change(function(){
-				var select = $("#endpoint option:selected").val();
-			});
+			//Function executes on change of first select option field 
+			{{ range $service, $endpoints := .Results }}
+				{{range $index, $element := $endpoints}}
+					{{ if eq $index 0 }}
+						var el = document.getElementById("{{$element.Name}}");
+						setEndpoint(el);
+					{{ end }}
+				{{end}}
+			{{ end }}
 		});
 	</script>
 	<script>
+		function setEndpoint(el) {
+			var id = el.id;
+			var map = {};
+			{{ range $service, $endpoints := .Results }}
+				{{range $index, $element := $endpoints}}
+					map[{{$element.Name}}] = [];
+					{{ range $value := $element.Request.Values }}
+						map[{{$element.Name}}].push({{$value.Name}});
+					{{end}}
+
+					// set all to unselected
+					document.getElementById("{{$element.Name}}").style.fontWeight = "normal";
+				{{end}}
+			{{end}}
+
+			var inputs = document.getElementById("inputs");
+			inputs.innerHTML = '';
+
+			// get values for the endpoint
+			var values = map[id];
+
+			values.forEach(function(value) {
+				var input = document.createElement('input')
+				input.className = 'form-control';
+				input.type = 'text';
+				input.name = 'value[]' + value;
+				input.id = 'value[]' + value;
+				input.placeholder = value;
+				input.autocomplete = 'off';
+				input.style = 'margin-bottom: 10px;';
+				inputs.appendChild(input);
+			});
+
+			// set the endpoint value
+			document.getElementById("endpoint").value = el.id;
+			// select the endpoint link
+			el.style.fontWeight = "bold";
+
+			return false;
+		};
+
 		function call() {
 			var req = new XMLHttpRequest()
 			req.onreadystatechange = function() {
@@ -667,23 +690,35 @@ pre {padding: 20px;}
 				}
 				console.log(req.responseText);
 			}
+
+			var service = document.forms[0].elements["service"].value
 			var endpoint = document.forms[0].elements["endpoint"].value
 
 			var reqBody;
 			var headers;
 
 			try {
-				var rq = document.forms[0].elements["request"].value
-				if (rq.length > 0) {
-					reqBody = JSON.parse(rq);
+				var data = {};
+				var inputs = document.getElementById("call-form").elements;
+
+				for (i = 0; i < inputs.length; i++) {
+					var val = inputs[i];
+					if (val.id.startsWith("value[]")) {
+						var v = document.getElementById(val.id);
+						if (v.value.length > 0) {
+							data[val.name.replace('value[]','')] = v.value;
+						}
+					}
 				};
+				console.log(data);
+				reqBody = data;
 			} catch(e) {
 				document.getElementById("response").innerText = "Invalid request: " + e.message;
 				return false;
 			}
 
 			var request = {
-				"service": document.forms[0].elements["service"].value,
+				"service": service,
 				"endpoint": endpoint,
 				"request": reqBody
 			}
