@@ -14,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/cmd/cli/util"
+	"github.com/micro/micro/v3/client/cli/util"
 	_ "github.com/micro/micro/v3/cmd/usage"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"

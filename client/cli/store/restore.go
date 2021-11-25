@@ -3,7 +3,7 @@ package cli
 import (
 	"net/url"
 
-	snap "github.com/micro/micro/v3/cmd/cli/store/snapshot"
+	snap "github.com/micro/micro/v3/client/cli/store/snapshot"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"

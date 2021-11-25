@@ -13,8 +13,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/micro/micro/v3/cmd/cli/namespace"
-	"github.com/micro/micro/v3/cmd/cli/util"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/source/git"
