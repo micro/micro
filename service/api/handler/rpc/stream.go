@@ -220,7 +220,7 @@ func (s *stream) processWSReadsAndWrites() {
 
 func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGroup, stopCtx context.Context) {
 	defer func() {
-		s.conn.Close()
+		s.stream.Close()
 		cancel()
 		wg.Done()
 	}()
@@ -282,6 +282,9 @@ func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, sto
 				// clean exit
 				return
 			}
+			// write error then close the connection
+			b, _ := json.Marshal(err)
+			s.conn.WriteMessage(s.messageType, b)
 			s.conn.WriteMessage(websocket.CloseAbnormalClosure, []byte{})
 			return
 		}
@@ -297,9 +300,10 @@ func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, sto
 
 func (s *stream) bufToClientLoop(cancel context.CancelFunc, wg *sync.WaitGroup, stopCtx context.Context, msgs chan []byte) {
 	defer func() {
+		s.conn.Close()
 		cancel()
 		wg.Done()
-		s.stream.Close()
+
 	}()
 	ticker := time.NewTicker(pingPeriod)
 	defer ticker.Stop()
