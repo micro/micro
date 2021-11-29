@@ -2,6 +2,7 @@ package wrapper
 
 import (
 	"context"
+	"encoding/base64"
 	"reflect"
 	"strings"
 	"time"
@@ -80,7 +81,16 @@ func AuthHandler() server.HandlerWrapper {
 					// Strip the bearer scheme prefix
 					token = strings.TrimPrefix(header, inauth.BearerScheme)
 				case strings.HasPrefix(header, "Basic "):
-					token = strings.TrimPrefix(header, "Basic ")
+					b, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(header, "Basic "))
+					if err != nil {
+						return errors.Unauthorized(req.Service(), "invalid authorization header. Incorrect format")
+					}
+					parts := strings.SplitN(string(b), ":", 2)
+					if len(parts) != 2 {
+						return errors.Unauthorized(req.Service(), "invalid authorization header. Incorrect format")
+					}
+
+					token = parts[1]
 				default:
 					return errors.Unauthorized(req.Service(), "invalid authorization header. Expected Bearer or Basic schema")
 				}
