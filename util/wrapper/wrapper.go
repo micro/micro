@@ -75,12 +75,15 @@ func AuthHandler() server.HandlerWrapper {
 			var token string
 			if header, ok := metadata.Get(ctx, "Authorization"); ok {
 				// Ensure the correct scheme is being used
-				if !strings.HasPrefix(header, inauth.BearerScheme) {
-					return errors.Unauthorized(req.Service(), "invalid authorization header. expected Bearer schema")
+				switch {
+				case strings.HasPrefix(header, inauth.BearerScheme):
+					// Strip the bearer scheme prefix
+					token = strings.TrimPrefix(header, inauth.BearerScheme)
+				case strings.HasPrefix(header, "Basic "):
+					token = strings.TrimPrefix(header, "Basic ")
+				default:
+					return errors.Unauthorized(req.Service(), "invalid authorization header. Expected Bearer or Basic schema")
 				}
-
-				// Strip the bearer scheme prefix
-				token = strings.TrimPrefix(header, inauth.BearerScheme)
 			}
 
 			// Determine the namespace
