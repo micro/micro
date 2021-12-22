@@ -9,6 +9,8 @@ import (
 	"runtime"
 	"syscall"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service/client"
 	mudebug "github.com/micro/micro/v3/service/debug"
@@ -16,7 +18,6 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/server"
-	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -83,7 +84,7 @@ func (s *Service) Version() string {
 	return s.opts.Version
 }
 
-// Handler registers a handler
+// Handle registers a handler
 func (s *Service) Handle(v interface{}) error {
 	return s.Server().Handle(s.Server().NewHandler(v))
 }
