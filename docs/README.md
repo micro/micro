@@ -35,7 +35,7 @@ Micro started life as a framework called [Go Micro](https://go-micro.dev).
 
 ## Cloud
 
-A living, breathing version of Micro is run as a public cloud platform called [M3O](https://m3o.com).
+A living, breathing version of Micro is run as a cloud platform called [M3O](https://m3o.com).
 
 ## Services
 
