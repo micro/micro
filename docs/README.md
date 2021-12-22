@@ -39,7 +39,7 @@ A living, breathing version of Micro runs as a cloud platform called [M3O](https
 
 ## Services
 
-Services built with Micro live in [github.com/micro/services](https://github.com/micro/services).
+The source for services built with Micro exist in [github.com/micro/services](https://github.com/micro/services).
 
 ## Network
 
