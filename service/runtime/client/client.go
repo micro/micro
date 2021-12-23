@@ -574,7 +574,7 @@ func (s *svc) Delete(resource runtime.Resource, opts ...runtime.DeleteOption) er
 			return runtime.ErrInvalidResource
 		}
 
-		// runtime service dekete request
+		// runtime service delete request
 		req := &pb.DeleteRequest{
 			Resource: &pb.Resource{
 				Service: &pb.Service{

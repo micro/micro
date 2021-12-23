@@ -127,7 +127,7 @@ const (
 	Error
 )
 
-// Resources which are allocated to a serivce
+// Resources which are allocated to a service
 type Resources struct {
 	// CPU is the maximum amount of CPU the service will be allocated (unit millicpu)
 	// e.g. 0.25CPU would be passed as 250
