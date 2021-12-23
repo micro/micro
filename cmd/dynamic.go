@@ -73,7 +73,7 @@ func formatServiceUsage(srv *registry.Service, c *cli.Context) string {
 		// map "Helloworld.Call" to "helloworld.call"
 		parts := strings.Split(e.Name, ".")
 		for i, part := range parts {
-			parts[i] = lowcaseInitial(part)
+			parts[i] = lowercaseInitial(part)
 		}
 		name := strings.Join(parts, ".")
 
@@ -113,7 +113,7 @@ func formatServiceUsage(srv *registry.Service, c *cli.Context) string {
 	return result
 }
 
-func lowcaseInitial(str string) string {
+func lowercaseInitial(str string) string {
 	for i, v := range str {
 		return string(unicode.ToLower(v)) + str[i+1:]
 	}
