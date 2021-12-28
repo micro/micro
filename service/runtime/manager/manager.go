@@ -95,7 +95,7 @@ func (m *manager) checkServices() {
 
 			srv.Service.Source = filepath.Dir(srv.Service.Source)
 
-			logger.Infof("%v status: %v, restarting...", srv.Service, srv.Status)
+			logger.Infof("Watching process: service `%v` status is %v, restarting...", srv.Service, srv.Status)
 			// create the service
 			if err := m.createServiceInRuntime(srv); err != nil {
 				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
