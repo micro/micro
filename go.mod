@@ -17,6 +17,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/evanphx/json-patch/v5 v5.0.0
 	github.com/fatih/camelcase v1.0.0
+	github.com/fsnotify/fsnotify v1.4.9
 	github.com/getkin/kin-openapi v0.26.0
 	github.com/go-acme/lego/v3 v3.4.0
 	github.com/gofrs/uuid v3.2.0+incompatible

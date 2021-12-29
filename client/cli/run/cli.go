@@ -46,6 +46,15 @@ var flags = []cli.Flag{
 		Name:  "metadata",
 		Usage: "Set any metadata on the service e.g. foo=bar",
 	},
+	&cli.IntFlag{
+		Name:  "watching",
+		Usage: `Watch the file changes of source directories, then rebuild and restart the service. 
+		e.g. watching=500 means watching delay time is 500ms, if watching=0 feature will be disabled.`,
+	},
+	&cli.BoolFlag{
+		Name:  "force",
+		Usage: "Force rebuild and restart the service even though the service is running.",
+	},
 }
 
 func init() {
