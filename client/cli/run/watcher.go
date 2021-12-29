@@ -44,6 +44,10 @@ func NewWatcher(root string, delay time.Duration, fn CallbackFunc) (*watcher, er
 // Watch the file changes in specific directories
 func (w *watcher) Watch() error {
 	err := filepath.WalkDir(w.root, func(path string, info fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
 		if info != nil && !info.IsDir() {
 			return nil
 		}
