@@ -49,7 +49,8 @@ var flags = []cli.Flag{
 	&cli.IntFlag{
 		Name:  "watch_delay",
 		Usage: `Live-reloading, watch the file changes of source directories, then rebuild and restart the service. 
-		e.g. watch_delay=500 means watching delay time is 500ms, if watch_delay=0 live-reloading feature will be disabled.`,
+		e.g. watch_delay=500 means watching delay time is 500ms, if watch_delay=0 live-reloading feature will be disabled.
+		only watching *.go and *.proto files now`,
 	},
 	&cli.BoolFlag{
 		Name:  "force",
