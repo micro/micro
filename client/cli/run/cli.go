@@ -48,8 +48,8 @@ var flags = []cli.Flag{
 	},
 	&cli.IntFlag{
 		Name:  "watch_delay",
-		Usage: `Watch the file changes of source directories, then rebuild and restart the service. 
-		e.g. watch_delay=500 means watching delay time is 500ms, if watch_delay=0 watching feature will be disabled.`,
+		Usage: `Live-reloading, watch the file changes of source directories, then rebuild and restart the service. 
+		e.g. watch_delay=500 means watching delay time is 500ms, if watch_delay=0 live-reloading feature will be disabled.`,
 	},
 	&cli.BoolFlag{
 		Name:  "force",
