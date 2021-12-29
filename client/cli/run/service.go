@@ -211,6 +211,53 @@ func appendSourceBase(ctx *cli.Context, workDir, source string, matchExistingSer
 	return source
 }
 
+// watchService watches the changes of source directory, rebuild and restart the service
+func watchService(ctx *cli.Context, source *git.Source, watchDelay time.Duration, srv *runtime.Service, opts []runtime.CreateOption) error {
+	// always force rebuild the service
+	opts = append(opts, runtime.WithForce(true))
+
+	watcher, err := NewWatcher(source.FullPath, watchDelay, func() error {
+		logger.Infof("Watching process: rebuilding...")
+
+		// upload the service source again
+		_, err := upload(ctx, srv, source)
+		if err != nil {
+			logger.Errorf("Watching process: upload error: %v", err)
+			return err
+		}
+
+		// restart the service
+		if err := runtime.Create(srv, opts...); err != nil {
+			logger.Errorf("Watching process: create service error: %v", err)
+			return err
+		}
+
+		logger.Info("Watching process: build success")
+		return nil
+	})
+
+	if err != nil {
+		return nil
+	}
+
+	// gracefully exit
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-sigs
+		watcher.Stop()
+	}()
+
+	// start watching
+	err = watcher.Watch()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func runService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
@@ -376,48 +423,9 @@ func runService(ctx *cli.Context) error {
 	// run the service
 	err = runtime.Create(srv, opts...)
 
-	watchDelay := ctx.Int("watching")
+	watchDelay := ctx.Int("watch_delay")
 	if source.Local && watchDelay > 0 {
-
-		// always force rebuild the service
-		opts = append(opts, runtime.WithForce(true))
-
-		watcher, err := NewWatcher(source.FullPath, time.Millisecond*time.Duration(watchDelay), func() error {
-			logger.Infof("Watching process: rebuilding...")
-
-			// upload the service source again
-			_, err = upload(ctx, srv, source)
-			if err != nil {
-				logger.Errorf("Watching process: upload error: %v", err)
-				return err
-			}
-
-			// restart the service
-			if err := runtime.Create(srv, opts...); err != nil {
-				logger.Errorf("Watching process: create service error: %v", err)
-				return err
-			}
-
-			logger.Info("Watching process: build success")
-			return nil
-		})
-
-		if err != nil {
-			return util.CliError(err)
-		}
-
-		// gracefully exit
-		sigs := make(chan os.Signal, 1)
-		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
-		go func() {
-			<-sigs
-			watcher.Stop()
-		}()
-
-		// start watching
-		err = watcher.Watch()
-		if err != nil {
+		if err := watchService(ctx, source, time.Millisecond * time.Duration(watchDelay), srv, opts); err != nil {
 			return util.CliError(err)
 		}
 	}

@@ -47,9 +47,9 @@ var flags = []cli.Flag{
 		Usage: "Set any metadata on the service e.g. foo=bar",
 	},
 	&cli.IntFlag{
-		Name:  "watching",
+		Name:  "watch_delay",
 		Usage: `Watch the file changes of source directories, then rebuild and restart the service. 
-		e.g. watching=500 means watching delay time is 500ms, if watching=0 feature will be disabled.`,
+		e.g. watch_delay=500 means watching delay time is 500ms, if watch_delay=0 watching feature will be disabled.`,
 	},
 	&cli.BoolFlag{
 		Name:  "force",
