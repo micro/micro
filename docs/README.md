@@ -29,13 +29,17 @@ Documentation, guides and quick starts for Micro
 - [Roadmap](roadmap) - Stuff on our agenda over the long haul
 - [FAQ](faq) - Frequently asked questions
 
+## Framework
+
+Micro started life as a framework called [Go Micro](https://go-micro.dev).
+
 ## Cloud
 
-A living, breathing version of Micro is run as a public cloud platform called [M3O](https://m3o.com).
+A living, breathing version of Micro runs as a cloud platform called [M3O](https://m3o.com).
 
 ## Services
 
-Services built with Micro live in [github.com/micro/services](https://github.com/micro/services).
+The source for services built with Micro exist in [github.com/micro/services](https://github.com/micro/services).
 
 ## Network
 
