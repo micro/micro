@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -42,7 +43,7 @@ func NewWatcher(root string, delay time.Duration, fn CallbackFunc) (*watcher, er
 
 // Watch the file changes in specific directories
 func (w *watcher) Watch() error {
-	err := filepath.Walk(w.root, func(path string, info os.FileInfo, err error) error {
+	err := filepath.WalkDir(w.root, func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
