@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 	"path"
 	"path/filepath"
 	"sort"
 	"strings"
+	"syscall"
 	"text/tabwriter"
 	"time"
 
@@ -209,6 +211,54 @@ func appendSourceBase(ctx *cli.Context, workDir, source string, matchExistingSer
 	return source
 }
 
+// watchService watches the changes of source directory, rebuild and restart the service
+func watchService(ctx *cli.Context, source *git.Source, srv *runtime.Service, opts []runtime.CreateOption) error {
+	// always force rebuild the service
+	opts = append(opts, runtime.WithForce(true))
+
+	watchDelay := time.Duration(ctx.Int("watch_delay")) * time.Millisecond
+	watcher, err := NewWatcher(source.FullPath, watchDelay, func() error {
+		logger.Infof("Watching process: rebuilding...")
+
+		// upload the service source again
+		_, err := upload(ctx, srv, source)
+		if err != nil {
+			logger.Errorf("Watching process: upload error: %v", err)
+			return err
+		}
+
+		// restart the service
+		if err := runtime.Create(srv, opts...); err != nil {
+			logger.Errorf("Watching process: create service error: %v", err)
+			return err
+		}
+
+		logger.Info("Watching process: build success")
+		return nil
+	})
+
+	if err != nil {
+		return nil
+	}
+
+	// gracefully exit
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-sigs
+		watcher.Stop()
+	}()
+
+	// start watching
+	err = watcher.Watch()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func runService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
@@ -316,6 +366,7 @@ func runService(ctx *cli.Context) error {
 		runtime.WithRetries(retries),
 		runtime.CreateImage(image),
 		runtime.CreateType(typ),
+		runtime.WithForce(ctx.Bool("force")),
 	}
 	if instances > 0 {
 		opts = append(opts, runtime.CreateInstances(instances))
@@ -372,6 +423,13 @@ func runService(ctx *cli.Context) error {
 
 	// run the service
 	err = runtime.Create(srv, opts...)
+
+	if source.Local && ctx.Bool("watch") {
+		if err := watchService(ctx, source, srv, opts); err != nil {
+			return util.CliError(err)
+		}
+	}
+
 	return util.CliError(err)
 }
 

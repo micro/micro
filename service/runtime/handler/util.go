@@ -60,6 +60,7 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 	options := []runtime.CreateOption{
 		runtime.CreateNamespace(opts.Namespace),
 		runtime.CreateEntrypoint(opts.Entrypoint),
+		runtime.WithForce(opts.Force),
 	}
 
 	// command options

@@ -163,6 +163,7 @@ func (s *svc) Create(resource runtime.Resource, opts ...runtime.CreateOption) er
 				Entrypoint: options.Entrypoint,
 				Volumes:    options.Volumes,
 				Instances:  int64(options.Instances),
+				Force:      options.Force,
 			},
 		}
 
