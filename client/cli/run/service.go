@@ -212,10 +212,11 @@ func appendSourceBase(ctx *cli.Context, workDir, source string, matchExistingSer
 }
 
 // watchService watches the changes of source directory, rebuild and restart the service
-func watchService(ctx *cli.Context, source *git.Source, watchDelay time.Duration, srv *runtime.Service, opts []runtime.CreateOption) error {
+func watchService(ctx *cli.Context, source *git.Source, srv *runtime.Service, opts []runtime.CreateOption) error {
 	// always force rebuild the service
 	opts = append(opts, runtime.WithForce(true))
 
+	watchDelay := time.Duration(ctx.Int("watch_delay")) * time.Millisecond
 	watcher, err := NewWatcher(source.FullPath, watchDelay, func() error {
 		logger.Infof("Watching process: rebuilding...")
 
@@ -423,9 +424,8 @@ func runService(ctx *cli.Context) error {
 	// run the service
 	err = runtime.Create(srv, opts...)
 
-	watchDelay := ctx.Int("watch_delay")
-	if source.Local && watchDelay > 0 {
-		if err := watchService(ctx, source, time.Millisecond * time.Duration(watchDelay), srv, opts); err != nil {
+	if source.Local && ctx.Bool("watch") {
+		if err := watchService(ctx, source, srv, opts); err != nil {
 			return util.CliError(err)
 		}
 	}

@@ -46,11 +46,15 @@ var flags = []cli.Flag{
 		Name:  "metadata",
 		Usage: "Set any metadata on the service e.g. foo=bar",
 	},
+	&cli.BoolFlag{
+		Name: "watch",
+		Usage: `Enable live-reloading, watch the file changes of source directories, then rebuild and restart the service. 
+		only watching *.go and *.proto files now`,
+	},
 	&cli.IntFlag{
 		Name:  "watch_delay",
-		Usage: `Live-reloading, watch the file changes of source directories, then rebuild and restart the service. 
-		e.g. watch_delay=500 means watching delay time is 500ms, if watch_delay=0 live-reloading feature will be disabled.
-		only watching *.go and *.proto files now`,
+		Usage: "Watching delay milliseconds for live-reloading, only valid when --watch=true. e.g. watch_delay=500 means watching delay time is 500ms.",
+		Value: 1000,
 	},
 	&cli.BoolFlag{
 		Name:  "force",
