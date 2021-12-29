@@ -53,7 +53,8 @@ var flags = []cli.Flag{
 	},
 	&cli.IntFlag{
 		Name:  "watch_delay",
-		Usage: "Watching delay milliseconds for live-reloading, only valid when --watch=true. e.g. watch_delay=500 means watching delay time is 500ms.",
+		Usage: `Watching delay milliseconds for live-reloading, only valid when --watch=true. 
+		e.g. watch_delay=500 means watching delay time is 500ms.`,
 		Value: 1000,
 	},
 	&cli.BoolFlag{
