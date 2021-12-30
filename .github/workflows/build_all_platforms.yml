@@ -11,8 +11,8 @@ jobs:
           go-version: 1.16
         id: go
 
-    - name: Clone repo
-      uses: actions/checkout@v2
+      - name: Clone repo
+        uses: actions/checkout@v2
 
-    - name: Build on all platforms
-      run: scripts/build_all_platforms.sh
+      - name: Build on all platforms
+        run: scripts/build_all_platforms.sh
