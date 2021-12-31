@@ -5,9 +5,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Go 1.16
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.16
+        id: go
 
-    - name: Clone repo
-      uses: actions/checkout@v2
+      - name: Clone repo
+        uses: actions/checkout@v2
 
-    - name: Build on all platforms
-      run: scripts/build_all_platforms.sh
+      - name: Build on all platforms
+        run: scripts/build_all_platforms.sh

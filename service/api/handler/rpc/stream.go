@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	pbapi "github.com/micro/micro/v3/proto/api"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
@@ -174,8 +175,23 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 				}
 				return
 			}
+			var bufOut string
+			var apiRsp pbapi.Response
+			if err := json.Unmarshal(buf, &apiRsp); err == nil && apiRsp.StatusCode > 0 {
+				// bit of a hack. If the response is actually an api response we want to set the headers and status code
+				for _, v := range apiRsp.Header {
+					for _, s := range v.Values {
+						w.Header().Add(v.Key, s)
+					}
+				}
+				w.WriteHeader(int(apiRsp.StatusCode))
+				bufOut = apiRsp.Body
+			} else {
+				bufOut = string(buf)
+			}
+
 			// send the buffer
-			_, err = fmt.Fprint(w, string(buf))
+			_, err = fmt.Fprint(w, bufOut)
 			if err != nil {
 				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 					logger.Error(err)
@@ -220,7 +236,7 @@ func (s *stream) processWSReadsAndWrites() {
 
 func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGroup, stopCtx context.Context) {
 	defer func() {
-		s.conn.Close()
+		s.stream.Close()
 		cancel()
 		wg.Done()
 	}()
@@ -282,6 +298,9 @@ func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, sto
 				// clean exit
 				return
 			}
+			// write error then close the connection
+			b, _ := json.Marshal(err)
+			s.conn.WriteMessage(s.messageType, b)
 			s.conn.WriteMessage(websocket.CloseAbnormalClosure, []byte{})
 			return
 		}
@@ -297,9 +316,10 @@ func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, sto
 
 func (s *stream) bufToClientLoop(cancel context.CancelFunc, wg *sync.WaitGroup, stopCtx context.Context, msgs chan []byte) {
 	defer func() {
+		s.conn.Close()
 		cancel()
 		wg.Done()
-		s.stream.Close()
+
 	}()
 	ticker := time.NewTicker(pingPeriod)
 	defer ticker.Stop()

@@ -1,4 +1,4 @@
-# Micro Go Client [![godoc](https://godoc.org/github.com/micro/micro/v3/client?status.svg)](https://godoc.org/github.com/micro/micro/v3/client) 
+# Micro API Client [![godoc](https://godoc.org/github.com/micro/micro/v3/client?status.svg)](https://godoc.org/github.com/micro/micro/v3/client) 
 
 This is the Go client to access APIs on the Micro Platform
 

@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -92,6 +93,9 @@ func (m *manager) checkServices() {
 				continue
 			}
 
+			srv.Service.Source = filepath.Dir(srv.Service.Source)
+
+			logger.Infof("Watching process: service `%v` status is %v, restarting...", srv.Service, srv.Status)
 			// create the service
 			if err := m.createServiceInRuntime(srv); err != nil {
 				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -312,6 +316,7 @@ func (m *manager) createServiceInRuntime(srv *service) error {
 		runtime.WithCommand(srv.Options.Command...),
 		runtime.WithEnv(m.runtimeEnv(srv.Service, srv.Options)),
 		runtime.CreateInstances(srv.Options.Instances),
+		runtime.WithForce(srv.Options.Force),
 	}
 
 	// add the secrets

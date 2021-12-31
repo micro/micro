@@ -44,7 +44,7 @@ func setConfig(ctx *cli.Context) error {
 	v, _ := json.Marshal(parsedVal)
 
 	// TODO: allow the specifying of a config.Key. This will be service name
-	// The actuall key-val set is a path e.g micro/accounts/key
+	// The actual key-val set is a path e.g micro/accounts/key
 	_, err = pb.Set(context.DefaultContext, &proto.SetRequest{
 		// the current namespace
 		Namespace: ns,

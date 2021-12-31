@@ -521,9 +521,6 @@ func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
-	if len(ctx.String("address")) > 0 {
-		Address = ctx.String("address")
-	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
 	}
@@ -684,7 +681,7 @@ func init() {
 		Action: Run,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "address",
+				Name:    "web_address",
 				Usage:   "Set the web UI address e.g 0.0.0.0:8082",
 				EnvVars: []string{"MICRO_WEB_ADDRESS"},
 			},
