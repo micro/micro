@@ -5,8 +5,9 @@ package api;
 option go_package = "github.com/micro/micro/v3/proto/api;api";
 
 service Api {
-  rpc Register(Endpoint) returns (EmptyResponse) {};
-  rpc Deregister(Endpoint) returns (EmptyResponse) {};
+  rpc AddToBlockList(AddToBlockListRequest) returns (AddToBlockListResponse) {};
+  rpc RemoveFromBlockList(RemoveFromBlockListRequest) returns (RemoveFromBlockListResponse) {};
+  rpc ReadBlockList(ReadBlockListRequest) returns (ReadBlockListResponse) {};
 }
 
 message Endpoint {
@@ -53,4 +54,24 @@ message Event {
   map<string, Pair> header = 4;
 	// the event data
 	string data = 5;
+}
+
+message AddToBlockListRequest {
+  string id = 1;
+  string namespace = 2;
+}
+
+message AddToBlockListResponse {}
+
+message RemoveFromBlockListRequest {
+  string id = 1;
+  string namespace = 2;
+}
+
+message RemoveFromBlockListResponse {}
+
+message ReadBlockListRequest {}
+
+message ReadBlockListResponse {
+  repeated string ids = 1;
 }

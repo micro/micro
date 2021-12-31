@@ -25,7 +25,7 @@ Below are high level features or things we want to get done.
 - [ ] improved micro api configuration to define endpoints and hosts
 - [ ] graphql handler for the micro api
 - [ ] wireguard support in the micro network
-- [ ] reusable foundation [services](https://github.com/micro/services)
+- [x] reusable foundation [services](https://github.com/micro/services)
 - [ ] define the mucp protocol for server to server communication
 - [ ] define the mu language spec as a high level DSL
 - [ ] implement the [wasm](https://github.com/bytecodealliance/wasm-micro-runtime) runtime

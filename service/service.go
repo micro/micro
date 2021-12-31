@@ -7,16 +7,17 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"syscall"
+
+	"github.com/urfave/cli/v2"
 
 	"github.com/micro/micro/v3/cmd"
-	signalutil "github.com/micro/micro/v3/internal/signal"
 	"github.com/micro/micro/v3/service/client"
 	mudebug "github.com/micro/micro/v3/service/debug"
 	debug "github.com/micro/micro/v3/service/debug/handler"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/server"
-	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -52,12 +53,11 @@ func New(opts ...Option) *Service {
 	// function are applied after (taking precedence)
 	before := func(ctx *cli.Context) error {
 		if n := ctx.String("service_name"); len(n) > 0 {
-			opts = append([]Option{Name(n)}, opts...)
+			opts = append(opts, Name(n))
 		}
 		if v := ctx.String("service_version"); len(v) > 0 {
-			opts = append([]Option{Version(v)}, opts...)
+			opts = append(opts, Version(v))
 		}
-
 		// service address injected by the runtime takes priority as the service port must match the
 		// port the server is running on
 		if a := ctx.String("service_address"); len(a) > 0 {
@@ -84,7 +84,7 @@ func (s *Service) Version() string {
 	return s.opts.Version
 }
 
-// Handler registers a handler
+// Handle registers a handler
 func (s *Service) Handle(v interface{}) error {
 	return s.Server().Handle(s.Server().NewHandler(v))
 }
@@ -172,7 +172,7 @@ func (s *Service) Run() error {
 	// register the debug handler
 	s.Server().Handle(
 		s.Server().NewHandler(
-			debug.NewHandler(s.Client()),
+			debug.NewHandler(),
 			server.InternalHandler(true),
 		),
 	)
@@ -201,7 +201,7 @@ func (s *Service) Run() error {
 
 	ch := make(chan os.Signal, 1)
 	if s.opts.Signal {
-		signal.Notify(ch, signalutil.Shutdown()...)
+		signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL)
 	}
 
 	// wait on kill signal

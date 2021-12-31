@@ -22,7 +22,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/internal/build"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/local/process"
@@ -67,7 +66,7 @@ func newService(s *runtime.Service, c runtime.CreateOptions) *service {
 		Service: s,
 		Process: new(proc.Process),
 		Exec: &process.Binary{
-			Package: &build.Package{
+			Package: &process.Package{
 				Name: s.Name,
 				Path: exec,
 			},
@@ -153,7 +152,26 @@ func (s *service) Start() error {
 	}
 
 	// wait and watch
-	go s.Wait()
+	go func() {
+		s.Wait()
+
+		logger.Infof("Service %s has stopped", s.Service.Name)
+
+		// don't do anything if it was stopped
+		if s.Service.Status == runtime.Stopped {
+			return
+		}
+
+		// should we restart?
+		if !s.shouldStart() {
+			return
+		}
+
+		logger.Infof("Restarting service %s", s.Service.Name)
+
+		// restart the process
+		s.Start()
+	}()
 
 	return nil
 }
@@ -239,7 +257,10 @@ func (s *service) Wait() {
 
 		s.err = err
 	} else {
-		s.Status(runtime.Stopped, nil)
+		// check if it was stopped
+		if s.Service.Status != runtime.Stopped {
+			s.Status(runtime.Error, fmt.Errorf("Service %s terminated", s.Name))
+		}
 	}
 
 	// no longer running

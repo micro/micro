@@ -13,6 +13,10 @@ SRC_DIR=$(GOPATH)/src
 
 all: build
 
+.PHONY: api
+api:
+	find proto/ -name '*.proto' -exec protoc --proto_path=$(PROTO_PATH) --openapi_out=${SRC_DIR} {} \;
+
 vendor:
 	go mod vendor
 
@@ -20,10 +24,7 @@ build:
 	go build -a -installsuffix cgo -ldflags "-s -w ${LDFLAGS}" -o $(NAME)
 
 docker:
-	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) .
-	docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):latest
-	docker push $(IMAGE_NAME):$(IMAGE_TAG)
-	docker push $(IMAGE_NAME):latest
+	docker buildx build --platform linux/amd64 --platform linux/arm64 --tag $(IMAGE_NAME):$(IMAGE_TAG) --tag $(IMAGE_NAME):latest --push .
 
 .PHONY: proto
 proto:

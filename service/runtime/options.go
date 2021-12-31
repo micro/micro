@@ -101,6 +101,10 @@ type CreateOptions struct {
 	Volumes map[string]string
 	// ServiceAccount to start the container with
 	ServiceAccount string
+	// Number of instances to run
+	Instances int
+	// Force the service ignore the service status
+	Force bool
 }
 
 // ReadOptions queries runtime services
@@ -225,10 +229,24 @@ func WithPort(p string) CreateOption {
 	}
 }
 
+// CreateInstances sets the number of instances
+func CreateInstances(v int) CreateOption {
+	return func(o *CreateOptions) {
+		o.Instances = v
+	}
+}
+
 // ResourceLimits sets the resources for the service to use
 func ResourceLimits(r *Resources) CreateOption {
 	return func(o *CreateOptions) {
 		o.Resources = r
+	}
+}
+
+// WithForce sets the sign to force restart the service
+func WithForce(f bool) CreateOption {
+	return func(o *CreateOptions) {
+		o.Force = f
 	}
 }
 
@@ -239,7 +257,7 @@ func ReadService(service string) ReadOption {
 	}
 }
 
-// ReadVersion confifgures service version
+// ReadVersion configures service version
 func ReadVersion(version string) ReadOption {
 	return func(o *ReadOptions) {
 		o.Version = version
@@ -278,6 +296,8 @@ type UpdateOptions struct {
 	Context context.Context
 	// Secrets to use
 	Secrets map[string]string
+	// Number of instances
+	Instances int
 }
 
 // WithSecret sets a secret to provide the service with
@@ -309,6 +329,13 @@ func UpdateContext(ctx context.Context) UpdateOption {
 func UpdateEntrypoint(e string) UpdateOption {
 	return func(o *UpdateOptions) {
 		o.Entrypoint = e
+	}
+}
+
+// UpdateInstances sets the number of instances
+func UpdateInstances(v int) UpdateOption {
+	return func(o *UpdateOptions) {
+		o.Instances = v
 	}
 }
 

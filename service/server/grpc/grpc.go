@@ -20,6 +20,8 @@ package grpc
 import (
 	"context"
 	"crypto/tls"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net"
@@ -34,10 +36,6 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"github.com/micro/micro/v3/internal/addr"
-	"github.com/micro/micro/v3/internal/backoff"
-	mgrpc "github.com/micro/micro/v3/internal/grpc"
-	mnet "github.com/micro/micro/v3/internal/net"
 	pberr "github.com/micro/micro/v3/proto/errors"
 	"github.com/micro/micro/v3/service/broker"
 	meta "github.com/micro/micro/v3/service/context/metadata"
@@ -45,6 +43,9 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/util/addr"
+	"github.com/micro/micro/v3/util/backoff"
+	mnet "github.com/micro/micro/v3/util/net"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/netutil"
 
@@ -248,7 +249,7 @@ func (g *grpcServer) handler(srv interface{}, stream grpc.ServerStream) (err err
 		return status.Errorf(codes.Internal, "method does not exist in context")
 	}
 
-	serviceName, methodName, err := mgrpc.ServiceMethod(fullMethod)
+	serviceName, methodName, err := ServiceMethod(fullMethod)
 	if err != nil {
 		return status.New(codes.InvalidArgument, err.Error()).Err()
 	}
@@ -315,7 +316,7 @@ func (g *grpcServer) handler(srv interface{}, stream grpc.ServerStream) (err err
 
 		// create a client.Request
 		request := &rpcRequest{
-			service:     mgrpc.ServiceFromMethod(fullMethod),
+			service:     ServiceFromMethod(fullMethod),
 			contentType: ct,
 			method:      fmt.Sprintf("%s.%s", serviceName, methodName),
 			codec:       codec,
@@ -386,9 +387,67 @@ func (g *grpcServer) processRequest(stream grpc.ServerStream, service *service, 
 			argIsValue = true
 		}
 
-		// Unmarshal request
-		if err := stream.RecvMsg(argv.Interface()); err != nil {
-			return err
+		if cd := defaultGRPCCodecs[ct]; cd.Name() != "json" {
+			if err := stream.RecvMsg(argv.Interface()); err != nil {
+				return err
+			}
+		} else {
+			var raw json.RawMessage
+
+			// Unmarshal request in to a generic map[string]interface{}
+			if err := stream.RecvMsg(&raw); err != nil {
+				return err
+			}
+
+			// first try parsing it as normal
+			if err := cd.Unmarshal(raw, argv.Interface()); err != nil {
+				// let's try parsing it manually
+				var gen map[string]interface{}
+				if err := json.Unmarshal(raw, &gen); err != nil {
+					return err
+				}
+				for i := 0; i < argv.Elem().NumField(); i++ {
+					field := argv.Elem().Field(i)
+					if !field.CanSet() {
+						continue
+					}
+					fieldName := strings.Split(argv.Elem().Type().Field(i).Tag.Get("json"), ",")[0]
+					kindVal := argv.Elem().Field(i).Kind()
+					if len(fieldName) == 0 {
+						continue
+					}
+					if _, ok := gen[fieldName]; !ok {
+						continue
+					}
+					if s, ok := gen[fieldName].(string); ok {
+						// be more permissive by trying to convert string in to the correct type
+						switch kindVal {
+						case reflect.Bool:
+							b, err := strconv.ParseBool(s)
+							if err != nil {
+								return err
+							}
+							field.SetBool(b)
+						case reflect.Int64, reflect.Int32, reflect.Int:
+							in, err := strconv.ParseInt(s, 10, 64)
+							if err != nil {
+								return err
+							}
+							field.SetInt(in)
+						case reflect.Slice: // byte slice
+							b, err := base64.StdEncoding.DecodeString(s)
+							if err != nil {
+								return err
+							}
+							field.SetBytes(b)
+						default:
+							field.Set(reflect.ValueOf(gen[fieldName]))
+						}
+					} else {
+						field.Set(reflect.ValueOf(gen[fieldName]))
+					}
+				}
+			}
 		}
 
 		if argIsValue {

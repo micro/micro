@@ -8,11 +8,11 @@ import (
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/internal/helper"
 	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/util/helper"
 	"github.com/urfave/cli/v2"
 )
 
@@ -44,7 +44,7 @@ func setConfig(ctx *cli.Context) error {
 	v, _ := json.Marshal(parsedVal)
 
 	// TODO: allow the specifying of a config.Key. This will be service name
-	// The actuall key-val set is a path e.g micro/accounts/key
+	// The actual key-val set is a path e.g micro/accounts/key
 	_, err = pb.Set(context.DefaultContext, &proto.SetRequest{
 		// the current namespace
 		Namespace: ns,

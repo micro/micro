@@ -22,10 +22,10 @@ import (
 	"net"
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"github.com/micro/micro/v3/internal/codec"
 	"github.com/micro/micro/v3/service/broker/memory"
-	"github.com/micro/micro/v3/service/registry/mdns"
+	memReg "github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/util/codec"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
 )
@@ -123,7 +123,7 @@ func newOptions(opt ...server.Option) server.Options {
 		Codecs:           make(map[string]codec.NewCodec),
 		Metadata:         map[string]string{},
 		Broker:           memory.NewBroker(),
-		Registry:         mdns.NewRegistry(),
+		Registry:         memReg.NewRegistry(),
 		Address:          server.DefaultAddress,
 		Name:             server.DefaultName,
 		Id:               server.DefaultId,

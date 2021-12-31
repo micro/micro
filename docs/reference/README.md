@@ -421,8 +421,8 @@ To login to a server simply so the following
 
 ```
 $ micro login
-Enter email address: admin
-Enter Password: 
+Enter username: admin
+Enter password: 
 Successfully logged in.
 ```
 
@@ -453,6 +453,8 @@ If we want to prevent unauthorized users from calling our services, we can creat
 ```sh
 # This command creates a rule that enables only logged in users to call the micro server
 micro auth create rule  --access=granted --scope='*' --resource="*:*:*" onlyloggedin
+# Create the rule which allows us to login
+micro auth create rule --access=granted --resource="service:auth:*" auth-public
 ```
 
 and delete the default one.
@@ -461,6 +463,7 @@ Here, the scope `*` is markedly different from the `<public>` scope we have seen
 ```sh
 $ micro auth list rules
 ID            Scope         Access       Resource       Priority
+auth-public   <public>      GRANTED      service:auth:* 0
 onlyloggedin  *             GRANTED      *:*:*          0
 default       <public>      GRANTED      *:*:*          0
 ```
@@ -669,14 +672,14 @@ $ micro config set --secret helloworld.hush_number_key 42
 $ micro config get helloworld
 {"hush_number_key":"[secret]","hushkey":"[secret]","someboolkey":true,"somekey":"hello"}
 
-# micro config get --secret helloworld
+$ micro config get --secret helloworld
 {"hush_number_key":42,"hushkey":"Very secret stuff","someboolkey":true,"somekey":"hello"}
 ```
 
 #### Service Framework
 
 It is similarly easy to access and set config values from a service.
-A good example of reading values is [the config example test service](https://github.com/micro/micro/tree/master/test/service/config-example):
+A good example of reading values is [the config example test service](https://github.com/micro/services/blob/master/test/conf):
 
 ```go
 package main
@@ -723,7 +726,7 @@ func main() {
 The above service will print the value of `key.subkey` and `key.subkey` every second.
 By passing in the `config.Secret(true)` option, we tell config to decrypt secret values for us, similarly to the `--secret` CLI flag.
 
-The [config interface](https://github.com/micro/go-micro/blob/master/config/config.go) specifies not just `Get` `Set` and `Delete` to access values,
+The [config interface](https://github.com/micro/micro/blob/master/service/config/config.go) specifies not just `Get` `Set` and `Delete` to access values,
 but a few convenience functions too in the `Value` interface.
 
 It is worth noting that `String` `Int` etc methods will do a best effort try at coercing types, ie. if the value saved is a string, `Int` will try to parse it.
@@ -777,11 +780,11 @@ $ micro config get helloworld
 
 By default, if not specified, `micro server` generates and saves an encryption key to the location `~/.micro/config_secret_key`. This is intended for local zero dependency use, but not for production.
 
-To specify the secret for the micro server either the envar `MICRO_CONFIG_SECRET_KEY` or the flag `config_secret_key` key must be specified.
+To specify the secret for the micro server either the env var `MICRO_CONFIG_SECRET_KEY` or the flag `config_secret_key` key must be specified.
 
 ### Errors
 
-The errors package provides error types for most common HTTP status codes, e.g. BadRequest, InternalSeverError etc. It's recommended when returning an error to an RPC handler, one of these errors is used. If any other type of error is returned, it's treated as an InternalSeverError.
+The errors package provides error types for most common HTTP status codes, e.g. BadRequest, InternalServerError etc. It's recommended when returning an error to an RPC handler, one of these errors is used. If any other type of error is returned, it's treated as an InternalServerError.
 
 Micro API detects these error types and will use them to determine the response status code. For example, if your handler returns errors.BadRequest, the API will return a 400 status code. If no error is returned the API will return the default 200 status code.
 
@@ -858,7 +861,7 @@ for {
 
 #### Example
 
-The [Chat Service](https://github.com/micro/services/tree/master/chat) examples usage of the events service, leveraging both the stream and store functions.
+The [Chat Service](https://github.com/micro/services/tree/master/test/chat) examples usage of the events service, leveraging both the stream and store functions.
 
 ### Network
 
@@ -905,28 +908,50 @@ $ micro registry getService --service=helloworld
 		{
 			"name": "helloworld",
 			"version": "latest",
+			"metadata": {
+				"domain": "micro"
+			},
 			"endpoints": [
 				{
 					"name": "Helloworld.Call",
 					"request": {
-						"name": "Request",
-						"type": "Request",
+						"name": "CallRequest",
+						"type": "CallRequest",
 						"values": [
 							{
 								"name": "name",
-								"type": "string"
+								"type": "string",
+								"values": []
 							}
 						]
 					},
 					"response": {
-						"name": "Response",
-						"type": "Response",
+						"name": "CallResponse",
+						"type": "CallResponse",
 						"values": [
 							{
-								"name": "msg",
-								"type": "string"
+								"name": "message",
+								"type": "string",
+								"values": []
 							}
 						]
+					},
+					"metadata": {}
+				},
+				{
+					"name": "Helloworld.Stream",
+					"request": {
+						"name": "Context",
+						"type": "Context",
+						"values": []
+					},
+					"response": {
+						"name": "Stream",
+						"type": "Stream",
+						"values": []
+					},
+					"metadata": {
+						"stream": "true"
 					}
 				}
 			],
@@ -934,6 +959,7 @@ $ micro registry getService --service=helloworld
 				{
 					"id": "helloworld-3a0d02be-f98e-4d9d-a8fa-24e942580848",
 					"address": "192.168.43.193:34321",
+					"port": "0",
 					"metadata": {
 						"broker": "service",
 						"protocol": "grpc",
@@ -943,7 +969,10 @@ $ micro registry getService --service=helloworld
 					}
 				}
 			],
-			"options": {}
+			"options": {
+				"ttl": "0",
+				"domain": ""
+			}
 		}
 	]
 }
@@ -1037,7 +1066,7 @@ Examples: `micro logs helloworld`, `micro logs -f helloworld`.
 
 Micro's store interface is for persistent key-value storage.
 
-For a good beginner level doc on the Store, please see the [Getting started tutorial](/getting-started).
+For a good beginner level doc on the Store, please see the [Getting started tutorial](/getting-started#storage).
 
 #### Overview
 

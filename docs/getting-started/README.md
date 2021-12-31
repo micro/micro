@@ -86,8 +86,8 @@ Before interacting with the `micro server`, we need to log in with the id 'admin
 
 ```sh
 $ micro login
-Enter email address: admin
-Enter Password:
+Enter username: admin
+Enter password:
 Successfully logged in.
 ```
 
@@ -196,7 +196,7 @@ curl "http://localhost:8080/helloworld?name=John"
 ### With the Framework
 
 Let's write a small client we can use to call the helloworld service.
-Normally you'll make a service call inside another service so this is just a sample of a function you may write. We'll [learn how to write a full fledged service soon](#-writing-a-service).
+Normally you'll make a service call inside another service so this is just a sample of a function you may write. We'll [learn how to write a full fledged service soon](#creating-a-service).
 
 Let's take the following file:
 
@@ -216,23 +216,23 @@ func main() {
 	// create and initialise a new service
 	srv := service.New()
 
-		// create the proto client for helloworld
-		client := proto.NewHelloworldService("helloworld", srv.Client())
+	// create the proto client for helloworld
+	client := proto.NewHelloworldService("helloworld", srv.Client())
 
-		// call an endpoint on the service
-		rsp, err := client.Call(context.Background(), &proto.Request{
-			Name: "John",
-		})
-		if err != nil {
-			fmt.Println("Error calling helloworld: ", err)
-			return
-		}
+	// call an endpoint on the service
+	rsp, err := client.Call(context.Background(), &proto.CallRequest{
+		Name: "John",
+	})
+	if err != nil {
+		fmt.Println("Error calling helloworld: ", err)
+		return
+	}
 
-		// print the response
-		fmt.Println("Response: ", rsp.Msg)
-		
-		// let's delay the process for exiting for reasons you'll see below
-		time.Sleep(time.Second * 5)
+	// print the response
+	fmt.Println("Response: ", rsp.Message)
+	
+	// let's delay the process for exiting for reasons you'll see below
+	time.Sleep(time.Second * 5)
 }
 ```
 
@@ -317,7 +317,7 @@ So once all tools are installed, being inside the service root, we can issue the
 make proto
 ```
 
-The generated code must be committed to source control, to enable other services to import the proto when making service calls (see previous section [Calling a service](#-calling-a-service).
+The generated code must be committed to source control, to enable other services to import the proto when making service calls (see previous section [Calling a service](#calling-a-service).
 
 At this point, we know how to write a service, run it, and call other services too.
 We have everything at our fingertips, but there are still some missing pieces to write applications. One of such pieces is the store interface, which helps with persistent data storage even without a database.
@@ -333,7 +333,7 @@ First, let's go over the more basic store CLI commands.
 To save a value, we use the write command:
 
 ```sh
-$ micro store write key1 value1
+$ micro store write key1 val1
 ```
 
 The UNIX style no output meant it was happily saved. What about reading it?
@@ -380,7 +380,7 @@ First let's create an entry that our service can read. This time we will specify
 micro store write --table=example mykey "Hi there"
 ```
 
-Let's modify [the example service we wrote previously](#-calling-a-service-with-go-micro) so instead of calling a service, it reads the above value from a store.
+Let's modify [the example service we wrote previously](#calling-a-service) so instead of calling a service, it reads the above value from a store.
 
 ```go
 package main
@@ -511,7 +511,7 @@ func main() {
 }
 ```
 
-Assuming the folder name for this service is still `example` (to update the existing service, [see updating a service](#-updating-a-service)):
+Assuming the folder name for this service is still `example` (to update the existing service, [see updating a service](#updating-a-service)):
 ```
 $ micro logs example
 Value of key.subkey:  val

@@ -1,13 +1,13 @@
 package debug
 
 import (
-	"github.com/micro/micro/v3/internal/debug/log"
-	memLog "github.com/micro/micro/v3/internal/debug/log/memory"
-	"github.com/micro/micro/v3/internal/debug/profile"
-	"github.com/micro/micro/v3/internal/debug/stats"
-	memStats "github.com/micro/micro/v3/internal/debug/stats/memory"
-	"github.com/micro/micro/v3/internal/debug/trace"
-	memTrace "github.com/micro/micro/v3/internal/debug/trace/memory"
+	"github.com/micro/micro/v3/service/debug/log"
+	memLog "github.com/micro/micro/v3/service/debug/log/memory"
+	"github.com/micro/micro/v3/service/debug/profile"
+	"github.com/micro/micro/v3/service/debug/stats"
+	memStats "github.com/micro/micro/v3/service/debug/stats/memory"
+	"github.com/micro/micro/v3/service/debug/trace"
+	memTrace "github.com/micro/micro/v3/service/debug/trace/memory"
 )
 
 var (

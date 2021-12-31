@@ -143,39 +143,60 @@ func (m *memoryStore) delete(prefix, key string) {
 	m.getStore(prefix).Delete(key)
 }
 
-func (m *memoryStore) list(prefix string, limit, offset uint, prefixFilter, suffixFilter string) []string {
+func (m *memoryStore) list(prefix string, order store.Order, limit, offset uint, prefixFilter, suffixFilter string) []string {
+	// TODO: sort they keys
+	var allItems []string
 
-	allItems := m.getStore(prefix).Items()
-
-	allKeys := make([]string, len(allItems))
-
-	// construct list of keys for this prefix
-	i := 0
-	for k := range allItems {
-		allKeys[i] = k
-		i++
+	for k := range m.getStore(prefix).Items() {
+		allItems = append(allItems, k)
 	}
-	keys := make([]string, 0, len(allKeys))
-	sort.Slice(allKeys, func(i, j int) bool { return allKeys[i] < allKeys[j] })
-	for _, k := range allKeys {
+
+	// sort in ascending order
+	if order == store.OrderDesc {
+		sort.Slice(allItems, func(i, j int) bool { return allItems[i] > allItems[j] })
+	} else {
+		sort.Slice(allItems, func(i, j int) bool { return allItems[i] < allItems[j] })
+	}
+
+	var keys []string
+
+	// filter on prefix and suffix first
+	for i := 0; i < len(allItems); i++ {
+		k := allItems[i]
+
 		if prefixFilter != "" && !strings.HasPrefix(k, prefixFilter) {
 			continue
 		}
 		if suffixFilter != "" && !strings.HasSuffix(k, suffixFilter) {
 			continue
 		}
-		if offset > 0 {
-			offset--
-			continue
-		}
+
 		keys = append(keys, k)
-		// this check still works if no limit was passed to begin with, you'll just end up with large -ve value
-		if limit == 1 {
-			break
-		}
-		limit--
 	}
-	return keys
+
+	if offset > 0 {
+		// offset is greater than the keys we have
+		if int(offset) >= len(keys) {
+			return nil
+		}
+
+		// otherwise set the offset for the keys
+		keys = keys[offset:]
+	}
+
+	// check key limit
+	if v := int(limit); v == 0 || v > len(keys) {
+		limit = uint(len(keys))
+	}
+
+	// gen the final key list
+	var keyList []string
+
+	for i := 0; i < int(limit); i++ {
+		keyList = append(keyList, keys[i])
+	}
+
+	return keyList
 }
 
 func (m *memoryStore) Close() error {
@@ -199,7 +220,9 @@ func (m *memoryStore) String() string {
 }
 
 func (m *memoryStore) Read(key string, opts ...store.ReadOption) ([]*store.Record, error) {
-	readOpts := store.ReadOptions{}
+	readOpts := store.ReadOptions{
+		Order: store.OrderAsc,
+	}
 	for _, o := range opts {
 		o(&readOpts)
 	}
@@ -217,7 +240,7 @@ func (m *memoryStore) Read(key string, opts ...store.ReadOption) ([]*store.Recor
 		if readOpts.Suffix {
 			suffixFilter = key
 		}
-		keys = m.list(prefix, readOpts.Limit, readOpts.Offset, prefixFilter, suffixFilter)
+		keys = m.list(prefix, readOpts.Order, readOpts.Limit, readOpts.Offset, prefixFilter, suffixFilter)
 	} else {
 		keys = []string{key}
 	}
@@ -282,13 +305,15 @@ func (m *memoryStore) Options() store.Options {
 }
 
 func (m *memoryStore) List(opts ...store.ListOption) ([]string, error) {
-	listOptions := store.ListOptions{}
+	listOptions := store.ListOptions{
+		Order: store.OrderAsc,
+	}
 
 	for _, o := range opts {
 		o(&listOptions)
 	}
 
 	prefix := m.prefix(listOptions.Database, listOptions.Table)
-	keys := m.list(prefix, listOptions.Limit, listOptions.Offset, listOptions.Prefix, listOptions.Suffix)
+	keys := m.list(prefix, listOptions.Order, listOptions.Limit, listOptions.Offset, listOptions.Prefix, listOptions.Suffix)
 	return keys, nil
 }

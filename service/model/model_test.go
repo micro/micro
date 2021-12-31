@@ -240,6 +240,46 @@ func TestListAllMap(t *testing.T) {
 	}
 }
 
+func TestListAllMapCutomID(t *testing.T) {
+	m := map[string]interface{}{
+		"name":    "id",
+		"age":     1,
+		"hasPet":  true,
+		"created": 1,
+		"tag":     "tag",
+		"updated": 1,
+	}
+	table := New(m, &Options{
+		Store:     fs.NewStore(),
+		Key:       "name",
+		Namespace: uuid.Must(uuid.NewV4()).String(),
+	})
+
+	err := table.Create(map[string]interface{}{
+		"name": "1",
+		"age":  12,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = table.Create(map[string]interface{}{
+		"name": "2",
+		"age":  25,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	users := []map[string]interface{}{}
+	q := QueryAll()
+	err = table.Read(q, &users)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 2 {
+		t.Fatal(users)
+	}
+}
+
 func TestListLimitMap(t *testing.T) {
 	ageAsc := ByEquality("age")
 	ageAsc.Order.Type = OrderTypeAsc

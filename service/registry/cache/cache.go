@@ -21,7 +21,6 @@ import (
 	"sync"
 	"time"
 
-	util "github.com/micro/micro/v3/internal/registry"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 )
@@ -148,7 +147,7 @@ func (c *cache) get(domain, service string) ([]*registry.Service, error) {
 
 	// got services && within ttl so return a copy of the services
 	if c.isValid(services, ttl) {
-		return util.Copy(services), nil
+		return Copy(services), nil
 	}
 
 	// get does the actual request for a service and cache it
@@ -174,7 +173,7 @@ func (c *cache) get(domain, service string) ([]*registry.Service, error) {
 		}
 
 		// cache results
-		c.set(domain, service, util.Copy(services))
+		c.set(domain, service, Copy(services))
 
 		return services, nil
 	}

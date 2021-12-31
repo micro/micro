@@ -20,10 +20,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/internal/kubernetes/api"
-	"github.com/micro/micro/v3/internal/kubernetes/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/kubernetes/api"
+	"github.com/micro/micro/v3/service/runtime/kubernetes/client"
 )
 
 var (
@@ -76,7 +76,7 @@ func (k *kubernetes) Logs(resource runtime.Resource, options ...runtime.LogsOpti
 			return nil, runtime.ErrInvalidResource
 		}
 
-		klo := newLog(k.client, s.Name, options...)
+		klo := newLog(k.client, s.Name, s.Version, options...)
 
 		// if its not a stream then read the records, return and close
 		if !klo.options.Stream {
@@ -371,6 +371,11 @@ func (k *kubernetes) Update(resource runtime.Resource, opts ...runtime.UpdateOpt
 
 			// update build time annotation
 			dep.Spec.Template.Metadata.Annotations["updated"] = fmt.Sprintf("%d", time.Now().Unix())
+
+			// set num instances (there is currently no way to set to 0
+			if options.Instances > 0 {
+				dep.Spec.Replicas = int(options.Instances)
+			}
 
 			// update the deployment
 			res := &client.Resource{

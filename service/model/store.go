@@ -395,9 +395,10 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 		return json.Unmarshal(recs[0].Value, resultPointer)
 	}
 	if query.Type == queryTypeAll {
-		read(Index{
+		return read(Index{
 			Type:      indexTypeAll,
 			FieldName: d.options.Key,
+			Order:     d.idIndex.Order,
 		})
 	}
 	for _, index := range append(d.options.Indexes, d.idIndex) {
@@ -410,7 +411,6 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 	// which applies to the same field regardless of ordering
 	// or padding etc.
 	for _, index := range append(d.options.Indexes, d.idIndex) {
-		fmt.Println(index.FieldName, query.FieldName)
 		if index.FieldName == query.FieldName {
 			return read(index)
 		}
@@ -455,10 +455,12 @@ func (d *model) list(query Query, resultSlicePointer interface{}) error {
 		}
 		return json.Unmarshal(jsBuffer, resultSlicePointer)
 	}
+
 	if query.Type == queryTypeAll {
-		list(Index{
+		return list(Index{
 			Type:      indexTypeAll,
 			FieldName: d.options.Key,
+			Order:     d.idIndex.Order,
 		})
 	}
 	for _, index := range append(d.options.Indexes, d.idIndex) {

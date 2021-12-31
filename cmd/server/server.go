@@ -3,10 +3,11 @@ package server
 
 import (
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
@@ -16,16 +17,17 @@ import (
 var (
 	// list of services managed
 	services = []string{
+		"registry", // :8000
+		"broker",   // :8003
 		"network",  // :8443
 		"runtime",  // :8088
-		"registry", // :8000
 		"config",   // :8001
 		"store",    // :8002
-		"broker",   // :8003
 		"events",   // :unset
 		"auth",     // :8010
 		"proxy",    // :8081
 		"api",      // :8080
+		"web",      // :8082
 	}
 )
 
@@ -106,6 +108,9 @@ func Run(context *cli.Context) error {
 		envvars = append(envvars, val)
 	}
 
+	// save the runtime
+	runtimeServer := runtime.DefaultRuntime
+
 	// start the services
 	for _, service := range services {
 		log.Infof("Registering %s", service)
@@ -113,15 +118,18 @@ func Run(context *cli.Context) error {
 		// all things run by the server are `micro service [name]`
 		cmdArgs := []string{"service"}
 
-		// override the profile for api & proxy
-		env := envvars
-		if service == "proxy" || service == "api" {
-			env = append(env, "MICRO_PROFILE=client")
-		} else {
-			env = append(env, "MICRO_PROFILE="+context.String("profile"))
+		// TODO: remove hacks
+		profile := context.String("profile")
+
+		// web has to behave like a client
+		if service == "web" {
+			profile = "client"
 		}
 
-		// set the proxy addres, default to the network running locally
+		env := envvars
+		env = append(env, "MICRO_PROFILE="+profile)
+
+		// set the proxy address, default to the network running locally
 		if service != "network" {
 			proxy := context.String("proxy_address")
 			if len(proxy) == 0 {
@@ -184,37 +192,30 @@ func Run(context *cli.Context) error {
 
 		// NOTE: we use Version right now to check for the latest release
 		muService := &runtime.Service{Name: service, Version: "latest"}
-		if err := runtime.Create(muService, args...); err != nil {
+		if err := runtimeServer.Create(muService, args...); err != nil {
 			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
 		}
 	}
 
 	// server is deployed as a pod in k8s, meaning it should exit once the services have been created.
-	if runtime.DefaultRuntime.String() == "kubernetes" {
+	if runtimeServer.String() == "kubernetes" {
 		return nil
 	}
 
 	log.Info("Starting server runtime")
 
 	// start the runtime
-	if err := runtime.DefaultRuntime.Start(); err != nil {
+	if err := runtimeServer.Start(); err != nil {
 		log.Fatal(err)
 		return err
 	}
-	defer runtime.DefaultRuntime.Stop()
 
-	// internal server
-	srv := service.New(
-		service.Name(Name),
-		service.Address(Address),
-	)
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL)
+	<-ch
 
-	// start the server
-	if err := srv.Run(); err != nil {
-		log.Fatalf("Error running server: %v", err)
-	}
-
+	runtimeServer.Stop()
 	log.Info("Stopped server")
 	return nil
 }

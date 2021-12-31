@@ -1,14 +1,8 @@
-<div>
-  <a href="https://twitter.com/microhq"><img src="https://img.shields.io/github/last-commit/micro/micro" /></a>
-  <a href="https://github.com/micro/micro/network/members"><img src="https://img.shields.io/github/forks/micro/micro?style=social" /></a>
-  <a href="https://github.com/micro/micro/stargazers"><img src="https://img.shields.io/github/stars/micro/micro?style=social" /></a>
-</div>
+## Programming the Real World
 
-<div style="border: 1px solid #333333">
-  <img src="{{ site.baseurl }}/images/banner.png" />
-</div>
+Micro is a distributed cloud operating system built for real world programming.
 
-## Overview
+## About
 
 Micro addresses the key requirements for building services in the cloud. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
@@ -33,22 +27,20 @@ Documentation, guides and quick starts for Micro
 - [Reference](reference) - In-depth reference for Micro CLI and services
 - [Resources](resources) - External resources and contributions
 - [Roadmap](roadmap) - Stuff on our agenda over the long haul
-- [Users](users) - Developers and companies using Micro in production
 - [FAQ](faq) - Frequently asked questions
-- [Blog](blog) - For the latest from us
 
-## Contributing
+## Framework
 
-See the [TODO](/todo) list, open a PR and start hacking away at the docs.
+Micro started life as a framework called [Go Micro](https://go-micro.dev).
 
-## Community
+## Cloud
 
-Join us in GitHub [Discussions](https://github.com/micro/micro/discussions) or [Slack](https://slack.m3o.com).
+A living, breathing version of Micro runs as a cloud platform called [M3O](https://m3o.com).
 
-## Hosting
+## Services
 
-For a hosted Micro Platform aka M3O see [m3o.com](https://m3o.com).
+The source for services built with Micro exist in [github.com/micro/services](https://github.com/micro/services).
 
-## License
+## Network
 
-[Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/)
+Future ideas about where Micro is going live in [github.com/micro/network](https://github.com/micro/network).

@@ -162,6 +162,8 @@ func (s *svc) Create(resource runtime.Resource, opts ...runtime.CreateOption) er
 				Secrets:    options.Secrets,
 				Entrypoint: options.Entrypoint,
 				Volumes:    options.Volumes,
+				Instances:  int64(options.Instances),
+				Force:      options.Force,
 			},
 		}
 
@@ -201,6 +203,7 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 
 		ls, err := s.runtime.Logs(context.DefaultContext, &pb.LogsRequest{
 			Service: service.Name,
+			Version: service.Version,
 			Stream:  opts.Stream,
 			Count:   opts.Count,
 			Options: &pb.LogsOptions{
@@ -213,6 +216,7 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 
 		logStream := &serviceLogs{
 			service: service.Name,
+			version: service.Version,
 			stream:  make(chan runtime.Log),
 			stop:    make(chan bool),
 		}
@@ -265,7 +269,9 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 
 type serviceLogs struct {
 	service string
+	version string
 	stream  chan runtime.Log
+
 	sync.Mutex
 	stop chan bool
 	err  error
@@ -448,6 +454,7 @@ func (s *svc) Update(resource runtime.Resource, opts ...runtime.UpdateOption) er
 			Options: &pb.UpdateOptions{
 				Namespace:  options.Namespace,
 				Entrypoint: options.Entrypoint,
+				Instances:  int64(options.Instances),
 			},
 		}
 
@@ -568,7 +575,7 @@ func (s *svc) Delete(resource runtime.Resource, opts ...runtime.DeleteOption) er
 			return runtime.ErrInvalidResource
 		}
 
-		// runtime service dekete request
+		// runtime service delete request
 		req := &pb.DeleteRequest{
 			Resource: &pb.Resource{
 				Service: &pb.Service{

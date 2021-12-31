@@ -21,12 +21,12 @@ import (
 	"fmt"
 	"testing"
 
-	tgrpc "github.com/micro/micro/v3/internal/network/transport/grpc"
 	pberr "github.com/micro/micro/v3/proto/errors"
 	bmemory "github.com/micro/micro/v3/service/broker/memory"
 	"github.com/micro/micro/v3/service/client"
 	gcli "github.com/micro/micro/v3/service/client/grpc"
 	"github.com/micro/micro/v3/service/errors"
+	tgrpc "github.com/micro/micro/v3/service/network/transport/grpc"
 	rmemory "github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/micro/v3/service/router"
 	rtreg "github.com/micro/micro/v3/service/router/registry"

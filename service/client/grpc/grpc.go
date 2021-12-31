@@ -27,11 +27,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	raw "github.com/micro/micro/v3/internal/codec/bytes"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
+	raw "github.com/micro/micro/v3/util/codec/bytes"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -190,9 +190,16 @@ func (g *grpcClient) stream(ctx context.Context, addr string, req client.Request
 
 	wc := wrapCodec{cf}
 
+	maxRecvMsgSize := g.maxRecvMsgSizeValue()
+	maxSendMsgSize := g.maxSendMsgSizeValue()
+
 	grpcDialOptions := []grpc.DialOption{
 		grpc.WithTimeout(opts.DialTimeout),
 		g.secure(addr),
+		grpc.WithDefaultCallOptions(
+			grpc.MaxCallRecvMsgSize(maxRecvMsgSize),
+			grpc.MaxCallSendMsgSize(maxSendMsgSize),
+		),
 	}
 
 	if opts := g.getGrpcDialOptions(); opts != nil {

@@ -36,3 +36,6 @@ dist
 *.bak
 
 test/services
+
+.air.toml
+tmp

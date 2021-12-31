@@ -73,7 +73,7 @@ func formatServiceUsage(srv *registry.Service, c *cli.Context) string {
 		// map "Helloworld.Call" to "helloworld.call"
 		parts := strings.Split(e.Name, ".")
 		for i, part := range parts {
-			parts[i] = lowcaseInitial(part)
+			parts[i] = lowercaseInitial(part)
 		}
 		name := strings.Join(parts, ".")
 
@@ -88,9 +88,6 @@ func formatServiceUsage(srv *registry.Service, c *cli.Context) string {
 		endpoints[i] = e
 	}
 
-	// sort the command names alphabetically
-	sort.Strings(commands)
-
 	result := ""
 	if len(subcommand) > 0 && subcommand != "--help" {
 		result += fmt.Sprintf("NAME:\n\tmicro %v %v\n\n", alias, subcommand)
@@ -103,6 +100,9 @@ func formatServiceUsage(srv *registry.Service, c *cli.Context) string {
 			}
 		}
 	} else {
+		// sort the command names alphabetically
+		sort.Strings(commands)
+
 		result += fmt.Sprintf("NAME:\n\tmicro %v\n\n", alias)
 		result += fmt.Sprintf("VERSION:\n\t%v\n\n", srv.Version)
 		result += fmt.Sprintf("USAGE:\n\tmicro %v [command]\n\n", alias)
@@ -113,7 +113,7 @@ func formatServiceUsage(srv *registry.Service, c *cli.Context) string {
 	return result
 }
 
-func lowcaseInitial(str string) string {
+func lowercaseInitial(str string) string {
 	for i, v := range str {
 		return string(unicode.ToLower(v)) + str[i+1:]
 	}

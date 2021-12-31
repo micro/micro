@@ -26,7 +26,7 @@ and to define a set of building blocks which can be used to write cloud services
 ## Rationale
 
 Micro was born out of a pain with existing development models in the cloud. The majority of time has been spent coming to grips 
-with complex cloud native infrastructure as opposed to software design. Cloud is in its infance, predominantly focused on 
+with complex cloud native infrastructure as opposed to software design. Cloud is in its infancy, predominantly focused on 
 computing and infrastructure services. Development has largely lagged behind and there has been no vertically integrated 
 solution to make sense of it all.
 

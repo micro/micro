@@ -77,6 +77,8 @@ type ReadOptions struct {
 	Limit uint
 	// Offset when combined with Limit supports pagination
 	Offset uint
+	// Order of the data returned e.g asc or desc
+	Order Order
 }
 
 // ReadOption sets values in ReadOptions
@@ -87,6 +89,13 @@ func ReadFrom(database, table string) ReadOption {
 	return func(r *ReadOptions) {
 		r.Database = database
 		r.Table = table
+	}
+}
+
+// ReadOrder specifies the order to return the data
+func ReadOrder(o Order) ReadOption {
+	return func(r *ReadOptions) {
+		r.Order = o
 	}
 }
 
@@ -163,6 +172,8 @@ type ListOptions struct {
 	Limit uint
 	// Offset when combined with Limit supports pagination
 	Offset uint
+	// Order to list the data set
+	Order Order
 }
 
 // ListOption sets values in ListOptions
@@ -173,6 +184,13 @@ func ListFrom(database, table string) ListOption {
 	return func(l *ListOptions) {
 		l.Database = database
 		l.Table = table
+	}
+}
+
+// ListOrder specifies the order to return the data
+func ListOrder(o Order) ListOption {
+	return func(l *ListOptions) {
+		l.Order = o
 	}
 }
 

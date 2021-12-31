@@ -6,20 +6,21 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 	"path"
 	"path/filepath"
 	"sort"
 	"strings"
+	"syscall"
 	"text/tabwriter"
 	"time"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
-	"github.com/micro/micro/v3/internal/config"
-	run "github.com/micro/micro/v3/internal/runtime"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/internal/runtime/source/git"
+	"github.com/micro/micro/v3/service/runtime/source/git"
+	"github.com/micro/micro/v3/util/config"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/codes"
@@ -210,6 +211,54 @@ func appendSourceBase(ctx *cli.Context, workDir, source string, matchExistingSer
 	return source
 }
 
+// watchService watches the changes of source directory, rebuild and restart the service
+func watchService(ctx *cli.Context, source *git.Source, srv *runtime.Service, opts []runtime.CreateOption) error {
+	// always force rebuild the service
+	opts = append(opts, runtime.WithForce(true))
+
+	watchDelay := time.Duration(ctx.Int("watch_delay")) * time.Millisecond
+	watcher, err := NewWatcher(source.FullPath, watchDelay, func() error {
+		logger.Infof("Watching process: rebuilding...")
+
+		// upload the service source again
+		_, err := upload(ctx, srv, source)
+		if err != nil {
+			logger.Errorf("Watching process: upload error: %v", err)
+			return err
+		}
+
+		// restart the service
+		if err := runtime.Create(srv, opts...); err != nil {
+			logger.Errorf("Watching process: create service error: %v", err)
+			return err
+		}
+
+		logger.Info("Watching process: build success")
+		return nil
+	})
+
+	if err != nil {
+		return nil
+	}
+
+	// gracefully exit
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-sigs
+		watcher.Stop()
+	}()
+
+	// start watching
+	err = watcher.Watch()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func runService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
@@ -245,12 +294,17 @@ func runService(ctx *cli.Context) error {
 	command := strings.TrimSpace(ctx.String("command"))
 	args := strings.TrimSpace(ctx.String("args"))
 	retries := DefaultRetries
-	image := ""
+	var image string
+	var instances int
+
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
 	}
 	if ctx.IsSet("image") {
 		image = ctx.String("image")
+	}
+	if ctx.IsSet("instances") {
+		instances = ctx.Int("instances")
 	}
 
 	// construct the service
@@ -270,7 +324,7 @@ func runService(ctx *cli.Context) error {
 		}
 
 		// vendor the dependencies
-		if err := run.VendorDependencies(source.LocalRepoRoot); err != nil {
+		if err := vendorDependencies(source.LocalRepoRoot); err != nil {
 			return err
 		}
 
@@ -291,12 +345,31 @@ func runService(ctx *cli.Context) error {
 		"source": source.RuntimeSource(),
 	}
 
+	if md := ctx.StringSlice("metadata"); len(md) > 0 {
+		for _, val := range md {
+			split := strings.Split(val, "=")
+			if len(split) != 2 {
+				return fmt.Errorf("invalid metadata string, must be of form foo=bar %s", val)
+			}
+			if split[0] == "source" {
+				// reserved
+				return fmt.Errorf("invalid metadata string, 'source' is a reserved key")
+			}
+
+			srv.Metadata[split[0]] = split[1]
+		}
+	}
+
 	// specify the options
 	opts := []runtime.CreateOption{
 		runtime.WithOutput(os.Stdout),
 		runtime.WithRetries(retries),
 		runtime.CreateImage(image),
 		runtime.CreateType(typ),
+		runtime.WithForce(ctx.Bool("force")),
+	}
+	if instances > 0 {
+		opts = append(opts, runtime.CreateInstances(instances))
 	}
 	if len(command) > 0 {
 		opts = append(opts, runtime.WithCommand(strings.Split(command, " ")...))
@@ -350,6 +423,13 @@ func runService(ctx *cli.Context) error {
 
 	// run the service
 	err = runtime.Create(srv, opts...)
+
+	if source.Local && ctx.Bool("watch") {
+		if err := watchService(ctx, source, srv, opts); err != nil {
+			return util.CliError(err)
+		}
+	}
+
 	return util.CliError(err)
 }
 
@@ -437,14 +517,32 @@ func updateService(ctx *cli.Context) error {
 	}
 
 	name := ctx.String("name")
+
+	if v := ctx.Args().Get(0); len(v) > 0 {
+		name = v
+	}
+
 	if len(name) == 0 {
 		name = source.RuntimeName()
 	}
 
-	// construct the service
+	var ref string
+
+	if parts := strings.Split(name, "@"); len(parts) > 1 {
+		name = parts[0]
+		ref = parts[1]
+	}
+
+	// set source ref
+	if len(ref) == 0 && len(source.Ref) > 0 {
+		ref = source.Ref
+	} else if len(ref) == 0 {
+		ref = "latest"
+	}
+
 	srv := &runtime.Service{
 		Name:    name,
-		Version: source.Ref,
+		Version: ref,
 	}
 
 	if source.Local {
@@ -458,7 +556,7 @@ func updateService(ctx *cli.Context) error {
 		}
 
 		// vendor the dependencies
-		if err := run.VendorDependencies(source.LocalRepoRoot); err != nil {
+		if err := vendorDependencies(source.LocalRepoRoot); err != nil {
 			return err
 		}
 
@@ -497,6 +595,11 @@ func updateService(ctx *cli.Context) error {
 		return err
 	}
 	opts = append(opts, runtime.UpdateNamespace(ns))
+
+	// get number of instances to run
+	if ctx.IsSet("instances") {
+		opts = append(opts, runtime.UpdateInstances(ctx.Int("instances")))
+	}
 
 	// pass git credentials incase a private repo needs to be pulled
 	gitCreds, ok := getGitCredentials(source.Repo)
@@ -688,6 +791,23 @@ func getLogs(ctx *cli.Context) error {
 	//	readSince = time.Now().Add(-d)
 	//}
 
+	var ref string
+
+	if parts := strings.Split(name, "@"); len(parts) > 1 {
+		name = parts[0]
+		ref = parts[1]
+	}
+
+	// set source ref
+	if len(ref) == 0 {
+		ref = "latest"
+	}
+
+	srv := &runtime.Service{
+		Name:    name,
+		Version: ref,
+	}
+
 	// determine the namespace
 	env, err := util.GetEnv(ctx)
 	if err != nil {
@@ -699,7 +819,7 @@ func getLogs(ctx *cli.Context) error {
 	}
 	options = append(options, runtime.LogsNamespace(ns))
 
-	logs, err := runtime.Logs(&runtime.Service{Name: name}, options...)
+	logs, err := runtime.Logs(srv, options...)
 
 	if err != nil {
 		return util.CliError(err)

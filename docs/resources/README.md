@@ -11,21 +11,14 @@ summary:
 
 A list of external resources, videos, tutorials and blog posts are below. Feel free to contribute.
 
-## Official
-
-- Join [Discord](https://discord.gg/hbmJEct) or [Slack](https://slack.micro.mu) for discussions
-- See [M3O](https://m3o.com) for the hosted platform
-- Follow [@microhq](https://twitter.com/microhq) for the latest news
-- Checkout [Awesome Micro](https://github.com/micro/awesome-micro) for more resources
-
 # Podcasts
 
-- [Micro on InfoQ](https://www.infoq.com/podcasts/microservices-go-micro-paas3/) - Asim on Micro, the future of Cloud and PaaS 3.0
-- [Micro on GoTime](https://changelog.com/gotime/8) with Asim, Brian, Erik and Carlisia
+- [Founders Talk](https://changelog.com/founderstalk/77) - Asim discusses the path from open source to a commercially viable business
+- [GoTime](https://changelog.com/gotime/8) with Asim, Brian, Erik and Carlisia talking about the early years of Micro
+- [InfoQ](https://www.infoq.com/podcasts/microservices-go-micro-paas3/) - Asim on Micro, the future of Cloud and PaaS 3.0
 
 # Tutorials
 
-- [M3O Tutorials](https://m3o.dev/tutorials) by Micro Services, Inc.
 - [Microservices in Golang](https://ewanvalentine.io/microservices-in-golang-part-1/) by Ewan Valentine
 - Micro in Action by Che Dan
     - [Part 1: Getting Started](https://itnext.io/micro-in-action-getting-started-a79916ae3cac) 

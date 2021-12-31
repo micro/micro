@@ -24,8 +24,8 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
-	"github.com/micro/micro/v3/internal/codec"
-	"github.com/micro/micro/v3/internal/codec/bytes"
+	"github.com/micro/micro/v3/util/codec"
+	"github.com/micro/micro/v3/util/codec/bytes"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/metadata"
@@ -38,7 +38,7 @@ type wrapCodec struct{ encoding.Codec }
 
 var jsonpbMarshaler = &jsonpb.Marshaler{
 	EnumsAsInts:  false,
-	EmitDefaults: false,
+	EmitDefaults: true,
 	OrigName:     true,
 }
 
@@ -52,6 +52,7 @@ var (
 		"application/grpc+json":    jsonCodec{},
 		"application/grpc+proto":   protoCodec{},
 		"application/grpc+bytes":   bytesCodec{},
+		"multipart/form-data":      jsonCodec{},
 	}
 )
 

@@ -127,7 +127,31 @@ const (
 	Error
 )
 
-// Resources which are allocated to a serivce
+// String returns human-readable service status
+func (s ServiceStatus) String() string {
+	switch s {
+	case Unknown:
+		return "unknown"
+	case Pending:
+		return "pending"
+	case Building:
+		return "building"
+	case Starting:
+		return "starting"
+	case Running:
+		return "running"
+	case Stopping:
+		return "stopping"
+	case Stopped:
+		return "stopped"
+	case Error:
+		return "error"
+	default:
+		return "undefined"
+	}
+}
+
+// Resources which are allocated to a service
 type Resources struct {
 	// CPU is the maximum amount of CPU the service will be allocated (unit millicpu)
 	// e.g. 0.25CPU would be passed as 250
