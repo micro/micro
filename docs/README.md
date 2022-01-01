@@ -33,7 +33,7 @@ Documentation, guides and quick starts for Micro
 
 Micro started life as a framework called [Go Micro](https://go-micro.dev).
 
-## Cloud
+## Platform
 
 A living, breathing version of Micro runs as a cloud platform called [M3O](https://m3o.com).
 
