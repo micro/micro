@@ -66,7 +66,7 @@ The server is composed of the following services.
 
 **Framework**
 
-Micro additionally now contains the incredibly popular Go Micro framework built in for service development. 
+Micro additionally contains a built in Go framework for service development. 
 The Go framework makes it drop dead simple to write your services without having to piece together lines and lines of boilerplate. Auto 
 configured and initialised by default, just import and get started quickly.
 
