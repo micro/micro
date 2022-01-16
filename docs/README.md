@@ -30,7 +30,7 @@ Documentation, guides and quick starts for Micro
 
 ## Cloud
 
-A living version of Micro runs as a cloud platform called M3O - [github.com/mo/m3o](https://github.com/m3o/m3o).
+A living version of Micro runs as a cloud platform called M3O - [github.com/m3o/m3o](https://github.com/m3o/m3o).
 
 ## Services
 
