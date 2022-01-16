@@ -1,6 +1,3 @@
-<img src="https://raw.githubusercontent.com/micro/micro/master/docs/images/xaas.jpeg" style="height: auto; width: 100%;">
-
-## Programming the Real World
 
 Micro is a distributed cloud operating system.
 
