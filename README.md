@@ -10,18 +10,18 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 ## Contents
 
-- [Introduction](https://micro.mu/introduction) - A high level introduction to Micro
-- [Getting Started](https://micro.mu/getting-started) - The helloworld quickstart guide
-- [Upgrade Guide](https://micro.mu/upgrade-guide) - Update your go-micro project to use micro v3.
-- [Architecture](https://micro.mu/architecture) - Describes the architecture, design and tradeoffs
-- [Reference](https://micro.mu/reference) - In-depth reference for Micro CLI and services
-- [Resources](https://micro.mu/resources) - External resources and contributions
-- [Roadmap](https://micro.mu/roadmap) - Stuff on our agenda over the long haul
-- [FAQ](https://micro.mu/faq) - Frequently asked questions
+- [Introduction](https://micro.dev/introduction) - A high level introduction to Micro
+- [Getting Started](https://micro.dev/getting-started) - The helloworld quickstart guide
+- [Upgrade Guide](https://micro.dev/upgrade-guide) - Update your go-micro project to use micro v3.
+- [Architecture](https://micro.dev/architecture) - Describes the architecture, design and tradeoffs
+- [Reference](https://micro.dev/reference) - In-depth reference for Micro CLI and services
+- [Resources](https://micro.dev/resources) - External resources and contributions
+- [Roadmap](https://micro.dev/roadmap) - Stuff on our agenda over the long haul
+- [FAQ](https://micro.dev/faq) - Frequently asked questions
 
 ## Usage
 
-See the [docs](https://micro.mu/docs) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://micro.dev/docs) for detailed information on the architecture, installation and use of the platform.
 
 ## License
 
