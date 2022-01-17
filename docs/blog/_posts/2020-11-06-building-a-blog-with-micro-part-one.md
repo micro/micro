@@ -8,7 +8,7 @@ tags: [blog]
 
 This series will cover how to build a blog service using Micro. We'll decompose a monolithic Blog into multiple services. 
 In part one we'll focus on building a Post service. It will be good way to learn how to build nontrivial applications with 
-the [store](https://micro.mu/reference#store) and the [model](https://github.com/micro/dev/tree/master/model).
+the [store](https://micro.dev/reference#store) and the [model](https://github.com/micro/dev/tree/master/model).
 
 The most important takeaway from this post will likely be the the usage of the key-value store for non-trivial usecases 
 (such as querying blog posts by slug and listing them by reverse creation order).
@@ -58,7 +58,7 @@ Let's start with the post method.
 <script src="https://gist.github.com/asim/31628c6faf61b392b31bcefc79daa289.js"></script>
 
 Astute readers might notice that although we have defined a `Post` message type, we still redefine some of the fields as top level fields for the `SaveRequest` message type.
-The main reason for this is that we don't want our [dynamic commands](https://micro.mu/reference#dynamic-commands).
+The main reason for this is that we don't want our [dynamic commands](https://micro.dev/reference#dynamic-commands).
 
 Ie. if we would embed a `Post post = 1` inside `SaveRequest`, we would call the posts service the following way:
 

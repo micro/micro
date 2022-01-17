@@ -373,7 +373,7 @@ const Signup = `{
     "x-logo": {
       "altText": "Micro logo",
       "backgroundColor": "#FFFFFF",
-      "url": "https://micro.mu/images/brand.png"
+      "url": "https://micro.dev/images/brand.png"
     }
   },
   "openapi": "3.0.0",

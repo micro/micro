@@ -11,7 +11,7 @@ The network generates a routing table based on the local service registry and sh
 any request made to any network node can be routed across the global network. It prioritises local routing first and can range up to 3 
 hops in a chain if needed.
 
-The most technical explanation currently lives at [https://micro.mu/blog/2019/12/05/building-a-microservices-network.html](https://micro.mu/blog/2019/12/05/building-a-microservices-network.html) and the wider product related focus [roadmap/network](https://github.com/m3o/development/blob/master/roadmap/network.md).
+The most technical explanation currently lives at [https://micro.dev/blog/2019/12/05/building-a-microservices-network.html](https://micro.dev/blog/2019/12/05/building-a-microservices-network.html) and the wider product related focus [roadmap/network](https://github.com/m3o/development/blob/master/roadmap/network.md).
 
 ## Run Network
 
