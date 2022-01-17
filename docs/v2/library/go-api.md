@@ -15,9 +15,9 @@ The Go API library provides api gateway routing capabilities. A microservice arc
 separate service. An api gateway provides a single entry point to consolidate these services into a unified api. The 
 Go API uses routes defined in service discovery metadata to generate routing rules and serve http requests.
 
-<img src="https://micro.mu/docs/images/go-api.png?v=1" alt="Go API" />
+<img src="https://micro.dev/docs/images/go-api.png?v=1" alt="Go API" />
 
-Go API is the basis for the [micro api](https://micro.mu/docs/api.html).
+Go API is the basis for the [micro api](https://micro.dev/docs/api.html).
 
 ## Handlers
 

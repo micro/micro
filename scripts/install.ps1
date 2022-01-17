@@ -77,4 +77,3 @@ if($UserPathEnvionmentVar -like "*$MicroInstallDir*") {
 
 Write-Output "`r`nmicro has been installed successfully."
 Write-Output "To start contributing to micro please visit https://github.com/micro"
-Write-Output "Join micro community on slack https://micro.mu/slack"

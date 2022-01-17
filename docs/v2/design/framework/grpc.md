@@ -28,7 +28,7 @@ The client/server leverages the gRPC-go framework beneath the covers and ignores
 the user access to gRPC framework related tooling as we still have our own interfaces. It also requires dual maintenance of our own 
 rpc client/server and the gRPC implementations.
 
-<img src="https://micro.mu/docs/images/go-grpc.svg" />
+<img src="https://micro.dev/docs/images/go-grpc.svg" />
 
 There is some merit to saying those who want to use the gRPC framework should use it directly.
 

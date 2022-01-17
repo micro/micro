@@ -33,4 +33,4 @@ References aren't working (request/responses should reference a schema)
 Links
 -----
 
-- https://micro.mu/reference#api
+- https://micro.dev/reference#api
