@@ -30,7 +30,7 @@ Documentation, guides and quick starts for Micro
 
 ## Usage
 
-See the [docs](https://micro.dev/docs) for information on architecture and installation.
+See the [docs](https://micro.dev/docs) for information on architecture, installation and use.
 
 ## License
 
