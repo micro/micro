@@ -30,12 +30,12 @@ Documentation, guides and quick starts for Micro
 
 ## Cloud
 
-A living version of Micro runs as a cloud platform called M3O - [github.com/m3o/m3o](https://github.com/m3o/m3o).
+Micro is run as a cloud platform called M3O - [github.com/m3o/m3o](https://github.com/m3o/m3o).
 
 ## Services
 
-The source for services built with Micro exist in [github.com/micro/services](https://github.com/micro/services).
+Real world Micro services live in [github.com/micro/services](https://github.com/micro/services).
 
 ## Network
 
-Future ideas about where Micro is going live in [github.com/micro/network](https://github.com/micro/network).
+Future work around Micro as a network - [github.com/micro/network](https://github.com/micro/network).
