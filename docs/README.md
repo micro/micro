@@ -28,14 +28,10 @@ Documentation, guides and quick starts for Micro
 - [Roadmap](roadmap) - Stuff on our agenda over the long haul
 - [FAQ](faq) - Frequently asked questions
 
-## Cloud
+## Usage
 
-Micro is run as a cloud platform called M3O - [github.com/m3o/m3o](https://github.com/m3o/m3o).
+See the [docs](https://micro.dev/docs) for information on architecture and installation.
 
-## Services
+## License
 
-Real world Micro services live in [github.com/micro/services](https://github.com/micro/services).
-
-## Network
-
-Future work around Micro as a network - [github.com/micro/network](https://github.com/micro/network).
+Micro is [Apache 2.0](https://opensource.org/licenses/Apache-2.0) licensed.
