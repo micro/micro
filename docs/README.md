@@ -1,5 +1,5 @@
 
-Micro is a distributed cloud operating system.
+Micro is a distributed cloud platform.
 
 ## About
 
