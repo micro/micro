@@ -293,7 +293,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 	cmd := exec.Command("docker", "run", "--name", fname,
 		fmt.Sprintf("-p=%v:8081", proxyPortnum),
 		fmt.Sprintf("-p=%v:8080", apiPortNum),
-		"-e", "MICRO_PROFILE=ci",
+		// "-e", "MICRO_PROFILE=ci",
 		"-e", fmt.Sprintf("MICRO_AUTH_DISABLE_ADMIN=%v", options.DisableAdmin),
 		"micro", "server")
 	configFile := configFile(fname)
@@ -360,6 +360,11 @@ func (s *ServerDefault) Run() error {
 		return err
 	}
 
+	// login to admin account
+	if s.opts.Login {
+		Login(s, s.t, "admin", "micro")
+	}
+
 	servicesRequired := []string{"runtime", "registry", "broker", "config", "config", "proxy", "auth", "events", "store"}
 	if err := Try("Calling micro server", s.t, func() ([]byte, error) {
 		out, err := s.Command().Exec("services")
@@ -372,11 +377,6 @@ func (s *ServerDefault) Run() error {
 		return out, err
 	}, 90*time.Second); err != nil {
 		return err
-	}
-
-	// login to admin account
-	if s.opts.Login {
-		Login(s, s.t, "admin", "micro")
 	}
 
 	return nil
@@ -594,7 +594,7 @@ func Login(serv Server, t *T, email, password string) error {
 			return out, errors.New("Login output does not contain 'Success'")
 		}
 		return out, err
-	}, 4*time.Second)
+	}, 15*time.Second)
 }
 
 func ChangeNamespace(cmd *Command, env, namespace string) error {
