@@ -9,7 +9,7 @@ summary:
 
 This is a guide to getting started with go-micro functions. Functions are one time executing Services.
 
-If you prefer a higher level overview of the toolkit first, checkout the introductory blog post [https://micro.mu/blog/2016/03/20/micro.html](https://micro.mu/blog/2016/03/20/micro.html).
+If you prefer a higher level overview of the toolkit first, checkout the introductory blog post [https://micro.dev/blog/2016/03/20/micro.html](https://micro.dev/blog/2016/03/20/micro.html).
 
 ## Writing a Function
 
@@ -244,7 +244,7 @@ if err := function.Run(); err != nil {
 }
 ```
 
-Upon serving a request the function will exit. You can use [micro run](https://micro.mu/docs/run.html) to manage the lifecycle 
+Upon serving a request the function will exit. You can use [micro run](https://micro.dev/docs/run.html) to manage the lifecycle 
 of functions. A complete example can be found at [examples/function](https://github.com/micro/examples/tree/master/function).
 
 ### 6. The complete function

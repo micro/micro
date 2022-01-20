@@ -1,8 +1,5 @@
-<img src="https://raw.githubusercontent.com/micro/micro/master/docs/images/xaas.jpeg" style="height: auto; width: 100%;">
 
-## Programming the Real World
-
-Micro is a distributed cloud operating system.
+Micro is a distributed cloud platform.
 
 ## About
 
@@ -31,18 +28,10 @@ Documentation, guides and quick starts for Micro
 - [Roadmap](roadmap) - Stuff on our agenda over the long haul
 - [FAQ](faq) - Frequently asked questions
 
-## Framework
+## Usage
 
-Micro started life as a framework called [Go Micro](https://go-micro.dev).
+See the [docs](https://micro.dev/docs) for information on architecture, installation and use.
 
-## Platform
+## License
 
-A living, breathing version of Micro runs as a cloud platform called [M3O](https://m3o.com).
-
-## Services
-
-The source for services built with Micro exist in [github.com/micro/services](https://github.com/micro/services).
-
-## Network
-
-Future ideas about where Micro is going live in [github.com/micro/network](https://github.com/micro/network).
+Micro is [Apache 2.0](https://opensource.org/licenses/Apache-2.0) licensed.

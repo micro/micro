@@ -18,7 +18,7 @@ import (
 
 var (
 	// usage url
-	u = "https://micro.mu/usage"
+	u = "https://micro.dev/usage"
 	// usage agent
 	a = "micro/usage"
 	// usage version

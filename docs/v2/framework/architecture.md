@@ -8,7 +8,7 @@ summary:
 
 Micro provides the fundamental building blocks for microservices. It's goal is to simplify distributed systems development. Because microservices is an architecture pattern, Micro looks to logically separate responsibility through tooling. 
 
-Check out the blog post on architecture [https://micro.mu/blog/2016/04/18/micro-architecture.html](https://micro.mu/blog/2016/04/18/micro-architecture.html) for a detailed 
+Check out the blog post on architecture [https://micro.dev/blog/2016/04/18/micro-architecture.html](https://micro.dev/blog/2016/04/18/micro-architecture.html) for a detailed 
 overview.
 
 This section should explain more about how micro is constructed and how the various libraries/repos relate to each other.

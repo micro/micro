@@ -2,7 +2,7 @@
 
 Cache is a library that provides a caching layer for the go-micro [registry](https://godoc.org/github.com/micro/go-micro/registry#Registry).
 
-If you're looking for caching in your microservices use the [selector](https://micro.mu/docs/fault-tolerance.html#caching-discovery).
+If you're looking for caching in your microservices use the [selector](https://micro.dev/docs/fault-tolerance.html#caching-discovery).
 
 ## Interface
 
