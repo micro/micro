@@ -283,7 +283,7 @@ Output
 }
 ```
 
-Look at the [cli doc](https://micro.mu/docs/cli.html) for more info.
+Look at the [cli doc](https://micro.dev/docs/cli.html) for more info.
 
 Now let's test call the service via HTTP.
 
@@ -316,7 +316,7 @@ Output
 {"msg":"Hello John"}
 ```
 
-See the [api doc](https://micro.mu/docs/api.html) for more info.
+See the [api doc](https://micro.dev/docs/api.html) for more info.
 
 ## Plugins
 

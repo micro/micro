@@ -249,7 +249,7 @@ func testRunGithubSource(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if rsp["msg"] != "Hello John" {
+		if rsp["message"] != "Hello John" {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
@@ -523,7 +523,7 @@ func testRunLocalUpdateAndCall(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if rsp["msg"] != "Hello Joe" {
+		if rsp["message"] != "Hello Joe" {
 			return outp, errors.New("Response is unexpected")
 		}
 		return outp, err
@@ -570,7 +570,7 @@ func testRunLocalUpdateAndCall(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if rsp["msg"] != "Hi Joe" {
+		if rsp["message"] != "Hi Joe" {
 			return outp, errors.New("Response is not what's expected")
 		}
 		return outp, err

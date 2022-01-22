@@ -1,6 +1,6 @@
 # Micro [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/micro/micro/v3?tab=doc) [![License](https://img.shields.io/badge/license-apache-blue)](https://opensource.org/licenses/Apache-2.0) 
 
-Micro is a distributed cloud operating system.
+Micro is a distributed cloud platform.
 
 ## Overview
 
@@ -21,7 +21,7 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 ## Usage
 
-See the [docs](https://micro.dev/docs) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://micro.dev/docs) for detailed information on the architecture, installation and use.
 
 ## License
 

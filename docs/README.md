@@ -1,5 +1,5 @@
 
-Micro is a distributed cloud operating system.
+Micro is a distributed cloud platform.
 
 ## About
 
@@ -28,14 +28,10 @@ Documentation, guides and quick starts for Micro
 - [Roadmap](roadmap) - Stuff on our agenda over the long haul
 - [FAQ](faq) - Frequently asked questions
 
-## Cloud
+## Usage
 
-A living version of Micro runs as a cloud platform called M3O - [github.com/m3o/m3o](https://github.com/m3o/m3o).
+See the [docs](https://micro.dev/docs) for information on architecture, installation and use.
 
-## Services
+## License
 
-The source for services built with Micro exist in [github.com/micro/services](https://github.com/micro/services).
-
-## Network
-
-Future ideas about where Micro is going live in [github.com/micro/network](https://github.com/micro/network).
+Micro is [Apache 2.0](https://opensource.org/licenses/Apache-2.0) licensed.

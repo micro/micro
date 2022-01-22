@@ -23,7 +23,7 @@ func (c *Converter) defaultSpec() {
 			ExtensionProps: openapi3.ExtensionProps{
 				Extensions: map[string]interface{}{
 					"x-logo": map[string]string{
-						"url":             "https://micro.mu/images/brand.png",
+						"url":             "https://micro.dev/images/brand.png",
 						"backgroundColor": "#FFFFFF",
 						"altText":         "Micro logo",
 					},

@@ -85,7 +85,7 @@ func testPublicAPI(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("auth", "create", "account", "--secret", "micro", "--namespace", "random-namespace", "admin")
+	outp, err := cmd.Exec("auth", "create", "account", "--secret", "micro", "--scopes", "admin", "--namespace", "random-namespace", "admin")
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
@@ -143,7 +143,7 @@ func testPublicAPI(t *T) {
 		if rsp == nil {
 			return []byte(bod), fmt.Errorf("helloworld should have response, err: %v", err)
 		}
-		if _, ok := rsp["msg"].(string); !ok {
+		if _, ok := rsp["message"].(string); !ok {
 			return []byte(bod), fmt.Errorf("Helloworld is not saying hello, response body: '%v'", bod)
 		}
 		return []byte(bod), nil
@@ -229,7 +229,7 @@ func TestServerLockdown(t *testing.T) {
 
 func testServerLockdown(t *T) {
 	t.Parallel()
-	serv := NewServer(t)
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -389,7 +389,7 @@ func testUsernameLogin(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("call", "auth", "Auth.Generate", `{"id":"someID", "name":"someUsername", "secret":"password"}`)
+	outp, err := cmd.Exec("call", "auth", "Auth.Generate", `{"id":"someID", "name":"someUsername", "secret":"password", "scopes": ["admin"] }`)
 	if err != nil {
 		t.Fatalf("Error generating account %s %s", string(outp), err)
 	}
