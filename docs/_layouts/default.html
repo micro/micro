@@ -16,13 +16,16 @@
 	  margin: 6px 0;
 	  border-radius: 5px;
       }
+      .title:hover {
+          text-decoration: none;
+      }
     </style>
   </head>
   <body>
     <div class="container-lg px-3 my-5 markdown-body">
       {% if site.title and site.title != page.title %}
       <h1>
-        <a href="{{ "/" | absolute_url }}" style="color: black; margin-right: 50px;">
+        <a href="{{ "/" | absolute_url }}" class="title" style="color: black; margin-right: 50px;">
         {% if site.logo %}
         <img src="{{ site.logo | absolute_url }}" height=auto width=50px style="display: inline; vertical-align: middle;"/> 
         {% endif %}
