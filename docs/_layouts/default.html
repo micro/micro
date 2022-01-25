@@ -27,9 +27,11 @@
       <h1>
         <a href="{{ "/" | absolute_url }}" class="title" style="color: black; margin-right: 50px;">
         {% if site.logo %}
-        <img src="{{ site.logo | absolute_url }}" height=auto width=50px style="display: inline; vertical-align: middle;"/> 
+        <img src="{{ site.logo | absolute_url }}" height=auto width=100px style="display: inline; vertical-align: middle;"/> 
+        {% else %}
+	{{ site.title }}
         {% endif %}
-	{{ site.title }}</a>
+        </a>
 	<div id="menu" onclick="unfold()" style="display: none; float: right; cursor: pointer; vertical-align: middle;">
 	    <div class="menu"></div>
 	    <div class="menu"></div>
