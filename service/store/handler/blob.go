@@ -142,7 +142,7 @@ func (b *BlobStore) List(ctx context.Context, req *pb.BlobListRequest, rsp *pb.B
 	if ns := req.GetOptions().GetNamespace(); len(ns) == 0 {
 		req.Options = &pb.BlobListOptions{
 			Namespace: namespace.FromContext(ctx),
-			Prefix:    req.Options.Prefix,
+			Prefix:    req.GetOptions().GetPrefix(),
 		}
 	}
 
@@ -152,7 +152,9 @@ func (b *BlobStore) List(ctx context.Context, req *pb.BlobListRequest, rsp *pb.B
 	}
 
 	// execute the request
-	keys, err := store.DefaultBlobStore.List(store.BlobListNamespace(req.Options.Namespace), store.BlobListPrefix(req.Options.Prefix))
+	keys, err := store.DefaultBlobStore.List(
+		store.BlobListNamespace(req.GetOptions().GetNamespace()),
+		store.BlobListPrefix(req.GetOptions().GetPrefix()))
 	if err != nil {
 		return errors.InternalServerError("store.Blob.List", err.Error())
 	}

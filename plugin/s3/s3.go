@@ -208,15 +208,15 @@ func (s *s3) List(opts ...store.BlobListOption) ([]string, error) {
 	}
 
 	var err error
-	var res *sthree.ListObjectsV2Output
+	var res *sthree.ListObjectsOutput
 	if len(s.options.Bucket) > 0 {
 		k := filepath.Join(options.Namespace, options.Prefix)
-		res, err = s.client.ListObjectsV2(&sthree.ListObjectsV2Input{
+		res, err = s.client.ListObjects(&sthree.ListObjectsInput{
 			Bucket: &s.options.Bucket, // bucket name
 			Prefix: &k,                // prefix
 		})
 	} else {
-		res, err = s.client.ListObjectsV2(&sthree.ListObjectsV2Input{
+		res, err = s.client.ListObjects(&sthree.ListObjectsInput{
 			Bucket: &options.Namespace, // bucket name
 			Prefix: &options.Prefix,    // object name
 		})
@@ -225,7 +225,8 @@ func (s *s3) List(opts ...store.BlobListOption) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	keys := make([]string, *res.KeyCount)
+	// TODO paging
+	keys := make([]string, len(res.Contents))
 	for i, obj := range res.Contents {
 		keys[i] = *obj.Key
 	}
