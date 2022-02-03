@@ -207,28 +207,36 @@ func (s *s3) List(opts ...store.BlobListOption) ([]string, error) {
 		options.Namespace = "micro"
 	}
 
-	var err error
-	var res *sthree.ListObjectsOutput
-	if len(s.options.Bucket) > 0 {
-		k := filepath.Join(options.Namespace, options.Prefix)
-		res, err = s.client.ListObjects(&sthree.ListObjectsInput{
-			Bucket: &s.options.Bucket, // bucket name
-			Prefix: &k,                // prefix
-		})
-	} else {
-		res, err = s.client.ListObjects(&sthree.ListObjectsInput{
-			Bucket: &options.Namespace, // bucket name
-			Prefix: &options.Prefix,    // object name
-		})
-	}
-
-	if err != nil {
-		return nil, err
-	}
-	// TODO paging
-	keys := make([]string, len(res.Contents))
-	for i, obj := range res.Contents {
-		keys[i] = *obj.Key
+	keys := []string{}
+	continuation := ""
+	for {
+		var err error
+		var inp *sthree.ListObjectsV2Input
+		if len(s.options.Bucket) > 0 {
+			k := filepath.Join(options.Namespace, options.Prefix)
+			inp = &sthree.ListObjectsV2Input{
+				Bucket: &s.options.Bucket, // bucket name
+				Prefix: &k,                // prefix
+			}
+		} else {
+			inp = &sthree.ListObjectsV2Input{
+				Bucket: &options.Namespace, // bucket name
+				Prefix: &options.Prefix,    // object name
+			}
+		}
+		inp.SetContinuationToken(continuation)
+		res, err := s.client.ListObjectsV2(inp)
+		if err != nil {
+			return nil, err
+		}
+		// TODO paging
+		for _, obj := range res.Contents {
+			keys = append(keys, *obj.Key)
+		}
+		if !*res.IsTruncated {
+			break
+		}
+		continuation = *res.ContinuationToken
 	}
 	// return the result
 	return keys, nil
