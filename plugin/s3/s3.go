@@ -215,7 +215,7 @@ func (s *s3) List(opts ...store.BlobListOption) ([]string, error) {
 		var inp *sthree.ListObjectsV2Input
 		if len(s.options.Bucket) > 0 {
 			k := filepath.Join(options.Namespace, options.Prefix)
-			keyPrefix = k[:len(options.Namespace)+1]
+			keyPrefix = options.Namespace
 			inp = &sthree.ListObjectsV2Input{
 				Bucket: &s.options.Bucket, // bucket name
 				Prefix: &k,                // prefix
@@ -231,10 +231,13 @@ func (s *s3) List(opts ...store.BlobListOption) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		// TODO paging
 		for _, obj := range res.Contents {
 			// return the key without the prefix
-			keys = append(keys, strings.TrimPrefix(*obj.Key, keyPrefix))
+			key := *obj.Key
+			if len(keyPrefix) > 0 {
+				key = key[len(keyPrefix)+1:]
+			}
+			keys = append(keys, key)
 		}
 		if !*res.IsTruncated {
 			break
