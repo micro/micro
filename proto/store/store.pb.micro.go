@@ -264,6 +264,7 @@ type BlobStoreService interface {
 	Read(ctx context.Context, in *BlobReadRequest, opts ...client.CallOption) (BlobStore_ReadService, error)
 	Write(ctx context.Context, opts ...client.CallOption) (BlobStore_WriteService, error)
 	Delete(ctx context.Context, in *BlobDeleteRequest, opts ...client.CallOption) (*BlobDeleteResponse, error)
+	List(ctx context.Context, in *BlobListRequest, opts ...client.CallOption) (*BlobListResponse, error)
 }
 
 type blobStoreService struct {
@@ -383,12 +384,23 @@ func (c *blobStoreService) Delete(ctx context.Context, in *BlobDeleteRequest, op
 	return out, nil
 }
 
+func (c *blobStoreService) List(ctx context.Context, in *BlobListRequest, opts ...client.CallOption) (*BlobListResponse, error) {
+	req := c.c.NewRequest(c.name, "BlobStore.List", in)
+	out := new(BlobListResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for BlobStore service
 
 type BlobStoreHandler interface {
 	Read(context.Context, *BlobReadRequest, BlobStore_ReadStream) error
 	Write(context.Context, BlobStore_WriteStream) error
 	Delete(context.Context, *BlobDeleteRequest, *BlobDeleteResponse) error
+	List(context.Context, *BlobListRequest, *BlobListResponse) error
 }
 
 func RegisterBlobStoreHandler(s server.Server, hdlr BlobStoreHandler, opts ...server.HandlerOption) error {
@@ -396,6 +408,7 @@ func RegisterBlobStoreHandler(s server.Server, hdlr BlobStoreHandler, opts ...se
 		Read(ctx context.Context, stream server.Stream) error
 		Write(ctx context.Context, stream server.Stream) error
 		Delete(ctx context.Context, in *BlobDeleteRequest, out *BlobDeleteResponse) error
+		List(ctx context.Context, in *BlobListRequest, out *BlobListResponse) error
 	}
 	type BlobStore struct {
 		blobStore
@@ -493,4 +506,8 @@ func (x *blobStoreWriteStream) Recv() (*BlobWriteRequest, error) {
 
 func (h *blobStoreHandler) Delete(ctx context.Context, in *BlobDeleteRequest, out *BlobDeleteResponse) error {
 	return h.BlobStoreHandler.Delete(ctx, in, out)
+}
+
+func (h *blobStoreHandler) List(ctx context.Context, in *BlobListRequest, out *BlobListResponse) error {
+	return h.BlobStoreHandler.List(ctx, in, out)
 }

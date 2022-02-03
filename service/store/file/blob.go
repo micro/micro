@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/micro/micro/v3/service/store"
@@ -183,4 +184,51 @@ func (b *blobStore) Delete(key string, opts ...store.BlobOption) error {
 
 		return bucket.Delete([]byte(key))
 	})
+}
+
+func (b *blobStore) List(opts ...store.BlobListOption) ([]string, error) {
+	var options store.BlobListOptions
+	for _, o := range opts {
+		o(&options)
+	}
+	if len(options.Namespace) == 0 {
+		options.Namespace = "micro"
+	}
+	// open a connection to the database
+	db, err := b.db()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	// execute the transaction
+	keys := []string{}
+	readValue := func(tx *bolt.Tx) error {
+		// check for the namespaces bucket
+		bucket := tx.Bucket([]byte(options.Namespace))
+		if bucket == nil {
+			return store.ErrNotFound
+		}
+		c := bucket.Cursor()
+		for {
+			k, _ := c.Next()
+			if k == nil {
+				break
+			}
+			kcopy := make([]byte, len(k))
+			copy(kcopy, k)
+			kstring := string(kcopy)
+			if len(options.Prefix) == 0 || strings.HasPrefix(kstring, options.Prefix) {
+				keys = append(keys, kstring)
+			}
+
+		}
+		return nil
+	}
+	if err := db.View(readValue); err != nil {
+		return nil, err
+	}
+
+	// return the keys
+	return keys, nil
 }

@@ -196,3 +196,39 @@ func (s *s3) Delete(key string, opts ...store.BlobOption) error {
 	})
 	return err
 }
+
+func (s *s3) List(opts ...store.BlobListOption) ([]string, error) {
+	// parse the options
+	var options store.BlobListOptions
+	for _, o := range opts {
+		o(&options)
+	}
+	if len(options.Namespace) == 0 {
+		options.Namespace = "micro"
+	}
+
+	var err error
+	var res *sthree.ListObjectsV2Output
+	if len(s.options.Bucket) > 0 {
+		k := filepath.Join(options.Namespace, options.Prefix)
+		res, err = s.client.ListObjectsV2(&sthree.ListObjectsV2Input{
+			Bucket: &s.options.Bucket, // bucket name
+			Prefix: &k,                // prefix
+		})
+	} else {
+		res, err = s.client.ListObjectsV2(&sthree.ListObjectsV2Input{
+			Bucket: &options.Namespace, // bucket name
+			Prefix: &options.Prefix,    // object name
+		})
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	keys := make([]string, *res.KeyCount)
+	for i, obj := range res.Contents {
+		keys[i] = *obj.Key
+	}
+	// return the result
+	return keys, nil
+}
