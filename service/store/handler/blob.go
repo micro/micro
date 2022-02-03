@@ -136,3 +136,30 @@ func (b *BlobStore) Delete(ctx context.Context, req *pb.BlobDeleteRequest, rsp *
 
 	return nil
 }
+
+func (b *BlobStore) List(ctx context.Context, req *pb.BlobListRequest, rsp *pb.BlobListResponse) error {
+	// parse the options
+	if ns := req.GetOptions().GetNamespace(); len(ns) == 0 {
+		req.Options = &pb.BlobListOptions{
+			Namespace: namespace.FromContext(ctx),
+			Prefix:    req.GetOptions().GetPrefix(),
+		}
+	}
+
+	// authorize the request
+	if err := authns.AuthorizeAdmin(ctx, req.Options.Namespace, "store.Blob.List"); err != nil {
+		return err
+	}
+
+	// execute the request
+	keys, err := store.DefaultBlobStore.List(
+		store.BlobListNamespace(req.GetOptions().GetNamespace()),
+		store.BlobListPrefix(req.GetOptions().GetPrefix()))
+	if err != nil {
+		return errors.InternalServerError("store.Blob.List", err.Error())
+	}
+	rsp.Keys = keys
+
+	return nil
+
+}

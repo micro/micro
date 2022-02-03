@@ -196,3 +196,48 @@ func (s *s3) Delete(key string, opts ...store.BlobOption) error {
 	})
 	return err
 }
+
+func (s *s3) List(opts ...store.BlobListOption) ([]string, error) {
+	// parse the options
+	var options store.BlobListOptions
+	for _, o := range opts {
+		o(&options)
+	}
+	if len(options.Namespace) == 0 {
+		options.Namespace = "micro"
+	}
+
+	keys := []string{}
+	continuation := ""
+	for {
+		var err error
+		var inp *sthree.ListObjectsV2Input
+		if len(s.options.Bucket) > 0 {
+			k := filepath.Join(options.Namespace, options.Prefix)
+			inp = &sthree.ListObjectsV2Input{
+				Bucket: &s.options.Bucket, // bucket name
+				Prefix: &k,                // prefix
+			}
+		} else {
+			inp = &sthree.ListObjectsV2Input{
+				Bucket: &options.Namespace, // bucket name
+				Prefix: &options.Prefix,    // object name
+			}
+		}
+		inp.SetContinuationToken(continuation)
+		res, err := s.client.ListObjectsV2(inp)
+		if err != nil {
+			return nil, err
+		}
+		// TODO paging
+		for _, obj := range res.Contents {
+			keys = append(keys, *obj.Key)
+		}
+		if !*res.IsTruncated {
+			break
+		}
+		continuation = *res.ContinuationToken
+	}
+	// return the result
+	return keys, nil
+}

@@ -17,6 +17,7 @@ service BlobStore {
 	rpc Read(BlobReadRequest) returns (stream BlobReadResponse) {};
 	rpc Write(stream BlobWriteRequest) returns (BlobWriteResponse) {};
 	rpc Delete(BlobDeleteRequest) returns (BlobDeleteResponse) {};
+	rpc List(BlobListRequest) returns (BlobListResponse) {};
 }
 
 message Field {
@@ -143,3 +144,16 @@ message BlobDeleteRequest {
 }
 
 message BlobDeleteResponse {}
+
+message BlobListRequest {
+	BlobListOptions options = 1;
+}
+
+message BlobListResponse {
+	repeated string keys = 1;
+}
+
+message BlobListOptions {
+	string namespace = 1;
+	string prefix = 2;
+}
