@@ -1253,7 +1253,7 @@ Profiles are used to configure multiple plugins at once. Micro comes with a few 
 
 ### Writing a profile
 
-Profiles should be created as packages within the profile directory. Let's create a "staging" profile by creating `profile/staging/staging.go`. The example below shows how to override the default store to use an in-memory implementation:
+Profiles should be created as packages within the profile directory. Let's create a "staging" profile by creating `profile/staging/staging.go`. The example below shows how to override the default store of `Local` profile to use an in-memory implementation:
 
 ```go
 // Package staging configures micro for a staging environment
@@ -1274,10 +1274,18 @@ func init() {
 var staging = &profile.Profile{
 	Name: "staging",
 	Setup: func(ctx *cli.Context) error {
+		profile.Local.Setup(ctx)
 		store.DefaultStore = memory.NewStore()
 		return nil
 	},
 }
+```
+
+```bash
+pushd profile/staging
+go mod init github.com/micro/micro/profile/staging
+go mod tidy
+popd
 ```
 
 ### Using a custom profile
@@ -1286,6 +1294,7 @@ You can load a custom profile using a couple of commands, the first adds a repla
 
 ```bash
 go mod edit -replace github.com/micro/micro/profile/staging/v3=./profile/staging
+go mod tidy
 ```
 
 The second command creates a profile.go file which imports your profile. When your profile is imported, the init() function which is defined in staging.go is called, registering your profile.
