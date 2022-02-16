@@ -14,7 +14,10 @@
 
 package events
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 // PublishOptions contains all the options which can be provided when publishing an event
 type PublishOptions struct {
@@ -60,10 +63,19 @@ type ConsumeOptions struct {
 	RetryLimit int
 	// CustomRetries indicates whether to use RetryLimit
 	CustomRetries bool
+	// Context used to close the stream
+	Context context.Context
 }
 
 // ConsumeOption sets attributes on ConsumeOptions
 type ConsumeOption func(o *ConsumeOptions)
+
+// WithContext provides a closing context to stop consuming events
+func WithContext(ctx context.Context) ConsumeOption {
+	return func(o *ConsumeOptions) {
+		o.Context = ctx
+	}
+}
 
 // WithGroup sets the consumer group to be part of when consuming events
 func WithGroup(q string) ConsumeOption {

@@ -1,6 +1,7 @@
 package client
 
 import (
+	gocontext "context"
 	"encoding/json"
 	"time"
 
@@ -55,7 +56,11 @@ func (s *stream) Publish(topic string, msg interface{}, opts ...events.PublishOp
 
 func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan events.Event, error) {
 	// parse options
-	options := events.ConsumeOptions{AutoAck: true}
+	options := events.ConsumeOptions{
+		AutoAck: true,
+		Context: gocontext.TODO(),
+	}
+
 	for _, o := range opts {
 		o(&options)
 	}
@@ -70,11 +75,14 @@ func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan eve
 	}
 
 	// start the stream
+	// TODO: potentially pass in the context defined by the user
 	stream, err := s.client().Consume(context.DefaultContext, subReq, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
+
 	evChan := make(chan events.Event)
+
 	go func() {
 		for {
 
@@ -82,8 +90,10 @@ func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan eve
 			if err != nil {
 				log.Errorf("Error receiving from stream %s", err)
 				close(evChan)
+				stream.Close()
 				return
 			}
+
 			evt := util.DeserializeEvent(ev)
 			if !options.AutoAck {
 				evt.SetNackFunc(func() error {
@@ -93,7 +103,15 @@ func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan eve
 					return stream.SendMsg(&pb.AckRequest{Id: evt.ID, Success: true})
 				})
 			}
-			evChan <- evt
+
+			select {
+			case evChan <- evt:
+			case <-options.Context.Done():
+				log.Info("Consuming stream context canceled")
+				close(evChan)
+				stream.Close()
+				return
+			}
 		}
 	}()
 
