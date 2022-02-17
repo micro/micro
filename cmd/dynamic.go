@@ -281,7 +281,7 @@ func shouldRenderHelp(ctx *cli.Context) bool {
 	return false
 }
 
-// flagsToRequeest parses a set of flags, e.g {name:"Foo", "options_surname","Bar"} and
+// flagsToRequest parses a set of flags, e.g {name:"Foo", "options_surname","Bar"} and
 // converts it into a request body. If the key is not a valid object in the request, an
 // error will be returned.
 //
@@ -378,9 +378,10 @@ func flagsToRequest(flags map[string][]string, req *registry.Value) (map[string]
 	result := objx.MustFromJSON("{}")
 
 	var flagType func(key string, values []*registry.Value, path ...string) (string, bool)
+
 	flagType = func(key string, values []*registry.Value, path ...string) (string, bool) {
 		for _, attr := range values {
-			if strings.Join(append(path, attr.Name), "_") == key {
+			if strings.Join(append(path, attr.Name), "-") == key {
 				return attr.Type, true
 			}
 			if attr.Values != nil {
@@ -392,6 +393,7 @@ func flagsToRequest(flags map[string][]string, req *registry.Value) (map[string]
 		}
 		return "", false
 	}
+
 	for key, value := range flags {
 		ty, found := flagType(key, req.Values)
 		if !found {
@@ -403,8 +405,8 @@ func flagsToRequest(flags map[string][]string, req *registry.Value) (map[string]
 		}
 		// objx.Set does not create the path,
 		// so we do that here
-		if strings.Contains(key, "_") {
-			parts := strings.Split(key, "_")
+		if strings.Contains(key, "-") {
+			parts := strings.Split(key, "-")
 			for i, _ := range parts {
 				pToCreate := strings.Join(parts[0:i], ".")
 				if i > 0 && i < len(parts) && !result.Has(pToCreate) {
@@ -412,10 +414,10 @@ func flagsToRequest(flags map[string][]string, req *registry.Value) (map[string]
 				}
 			}
 		}
-		path := strings.Replace(key, "_", ".", -1)
+		path := strings.Replace(key, "-", ".", -1)
 		result.Set(path, parsed)
-
 	}
+
 	return result, nil
 }
 
