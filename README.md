@@ -99,7 +99,7 @@ curl "http://localhost:8080/helloworld?name=John"
 
 Write some code
 
-``go
+```go
 package main
 
 import (
