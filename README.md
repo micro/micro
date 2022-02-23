@@ -97,7 +97,7 @@ Curl it
 curl "http://localhost:8080/helloworld?name=John"
 ```
 
-Write some code
+Write a client
 
 ```go
 package main
