@@ -24,12 +24,20 @@ func (s *store) Read(topic string, opts ...events.ReadOption) ([]*events.Event, 
 		o(&options)
 	}
 
+	req := &pb.ReadRequest{
+		Topic: topic,
+	}
+
+	if options.Limit > 0 {
+		req.Limit = uint64(options.Limit)
+	}
+
+	if options.Offset > 0 {
+		req.Offset = uint64(options.Offset)
+	}
+
 	// execute the RPC
-	rsp, err := s.client().Read(context.DefaultContext, &pb.ReadRequest{
-		Topic:  topic,
-		Limit:  uint64(options.Limit),
-		Offset: uint64(options.Offset),
-	}, client.WithAuthToken())
+	rsp, err := s.client().Read(context.DefaultContext, req, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
