@@ -77,7 +77,7 @@ func (f *FileSnapshot) Init(opts ...SnapshotOption) error {
 	return nil
 }
 
-// Start opens a channel which recieves *store.Record and writes them to storage
+// Start opens a channel which receives *store.Record and writes them to storage
 func (f *FileSnapshot) Start() (chan<- *store.Record, error) {
 	if f.records != nil || f.encoder != nil || f.file != nil {
 		return nil, errors.New("Snapshot is already in use")

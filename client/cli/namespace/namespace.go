@@ -8,7 +8,7 @@ import (
 	"github.com/micro/micro/v3/util/config"
 )
 
-const seperator = ","
+const separator = ","
 
 // List the namespaces for an environment
 func List(env string) ([]string, error) {
@@ -24,7 +24,7 @@ func List(env string) ([]string, error) {
 		return []string{registry.DefaultDomain}, nil
 	}
 
-	namespaces := strings.Split(values, seperator)
+	namespaces := strings.Split(values, separator)
 	return append([]string{registry.DefaultDomain}, namespaces...), nil
 }
 
@@ -50,7 +50,7 @@ func Add(namespace, env string) error {
 
 	values, _ := config.Get(config.Path("namespaces", env, "all"))
 	if len(values) > 0 {
-		values = strings.Join([]string{values, namespace}, seperator)
+		values = strings.Join([]string{values, namespace}, separator)
 	} else {
 		values = namespace
 	}
@@ -103,7 +103,7 @@ func Remove(namespace, env string) error {
 		return errors.New("Namespace does not exists")
 	}
 
-	values := strings.Join(namespaces, seperator)
+	values := strings.Join(namespaces, separator)
 	return config.Set(config.Path("namespaces", env, "all"), values)
 }
 
