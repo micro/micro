@@ -23,7 +23,7 @@ type Response struct {
 }
 
 var (
-	token, _ = os.Getenv("TOKEN")
+	token = os.Getenv("TOKEN")
 )
 
 func main() {
