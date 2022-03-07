@@ -357,7 +357,16 @@ func (s *stream) bufToClientLoop(cancel context.CancelFunc, wg *sync.WaitGroup, 
 
 // serveWebsocket will stream rpc back over websockets assuming json
 func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request, service *api.Service, c client.Client) {
-	conn, err := upgrader.Upgrade(w, r, nil)
+	var rspHdr http.Header
+	// we use Sec-Websocket-Protocol to pass auth headers so just accept anything here
+	if prots := r.Header.Values("Sec-WebSocket-Protocol"); len(prots) > 0 {
+		rspHdr = http.Header{}
+		for _, p := range prots {
+			rspHdr.Add("Sec-WebSocket-Protocol", p)
+		}
+	}
+
+	conn, err := upgrader.Upgrade(w, r, rspHdr)
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 			logger.Error(err)
