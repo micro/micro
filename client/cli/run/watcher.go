@@ -37,7 +37,7 @@ func NewWatcher(root string, delay time.Duration, fn CallbackFunc) (*watcher, er
 		fileWatcher:  fileWatcher,
 		eventsChan:   make(chan string, 1000),
 		callbackFunc: fn,
-		stopChan: make(chan struct{}),
+		stopChan:     make(chan struct{}),
 	}, nil
 }
 
