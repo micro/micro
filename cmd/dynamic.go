@@ -369,6 +369,12 @@ func flagsToRequest(flags map[string][]string, req *registry.Value) (map[string]
 			return ret, nil
 		case "string":
 			return value[0], nil
+		case "map[string]string":
+			var val map[string]string
+			if err := json.Unmarshal([]byte(value[0]), &val); err != nil {
+				return value[0], nil
+			}
+			return val, nil
 		default:
 			return value, nil
 		}
