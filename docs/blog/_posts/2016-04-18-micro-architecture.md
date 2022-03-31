@@ -81,7 +81,7 @@ You might be wondering what the heck an API service is. Now is about the right t
 ###### Types of Services
 
 The concept of Microservices is all about separation of concerns and borrows a lot from the unix philosophy of doing one thing and doing it well. 
-Partly for that reason we think there needs to be a logical and architectural seperation between services with differing responsibilities.
+Partly for that reason we think there needs to be a logical and architectural separation between services with differing responsibilities.
 
 I'll acknowledge right now that these concepts are nothing new but they are compelling given they've been proven in very large successful technology companies. 
 Our goals are to spread these development philosophies and guide design decisions via tooling.

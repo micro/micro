@@ -13,6 +13,11 @@ import (
 
 type {{title .Alias}} struct{}
 
+// Return a new handler
+func New() *{{title .Alias}} {
+	return &{{title .Alias}}{}
+}
+
 // Call is a single request handler called via client.Call or the generated client code
 func (e *{{title .Alias}}) Call(ctx context.Context, req *{{dehyphen .Alias}}.Request, rsp *{{dehyphen .Alias}}.Response) error {
 	log.Info("Received {{title .Alias}}.Call request")

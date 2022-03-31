@@ -42,7 +42,7 @@ we think Micro can provide that through a completely vertically integrated solut
 Micro is Android for Cloud. PaaS 3.0. Or better known as a cloud operating system. As a framework Rails went far but it was incomplete 
 without the likes of Heroku to host it. Spring fell short as well and was acquired by VMWare to try make sense of this platform model. 
 We think Micro needs to take inspiration from Android, to encapsulate all the concerns of cloud, abstract away the hardware and 
-define a sofware lifecycle, development and consumption model for it.
+define a software lifecycle, development and consumption model for it.
 
 ## Design
 

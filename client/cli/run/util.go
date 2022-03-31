@@ -20,7 +20,7 @@ import (
 const bufferSize = 1024
 
 // upload source to the server. will return the source id, e.g. source://foo-bar and an error if
-// one occured. The ID returned can be used as a source in runtime.Create.
+// one occurred. The ID returned can be used as a source in runtime.Create.
 func upload(ctx *cli.Context, srv *runtime.Service, source *git.Source) (string, error) {
 	// if the source exists within a local git repository, archive the whole repository, otherwise
 	// just archive the folder

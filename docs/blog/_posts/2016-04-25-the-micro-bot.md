@@ -8,12 +8,12 @@ Today I want to talk to you about bots.
 
 ###### Bots? Really...
 
-Now I know what you're thinking. There's a lot of hype around bots at the moment. If you're familiary with 
+Now I know what you're thinking. There's a lot of hype around bots at the moment. If you're familiar with 
 chatterbots you'll know it's not a new concept and in fact goes way back to the days of [Eliza](https://en.wikipedia.org/wiki/ELIZA). 
 The renewed fascination with bots has really emerged because we've found more useful functions for them now beyond sheer amusement. They've also 
 shined a light on what may become the next dominant interface for interaction beyond apps, the conversational UI.
 
-In the engineering world though, bots are not just for conversational purposes, they can be incredibily useful for operational tasks. 
+In the engineering world though, bots are not just for conversational purposes, they can be incredibly useful for operational tasks. 
 So much so that most of us techies have become familiar with the term ChatOps. GitHub have been credited with the origins of this term 
 since publicising the creation and use of [Hubot](https://hubot.github.com/), a chatbot for managing technical and business 
 operation tasks.
@@ -102,7 +102,7 @@ type Conn interface {
 }
 ```
 
-The bot will continuosly call Recv() waiting for events. Recv() should essentially be a blocking call otherwise 
+The bot will continuously call Recv() waiting for events. Recv() should essentially be a blocking call otherwise 
 we'll end up in a spin loop that will chew up the CPU. Once the Bot has processed the event it will return 
 some resulting event using the Send() method.
 

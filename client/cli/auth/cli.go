@@ -37,7 +37,7 @@ var (
 		},
 		&cli.StringSliceFlag{
 			Name:  "scopes",
-			Usage: "Comma seperated list of scopes to give the account",
+			Usage: "Comma separated list of scopes to give the account",
 		},
 	}
 )

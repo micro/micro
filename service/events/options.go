@@ -147,13 +147,13 @@ type ReadOption func(o *ReadOptions)
 // ReadLimit sets the limit attribute on ReadOptions
 func ReadLimit(l uint) ReadOption {
 	return func(o *ReadOptions) {
-		o.Limit = 1
+		o.Limit = l
 	}
 }
 
 // ReadOffset sets the offset attribute on ReadOptions
 func ReadOffset(l uint) ReadOption {
 	return func(o *ReadOptions) {
-		o.Offset = 1
+		o.Offset = l
 	}
 }

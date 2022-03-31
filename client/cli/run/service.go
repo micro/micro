@@ -472,6 +472,12 @@ func killService(ctx *cli.Context) error {
 		name = v
 	}
 
+	// special case
+	if name == "." {
+		dir, _ := os.Getwd()
+		name = filepath.Base(dir)
+	}
+
 	var ref string
 	if parts := strings.Split(name, "@"); len(parts) > 1 {
 		name = parts[0]

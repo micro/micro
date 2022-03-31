@@ -15,11 +15,10 @@ func main() {
 	// Create service
 	srv := service.New(
 		service.Name("{{lower .Alias}}"),
-		service.Version("latest"),
 	)
 
 	// Register handler
-	pb.Register{{title .Alias}}Handler(srv.Server(), new(handler.{{title .Alias}}))
+	pb.Register{{title .Alias}}Handler(srv.Server(), handler.New())
 
 	// Run service
 	if err := srv.Run(); err != nil {
