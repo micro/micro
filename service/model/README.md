@@ -31,7 +31,7 @@ For each field we want to query on we have to create an index. Index by `id` is 
 ```go
 ageIndex := model.ByEquality("age")
 
-db := model.New(fs.NewStore(), User{}, []model.Index{(ageIndex})
+db := model.New(User{}, []model.Index{(ageIndex})
 
 err := db.Create(User{
     ID: "1",
