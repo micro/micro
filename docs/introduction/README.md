@@ -63,6 +63,7 @@ The server is composed of the following services.
 - **Runtime** - Service lifecycle and process management with support for source to running auto build
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
+- **Web** - Simple web dashboard with dynamic forms to describe and query services in the browser
 
 **Framework**
 
