@@ -102,6 +102,8 @@ server
 store
 ```
 
+View in browser at localhost:8082
+
 Run a service
 
 ```sh
