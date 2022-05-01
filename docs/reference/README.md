@@ -1236,6 +1236,12 @@ func (u *Users) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 }
 ```
 
+### Web Dashboard
+
+View and query services in a web browser at localhost:8082. The web dashboard is a simple 
+layer on top of the system to visualise services and their endpoints. Additionally it generates 
+dynamic forms for easy querying.
+
 ## Plugins
 
 Micro is a pluggable architecture built on Go's interface types. Plugins enable swapping out underlying infrastructure.
@@ -1309,8 +1315,3 @@ Now you can start your server using this profile:
 MICRO_PROFILE=staging go run . server
 ```
 
-### Web Dashboard
-
-View and query services in a web browser at localhost:8082. The web dashboard is a simple 
-layer on top of the system to visualise services and their endpoints. Additionally it generates 
-dynamic forms for easy querying.
