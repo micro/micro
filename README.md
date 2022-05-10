@@ -194,4 +194,4 @@ See the [docs](https://micro.dev/docs) for detailed information on the architect
 
 ## License
 
-See [LICENSE](LICENSE) which makes use of [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
+See [LICENSE](LICENSE) which makes use of [Apache 2.0](https://opensource.org/licenses/Apache-2.0).
