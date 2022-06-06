@@ -26,8 +26,4 @@ Documentation, guides and quick starts for Micro
 - [FAQ](faq) - Frequently asked questions
 - [Blog](blog) - For the latest from us
 
-## Contributing
-
-Look at the issues list, start hacking away and open a PR.
-
 
