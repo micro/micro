@@ -172,6 +172,8 @@ curl "http://localhost:8080/helloworld?name=John"
 
 ### Write a service client
 
+A service client is used within another service and must be run by micro
+
 ```go
 package main
 
@@ -216,13 +218,15 @@ micro run .
 
 ### Write an api client
 
+An api client is an external app or client which makes requests through the micro api
+
 Get a token
 ```
 export TOKEN=`micro user token`
 ```
 
 Call helloworld
-```
+```go
 package main
 
 import (
@@ -260,6 +264,12 @@ func main() {
 	
 	fmt.Println(rsp)
 }
+```
+
+Run it
+
+```
+go run main.go
 ```
 
 For more see the [getting started](https://micro.dev/getting-started) guide.
