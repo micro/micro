@@ -1,6 +1,6 @@
 
 
-<p align="center"><a href="https://micro.dev"><img src="https://user-images.githubusercontent.com/62926341/176604465-f49d646b-9afc-48bb-a6d4-15c95aca782e.svg" alt="Micro Framework"></a></p>
+<h2 align="center">Micro</h1>
 
 <h3 align="center">
   🔥 API first development platform 🔥
