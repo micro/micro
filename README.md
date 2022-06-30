@@ -170,7 +170,7 @@ Curl it
 curl "http://localhost:8080/helloworld?name=John"
 ```
 
-### Write a client
+### Write a service client
 
 ```go
 package main
@@ -212,6 +212,54 @@ Run it
 
 ```
 micro run .
+```
+
+### Write an api client
+
+Get a token
+```
+export TOKEN=`micro user token`
+```
+
+Call helloworld
+```
+package main
+
+import (
+    "fmt"
+    "os"
+
+    "github.com/micro/micro/v3/client/api"
+)
+
+type Request struct {
+	Name string `json:"name"`
+}
+
+type Response struct {
+	Msg string `json:"msg"`
+}
+
+func main() {
+	token := os.Getenv("TOKEN")
+	c := api.NewClient(nil)
+
+	// set your api token
+	c.SetToken(token)
+
+   	req := &Request{
+		Name: "John",
+	}
+	
+	var rsp Response
+
+	if err := c.Call("helloworld", "Call", req, &rsp); err != nil {
+		fmt.Println(err)
+		return
+	}
+	
+	fmt.Println(rsp)
+}
 ```
 
 For more see the [getting started](https://micro.dev/getting-started) guide.
