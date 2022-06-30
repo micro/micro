@@ -75,6 +75,7 @@ and `micro user set [namespace]`.
 ```
 go install github.com/micro/micro
 ```
+
 ### Install Binaries
 
 Windows
