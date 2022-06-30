@@ -1,6 +1,6 @@
 # Micro
 
-<p align="center">
+<p>
     <a href="https://discord.gg/TBR9bRjd6Z"><img src="https://img.shields.io/badge/chat-discord-brightgreen.svg?logo=discord&%20style=flat"></a>
     <a href="https://goreportcard.com/report/github.com/micro/micro">
     <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/micro/micro">
@@ -207,7 +207,7 @@ micro run .
 
 For more see the [getting started](https://micro.dev/getting-started) guide.
 
-## 📃 Docs
+## Docs
 
 - [Introduction](https://micro.dev/introduction) - A high level introduction to Micro
 - [Getting Started](https://micro.dev/getting-started) - The helloworld quickstart guide
@@ -218,6 +218,6 @@ For more see the [getting started](https://micro.dev/getting-started) guide.
 - [Roadmap](https://micro.dev/roadmap) - Stuff on our agenda over the long haul
 - [FAQ](https://micro.dev/faq) - Frequently asked questions
 
-## 📄 License
+## License
 
 See [LICENSE](LICENSE) which makes use of [Apache 2.0](https://opensource.org/licenses/Apache-2.0).
