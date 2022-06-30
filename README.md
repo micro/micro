@@ -17,7 +17,6 @@
 </p>
 <p align="center">
     <a href="https://discord.gg/TBR9bRjd6Z"><img src="https://img.shields.io/badge/chat-discord-brightgreen.svg?logo=discord&%20style=flat"></a>
-    <br/>
     <a href="https://goreportcard.com/report/github.com/micro/micro">
     <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/micro/micro">
     </a>
