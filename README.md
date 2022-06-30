@@ -220,7 +220,7 @@ micro run .
 
 For more see the [getting started](https://micro.dev/getting-started) guide.
 
-## 📃 External Doc
+## 📃 Docs
 
 - [Introduction](https://micro.dev/introduction) - A high level introduction to Micro
 - [Getting Started](https://micro.dev/getting-started) - The helloworld quickstart guide
