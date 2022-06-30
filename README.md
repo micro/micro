@@ -95,7 +95,8 @@ curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.
 ```sh
 micro server
 ```
-Now go to [localhost:8080](http://localhost:8080) and make sure the output is something like `{"version": "v3.10.1"}` which is the laest version of micro installed.
+Now go to [localhost:8080](http://localhost:8080) and make sure the output is something like `{"version": "v3.10.1"}` 
+which is the latest version of micro installed.
 
 ## Usage
 
