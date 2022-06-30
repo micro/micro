@@ -1,5 +1,5 @@
 ---
-title: Documentation
+title: Docs
 keywords: docs
 tags: [docs]
 sidebar: home_sidebar
@@ -13,7 +13,7 @@ Below you'll find documentation for Micro
 
 ## Contents
 
-Documentation, guides and quick starts for Micro
+Docs, guides and quick starts for Micro
 
 - [Introduction](introduction) - A high level introduction to Micro
 - [Getting Started](getting-started) - The helloworld quickstart guide
