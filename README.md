@@ -69,7 +69,15 @@ and `micro user set [namespace]`.
 
 
 ## Installation
+
+### From Source
+
+```
+go install github.com/micro/micro
+```
+
 ### Install Binaries
+
 Windows
 ```sh
 powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
