@@ -35,7 +35,7 @@ architecture pattern and provides a set of services which act as the building bl
 Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
 
-## Features
+## 😎 Features
 
 Below are the core components that make up Micro.
 
@@ -81,7 +81,8 @@ and `micro user set [namespace]`.
 
 
 
-## Install micro
+## Installation
+### Install Binaries
 Windows
 ```sh
 powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
@@ -90,18 +91,23 @@ Linux
 ```sh
 wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh -O - | /bin/bash
 ```
+MacOS
 ```sh
 curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
 ```
-### Usage
+
 ### Run the server 
 
 ```sh
 micro server
 ```
+Now go to [localhost:8080](http://localhost:8080) and make sure the output is something like `{"version": "v3.10.1"}` which is the laest version of micro installed.
+
+## Usage
 
 ### Login to Micro
 default username: `admin`
+
 default password: `micro`
 
 ```sh
@@ -214,7 +220,7 @@ micro run .
 
 For more see the [getting started](https://micro.dev/getting-started) guide.
 
-## External Doc
+## 📃 External Doc
 
 - [Introduction](https://micro.dev/introduction) - A high level introduction to Micro
 - [Getting Started](https://micro.dev/getting-started) - The helloworld quickstart guide
@@ -225,6 +231,6 @@ For more see the [getting started](https://micro.dev/getting-started) guide.
 - [Roadmap](https://micro.dev/roadmap) - Stuff on our agenda over the long haul
 - [FAQ](https://micro.dev/faq) - Frequently asked questions
 
-## License
+## 📄 License
 
 See [LICENSE](LICENSE) which makes use of [Apache 2.0](https://opensource.org/licenses/Apache-2.0).
