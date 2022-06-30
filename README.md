@@ -1,6 +1,6 @@
 
 
-<h1 align="center">Micro</h1>
+<h2 align="center">Micro</h1>
 
 <h3 align="center">
   🔥 API first development platform 🔥
