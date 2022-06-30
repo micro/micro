@@ -1,20 +1,5 @@
+# Micro
 
-
-<h2 align="center">Micro</h1>
-
-<h3 align="center">
-  🔥 API first development platform 🔥
-</h3>
-
-<p align="center">
-  <strong>
-    <a href="https://micro.dev/">Website</a>
-    •
-    <a href="https://micro.dev/docs/">Docs</a>
-    •
-    <a href="https://discord.gg/TBR9bRjd6Z">Support</a>
-  </strong>
-</p>
 <p align="center">
     <a href="https://discord.gg/TBR9bRjd6Z"><img src="https://img.shields.io/badge/chat-discord-brightgreen.svg?logo=discord&%20style=flat"></a>
     <a href="https://goreportcard.com/report/github.com/micro/micro">
@@ -28,13 +13,16 @@
     src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
 </p>
 
+An API first development platform
+
+## Overview 
+
 Micro addresses the key requirements for building services in the cloud. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. 
 
 Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
-
-## 😎 Features
+## Features
 
 Below are the core components that make up Micro.
 
