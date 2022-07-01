@@ -1,0 +1,15 @@
+{
+    "version": "3.11.0",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/micro/micro/releases/download/v3.11.0/micro-v3.11.0-windows-amd64.zip",
+            "bin": [
+                "micro.exe"
+            ],
+            "hash": "08b52adf73f6eec63853cc760f42bc5b7eec15b02744e185eeb2c35e8808b374"
+        }
+    },
+    "homepage": "https://micro.dev",
+    "license": "Apache-2.0",
+    "description": "Micro CLI for Micro Platform"
+}
