@@ -70,11 +70,11 @@ and `micro user set [namespace]`.
 
 ## Installation
 
-### From Source
+<!-- ### From Source
 
 ```
 go install github.com/micro/micro
-```
+``` -->
 
 ### Install Binaries
 
