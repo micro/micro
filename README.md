@@ -78,15 +78,23 @@ go install github.com/micro/micro/v3@latest
 
 ### Install Binaries
 
-Windows
+#### Windows
+Using Scoop
+```sh
+Install
+scoop bucket add microcli https://github.com/micro/micro.git
+scoop install microcli
+```
+Using Powershell
+
 ```sh
 powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
 ```
-Linux
+#### Linux
 ```sh
 wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh -O - | /bin/bash
 ```
-MacOS
+#### MacOS
 ```sh
 curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
 ```
