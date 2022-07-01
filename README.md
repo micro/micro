@@ -81,10 +81,10 @@ go install github.com/micro/micro/v3@latest
 #### Windows
 Using Scoop
 ```sh
-scoop bucket add microcli https://github.com/micro/micro.git
+scoop bucket add micro-cli https://github.com/micro/micro.git
 ```
 ```sh
-scoop install microcli
+scoop install micro-cli
 ```
 Using powershell
 ```sh
