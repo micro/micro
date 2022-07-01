@@ -73,7 +73,7 @@ and `micro user set [namespace]`.
 ### From Source
 
 ```
-go install github.com/micro/micro
+go install github.com/micro/micro/v3@latest
 ```
 
 ### Install Binaries
