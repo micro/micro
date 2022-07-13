@@ -140,7 +140,23 @@ store
 
 View in browser at localhost:8082
 
+### Create a Service
+
+Generate a service using the template
+
+```
+micro new helloworld
+```
+
 ### Run a service
+
+Run from local dir
+
+```
+micro run .
+```
+
+Or from a git url
 
 ```sh
 micro run github.com/micro/services/helloworld
