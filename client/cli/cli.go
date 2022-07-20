@@ -14,6 +14,7 @@ import (
 
 	_ "github.com/micro/micro/v3/client/cli/auth"
 	_ "github.com/micro/micro/v3/client/cli/config"
+	_ "github.com/micro/micro/v3/client/cli/debug"
 	_ "github.com/micro/micro/v3/client/cli/gen"
 	_ "github.com/micro/micro/v3/client/cli/init"
 	_ "github.com/micro/micro/v3/client/cli/network"
@@ -122,11 +123,6 @@ func init() {
 			},
 		},
 		&cli.Command{
-			Name:   "health",
-			Usage:  `Get the service health`,
-			Action: util.Print(QueryHealth),
-		},
-		&cli.Command{
 			Name:   "stream",
 			Usage:  `Create a service stream e.g. micro stream foo Bar.Baz '{"key": "value"}'`,
 			Action: util.Print(streamService),
@@ -140,17 +136,6 @@ func init() {
 					Name:    "metadata",
 					Usage:   "A list of key-value pairs to be forwarded as metadata",
 					EnvVars: []string{"MICRO_METADATA"},
-				},
-			},
-		},
-		&cli.Command{
-			Name:   "stats",
-			Usage:  "Query the stats of specified service(s), e.g micro stats srv1 srv2 srv3",
-			Action: util.Print(queryStats),
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "all",
-					Usage: "to list all builtin services use --all builtin, for user's services use --all custom",
 				},
 			},
 		},
