@@ -24,9 +24,13 @@ import (
 	"github.com/micro/micro/v3/service/config"
 	configCli "github.com/micro/micro/v3/service/config/client"
 	storeConf "github.com/micro/micro/v3/service/config/store"
+	"github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/metrics"
 	"github.com/micro/micro/v3/service/network"
 	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/router"
+	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/server"
 	"github.com/micro/micro/v3/service/store"
 	uconf "github.com/micro/micro/v3/util/config"
@@ -37,6 +41,18 @@ import (
 	"github.com/urfave/cli/v2"
 
 	muruntime "github.com/micro/micro/v3/service/runtime"
+
+	authSrv "github.com/micro/micro/v3/service/auth/client"
+	brokerSrv "github.com/micro/micro/v3/service/broker/client"
+	grpcCli "github.com/micro/micro/v3/service/client/grpc"
+	eventsSrv "github.com/micro/micro/v3/service/events/client"
+	noopMet "github.com/micro/micro/v3/service/metrics/noop"
+	mucpNet "github.com/micro/micro/v3/service/network/mucp"
+	registrySrv "github.com/micro/micro/v3/service/registry/client"
+	routerSrv "github.com/micro/micro/v3/service/router/client"
+	runtimeSrv "github.com/micro/micro/v3/service/runtime/client"
+	grpcSvr "github.com/micro/micro/v3/service/server/grpc"
+	storeSrv "github.com/micro/micro/v3/service/store/client"
 )
 
 type Cmd interface {
@@ -228,6 +244,26 @@ func init() {
 
 	// configure defaults for all packages
 	setupDefaults()
+}
+
+// setupDefaults sets the default auth, broker etc implementations incase they arent configured by
+// a profile. The default implementations are always the RPC implementations.
+func setupDefaults() {
+	client.DefaultClient = grpcCli.NewClient()
+	server.DefaultServer = grpcSvr.NewServer()
+	network.DefaultNetwork = mucpNet.NewNetwork()
+	metrics.DefaultMetricsReporter = noopMet.New()
+
+	// setup rpc implementations after the client is configured
+	auth.DefaultAuth = authSrv.NewAuth()
+	broker.DefaultBroker = brokerSrv.NewBroker()
+	events.DefaultStream = eventsSrv.NewStream()
+	events.DefaultStore = eventsSrv.NewStore()
+	registry.DefaultRegistry = registrySrv.NewRegistry()
+	router.DefaultRouter = routerSrv.NewRouter()
+	store.DefaultStore = storeSrv.NewStore()
+	store.DefaultBlobStore = storeSrv.NewBlobStore()
+	runtime.DefaultRuntime = runtimeSrv.NewRuntime()
 }
 
 func action(c *cli.Context) error {
