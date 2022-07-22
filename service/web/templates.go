@@ -163,6 +163,7 @@ var (
 `
 
 	indexTemplate = `
+{{define "title"}}Home{{end}}
 {{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
 {{define "style" }}
 .search {
@@ -214,7 +215,6 @@ var (
   }
 }
 {{end}}
-{{define "title"}}Web{{end}}
 {{define "content"}}
 	{{if .Results.HasWebServices}}
 		<div class="apps">
