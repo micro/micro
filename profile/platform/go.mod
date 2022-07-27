@@ -13,7 +13,7 @@ require (
 	github.com/micro/micro/plugin/redis/broker/v3 v3.0.0-20210622092058-b12502169757
 	github.com/micro/micro/plugin/redis/stream/v3 v3.0.0-20210622092058-b12502169757
 	github.com/micro/micro/plugin/s3/v3 v3.0.0-20220203170347-2c86e5fb6d13
-	github.com/micro/micro/v3 v3.10.2-0.20220510113032-4a6613620431
+	github.com/micro/micro/v3 v3.11.1
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/prometheus/procfs v0.2.0 // indirect
 	github.com/urfave/cli/v2 v2.3.0

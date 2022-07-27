@@ -271,6 +271,8 @@ github.com/micro/micro/v3 v3.9.1-0.20220203152611-b23544122058 h1:xsjuL35jhBpJk0
 github.com/micro/micro/v3 v3.9.1-0.20220203152611-b23544122058/go.mod h1:fNx55Nv50LZMgd5Prytro1ZNwXphvVID78R6KJ+xLbQ=
 github.com/micro/micro/v3 v3.10.2-0.20220510113032-4a6613620431 h1:0RK7JH5ZJT2SyaCD+VRBdxJy2oVKV5Nf5zBA+6y0CdA=
 github.com/micro/micro/v3 v3.10.2-0.20220510113032-4a6613620431/go.mod h1:fNx55Nv50LZMgd5Prytro1ZNwXphvVID78R6KJ+xLbQ=
+github.com/micro/micro/v3 v3.11.1 h1:7k3ufSURuGyzJX9sJMSVcCZKFD27VMReoGQrbQ4Xqok=
+github.com/micro/micro/v3 v3.11.1/go.mod h1:fNx55Nv50LZMgd5Prytro1ZNwXphvVID78R6KJ+xLbQ=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
 github.com/minio/md5-simd v1.1.0/go.mod h1:XpBqgZULrMYD3R+M28PcmP0CkI7PEMzB3U77ZrKZ0Gw=
