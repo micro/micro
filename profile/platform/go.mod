@@ -1,4 +1,4 @@
-module github.com/micro/platform/profile/platform
+module github.com/micro/micro/profile/platform
 
 go 1.15
 
