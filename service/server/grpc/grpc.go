@@ -60,12 +60,12 @@ import (
 
 var (
 	// DefaultMaxRecvMsgSize maximum message that client can receive
-	// (16 MB).
-	DefaultMaxRecvMsgSize = 1024 * 1024 * 16
+	// (32 MB).
+	DefaultMaxRecvMsgSize = 1024 * 1024 * 32
 
 	// DefaultMaxSendMsgSize maximum message that client can send
-	// (16 MB).
-	DefaultMaxSendMsgSize = 1024 * 1024 * 16
+	// (32 MB).
+	DefaultMaxSendMsgSize = 1024 * 1024 * 32
 )
 
 const (
