@@ -522,7 +522,10 @@ func (r *localRuntime) Stop() error {
 			if logger.V(logger.DebugLevel, logger.DefaultLogger) {
 				logger.Debugf("Runtime stopping %s", service.Name)
 			}
+			// stop the service
 			service.Stop()
+			// wait for exit
+			service.Wait()
 		}
 	}
 

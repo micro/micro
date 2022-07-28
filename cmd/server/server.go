@@ -215,6 +215,17 @@ func Run(context *cli.Context) error {
 	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL)
 	<-ch
 
+	// stop all services
+	for _, service := range services {
+		runtimeServer.Delete(&runtime.Service{
+			Name: service,
+			Version: "latest",
+		})
+	}
+
+	// wait for services to stop
+	// TODO: runtime wait signal
+
 	runtimeServer.Stop()
 	log.Info("Stopped server")
 	return nil
