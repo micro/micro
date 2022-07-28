@@ -42,6 +42,7 @@ type service struct {
 	// output for logs
 	output io.Writer
 
+	stx sync.RWMutex
 	// service to manage
 	*runtime.Service
 	// process creator
@@ -126,7 +127,7 @@ func (s *service) Start() error {
 	if s.Metadata == nil {
 		s.Metadata = make(map[string]string)
 	}
-	s.Status(runtime.Starting, nil)
+	s.SetStatus(runtime.Starting, nil)
 
 	// TODO: pull source & build binary
 	if logger.V(logger.DebugLevel, logger.DefaultLogger) {
@@ -135,7 +136,7 @@ func (s *service) Start() error {
 
 	p, err := s.Process.Fork(s.Exec)
 	if err != nil {
-		s.Status(runtime.Error, err)
+		s.SetStatus(runtime.Error, err)
 		return err
 	}
 	// set the pid
@@ -143,7 +144,7 @@ func (s *service) Start() error {
 	// set to running
 	s.running = true
 	// set status
-	s.Status(runtime.Running, nil)
+	s.SetStatus(runtime.Running, nil)
 	// set started
 	s.Metadata["started"] = time.Now().Format(time.RFC3339)
 
@@ -155,10 +156,12 @@ func (s *service) Start() error {
 	go func() {
 		s.Wait()
 
-		logger.Infof("Service %s has stopped", s.Service.Name)
-
 		// don't do anything if it was stopped
-		if s.Service.Status == runtime.Stopped {
+		status := s.GetStatus()
+
+		logger.Infof("Service %s has stopped with status: %v", s.Service.Name, status)
+
+		if (status == runtime.Stopped) || (status == runtime.Stopping) {
 			return
 		}
 
@@ -176,8 +179,18 @@ func (s *service) Start() error {
 	return nil
 }
 
+func (s *service) GetStatus() runtime.ServiceStatus {
+	s.stx.RLock()
+	status := s.Service.Status
+	s.stx.RUnlock()
+	return status
+}
+
 // Status updates the status of the service. Assumes it's called under a lock as it mutates state
-func (s *service) Status(status runtime.ServiceStatus, err error) {
+func (s *service) SetStatus(status runtime.ServiceStatus, err error) {
+	s.stx.Lock()
+	defer s.stx.Unlock()
+
 	s.Service.Status = status
 	s.Metadata["lastStatusUpdate"] = time.Now().Format(time.RFC3339)
 	if err == nil {
@@ -205,17 +218,18 @@ func (s *service) Stop() error {
 		}
 
 		// set status
-		s.Status(runtime.Stopping, nil)
+		s.SetStatus(runtime.Stopping, nil)
 
 		// kill the process
 		err := s.Process.Kill(s.PID)
+
 		if err == nil {
 			// wait for it to exit
 			s.Process.Wait(s.PID)
 		}
 
 		// set status
-		s.Status(runtime.Stopped, err)
+		s.SetStatus(runtime.Stopped, err)
 
 		// return the kill error
 		return err
@@ -246,23 +260,28 @@ func (s *service) Wait() {
 		return
 	}
 
+	// get service status
+	status := s.GetStatus()
+
+	// set to not running
+	s.running = false
+
+	if (status == runtime.Stopped) || (status == runtime.Stopping) {
+		return
+	}
+
 	// save the error
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 			logger.Errorf("Service %s terminated with error %s", s.Name, err)
 		}
 		s.retries++
-		s.Status(runtime.Error, err)
-		s.Metadata["retries"] = strconv.Itoa(s.retries)
 
+		// don't set the error
+		s.Metadata["retries"] = strconv.Itoa(s.retries)
 		s.err = err
-	} else {
-		// check if it was stopped
-		if s.Service.Status != runtime.Stopped {
-			s.Status(runtime.Error, fmt.Errorf("Service %s terminated", s.Name))
-		}
 	}
 
-	// no longer running
-	s.running = false
+	// terminated without being stopped
+	s.SetStatus(runtime.Error, fmt.Errorf("Service %s terminated", s.Name))
 }

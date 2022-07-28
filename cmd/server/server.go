@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service/auth"
@@ -215,18 +216,11 @@ func Run(context *cli.Context) error {
 	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL)
 	<-ch
 
-	// stop all services
-	for _, service := range services {
-		runtimeServer.Delete(&runtime.Service{
-			Name: service,
-			Version: "latest",
-		})
-	}
-
-	// wait for services to stop
-	// TODO: runtime wait signal
-
 	runtimeServer.Stop()
 	log.Info("Stopped server")
+
+	// just wait 1 sec
+	<-time.After(time.Second)
+
 	return nil
 }
