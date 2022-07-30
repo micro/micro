@@ -24,7 +24,7 @@ builds:
   - arm64
   goarm:
   - 7
-ignore:
+  ignore:
   - goos: windows
     goarch: arm64
 archives:
