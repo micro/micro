@@ -24,6 +24,9 @@ builds:
   - arm64
   goarm:
   - 7
+ignore:
+  - goos: windows
+    goarch: arm64
 archives:
 - name_template: '{{.ProjectName}}-{{.Tag}}-{{.Os}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}'
   replacements:
