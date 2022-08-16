@@ -147,8 +147,8 @@ func Run(ctx *cli.Context) error {
 		router.Cache(),
 	)
 
-	// create new network
-	netService := mucp.NewNetwork(
+	// initialise network vals
+	network.DefaultNetwork.Init(
 		net.Id(id),
 		net.Name(networkName),
 		net.Address(peerAddress),
@@ -157,6 +157,8 @@ func Run(ctx *cli.Context) error {
 		net.Tunnel(tun),
 		net.Router(rtr),
 	)
+
+	netService := network.DefaultNetwork
 
 	// local proxy using grpc
 	// TODO: reenable after PR

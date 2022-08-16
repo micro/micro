@@ -17,6 +17,7 @@ package transport
 import (
 	"context"
 	"crypto/tls"
+	"net"
 	"time"
 
 	"github.com/micro/micro/v3/util/codec"
@@ -48,6 +49,8 @@ type DialOptions struct {
 	Stream bool
 	// Timeout for dialing
 	Timeout time.Duration
+	// Dial function
+	DialFunc func(addr string) (net.Conn, error)
 
 	// TODO: add tls options when dialling
 	// Currently set in global options
@@ -114,5 +117,12 @@ func WithStream() DialOption {
 func WithTimeout(d time.Duration) DialOption {
 	return func(o *DialOptions) {
 		o.Timeout = d
+	}
+}
+
+// WithDialFunc sets a dial function
+func WithDialFunc(fn func(addr string) (net.Conn, error)) DialOption {
+	return func(o *DialOptions) {
+		o.DialFunc = fn
 	}
 }
