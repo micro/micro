@@ -10,9 +10,8 @@ import (
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
-	net "github.com/micro/micro/v3/service/network"
+	"github.com/micro/micro/v3/service/network"
 	"github.com/micro/micro/v3/service/network/handler"
-	"github.com/micro/micro/v3/service/network/mucp"
 	"github.com/micro/micro/v3/service/network/transport"
 	"github.com/micro/micro/v3/service/network/transport/grpc"
 	"github.com/micro/micro/v3/service/network/tunnel"
@@ -149,13 +148,13 @@ func Run(ctx *cli.Context) error {
 
 	// initialise network vals
 	network.DefaultNetwork.Init(
-		net.Id(id),
-		net.Name(networkName),
-		net.Address(peerAddress),
-		net.Advertise(advertise),
-		net.Nodes(nodes...),
-		net.Tunnel(tun),
-		net.Router(rtr),
+		network.Id(id),
+		network.Name(networkName),
+		network.Address(peerAddress),
+		network.Advertise(advertise),
+		network.Nodes(nodes...),
+		network.Tunnel(tun),
+		network.Router(rtr),
 	)
 
 	netService := network.DefaultNetwork
@@ -207,7 +206,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// netClose hard exits if we have problems
-	netClose := func(net net.Network) error {
+	netClose := func(net network.Network) error {
 		errChan := make(chan error, 1)
 
 		go func() {
