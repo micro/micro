@@ -1,4 +1,4 @@
-module github.com/micro/micro/plugin/tailscale/transport
+module github.com/micro/micro/plugin/tailscale/transport/v3
 
 go 1.18
 
