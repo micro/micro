@@ -28,7 +28,6 @@ require (
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/websocket v1.4.2
-	github.com/hashicorp/go-hclog v0.14.1 // indirect
 	github.com/hashicorp/go-version v1.2.1
 	github.com/hpcloud/tail v1.0.0
 	github.com/improbable-eng/grpc-web v0.13.0
@@ -52,7 +51,6 @@ require (
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/urfave/cli/v2 v2.3.0
-	github.com/xanzy/go-gitlab v0.35.1
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	go.etcd.io/bbolt v1.3.5
 	go.uber.org/atomic v1.6.0 // indirect
