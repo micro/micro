@@ -11,6 +11,10 @@ require (
 
 replace google.golang.org/grpc v1.30.0 => google.golang.org/grpc v1.26.0
 
+replace google.golang.org/grpc v1.40.0 => google.golang.org/grpc v1.26.0
+
+replace github.com/soheilhy/cmux => github.com/soheilhy/cmux v0.1.5
+
 replace github.com/micro/micro/v3 => ../..
 
 replace github.com/coreos/bbolt => go.etcd.io/bbolt v1.3.5
