@@ -16,10 +16,26 @@ package http
 
 import (
 	"context"
+	"net"
 	"net/http"
 
 	"github.com/micro/micro/v3/service/network/transport"
 )
+
+type netListener struct{}
+
+// getNetListener Get net.Listener from ListenOptions
+func getNetListener(o *transport.ListenOptions) net.Listener {
+	if o.Context == nil {
+		return nil
+	}
+
+	if l, ok := o.Context.Value(netListener{}).(net.Listener); ok && l != nil {
+		return l
+	}
+
+	return nil
+}
 
 // Handle registers the handler for the given pattern.
 func Handle(pattern string, handler http.Handler) transport.Option {
@@ -33,5 +49,18 @@ func Handle(pattern string, handler http.Handler) transport.Option {
 		}
 		handlers[pattern] = handler
 		o.Context = context.WithValue(o.Context, "http_handlers", handlers)
+	}
+}
+
+// NetListener Set net.Listener for httpTransport
+func NetListener(customListener net.Listener) transport.ListenOption {
+	return func(o *transport.ListenOptions) {
+		if customListener == nil {
+			return
+		}
+		if o.Context == nil {
+			o.Context = context.TODO()
+		}
+		o.Context = context.WithValue(o.Context, netListener{}, customListener)
 	}
 }
