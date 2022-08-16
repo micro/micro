@@ -535,7 +535,9 @@ func (h *httpTransport) Dial(addr string, opts ...transport.DialOption) (transpo
 	var err error
 
 	// TODO: support dial option here rather than using internal config
-	if h.opts.Secure || h.opts.TLSConfig != nil {
+	if dopts.DialFunc != nil {
+		conn, err = dopts.DialFunc(addr)
+	} else if h.opts.Secure || h.opts.TLSConfig != nil {
 		config := h.opts.TLSConfig
 		if config == nil {
 			config = &tls.Config{
@@ -578,7 +580,6 @@ func (h *httpTransport) Listen(addr string, opts ...transport.ListenOption) (tra
 	var err error
 
 	if listener := getNetListener(&options); listener != nil {
-
 		fn := func(addr string) (net.Listener, error) {
 			return listener, nil
 		}
