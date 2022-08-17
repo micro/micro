@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,8 +12,8 @@ import (
 	"github.com/micro/micro/v3/service/api/resolver/subdomain"
 	cors "github.com/micro/micro/v3/service/api/server/http"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/util/helper"
 )
 
 type rpcRequest struct {
@@ -82,6 +81,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		endpoint = rpcReq.Endpoint
 		address = rpcReq.Address
 		request = rpcReq.Request
+
 		if len(endpoint) == 0 {
 			endpoint = rpcReq.Method
 		}
@@ -127,10 +127,11 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// create request/response
 	var response json.RawMessage
 	var err error
-	req := client.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
-	// create context
-	ctx := helper.RequestToContext(r)
+	req := h.client.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
+
+	// use a new context
+	ctx := context.DefaultContext
 
 	var opts []client.CallOption
 
@@ -145,6 +146,9 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		opts = append(opts, client.WithAddress(address))
 	}
 
+	// set the use of an auth token
+	opts = append(opts, client.WithAuthToken())
+
 	// since services can be running in many domains, we'll use the resolver to determine the domain
 	// which should be used on the call
 	if resolver, ok := h.resolver.(*subdomain.Resolver); ok {
@@ -155,7 +159,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// remote call
 	err = h.client.Call(ctx, req, &response, opts...)
-	fmt.Println("request", req.Service(), err)
+
 	if err != nil {
 		ce := errors.Parse(err.Error())
 		switch ce.Code {

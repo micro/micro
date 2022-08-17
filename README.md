@@ -43,7 +43,6 @@ The server is composed of the following services.
 - **Runtime** - Service lifecycle and process management with support for source to running auto build
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
-- **Web** - Simple web dashboard with dynamic forms to describe and query services in the browser
 
 **Framework**
 
@@ -64,8 +63,9 @@ Finally Micro bakes in the concept of `Environments` and multi-tenancy through `
 development and in the cloud for staging and production, seamlessly switch between them using the CLI commands `micro env set [environment]` 
 and `micro user set [namespace]`.
 
+**Dashboard**
 
-
+Explore, discover and consume services via the web using Micro Web. The dashboard makes use of your env configuration to locate the server.
 
 ## Installation
 
@@ -296,6 +296,16 @@ go run main.go
 ```
 
 For more see the [getting started](https://micro.dev/getting-started) guide.
+
+## Dashboard
+
+Use services via the web with the Micro Web dashboard
+
+```
+micro web
+```
+
+Browse to `localhost:8082`
 
 ## Docs
 
