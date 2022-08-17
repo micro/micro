@@ -20,20 +20,20 @@ import (
 	"crypto/tls"
 	"errors"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
 	"sync"
 	"time"
 
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
+
 	"github.com/micro/micro/v3/service/network/transport"
 	maddr "github.com/micro/micro/v3/util/addr"
 	"github.com/micro/micro/v3/util/buf"
 	mnet "github.com/micro/micro/v3/util/net"
 	mls "github.com/micro/micro/v3/util/tls"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 )
 
 type httpTransport struct {
@@ -50,9 +50,10 @@ type httpTransportClient struct {
 	sync.RWMutex
 
 	// request must be stored for response processing
-	r    chan *http.Request
-	bl   []*http.Request
-	buff *bufio.Reader
+	r      chan *http.Request
+	bl     []*http.Request
+	buff   *bufio.Reader
+	closed bool
 
 	// local/remote ip
 	local  string
@@ -117,14 +118,20 @@ func (h *httpTransportClient) Send(m *transport.Message) error {
 		Host:          h.addr,
 	}
 
-	h.Lock()
-	h.bl = append(h.bl, req)
-	select {
-	case h.r <- h.bl[0]:
-		h.bl = h.bl[1:]
-	default:
+	if !h.dialOpts.Stream {
+		h.Lock()
+		if h.closed {
+			h.Unlock()
+			return io.EOF
+		}
+		h.bl = append(h.bl, req)
+		select {
+		case h.r <- h.bl[0]:
+			h.bl = h.bl[1:]
+		default:
+		}
+		h.Unlock()
 	}
-	h.Unlock()
 
 	// set timeout if its greater than 0
 	if h.ht.opts.Timeout > time.Duration(0) {
@@ -143,7 +150,14 @@ func (h *httpTransportClient) Recv(m *transport.Message) error {
 	if !h.dialOpts.Stream {
 		rc, ok := <-h.r
 		if !ok {
-			return io.EOF
+			h.Lock()
+			if len(h.bl) == 0 {
+				h.Unlock()
+				return io.EOF
+			}
+			rc = h.bl[0]
+			h.bl = h.bl[1:]
+			h.Unlock()
 		}
 		r = rc
 	}
@@ -153,13 +167,18 @@ func (h *httpTransportClient) Recv(m *transport.Message) error {
 		h.conn.SetDeadline(time.Now().Add(h.ht.opts.Timeout))
 	}
 
+	h.Lock()
+	defer h.Unlock()
+	if h.closed {
+		return io.EOF
+	}
 	rsp, err := http.ReadResponse(h.buff, r)
 	if err != nil {
 		return err
 	}
 	defer rsp.Body.Close()
 
-	b, err := ioutil.ReadAll(rsp.Body)
+	b, err := io.ReadAll(rsp.Body)
 	if err != nil {
 		return err
 	}
@@ -186,13 +205,25 @@ func (h *httpTransportClient) Recv(m *transport.Message) error {
 }
 
 func (h *httpTransportClient) Close() error {
+	if !h.dialOpts.Stream {
+		h.once.Do(func() {
+			h.Lock()
+			h.buff.Reset(nil)
+			h.closed = true
+			h.Unlock()
+			close(h.r)
+		})
+		return h.conn.Close()
+	}
+	err := h.conn.Close()
 	h.once.Do(func() {
 		h.Lock()
 		h.buff.Reset(nil)
+		h.closed = true
 		h.Unlock()
 		close(h.r)
 	})
-	return h.conn.Close()
+	return err
 }
 
 func (h *httpTransportSocket) Local() string {
@@ -233,7 +264,7 @@ func (h *httpTransportSocket) Recv(m *transport.Message) error {
 		}
 
 		// read body
-		b, err := ioutil.ReadAll(r.Body)
+		b, err := io.ReadAll(r.Body)
 		if err != nil {
 			return err
 		}
@@ -307,7 +338,7 @@ func (h *httpTransportSocket) Send(m *transport.Message) error {
 
 		rsp := &http.Response{
 			Header:        hdr,
-			Body:          ioutil.NopCloser(bytes.NewReader(m.Body)),
+			Body:          io.NopCloser(bytes.NewReader(m.Body)),
 			Status:        "200 OK",
 			StatusCode:    200,
 			Proto:         "HTTP/1.1",
@@ -358,7 +389,7 @@ func (h *httpTransportSocket) error(m *transport.Message) error {
 	if h.r.ProtoMajor == 1 {
 		rsp := &http.Response{
 			Header:        make(http.Header),
-			Body:          ioutil.NopCloser(bytes.NewReader(m.Body)),
+			Body:          io.NopCloser(bytes.NewReader(m.Body)),
 			Status:        "500 Internal Server Error",
 			StatusCode:    500,
 			Proto:         "HTTP/1.1",
@@ -418,12 +449,12 @@ func (h *httpTransportListener) Accept(fn func(transport.Socket)) error {
 
 		// read a regular request
 		if r.ProtoMajor == 1 {
-			b, err := ioutil.ReadAll(r.Body)
+			b, err := io.ReadAll(r.Body)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			r.Body = ioutil.NopCloser(bytes.NewReader(b))
+			r.Body = io.NopCloser(bytes.NewReader(b))
 			// hijack the conn
 			hj, ok := w.(http.Hijacker)
 			if !ok {
@@ -504,7 +535,9 @@ func (h *httpTransport) Dial(addr string, opts ...transport.DialOption) (transpo
 	var err error
 
 	// TODO: support dial option here rather than using internal config
-	if h.opts.Secure || h.opts.TLSConfig != nil {
+	if dopts.DialFunc != nil {
+		conn, err = dopts.DialFunc(addr)
+	} else if h.opts.Secure || h.opts.TLSConfig != nil {
 		config := h.opts.TLSConfig
 		if config == nil {
 			config = &tls.Config{
@@ -531,7 +564,7 @@ func (h *httpTransport) Dial(addr string, opts ...transport.DialOption) (transpo
 		conn:     conn,
 		buff:     bufio.NewReader(conn),
 		dialOpts: dopts,
-		r:        make(chan *http.Request, 1),
+		r:        make(chan *http.Request, 100),
 		local:    conn.LocalAddr().String(),
 		remote:   conn.RemoteAddr().String(),
 	}, nil
@@ -546,8 +579,13 @@ func (h *httpTransport) Listen(addr string, opts ...transport.ListenOption) (tra
 	var l net.Listener
 	var err error
 
-	// TODO: support use of listen options
-	if h.opts.Secure || h.opts.TLSConfig != nil {
+	if listener := getNetListener(&options); listener != nil {
+		fn := func(addr string) (net.Listener, error) {
+			return listener, nil
+		}
+
+		l, err = mnet.Listen(addr, fn)
+	} else if h.opts.Secure || h.opts.TLSConfig != nil {
 		config := h.opts.TLSConfig
 
 		fn := func(addr string) (net.Listener, error) {
@@ -607,7 +645,7 @@ func (h *httpTransport) String() string {
 	return "http"
 }
 
-func NewTransport(opts ...transport.Option) transport.Transport {
+func NewTransport(opts ...transport.Option) *httpTransport {
 	var options transport.Options
 	for _, o := range opts {
 		o(&options)
