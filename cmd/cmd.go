@@ -447,12 +447,12 @@ func action(c *cli.Context) error {
 		// exists within the current namespace, then it would
 		// execute the Config.Set RPC, setting the flags in the
 		// request.
-		if srv, ns, err := lookupService(c); err != nil {
+		if srv, ns, err := util.LookupService(c); err != nil {
 			return util.CliError(err)
-		} else if srv != nil && shouldRenderHelp(c) {
-			return cli.Exit(formatServiceUsage(srv, c), 0)
+		} else if srv != nil && util.ShouldRenderHelp(c) {
+			return cli.Exit(util.FormatServiceUsage(srv, c), 0)
 		} else if srv != nil {
-			err := callService(srv, ns, c)
+			err := util.CallService(srv, ns, c)
 			return util.CliError(err)
 		}
 

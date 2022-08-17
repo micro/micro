@@ -1,4 +1,4 @@
-package cmd
+package util
 
 import (
 	"bytes"
@@ -11,7 +11,6 @@ import (
 	"unicode"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
-	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/registry"
@@ -19,22 +18,22 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// lookupService queries the service for a service with the given alias. If
+// LookupService queries the service for a service with the given alias. If
 // no services are found for a given alias, the registry will return nil and
 // the error will also be nil. An error is only returned if there was an issue
 // listing from the registry.
-func lookupService(ctx *cli.Context) (*registry.Service, string, error) {
+func LookupService(ctx *cli.Context) (*registry.Service, string, error) {
 	// use the first arg as the name, e.g. "micro helloworld foo"
 	// would try to call the helloworld service
 	name := ctx.Args().First()
 
 	// if its a built in then we set domain to micro
-	if util.IsBuiltInService(name) {
+	if IsBuiltInService(name) {
 		srv, err := serviceWithName(name, registry.DefaultDomain)
 		return srv, registry.DefaultDomain, err
 	}
 
-	env, err := util.GetEnv(ctx)
+	env, err := GetEnv(ctx)
 	if err != nil {
 		return nil, "", err
 	}
@@ -62,8 +61,8 @@ func lookupService(ctx *cli.Context) (*registry.Service, string, error) {
 	return srv, registry.DefaultDomain, err
 }
 
-// formatServiceUsage returns a string containing the service usage.
-func formatServiceUsage(srv *registry.Service, c *cli.Context) string {
+// FormatServiceUsage returns a string containing the service usage.
+func FormatServiceUsage(srv *registry.Service, c *cli.Context) string {
 	alias := c.Args().First()
 	subcommand := c.Args().Get(1)
 
@@ -139,10 +138,10 @@ func renderValue(path []string, value *registry.Value) string {
 	return fmt.Sprintf("\t--%v %v", strings.Join(append(path, value.Name), "_"), value.Type)
 }
 
-// callService will call a service using the arguments and flags provided
+// CallService will call a service using the arguments and flags provided
 // in the context. It will print the result or error to stdout. If there
 // was an error performing the call, it will be returned.
-func callService(srv *registry.Service, namespace string, ctx *cli.Context) error {
+func CallService(srv *registry.Service, namespace string, ctx *cli.Context) error {
 	// parse the flags and args
 	args, flags, err := splitCmdArgs(ctx.Args().Slice())
 	if err != nil {
@@ -168,7 +167,7 @@ func callService(srv *registry.Service, namespace string, ctx *cli.Context) erro
 	}
 
 	// parse the flags
-	body, err := flagsToRequest(flags, ep.Request)
+	body, err := FlagsToRequest(flags, ep.Request)
 	if err != nil {
 		return err
 	}
@@ -177,7 +176,7 @@ func callService(srv *registry.Service, namespace string, ctx *cli.Context) erro
 	callCtx := ctx.Context
 
 	// TODO: are we replacing a context that contains anything?
-	if util.IsBuiltInService(srv.Name) {
+	if IsBuiltInService(srv.Name) {
 		// replace with default for micro namespace in header
 		callCtx = context.DefaultContext
 	} else if len(namespace) > 0 {
@@ -270,8 +269,8 @@ func constructEndpoint(args []string) (string, error) {
 	return fmt.Sprintf("%v.%v", strings.Title(epComps[0]), strings.Title(epComps[1])), nil
 }
 
-// shouldRenderHelp returns true if the help flag was passed
-func shouldRenderHelp(ctx *cli.Context) bool {
+// ShouldRenderHelp returns true if the help flag was passed
+func ShouldRenderHelp(ctx *cli.Context) bool {
 	_, flags, _ := splitCmdArgs(ctx.Args().Slice())
 	for key := range flags {
 		if key == "help" {
@@ -281,13 +280,13 @@ func shouldRenderHelp(ctx *cli.Context) bool {
 	return false
 }
 
-// flagsToRequest parses a set of flags, e.g {name:"Foo", "options_surname","Bar"} and
+// FlagsToRequest parses a set of flags, e.g {name:"Foo", "options_surname","Bar"} and
 // converts it into a request body. If the key is not a valid object in the request, an
 // error will be returned.
 //
 // This function constructs []interface{} slices
 // as opposed to typed ([]string etc) slices for easier testing
-func flagsToRequest(flags map[string][]string, req *registry.Value) (map[string]interface{}, error) {
+func FlagsToRequest(flags map[string][]string, req *registry.Value) (map[string]interface{}, error) {
 	coerceValue := func(valueType string, value []string) (interface{}, error) {
 		switch valueType {
 		case "bool":
