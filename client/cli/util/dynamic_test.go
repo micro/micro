@@ -365,7 +365,7 @@ func TestDynamicFlagParsing(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			req, err := flagsToRequest(flags, c.values)
+			req, err := FlagsToRequest(flags, c.values)
 			if err != nil {
 				t.Fatal(err)
 			}
