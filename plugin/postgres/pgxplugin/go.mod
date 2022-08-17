@@ -1,4 +1,4 @@
-module github.com/micro/micro/plugin/pgx/v3
+module github.com/micro/micro/plugin/pgxplugin/v3
 
 go 1.17
 
