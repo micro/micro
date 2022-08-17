@@ -428,7 +428,7 @@ jQuery(function($, undefined) {
 				"request": reqBody
 			}
 			req.open("POST", "/rpc", true);
-			req.setRequestHeader("Content-type","application/json");
+			req.setRequestHeader("Content-Type","application/json");
 
 			if (headers != undefined) {
 				for (let [key, value] of Object.entries(headers)) {
