@@ -67,12 +67,6 @@ and `micro user set [namespace]`.
 
 Explore, discover and consume services via the web using Micro Web. The dashboard makes use of your env configuration to locate the server.
 
-```
-micro web
-```
-
-Browse to `localhost:8082`
-
 ## Installation
 
 ### From Source
@@ -302,6 +296,16 @@ go run main.go
 ```
 
 For more see the [getting started](https://micro.dev/getting-started) guide.
+
+## Dashboard
+
+Use services via the web with the Micro Web dashboard
+
+```
+micro web
+```
+
+Browse to `localhost:8082`
 
 ## Docs
 
