@@ -1,4 +1,4 @@
-package pgxplugin
+package pgx
 
 import "fmt"
 

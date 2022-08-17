@@ -1,4 +1,4 @@
-package pgxplugin
+package pgx
 
 import (
 	"database/sql/driver"

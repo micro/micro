@@ -10,8 +10,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pgxplugin implements the postgres store with pgx driver
-package pgxplugin
+// Package pgx implements the postgres store with pgx driver
+package pgx
 
 import (
 	"database/sql"

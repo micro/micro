@@ -1,4 +1,4 @@
-package pgxplugin
+package pgx
 
 import "github.com/jackc/pgx/v4/pgxpool"
 
