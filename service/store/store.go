@@ -47,7 +47,7 @@ type Store interface {
 	Options() Options
 	// Read takes a single key name and optional ReadOptions. It returns matching []*Record or an error.
 	Read(key string, opts ...ReadOption) ([]*Record, error)
-	// Write() writes a record to the store, and returns an error if the record was not written.
+	// Write writes a record to the store, and returns an error if the record was not written.
 	Write(r *Record, opts ...WriteOption) error
 	// Delete removes the record with the corresponding key from the store.
 	Delete(key string, opts ...DeleteOption) error
