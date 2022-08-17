@@ -535,7 +535,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(prof) == 0 {
 		switch ctx.Args().First() {
 		case "service", "server":
-			prof = "local"
+			prof = "server"
 		default:
 			prof = "client"
 		}
