@@ -111,6 +111,10 @@ func Run(context *cli.Context) error {
 
 	// save the runtime
 	runtimeServer := runtime.DefaultRuntime
+	// get the runtime environment
+	runtimeEnv := runtimeServer.String()
+	// exit after starting
+	runtimeExit := false
 
 	// start the services
 	for _, service := range services {
@@ -142,7 +146,8 @@ func Run(context *cli.Context) error {
 		// for kubernetes we want to provide a port and instruct the service to bind to it. we don't do
 		// this locally because the services are not isolated and the ports will conflict
 		var port string
-		if runtime.DefaultRuntime.String() == "kubernetes" {
+
+		if runtimeEnv == "kubernetes" {
 			switch service {
 			case "api":
 				// run the api on :443, the standard port for HTTPs
@@ -165,6 +170,9 @@ func Run(context *cli.Context) error {
 				port = "8080"
 				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
 			}
+
+			// exit after starting services
+			runtimeExit = true
 		}
 
 		// we want to pass through the global args so go up one level in the context lineage
@@ -199,8 +207,8 @@ func Run(context *cli.Context) error {
 		}
 	}
 
-	// server is deployed as a pod in k8s, meaning it should exit once the services have been created.
-	if runtimeServer.String() == "kubernetes" {
+	// server is deployed as a job in k8s, meaning it should exit once the services have been created.
+	if runtimeExit {
 		return nil
 	}
 
