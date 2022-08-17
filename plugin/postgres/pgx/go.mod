@@ -25,4 +25,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/micro/micro/v3 => ../..
+replace github.com/micro/micro/v3 => ./../../..
