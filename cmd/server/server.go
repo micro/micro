@@ -28,7 +28,6 @@ var (
 		"auth",     // :8010
 		"proxy",    // :8081
 		"api",      // :8080
-		"web",      // :8082
 	}
 )
 
@@ -125,11 +124,6 @@ func Run(context *cli.Context) error {
 
 		// TODO: remove hacks
 		profile := context.String("profile")
-
-		// web has to behave like a client
-		if service == "web" {
-			profile = "client"
-		}
 
 		env := envvars
 		env = append(env, "MICRO_PROFILE="+profile)
