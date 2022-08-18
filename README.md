@@ -63,7 +63,7 @@ Finally Micro bakes in the concept of `Environments` and multi-tenancy through `
 development and in the cloud for staging and production, seamlessly switch between them using the CLI commands `micro env set [environment]` 
 and `micro user set [namespace]`.
 
-**Dashboard**
+**Web Dashboard**
 
 Explore, discover and consume services via the web using Micro Web. The dashboard makes use of your env configuration to locate the server 
 and provides dynamic form fill for services.
