@@ -298,7 +298,7 @@ go run main.go
 
 For more see the [getting started](https://micro.dev/getting-started) guide.
 
-## Dashboard
+## Web Dashboard
 
 Use services via the web with the Micro Web dashboard
 
