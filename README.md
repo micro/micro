@@ -138,8 +138,6 @@ server
 store
 ```
 
-View in browser at localhost:8082
-
 ### Create a Service
 
 Generate a service using the template
