@@ -65,7 +65,8 @@ and `micro user set [namespace]`.
 
 **Dashboard**
 
-Explore, discover and consume services via the web using Micro Web. The dashboard makes use of your env configuration to locate the server.
+Explore, discover and consume services via the web using Micro Web. The dashboard makes use of your env configuration to locate the server 
+and provides dynamic form fill for services.
 
 ## Installation
 
