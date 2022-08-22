@@ -59,7 +59,7 @@ services, status info and log streaming, plus much, much more.
 
 **Environments**
 
-Finally Micro bakes in the concept of `Environments` and multi-tenancy through `Namespaces`. Run your server locally for 
+Micro bakes in the concept of `Environments` and multi-tenancy through `Namespaces`. Run your server locally for 
 development and in the cloud for staging and production, seamlessly switch between them using the CLI commands `micro env set [environment]` 
 and `micro user set [namespace]`.
 
