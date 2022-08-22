@@ -205,30 +205,42 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
 	proto "github.com/micro/services/helloworld/proto"
 )
 
+func callService(c client.Client) {
+	// create the proto client for helloworld
+	hw := proto.NewHelloworldService("helloworld", c)
+
+	for {
+		// call an endpoint on the service
+		rsp, err := hw.Call(context.Background(), &proto.CallRequest{
+			Name: "John",
+		})
+		if err != nil {
+			fmt.Println("Error calling helloworld: ", err)
+			return
+		}
+
+		// print the response
+		fmt.Println("Response: ", rsp.Message)
+
+		time.Sleep(time.Second)
+	}
+}
+
 func main() {
 	// create and initialise a new service
-	srv := service.New()
+	srv := service.New(
+		service.Name("caller"),
+	)
 
-	// create the proto client for helloworld
-	client := proto.NewHelloworldService("helloworld", srv.Client())
-
-	// call an endpoint on the service
-	rsp, err := client.Call(context.Background(), &proto.CallRequest{
-		Name: "John",
-	})
-	if err != nil {
-		fmt.Println("Error calling helloworld: ", err)
-		return
-	}
-
-	// print the response
-	fmt.Println("Response: ", rsp.Message)
+	// run the client caller
+	go callService(srv.Client())
 	
-	// let's delay the process for exiting for reasons you'll see below
-	time.Sleep(time.Second * 5)
+	// run the service
+	service.Run()
 }
 ```
 
