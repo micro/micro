@@ -329,6 +329,17 @@ $ micro env
 
 Each environment is effectively an isolated deployment with its own authentication, storage, etc. So each env requires signup and login. At this point we have to log in to the `example` env with `micro login`. If you don't have credentials to the environment, you have to ask the admin.
 
+### Web Dashboard
+
+View and query services in a web browser at localhost:8082. The web dashboard is a simple 
+layer on top of the system to visualise services and their endpoints. Additionally it generates 
+dynamic forms for easy querying.
+
+Run the dashboard with the command
+```
+micro web
+```
+
 ## Services
 
 Micro is built as a distributed operating system leveraging the microservices architecture pattern.
@@ -1234,17 +1245,6 @@ func (u *Users) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 	fRsp, err := u.foosrv.Call(newCtx, &foosrv.Request{})
 	...
 }
-```
-
-### Web Dashboard
-
-View and query services in a web browser at localhost:8082. The web dashboard is a simple 
-layer on top of the system to visualise services and their endpoints. Additionally it generates 
-dynamic forms for easy querying.
-
-Run the dashboard with the command
-```
-micro web
 ```
 
 ## Plugins
