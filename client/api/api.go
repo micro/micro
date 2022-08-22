@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"path"
 	"strings"
 	"time"
 
@@ -128,7 +129,7 @@ func (client *Client) Call(service, endpoint string, request, response interface
 	}
 
 	// set the url to go through the v1 api
-	uri.Path = "/" + service + "/" + endpoint
+	uri.Path = path.Join(uri.Path, service, endpoint)
 
 	b, err := marshalRequest(service, endpoint, request)
 	if err != nil {
@@ -181,7 +182,7 @@ func (client *Client) Stream(service, endpoint string, request interface{}) (*St
 	}
 
 	// set the url to go through the v1 api
-	uri.Path = "/" + service + "/" + endpoint
+	uri.Path = path.Join(uri.Path, service, endpoint)
 
 	// replace http with websocket
 	uri.Scheme = strings.Replace(uri.Scheme, "http", "ws", 1)
