@@ -19,7 +19,6 @@ import (
 type rpcRequest struct {
 	Service  string
 	Endpoint string
-	Method   string
 	Address  string
 	Request  interface{}
 }
@@ -83,7 +82,8 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		request = rpcReq.Request
 
 		if len(endpoint) == 0 {
-			endpoint = rpcReq.Method
+			badRequest("missing endpoint in request")
+			return
 		}
 
 		// JSON as string
