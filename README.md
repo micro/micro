@@ -57,16 +57,16 @@ dynamic command mapping for all services running on the platform. Turns any serv
 for inputs. Includes support for multiple environments and namespaces, automatic refreshing of auth credentials, creating and running 
 services, status info and log streaming, plus much, much more.
 
+**Dashboard**
+
+Explore, discover and consume services via a browser using Micro Web. The dashboard makes use of your env configuration to locate the server 
+and provides dynamic form fill for services.
+
 **Environments**
 
 Micro bakes in the concept of `Environments` and multi-tenancy through `Namespaces`. Run your server locally for 
 development and in the cloud for staging and production, seamlessly switch between them using the CLI commands `micro env set [environment]` 
 and `micro user set [namespace]`.
-
-**Web Dashboard**
-
-Explore, discover and consume services via the web using Micro Web. The dashboard makes use of your env configuration to locate the server 
-and provides dynamic form fill for services.
 
 ## Installation
 
