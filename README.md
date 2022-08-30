@@ -34,7 +34,7 @@ into any underlying system.
 The server is composed of the following services.
 
 - **API** - A Gateway which dynamically maps HTTP requests to RPC using path based resolution
-- **Auth** - Authentication and authorization out of the box using jwt tokens and rule based access control.
+- **Auth** - Authentication and authorization out of the box using JWT tokens and rule based access control.
 - **Broker** - Ephemeral pubsub messaging for asynchronous communication and distributing notifications
 - **Config** - Dynamic configuration and secrets management for service level config without the need to restart
 - **Events** - Event streaming with ordered messaging, replay from offsets and persistent storage
