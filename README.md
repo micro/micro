@@ -143,6 +143,38 @@ Generate a service using the template
 micro new helloworld
 ```
 
+Output
+
+```
+Creating service helloworld
+
+.
+├── micro.mu
+├── main.go
+├── generate.go
+├── handler
+│   └── helloworld.go
+├── proto
+│   └── helloworld.proto
+├── Dockerfile
+├── Makefile
+├── README.md
+├── .gitignore
+└── go.mod
+
+
+download protoc zip packages (protoc-$VERSION-$PLATFORM.zip) and install:
+
+visit https://github.com/protocolbuffers/protobuf/releases
+
+compile the proto file helloworld.proto:
+
+cd helloworld
+make init
+go mod vendor
+make proto
+```
+
 ### Run a service
 
 Run from local dir
