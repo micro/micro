@@ -24,3 +24,5 @@ jobs:
       env:
         USERNAME: ${{ secrets.DOCKER_USERNAME }}
         PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_DOMAIN: ghcr.io
+        IMAGE: micro/cells
