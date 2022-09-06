@@ -48,7 +48,7 @@ func NewOptions(opts ...Option) Options {
 
 	// set namespace if blank
 	if len(options.Namespace) == 0 {
-		WithNamespace("go.micro.api")(&options)
+		WithNamespace("micro")(&options)
 	}
 
 	if options.MaxRecvSize == 0 {

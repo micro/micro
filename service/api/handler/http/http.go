@@ -66,9 +66,9 @@ func (h *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *httpHandler) getService(r *http.Request) (string, error) {
 	var service *api.Service
 
-	if h.s != nil {
+	if v, ok := r.Context().(handler.Context); ok {
 		// we were given the service
-		service = h.s
+		service = v.Service()
 	} else if h.options.Router != nil {
 		// try get service from router
 		s, err := h.options.Router.Route(r)
@@ -106,15 +106,5 @@ func NewHandler(opts ...handler.Option) handler.Handler {
 
 	return &httpHandler{
 		options: options,
-	}
-}
-
-// WithService creates a handler with a service
-func WithService(s *api.Service, opts ...handler.Option) handler.Handler {
-	options := handler.NewOptions(opts...)
-
-	return &httpHandler{
-		options: options,
-		s:       s,
 	}
 }

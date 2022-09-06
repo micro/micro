@@ -35,7 +35,7 @@ type Handler interface {
 	String() string
 }
 
-type APIHandler struct {}
+type APIHandler struct{}
 
 func (a *APIHandler) ReadBlockList(ctx context.Context, request *api.ReadBlockListRequest, response *api.ReadBlockListResponse) error {
 	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "api.API.AddToBlockList"); err != nil {
