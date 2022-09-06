@@ -204,7 +204,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// write the response
-	writeResponse(w, r, rsp)
+	writeResponse(w, r, rsp, ct)
 }
 
 func (rh *rpcHandler) String() string {
@@ -255,8 +255,8 @@ func writeError(w http.ResponseWriter, r *http.Request, err error) {
 	}
 }
 
-func writeResponse(w http.ResponseWriter, r *http.Request, rsp []byte) {
-	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+func writeResponse(w http.ResponseWriter, r *http.Request, rsp []byte, ct string) {
+	w.Header().Set("Content-Type", ct)
 	w.Header().Set("Content-Length", strconv.Itoa(len(rsp)))
 
 	// Set trailers
