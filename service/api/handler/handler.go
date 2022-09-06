@@ -30,13 +30,12 @@ import (
 // Handler represents a HTTP handler that manages a request
 type Handler interface {
 	// standard http handler
-	http.Handler
+	ServeHTTP(w http.ResponseWriter, r *http.Request)
 	// name of handler
 	String() string
 }
 
-type APIHandler struct {
-}
+type APIHandler struct {}
 
 func (a *APIHandler) ReadBlockList(ctx context.Context, request *api.ReadBlockListRequest, response *api.ReadBlockListResponse) error {
 	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "api.API.AddToBlockList"); err != nil {

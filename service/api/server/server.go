@@ -325,7 +325,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// register all the http handler plugins
-	for _, p := range plugin.Plugins() {
+	for _, p := range plugin.Plugins(plugin.Module("api")) {
 		if v := p.Handler(); v != nil {
 			h = v(h)
 		}
