@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = "./proto;signup";
+
 package go.micro.generator.test;
 
 service Signup {
