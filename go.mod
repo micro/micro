@@ -15,7 +15,7 @@ require (
 	github.com/go-acme/lego/v3 v3.4.0
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/golang-jwt/jwt v0.0.0-20210529014511-0f726ea0e725
-	github.com/golang/protobuf v1.4.3
+	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
@@ -45,8 +45,8 @@ require (
 	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
 	google.golang.org/genproto v0.0.0-20200806141610-86f49bd18e98
 	google.golang.org/grpc v1.40.0
-	google.golang.org/grpc/examples v0.0.0-20211015201449-4757d0249e2d
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/grpc/examples v0.0.0-20220907001426-1530d3b2413b
+	google.golang.org/protobuf v1.27.1
 )
 
 require (
@@ -59,7 +59,6 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/klauspost/cpuid v1.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.7 // indirect
