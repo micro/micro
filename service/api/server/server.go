@@ -1,5 +1,4 @@
-// Package api is an API Gateway
-package api
+package server
 
 import (
 	"fmt"
