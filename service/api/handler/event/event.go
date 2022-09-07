@@ -29,6 +29,7 @@ import (
 	"github.com/google/uuid"
 	proto "github.com/micro/micro/v3/proto/api"
 	"github.com/micro/micro/v3/service/api/handler"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/util/ctx"
 	"github.com/oxtoacart/bpool"
 )
@@ -95,7 +96,18 @@ func (e *event) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// create event
 	// publish to topic
 
-	topic, action := evRoute(e.opts.Namespace, r.URL.Path)
+	var ns string
+	var c client.Client
+
+	if v, ok := r.Context().(handler.Context); ok {
+		ns = v.Domain()
+		c = v.Client()
+	} else {
+		ns = e.opts.Namespace
+		c = e.opts.Client
+	}
+
+	topic, action := evRoute(ns, r.URL.Path)
 
 	// create event
 	ev := &proto.Event{
@@ -132,9 +144,6 @@ func (e *event) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		ev.Data = buf.String()
 	}
-
-	// get client
-	c := e.opts.Client
 
 	// create publication
 	p := c.NewMessage(topic, ev)

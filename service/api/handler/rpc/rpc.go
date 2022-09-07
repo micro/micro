@@ -90,10 +90,12 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 	var service *api.Service
+	var c client.Client
 
-	if h.s != nil {
+	if v, ok := r.Context().(handler.Context); ok {
 		// we were given the service
-		service = h.s
+		service = v.Service()
+		c = v.Client()
 	} else if h.opts.Router != nil {
 		// try get service from router
 		s, err := h.opts.Router.Route(r)
@@ -102,6 +104,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		service = s
+		c = h.opts.Client
 	} else {
 		// we have no way of routing the request
 		writeError(w, r, errors.InternalServerError("go.micro.api", "no route found"))
@@ -114,9 +117,6 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if idx := strings.IndexRune(ct, ';'); idx >= 0 {
 		ct = ct[:idx]
 	}
-
-	// micro client
-	c := h.opts.Client
 
 	// create context
 	cx := ctx.FromRequest(r)
