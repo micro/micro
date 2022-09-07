@@ -41,7 +41,7 @@ getSystemInfo() {
 }
 
 checkSupported() {
-    local supported_osarch=(darwin-amd64 linux-amd64 linux-arm7 linux-arm64)
+    local supported_osarch=(darwin-amd64 darwin-arm64 linux-amd64 linux-arm7 linux-arm64)
     local machine_osarch="${OS}-${ARCH}"
 
     echo "Checking machine system support"
