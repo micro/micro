@@ -24,7 +24,7 @@ import (
 
 	"google.golang.org/grpc"
 	pgrpc "google.golang.org/grpc"
-	pb "google.golang.org/grpc/examples/helloworld/helloworld"
+	pb "github.com/micro/micro/v3/service/client/grpc/proto"
 )
 
 func testPool(t *testing.T, size int, ttl time.Duration, idle int, ms int) {

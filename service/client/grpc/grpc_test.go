@@ -28,7 +28,7 @@ import (
 	"github.com/micro/micro/v3/service/router"
 	regRouter "github.com/micro/micro/v3/service/router/registry"
 	pgrpc "google.golang.org/grpc"
-	pb "google.golang.org/grpc/examples/helloworld/helloworld"
+	pb "github.com/micro/micro/v3/service/client/grpc/proto"
 )
 
 // server is used to implement helloworld.GreeterServer.
