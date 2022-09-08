@@ -9,11 +9,11 @@ require (
 	github.com/micro/micro/plugin/etcd/v3 v3.0.0-20220816083658-7f875afc6a39
 	github.com/micro/micro/plugin/postgres/v3 v3.0.0-20210825142032-d27318700a59
 	github.com/micro/micro/plugin/prometheus/v3 v3.0.0-20201217215412-2f7ad18595ff
-	github.com/micro/micro/plugin/redis/blocklist/v3 v3.0.0-20210818101332-9a333769a3d7
+	github.com/micro/micro/plugin/redis/blocklist/v3 v3.0.0-20220908113659-758df06ca38b
 	github.com/micro/micro/plugin/redis/broker/v3 v3.0.0-20210622092058-b12502169757
 	github.com/micro/micro/plugin/redis/stream/v3 v3.0.0-20210622092058-b12502169757
 	github.com/micro/micro/plugin/s3/v3 v3.0.0-20220203170347-2c86e5fb6d13
-	github.com/micro/micro/v3 v3.12.4-0.20220907131146-9ae167ff9011
+	github.com/micro/micro/v3 v3.12.4-0.20220908113659-758df06ca38b
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/prometheus/procfs v0.2.0 // indirect
 	github.com/urfave/cli/v2 v2.3.0

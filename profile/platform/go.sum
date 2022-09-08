@@ -278,8 +278,8 @@ github.com/micro/micro/plugin/postgres/v3 v3.0.0-20210825142032-d27318700a59 h1:
 github.com/micro/micro/plugin/postgres/v3 v3.0.0-20210825142032-d27318700a59/go.mod h1:xx/UW5gji91EHNCrtDU2yseWm3hjG0+xlhfriU1IsFk=
 github.com/micro/micro/plugin/prometheus/v3 v3.0.0-20201217215412-2f7ad18595ff h1:PvLSWPb++sc1W2ooEWGmVHgqgDA8N8ObtLlbdSfSsjc=
 github.com/micro/micro/plugin/prometheus/v3 v3.0.0-20201217215412-2f7ad18595ff/go.mod h1:WHp5Bi/PJKyFbo2WTO1RGGxK6UDQDoVi83/o4tGey1Q=
-github.com/micro/micro/plugin/redis/blocklist/v3 v3.0.0-20210818101332-9a333769a3d7 h1:N6kmUEQAzPa1+9j6YVNjYg6+zWwlgN/nYnrEvYJGwFw=
-github.com/micro/micro/plugin/redis/blocklist/v3 v3.0.0-20210818101332-9a333769a3d7/go.mod h1:idl9l3dy0zbdrmk9PpmOfmL3jAniYkUwChqa5YY99JA=
+github.com/micro/micro/plugin/redis/blocklist/v3 v3.0.0-20220908113659-758df06ca38b h1:9jIZl2qBSiHvE5SFy7G71JhPSHUiYS7ur/9FIG0UQfM=
+github.com/micro/micro/plugin/redis/blocklist/v3 v3.0.0-20220908113659-758df06ca38b/go.mod h1:idl9l3dy0zbdrmk9PpmOfmL3jAniYkUwChqa5YY99JA=
 github.com/micro/micro/plugin/redis/broker/v3 v3.0.0-20210622092058-b12502169757 h1:mleDPROwXoPifCc+17SYAUuctXwv97DeRAobNJigASI=
 github.com/micro/micro/plugin/redis/broker/v3 v3.0.0-20210622092058-b12502169757/go.mod h1:tz7HERX/HaNdgrfE0N+XyE92l+Kx9iBOfAh+T4outY4=
 github.com/micro/micro/plugin/redis/stream/v3 v3.0.0-20210622092058-b12502169757 h1:tpTxzTzXVPw+CVyuwlP5ar2BHbDNcDYidMmCg5hl6Oc=
@@ -290,8 +290,8 @@ github.com/micro/micro/v3 v3.0.4/go.mod h1:dZa1KcK6Uh9ny7nhgHxOvoPiZR5cAnZefYT+E
 github.com/micro/micro/v3 v3.2.2-0.20210526102354-5294ad2ae421/go.mod h1:3ogxiE772ZvjjZlyzUHP++7+h5TtEu6Jdbbo6lDUw6Y=
 github.com/micro/micro/v3 v3.2.2-0.20210607125937-d152c4ec7749/go.mod h1:3ogxiE772ZvjjZlyzUHP++7+h5TtEu6Jdbbo6lDUw6Y=
 github.com/micro/micro/v3 v3.3.1-0.20210803122146-2a2fa437600d/go.mod h1:855ukspaOjK3oP73p/UqdAx9vozgB+0VRyVavbAFXJ4=
-github.com/micro/micro/v3 v3.12.4-0.20220907131146-9ae167ff9011 h1:r+LNCOMm/c8GnEP35xOYUDNwubR0psekhfQMjjlC6FQ=
-github.com/micro/micro/v3 v3.12.4-0.20220907131146-9ae167ff9011/go.mod h1:Ds9tQLQKUcPWqw7fOU852TDBP113Lh9usUhEMt90xMo=
+github.com/micro/micro/v3 v3.12.4-0.20220908113659-758df06ca38b h1:ikl6dXd1qvnPYAoRAe5suLXqmyHtxq4bbTxLrhlgokk=
+github.com/micro/micro/v3 v3.12.4-0.20220908113659-758df06ca38b/go.mod h1:WDmhwOJjm0KJWcbyzaxc/S2LuIjd9WUqIPEc+cFs4SQ=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
 github.com/minio/md5-simd v1.1.0/go.mod h1:XpBqgZULrMYD3R+M28PcmP0CkI7PEMzB3U77ZrKZ0Gw=
