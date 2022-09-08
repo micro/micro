@@ -11,6 +11,7 @@ import (
 	"github.com/micro/micro/v3/service/api/resolver"
 	"github.com/micro/micro/v3/service/api/resolver/subdomain"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/logger"
 	inauth "github.com/micro/micro/v3/util/auth"
 	"github.com/micro/micro/v3/util/ctx"
@@ -19,11 +20,18 @@ import (
 
 // Wrapper wraps a handler and authenticates requests
 func Wrapper(r resolver.Resolver, prefix string) api.Wrapper {
+	useBlockList := false
+	val, err := config.Get("micro.api.blocklist_enabled")
+	if err == nil {
+		useBlockList = val.Bool(false)
+	}
+
 	return func(h http.Handler) http.Handler {
 		return authWrapper{
 			handler:       h,
 			resolver:      r,
 			servicePrefix: prefix,
+			useBlockList: useBlockList,
 		}
 	}
 }
@@ -32,6 +40,7 @@ type authWrapper struct {
 	handler       http.Handler
 	resolver      resolver.Resolver
 	servicePrefix string
+	useBlockList bool
 }
 
 func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -97,7 +106,8 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Is this account on the blocklist?
-	if acc != nil {
+	if acc != nil && a.useBlockList {
+		fmt.Println("checking block list")
 		if blocked, _ := DefaultBlockList.IsBlocked(req.Context(), acc.ID, acc.Issuer); blocked {
 			http.Error(w, "unauthorized request", http.StatusUnauthorized)
 			return
