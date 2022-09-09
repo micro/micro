@@ -110,7 +110,14 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 	w.Header().Set("Content-Type", ct)
 
 	// create custom router
-	callOpt := client.WithRouter(router.New(service.Services))
+	var nodes []string
+	for _, service := range service.Services {
+		for _, node := range service.Nodes {
+			nodes = append(nodes, node.Address)
+		}
+	}
+
+	callOpt := client.WithAddress(nodes...)
 
 	// create a new stream
 	stream, err := c.Stream(ctx, req, callOpt)
