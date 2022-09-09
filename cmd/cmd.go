@@ -516,13 +516,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		uconf.SetConfig(cf)
 	}
 
-	// initialize plugins
-	for _, p := range plugin.Plugins() {
-		if err := p.Init(ctx); err != nil {
-			return err
-		}
-	}
-
 	// certain commands don't require loading
 	if ctx.Args().First() == "env" {
 		return nil
@@ -739,6 +732,13 @@ func (c *command) Before(ctx *cli.Context) error {
 		config.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
 	} else if config.DefaultConfig == nil {
 		config.DefaultConfig, _ = storeConf.NewConfig(store.DefaultStore, ctx.String("namespace"))
+	}
+
+	// initialize plugins
+	for _, p := range plugin.Plugins() {
+		if err := p.Init(ctx); err != nil {
+			return err
+		}
 	}
 
 	return nil
