@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"time"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/service/client"
@@ -189,9 +190,12 @@ func CallService(srv *registry.Service, namespace string, ctx *cli.Context) erro
 	// construct and execute the request using the json content type
 	req := client.DefaultClient.NewRequest(srv.Name, endpoint, body, client.WithContentType("application/json"))
 	var rsp json.RawMessage
+
+	t := time.Now()
 	if err := client.DefaultClient.Call(callCtx, req, &rsp, client.WithAuthToken()); err != nil {
 		return err
 	}
+	fmt.Println(time.Since(t))
 
 	// format the response
 	var out bytes.Buffer
@@ -271,12 +275,19 @@ func constructEndpoint(args []string) (string, error) {
 
 // ShouldRenderHelp returns true if the help flag was passed
 func ShouldRenderHelp(ctx *cli.Context) bool {
-	_, flags, _ := splitCmdArgs(ctx.Args().Slice())
+	args, flags, _ := splitCmdArgs(ctx.Args().Slice())
+
+	// only 1 arg e.g micro helloworld
+	if len(args) == 1 {
+		return true
+	}
+
 	for key := range flags {
 		if key == "help" {
 			return true
 		}
 	}
+
 	return false
 }
 

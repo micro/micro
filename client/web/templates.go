@@ -70,6 +70,7 @@ var (
 		  #navBar, .navbar-toggle { margin-top: 15px; }
 		  .icon-bar { background-color: #333333; }
 		  .nav>li>a:focus, .nav>li>a:hover { background-color: white; }
+		  .logo { font-size: 2em; }
 		 .search {
 		    position: relative;
 		    max-width: 600px;
@@ -107,7 +108,7 @@ var (
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span> 
                 </button>
-                <a class="navbar-brand logo" href="/"><img src="https://micro.dev/images/logo.png" height=50px width=auto style="margin-bottom: 5px;" /></a>
+                <a class="navbar-brand logo" href="/">Micro</a>
               </div>
               <div class="collapse navbar-collapse" id="navBar">
 	        <ul class="nav navbar-nav navbar-right" id="dev">
@@ -263,7 +264,7 @@ jQuery(function($, undefined) {
 `
 	callTemplate = `
 {{define "title"}}Client{{end}}
-{{define "heading"}}<a href="/">&nbsp;< Back</a><h3>Micro Client</h3>{{end}}
+{{define "heading"}}<h3>Client</h3>{{end}}
 {{define "style"}}
 	pre {
 		word-wrap: break-word;
@@ -444,7 +445,7 @@ jQuery(function($, undefined) {
 {{end}}
 `
 	registryTemplate = `
-{{define "heading"}}<a href="/">&nbsp;< Back</a><h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
+{{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
 {{define "title"}}Services{{end}}
 {{define "content"}}
 	<p style="margin: 0;">&nbsp;</p>
@@ -474,7 +475,7 @@ jQuery(function($, undefined) {
 
 	serviceTemplate = `
 {{define "title"}}Service{{end}}
-{{define "heading"}}<a href="/">&nbsp;< Back</a><h3>Micro {{with $svc := index .Results 0}}{{Title $svc.Name}}{{end}}</h3>{{end}}
+{{define "heading"}}<h3>{{with $svc := index .Results 0}}{{Title $svc.Name}}{{end}}</h3>{{end}}
 {{define "style"}}
 .table>tbody>tr>th, .table>tbody>tr>td {
     border-top: none;
@@ -559,7 +560,7 @@ pre {padding: 20px;}
 
 	webTemplate = `
 {{define "title"}}{{Title .Name}}{{end}}
-{{define "heading"}}<a href="/">&nbsp;< Back</a><h3>&nbsp;Micro {{Title .Name}}</h3>{{end}}
+{{define "heading"}}<h3>{{Title .Name}}</h3>{{end}}
 {{define "style"}}
 	pre {
 		word-wrap: break-word;

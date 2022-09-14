@@ -430,38 +430,37 @@ func refreshAuthToken() {
 }
 
 func action(c *cli.Context) error {
-	if c.Args().Len() > 0 {
-		// if an executable is available with the name of
-		// the command, execute it with the arguments from
-		// index 1 on.
-		v, err := exec.LookPath("micro-" + c.Args().First())
-		if err == nil {
-			ce := exec.Command(v, c.Args().Slice()[1:]...)
-			ce.Stdout = os.Stdout
-			ce.Stderr = os.Stderr
-			return ce.Run()
-		}
-
-		// lookup the service, e.g. "micro config set" would
-		// firstly check to see if the service, e.g. config
-		// exists within the current namespace, then it would
-		// execute the Config.Set RPC, setting the flags in the
-		// request.
-		if srv, ns, err := util.LookupService(c); err != nil {
-			return util.CliError(err)
-		} else if srv != nil && util.ShouldRenderHelp(c) {
-			return cli.Exit(util.FormatServiceUsage(srv, c), 0)
-		} else if srv != nil {
-			err := util.CallService(srv, ns, c)
-			return util.CliError(err)
-		}
-
-		// srv == nil
-		return helper.UnexpectedCommand(c)
-
+	if c.Args().Len() == 0 {
+		return helper.MissingCommand(c)
 	}
 
-	return helper.MissingCommand(c)
+	// if an executable is available with the name of
+	// the command, execute it with the arguments from
+	// index 1 on.
+	v, err := exec.LookPath("micro-" + c.Args().First())
+	if err == nil {
+		ce := exec.Command(v, c.Args().Slice()[1:]...)
+		ce.Stdout = os.Stdout
+		ce.Stderr = os.Stderr
+		return ce.Run()
+	}
+
+	// lookup the service, e.g. "micro config set" would
+	// firstly check to see if the service, e.g. config
+	// exists within the current namespace, then it would
+	// execute the Config.Set RPC, setting the flags in the
+	// request.
+	if srv, ns, err := util.LookupService(c); err != nil {
+		return util.CliError(err)
+	} else if srv != nil && util.ShouldRenderHelp(c) {
+		return cli.Exit(util.FormatServiceUsage(srv, c), 0)
+	} else if srv != nil {
+		err := util.CallService(srv, ns, c)
+		return util.CliError(err)
+	}
+
+	// srv == nil
+	return helper.UnexpectedCommand(c)
 }
 
 func New(opts ...Option) *command {

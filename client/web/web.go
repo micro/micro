@@ -184,17 +184,19 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 	var webServices []webService
 	for _, srv := range services {
 		name := srv.Name
+		link := fmt.Sprintf("/%v", name)
 
 		if len(srv.Endpoints) == 0 {
 			continue
 		}
+
 
 		// in the case of 3 letter things e.g m3o convert to M3O
 		if len(name) <= 3 && strings.ContainsAny(name, "012345789") {
 			name = strings.ToUpper(name)
 		}
 
-		webServices = append(webServices, webService{Name: name, Link: fmt.Sprintf("/%v", name)})
+		webServices = append(webServices, webService{Name: name, Link: link})
 	}
 
 	sort.Slice(webServices, func(i, j int) bool { return webServices[i].Name < webServices[j].Name })
