@@ -19,6 +19,7 @@ import (
 	"github.com/fatih/camelcase"
 	"github.com/gorilla/mux"
 	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/client/web/html"
 	apiAuth "github.com/micro/micro/v3/service/api/auth"
 	res "github.com/micro/micro/v3/service/api/resolver"
 	"github.com/micro/micro/v3/service/api/resolver/subdomain"
@@ -156,7 +157,7 @@ func faviconHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *srv) notFoundHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
-	s.render(w, r, notFoundTemplate, nil)
+	s.render(w, r, html.NotFoundTemplate, nil)
 }
 
 func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -209,7 +210,7 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := templateData{len(webServices) > 0, webServices}
-	s.render(w, r, indexTemplate, data)
+	s.render(w, r, html.IndexTemplate, data)
 }
 
 func (s *srv) loginHandler(w http.ResponseWriter, req *http.Request) {
@@ -218,7 +219,7 @@ func (s *srv) loginHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	t, err := template.New("template").Parse(loginTemplate)
+	t, err := template.New("template").Parse(html.LoginTemplate)
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), http.StatusInternalServerError)
 		return
@@ -250,7 +251,7 @@ func (s *srv) logoutHandler(w http.ResponseWriter, req *http.Request) {
 
 func (s *srv) generateTokenHandler(w http.ResponseWriter, req *http.Request) {
 	renderError := func(errMsg string) {
-		t, err := template.New("template").Parse(loginTemplate)
+		t, err := template.New("template").Parse(html.LoginTemplate)
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), http.StatusInternalServerError)
 			return
@@ -336,7 +337,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		s.render(w, r, serviceTemplate, sv)
+		s.render(w, r, html.ServiceTemplate, sv)
 		return
 	}
 
@@ -360,7 +361,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.render(w, r, registryTemplate, services)
+	s.render(w, r, html.RegistryTemplate, services)
 }
 
 func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
@@ -407,7 +408,7 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.render(w, r, callTemplate, serviceMap)
+	s.render(w, r, html.CallTemplate, serviceMap)
 }
 
 func (s *srv) serviceHandler(w http.ResponseWriter, r *http.Request) {
@@ -452,7 +453,7 @@ func (s *srv) serviceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.render(w, r, webTemplate, serviceMap, templateValue{
+	s.render(w, r, html.WebTemplate, serviceMap, templateValue{
 		Key:   "Name",
 		Value: name,
 	})
@@ -477,7 +478,7 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 		"Endpoint": func(ep string) string {
 			return strings.Replace(ep, ".", "/", -1)
 		},
-	}).Parse(layoutTemplate)
+	}).Parse(html.LayoutTemplate)
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return

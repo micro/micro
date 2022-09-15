@@ -1,7 +1,7 @@
-package web
+package html
 
 var (
-	loginTemplate = `
+	LoginTemplate = `
 	{{define "basic"}}
 		<html>
 		<head>
@@ -51,7 +51,7 @@ var (
 	{{end}}
 `
 
-	layoutTemplate = `
+	LayoutTemplate = `
 {{define "layout"}}
 <html>
 	<head>
@@ -163,7 +163,7 @@ var (
 {{ define "heading" }}<h3>&nbsp;</h3>{{end}}
 `
 
-	indexTemplate = `
+	IndexTemplate = `
 {{define "title"}}Home{{end}}
 {{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
 {{define "style" }}
@@ -262,7 +262,7 @@ jQuery(function($, undefined) {
 </script>
 {{end}}
 `
-	callTemplate = `
+	CallTemplate = `
 {{define "title"}}Client{{end}}
 {{define "heading"}}<h3>Client</h3>{{end}}
 {{define "style"}}
@@ -444,7 +444,7 @@ jQuery(function($, undefined) {
 	</script>
 {{end}}
 `
-	registryTemplate = `
+	RegistryTemplate = `
 {{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
 {{define "title"}}Services{{end}}
 {{define "content"}}
@@ -473,7 +473,7 @@ jQuery(function($, undefined) {
 {{end}}
 `
 
-	serviceTemplate = `
+	ServiceTemplate = `
 {{define "title"}}Service{{end}}
 {{define "heading"}}<h3>{{with $svc := index .Results 0}}{{Title $svc.Name}}{{end}}</h3>{{end}}
 {{define "style"}}
@@ -558,7 +558,7 @@ pre {padding: 20px;}
 
 `
 
-	webTemplate = `
+	WebTemplate = `
 {{define "title"}}{{Title .Name}}{{end}}
 {{define "heading"}}<h3>{{Title .Name}}</h3>{{end}}
 {{define "style"}}
@@ -738,7 +738,7 @@ pre {padding: 20px;}
 {{end}}
 `
 
-	notFoundTemplate = `
+	NotFoundTemplate = `
 {{define "title"}}404: Not Found{{end}}
 {{define "heading"}}<h3>404: Not Found</h3>{{end}}
 {{define "content"}}<p>The requested page could not be found</p>{{end}}`
