@@ -9,12 +9,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/fatih/camelcase"
@@ -24,7 +22,6 @@ import (
 	apiAuth "github.com/micro/micro/v3/service/api/auth"
 	"github.com/micro/micro/v3/service/api/resolver"
 	"github.com/micro/micro/v3/service/api/resolver/subdomain"
-	httpapi "github.com/micro/micro/v3/service/api/server/http"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/router"
@@ -160,8 +157,6 @@ func (s *srv) notFoundHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
-	httpapi.SetHeaders(w, r)
-
 	if r.Method == "OPTIONS" {
 		return
 	}
@@ -554,6 +549,11 @@ func Run(ctx *cli.Context) error {
 		// backwards compatability
 		Namespace = ctx.String("namespace")
 	}
+	// Setup auth redirect
+	if len(ctx.String("login_url")) > 0 {
+		LoginURL = ctx.String("login_url")
+	}
+
 
 	// Setup the web resolver
 	var res resolver.Resolver
@@ -596,28 +596,19 @@ func Run(ctx *cli.Context) error {
 	srv.HandleFunc("/{service}", srv.serviceHandler)
 	srv.HandleFunc("/", srv.indexHandler)
 
-	// create the service and add the auth wrapper
-	aw := apiAuth.Wrapper(srv.resolver, Namespace)
-	server := httpapi.NewServer(Address)
-	server.Handle("/", aw(h))
-
-	// Setup auth redirect
-	if len(ctx.String("login_url")) > 0 {
-		LoginURL = ctx.String("login_url")
-	}
-
 	// set the login url
 	auth.DefaultAuth.Init(auth.LoginURL(LoginURL))
 
-	if err := server.Start(); err != nil {
-		log.Fatal(err)
+	// create the service and add the auth wrapper
+	aw := apiAuth.Wrapper(srv.resolver, Namespace)
+
+	// create new http server
+	server :=  &http.Server{
+		Addr: Address,
+		Handler: aw(h),
 	}
 
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL)
-	<-ch
-
-	if err := server.Stop(); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 
