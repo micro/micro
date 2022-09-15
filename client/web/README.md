@@ -7,7 +7,7 @@ A web dashboard for Micro
 Specify the API Address
 
 ```
-export MICRO_API_ADDRESS=https://api.m3o.com
+MICRO_API_ADDRESS=https://api.m3o.com
 ```
 
 Run the dashboard
