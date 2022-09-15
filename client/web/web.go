@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"net/url"
-	"path/filepath"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
@@ -18,16 +19,14 @@ import (
 
 	"github.com/fatih/camelcase"
 	"github.com/gorilla/mux"
-	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/client/web/html"
+	"github.com/micro/micro/v3/cmd"
 	apiAuth "github.com/micro/micro/v3/service/api/auth"
-	res "github.com/micro/micro/v3/service/api/resolver"
+	"github.com/micro/micro/v3/service/api/resolver"
 	"github.com/micro/micro/v3/service/api/resolver/subdomain"
 	httpapi "github.com/micro/micro/v3/service/api/server/http"
 	"github.com/micro/micro/v3/service/auth"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
-	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/router"
 	regRouter "github.com/micro/micro/v3/service/router/registry"
 	"github.com/serenize/snaker"
@@ -53,7 +52,7 @@ type srv struct {
 	// registry we use
 	registry registry.Registry
 	// the resolver
-	resolver res.Resolver
+	resolver resolver.Resolver
 }
 
 type reg struct {
@@ -70,7 +69,7 @@ func init() {
 			Name:   "web",
 			Usage:  "Run the micro web UI",
 			Action: Run,
-			Flags: Flags,
+			Flags:  Flags,
 		},
 	)
 }
@@ -175,7 +174,7 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	services, err := s.registry.ListServices(registry.ListDomain(domain))
 	if err != nil {
-		log.Errorf("Error listing services: %v", err)
+		log.Printf("Error listing services: %v", err)
 	}
 
 	type webService struct {
@@ -192,7 +191,6 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		if len(srv.Endpoints) == 0 {
 			continue
 		}
-
 
 		// in the case of 3 letter things e.g m3o convert to M3O
 		if len(name) <= 3 && strings.ContainsAny(name, "012345789") {
@@ -343,7 +341,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 
 	services, err := s.registry.ListServices(registry.ListDomain(domain))
 	if err != nil {
-		log.Errorf("Error listing services: %v", err)
+		log.Printf("Error listing services: %v", err)
 	}
 
 	sort.Sort(sortedServices{services})
@@ -373,7 +371,7 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 
 	services, err := s.registry.ListServices(registry.ListDomain(domain))
 	if err != nil {
-		log.Errorf("Error listing services: %v", err)
+		log.Printf("Error listing services: %v", err)
 	}
 
 	sort.Sort(sortedServices{services})
@@ -426,7 +424,7 @@ func (s *srv) serviceHandler(w http.ResponseWriter, r *http.Request) {
 
 	services, err := s.registry.GetService(name, registry.GetDomain(domain))
 	if err != nil {
-		log.Errorf("Error getting service %s: %v", name, err)
+		log.Printf("Error getting service %s: %v", name, err)
 	}
 
 	sort.Sort(sortedServices{services})
@@ -512,12 +510,12 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 	}
 
 	templateData := map[string]interface{}{
-		"ApiURL": apiURL,
+		"ApiURL":     apiURL,
 		"LoginTitle": loginTitle,
 		"LoginURL":   loginLink,
 		"Results":    data,
 		"User":       user,
-		"Token": token,
+		"Token":      token,
 	}
 
 	// add extra values
@@ -558,29 +556,29 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// Setup the web resolver
-	var resolver res.Resolver
+	var res resolver.Resolver
 
 	// the default resolver
-	resolver = &WebResolver{
+	res = &WebResolver{
 		Router: regRouter.NewRouter(
-			router.Registry(muregistry.DefaultRegistry),
+			router.Registry(registry.DefaultRegistry),
 		),
-		Options: res.NewOptions(res.WithServicePrefix(
+		Options: resolver.NewOptions(resolver.WithServicePrefix(
 			Namespace,
 		)),
 	}
 
 	// switch for subdomain resolver
 	if Resolver == "subdomain" {
-		resolver = subdomain.NewResolver(resolver)
+		res = subdomain.NewResolver(res)
 	}
 
 	srv := &srv{
 		Router: mux.NewRouter(),
 		registry: &reg{
-			Registry: muregistry.DefaultRegistry,
+			Registry: registry.DefaultRegistry,
 		},
-		resolver: resolver,
+		resolver: res,
 	}
 
 	var h http.Handler
@@ -663,7 +661,7 @@ func reverse(s []string) {
 }
 
 type sortedServices struct {
-	services []*muregistry.Service
+	services []*registry.Service
 }
 
 func (s sortedServices) Len() int {
