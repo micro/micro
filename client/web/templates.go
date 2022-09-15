@@ -401,12 +401,14 @@ jQuery(function($, undefined) {
 				}
 				console.log(req.responseText);
 			}
+
+			var service = document.forms[0].elements["service"].value;
 			var endpoint = document.forms[0].elements["endpoint"].value
 			if (!($('#otherendpoint').prop('disabled'))) {
 				endpoint = document.forms[0].elements["otherendpoint"].value
 			}
 
-			var reqBody;
+			var request;
 			var headers;
 
 			try {
@@ -416,20 +418,18 @@ jQuery(function($, undefined) {
 					headers = JSON.parse(md);
 				}
 				if (rq.length > 0) {
-					reqBody = JSON.parse(rq);
+					request = JSON.parse(rq);
 				};
 			} catch(e) {
 				document.getElementById("response").innerText = "Invalid request: " + e.message;
 				return false;
 			}
 
-			var request = {
-				"service": document.forms[0].elements["service"].value,
-				"endpoint": endpoint,
-				"request": reqBody
-			}
-			req.open("POST", "/rpc", true);
-			req.setRequestHeader("Content-Type","application/json");
+			endpoint = endpoint.replace(".", "/");
+
+			req.open("POST", "{{.ApiURL}}/" + service + "/" + endpoint, true);
+			req.setRequestHeader("Content-type","application/json");
+			req.setRequestHeader("Authorization", {{.Token}});
 
 			if (headers != undefined) {
 				for (let [key, value] of Object.entries(headers)) {
@@ -696,7 +696,7 @@ pre {padding: 20px;}
 			var service = document.forms[0].elements["service"].value
 			var endpoint = document.forms[0].elements["endpoint"].value
 
-			var reqBody;
+			var request;
 			var headers;
 
 			try {
@@ -713,20 +713,17 @@ pre {padding: 20px;}
 					}
 				};
 				console.log(data);
-				reqBody = data;
+				request = data;
 			} catch(e) {
 				document.getElementById("response").innerText = "Invalid request: " + e.message;
 				return false;
 			}
 
-			var request = {
-				"service": service,
-				"endpoint": endpoint,
-				"request": reqBody
-			}
-			req.open("POST", "/rpc", true);
-			req.setRequestHeader("Content-type","application/json");
+			endpoint = endpoint.replace(".", "/");
 
+			req.open("POST", "{{.ApiURL}}/" + service + "/" + endpoint, true);
+			req.setRequestHeader("Content-type","application/json");
+			req.setRequestHeader("Authorization", {{.Token}});
 			if (headers != undefined) {
 				for (let [key, value] of Object.entries(headers)) {
 					req.setRequestHeader(key, value);

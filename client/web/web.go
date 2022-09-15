@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
+	"path/filepath"
 	"os"
 	"os/signal"
 	"sort"
@@ -22,7 +24,6 @@ import (
 	"github.com/micro/micro/v3/service/api/resolver/subdomain"
 	httpapi "github.com/micro/micro/v3/service/api/server/http"
 	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 	muregistry "github.com/micro/micro/v3/service/registry"
@@ -35,11 +36,11 @@ import (
 //Meta Fields of micro web
 var (
 	Name      = "web"
+	API       = "http://localhost:8080"
 	Address   = ":8082"
 	Namespace = "micro"
 	Resolver  = "path"
 	LoginURL  = "/login"
-
 	// Host name the web dashboard is served on
 	Host, _ = os.Hostname()
 	// Token cookie name
@@ -68,6 +69,7 @@ func init() {
 			Name:   "web",
 			Usage:  "Run the micro web UI",
 			Action: Run,
+			Flags: Flags,
 		},
 	)
 }
@@ -472,6 +474,9 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 			}
 			return strings.Title(string(s[0]))
 		},
+		"Endpoint": func(ep string) string {
+			return strings.Replace(ep, ".", "/", -1)
+		},
 	}).Parse(layoutTemplate)
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
@@ -483,10 +488,20 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 		return
 	}
 
+	apiURL := API
+	u, err := url.Parse(apiURL)
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+
+	filepath.Join(u.Path, r.URL.Path)
+
 	// If the user is logged in, render Account instead of Login
 	loginTitle := "Login"
 	loginLink := LoginURL
 	user := ""
+	token := r.Header.Get("Authorization")
 
 	acc, ok := auth.AccountFromContext(r.Context())
 	if ok {
@@ -496,10 +511,12 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 	}
 
 	templateData := map[string]interface{}{
+		"ApiURL": apiURL,
 		"LoginTitle": loginTitle,
 		"LoginURL":   loginLink,
 		"Results":    data,
 		"User":       user,
+		"Token": token,
 	}
 
 	// add extra values
@@ -515,6 +532,9 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 }
 
 func Run(ctx *cli.Context) error {
+	if len(ctx.String("api_address")) > 0 {
+		API = ctx.String("api_address")
+	}
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
@@ -574,7 +594,6 @@ func Run(ctx *cli.Context) error {
 	srv.HandleFunc("/client", srv.callHandler)
 	srv.HandleFunc("/services", srv.registryHandler)
 	srv.HandleFunc("/service/{name}", srv.registryHandler)
-	srv.Handle("/rpc", NewRPCHandler(resolver, client.DefaultClient))
 	srv.HandleFunc("/{service}", srv.serviceHandler)
 	srv.HandleFunc("/", srv.indexHandler)
 
@@ -608,6 +627,11 @@ func Run(ctx *cli.Context) error {
 
 var (
 	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "api_address",
+			Usage:   "Set the api address to call e.g http://localhost:8080",
+			EnvVars: []string{"MICRO_API_ADDRESS"},
+		},
 		&cli.StringFlag{
 			Name:    "web_address",
 			Usage:   "Set the web UI address e.g 0.0.0.0:8082",
