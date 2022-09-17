@@ -191,11 +191,9 @@ func CallService(srv *registry.Service, namespace string, ctx *cli.Context) erro
 	req := client.DefaultClient.NewRequest(srv.Name, endpoint, body, client.WithContentType("application/json"))
 	var rsp json.RawMessage
 
-	t := time.Now()
 	if err := client.DefaultClient.Call(callCtx, req, &rsp, client.WithAuthToken()); err != nil {
 		return err
 	}
-	fmt.Println(time.Since(t))
 
 	// format the response
 	var out bytes.Buffer
