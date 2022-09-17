@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
-	"time"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/service/client"
