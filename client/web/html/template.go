@@ -429,7 +429,8 @@ jQuery(function($, undefined) {
 
 			req.open("POST", "{{.ApiURL}}/" + service + "/" + endpoint, true);
 			req.setRequestHeader("Content-type","application/json");
-			req.setRequestHeader("Authorization", {{.Token}});
+			req.setRequestHeader("Authorization", "Bearer {{.Token}}");
+			req.setRequestHeader("Micro-Namespace", {{.Namespace}});
 
 			if (headers != undefined) {
 				for (let [key, value] of Object.entries(headers)) {
@@ -723,7 +724,8 @@ pre {padding: 20px;}
 
 			req.open("POST", "{{.ApiURL}}/" + service + "/" + endpoint, true);
 			req.setRequestHeader("Content-type","application/json");
-			req.setRequestHeader("Authorization", {{.Token}});
+			req.setRequestHeader("Authorization", "Bearer {{.Token}}");
+			req.setRequestHeader("Micro-Namespace", {{.Namespace}});
 			if (headers != undefined) {
 				for (let [key, value] of Object.entries(headers)) {
 					req.setRequestHeader(key, value);
