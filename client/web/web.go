@@ -3,9 +3,11 @@ package web
 
 import (
 	"context"
+	"embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"log"
 	"net/http"
 	"net/url"
@@ -64,6 +66,9 @@ type session struct {
 	// token used for the session
 	Token string
 }
+
+//go:embed html/* html/assets/*
+var content embed.FS
 
 func init() {
 	cmd.Register(
@@ -579,6 +584,11 @@ func Run(ctx *cli.Context) error {
 		},
 	}
 
+	htmlContent, err := fs.Sub(content, "html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// the web handler itself
 	srv.HandleFunc("/favicon.ico", faviconHandler)
 	srv.HandleFunc("/404", srv.notFoundHandler)
@@ -587,9 +597,9 @@ func Run(ctx *cli.Context) error {
 	srv.HandleFunc("/client", srv.callHandler)
 	srv.HandleFunc("/services", srv.registryHandler)
 	srv.HandleFunc("/service/{name}", srv.registryHandler)
+	srv.PathPrefix("/assets/").Handler(http.FileServer(http.FS(htmlContent)))
 	srv.HandleFunc("/{service}", srv.serviceHandler)
 	srv.HandleFunc("/", srv.indexHandler)
-
 
 	// create new http server
 	server := &http.Server{
