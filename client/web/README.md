@@ -4,7 +4,7 @@ A web dashboard for Micro
 
 ## Usage
 
-Specify the API Address
+Specify the API Address (Defaults to localhost:8080)
 
 ```
 MICRO_API_ADDRESS=https://api.m3o.com
