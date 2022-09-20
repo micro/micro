@@ -15,7 +15,7 @@ async function call(url = '', data = {}) {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + token,
-      'Micro-Namespace': namespace;
+      'Micro-Namespace': namespace,
     },
     body: JSON.stringify(data) // body data type must match "Content-Type" header
   });
