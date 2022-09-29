@@ -191,7 +191,6 @@ func Run(ctx *cli.Context) error {
 			{"main.go", tmpl.MainSRV},
 			{"handler/" + dir + ".go", tmpl.HandlerSRV},
 			{"proto/" + dir + ".proto", tmpl.ProtoSRV},
-			{"Dockerfile", tmpl.DockerSRV},
 			{"Makefile", tmpl.Makefile},
 			{"README.md", tmpl.Readme},
 			{".gitignore", tmpl.GitIgnore},
