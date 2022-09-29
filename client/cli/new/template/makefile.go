@@ -29,8 +29,4 @@ test:
 docker:
 	docker build . -t {{.Alias}}:latest
 `
-
-	GenerateFile = `package main
-//go:generate make proto
-`
 )
