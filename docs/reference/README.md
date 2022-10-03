@@ -42,7 +42,7 @@ go get github.com/micro/micro/v3
 #### Docker
 
 ```sh
-docker pull micro/micro
+docker pull ghcr.io/micro/micro:latest
 ```
 
 #### Release Binaries
@@ -113,6 +113,12 @@ To start the server simply run
 
 ```sh
 micro server
+```
+
+In docker
+
+```
+sudo docker run -p 8080:8080 -p 8081:8081 ghcr.io/micro/micro:latest server
 ```
 
 This will boot the entire system and services including a http api on :8080 and grpc proxy on :8081
