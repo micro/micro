@@ -101,6 +101,13 @@ curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.
 ```sh
 micro server
 ```
+
+In docker
+
+```
+sudo docker run -p 8080:8080 -p 8081:8081 ghcr.io/micro/micro:latest server
+```
+
 Now go to [localhost:8080](http://localhost:8080) and make sure the output is something like `{"version": "v3.10.1"}` 
 which is the latest version of micro installed.
 
