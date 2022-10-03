@@ -76,6 +76,12 @@ and `micro user set [namespace]`.
 go install github.com/micro/micro/v3@latest
 ```
 
+### Docker Container
+
+```
+docker pull ghcr.io/micro/micro:latest
+```
+
 ### Install Binaries
 
 #### Windows
@@ -98,11 +104,14 @@ curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.
 
 ### Run the server 
 
+The server starts with a single command ready to use
+
+### Local
 ```sh
 micro server
 ```
 
-In docker
+### Docker
 
 ```
 sudo docker run -p 8080:8080 -p 8081:8081 ghcr.io/micro/micro:latest server
@@ -112,6 +121,12 @@ Now go to [localhost:8080](http://localhost:8080) and make sure the output is so
 which is the latest version of micro installed.
 
 ## Usage
+
+Set the environment e.g local
+
+```
+micro env set local
+```
 
 ### Login to Micro
 
