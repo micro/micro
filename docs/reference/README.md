@@ -231,6 +231,8 @@ user
 The micro binary and each subcommand has a --help flag to provide a usage guide. The majority should be 
 obvious to the user. We will go through a few in more detail.
 
+<!--
+
 #### Signup
 
 Signup is a command which attempts to query a "signup" to register a new account, this is env specific and requires a signup service to be 
@@ -238,6 +240,7 @@ running. By default locally this will not exist and we expect the user to use th
 You can then choose to run your own signup service conforming to the proto in micro/proto or use `micro auth create account`. 
 
 Signup is seen as a command for those who want to run their own micro server for others and potentially license the software to take payment.
+--->
 
 #### Login
 
