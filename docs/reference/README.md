@@ -130,27 +130,73 @@ Run the following command to check help output
 micro --help
 ```
 
+### Environment
+
+Environments define where the server is running, by default this should be local
+
+Check with the following command
+
+```
+micro env
+```
+
+To set the environment do
+
+```
+micro env set local
+```
+
+### Login
+
+Before starting login using the default user `admin` with password `micro`
+
+```
+micro login
+```
+
 ### Commands
+
+Here's a quick list of useful commands
+
+```
+micro --help	# execute help to list commands
+micro env	# show the environment config
+micro login	# login to the server
+micro services	# check what's running
+micro status	# check service status
+```
+
+## Start helloworld
 
 Run helloworld and check its status
 
 ```
-micro env	# should point to local
-micro run github.com/micro/services/helloworld # run helloworld
-micro status 	# wait for status running
-micro services	# should display helloworld
+# check env is set to local
+micro env
+# run the helloworld service
+micro run github.com/micro/services/helloworld
+# check the service status to see it's running
+micro status
+# once running should be listed in services
+micro services
 ```
 
 Call the service and verify output
 
 ```sh
-$ micro helloworld --name=John
+$ micro helloworld --name=Alice
 {
-        "msg": "Hello John"
+        "msg": "Hello Alice"
 }
 ```
 
-Remove the service
+Curl it from the API
+
+```
+curl "http://localhost:8080/helloworld/Call?name=Alice"
+```
+
+Stop the service
 
 ```
 micro kill helloworld
