@@ -114,9 +114,8 @@ which is the latest version of micro installed.
 ## Usage
 
 ### Login to Micro
-default username: `admin`
 
-default password: `micro`
+Default username/password: `admin/micro`
 
 ```sh
 $ micro login
