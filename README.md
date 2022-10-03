@@ -76,7 +76,7 @@ and `micro user set [namespace]`.
 go install github.com/micro/micro/v3@latest
 ```
 
-### Docker Container
+### Docker Image
 
 ```
 docker pull ghcr.io/micro/micro:latest
