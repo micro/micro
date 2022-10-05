@@ -42,7 +42,7 @@ go get github.com/micro/micro/v3
 #### Docker
 
 ```sh
-docker pull micro/micro
+docker pull ghcr.io/micro/micro:latest
 ```
 
 #### Release Binaries
@@ -115,6 +115,12 @@ To start the server simply run
 micro server
 ```
 
+In docker
+
+```
+sudo docker run -p 8080:8080 -p 8081:8081 ghcr.io/micro/micro:latest server
+```
+
 This will boot the entire system and services including a http api on :8080 and grpc proxy on :8081
 
 ### Help
@@ -124,27 +130,73 @@ Run the following command to check help output
 micro --help
 ```
 
+### Environment
+
+Environments define where the server is running, by default this should be local
+
+Check with the following command
+
+```
+micro env
+```
+
+To set the environment do
+
+```
+micro env set local
+```
+
+### Login
+
+Before starting login using the default user `admin` with password `micro`
+
+```
+micro login
+```
+
 ### Commands
+
+Here's a quick list of useful commands
+
+```
+micro --help	# execute help to list commands
+micro env	# show the environment config
+micro login	# login to the server
+micro services	# check what's running
+micro status	# check service status
+```
+
+## Start helloworld
 
 Run helloworld and check its status
 
 ```
-micro env	# should point to local
-micro run github.com/micro/services/helloworld # run helloworld
-micro status 	# wait for status running
-micro services	# should display helloworld
+# check env is set to local
+micro env
+# run the helloworld service
+micro run github.com/micro/services/helloworld
+# check the service status to see it's running
+micro status
+# once running should be listed in services
+micro services
 ```
 
 Call the service and verify output
 
 ```sh
-$ micro helloworld --name=John
+$ micro helloworld --name=Alice
 {
-        "msg": "Hello John"
+        "msg": "Hello Alice"
 }
 ```
 
-Remove the service
+Curl it from the API
+
+```
+curl "http://localhost:8080/helloworld/Call?name=Alice"
+```
+
+Stop the service
 
 ```
 micro kill helloworld
@@ -179,6 +231,8 @@ user
 The micro binary and each subcommand has a --help flag to provide a usage guide. The majority should be 
 obvious to the user. We will go through a few in more detail.
 
+<!--
+
 #### Signup
 
 Signup is a command which attempts to query a "signup" to register a new account, this is env specific and requires a signup service to be 
@@ -186,6 +240,7 @@ running. By default locally this will not exist and we expect the user to use th
 You can then choose to run your own signup service conforming to the proto in micro/proto or use `micro auth create account`. 
 
 Signup is seen as a command for those who want to run their own micro server for others and potentially license the software to take payment.
+--->
 
 #### Login
 

@@ -76,6 +76,12 @@ and `micro user set [namespace]`.
 go install github.com/micro/micro/v3@latest
 ```
 
+### Docker Image
+
+```
+docker pull ghcr.io/micro/micro:latest
+```
+
 ### Install Binaries
 
 #### Windows
@@ -98,18 +104,33 @@ curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.
 
 ### Run the server 
 
+The server starts with a single command ready to use
+
+### Local
 ```sh
 micro server
 ```
+
+### Docker
+
+```
+sudo docker run -p 8080:8080 -p 8081:8081 ghcr.io/micro/micro:latest server
+```
+
 Now go to [localhost:8080](http://localhost:8080) and make sure the output is something like `{"version": "v3.10.1"}` 
 which is the latest version of micro installed.
 
 ## Usage
 
-### Login to Micro
-default username: `admin`
+Set the environment e.g local
 
-default password: `micro`
+```
+micro env set local
+```
+
+### Login to Micro
+
+Default username/password: `admin/micro`
 
 ```sh
 $ micro login
@@ -149,14 +170,11 @@ Output
 Creating service helloworld
 
 .
-├── micro.mu
 ├── main.go
-├── generate.go
 ├── handler
 │   └── helloworld.go
 ├── proto
 │   └── helloworld.proto
-├── Dockerfile
 ├── Makefile
 ├── README.md
 ├── .gitignore
@@ -175,7 +193,26 @@ go mod vendor
 make proto
 ```
 
-### Run a service
+### Making changes
+
+Edit the protobuf definition in `proto/helloworld.proto` and run `make proto` to recompile
+
+Go to `handler/helloworld.go` to make changes to the response handler
+
+```go
+type Helloworld struct{}
+
+func New() *Helloworld {
+        return &Helloworld{}
+}
+
+func (h *Helloworld) Call(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
+        rsp.Msg = "Hello " + req.Name
+        return nil
+}
+```
+
+### Run the service
 
 Run from local dir
 
