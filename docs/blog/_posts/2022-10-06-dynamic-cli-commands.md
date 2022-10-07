@@ -74,3 +74,16 @@ into the next. The unix pipe provides composition like no other, hopefuly at som
 as part of the Micro CLI.
 
 Try out [Micro](https://github.com/micro/micro) for yourself!
+
+Update: Oh forgot to mention, the command line also generates help output
+
+<center>
+<img src="{{ site.baseurl }}/blog/images/help1.png" style="width:100%; max-width: 600px; height=auto" />
+</center>
+<br>
+
+<center>
+<img src="{{ site.baseurl }}/blog/images/help2.png" style="width:100%; max-width: 600px; height=auto" />
+</center>
+<br>
+
