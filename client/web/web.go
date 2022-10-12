@@ -83,6 +83,11 @@ func init() {
 
 // ServeHTTP serves the web dashboard and proxies where appropriate
 func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if strings.HasPrefix(r.URL.Path, "/assets/") {
+		s.Router.ServeHTTP(w, r)
+		return
+	}
+
 	// check if authenticated
 	if r.URL.Path != LoginURL {
 		c, err := r.Cookie(TokenCookieName)
@@ -248,17 +253,7 @@ func (s *srv) loginHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	t, err := template.New("template").Parse(html.LoginTemplate)
-	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if err := t.ExecuteTemplate(w, "basic", map[string]interface{}{
-		"foo": "bar",
-	}); err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), http.StatusInternalServerError)
-	}
+	s.render(w, req, html.LoginTemplate, struct{}{})
 }
 
 func (s *srv) logoutHandler(w http.ResponseWriter, req *http.Request) {

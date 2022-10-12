@@ -1,0 +1,111 @@
+html, body {
+	font-size: 16px;
+	font-family: arial, sans-serif;
+}
+a { color: #333333; }
+.navbar { margin-top: 50px; }
+.navbar-brand img { display: inline; }
+#navBar, .navbar-toggle { margin-top: 15px; }
+.icon-bar { background-color: #333333; }
+.nav>li>a:focus, .nav>li>a:hover { background-color: white; }
+.logo { font-size: 2em; }
+.search {
+	position: relative;
+	max-width: 600px;
+	margin: 0 auto;
+	border-radius: 0;
+	border: 0;
+	box-shadow: none;
+	border-bottom: 1px solid #ccc;
+}
+.search:focus {
+	border-color: transparent;
+	outline: 0;
+	box-shadow: none;
+	border-bottom: 1px solid #ccc;
+}
+.search {
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+  border-bottom: 1px solid #ccc;
+}
+.search:focus {
+  border-color: transparent;
+  outline: 0;
+  box-shadow: none;
+  border-bottom: 1px solid #ccc;
+}
+.search { border-radius: 100px; }
+.service {
+        margin: 5px 3px 5px 3px;
+        padding: 20px;
+        text-align: center;
+        display: block;
+}
+.apps {
+  max-width: 600px;
+  text-align: center;
+  margin: 0 auto;
+}
+.icon {
+  width: 60px;
+  height: 60px;
+  display: block;
+  border-radius: 50px;
+  border: 2px solid whitesmoke;
+  background-color: #fcfcfc;
+  color: #AFACBE;
+  font-size: 40px;
+  font-weight: bold;
+}
+.icon:hover {
+  color: #23527c;
+  border: 2px solid #23527c;
+}
+.apps .service:hover {
+  text-decoration: none;
+  font-weight: bold;
+}
+@media only screen and (max-width: 500px) {
+  .service {
+    padding: 5px;
+  }
+}
+.table>tbody>tr>th, .table>tbody>tr>td {
+    border-top: none;
+}
+.endpoint {
+  cursor: pointer;
+}
+.bold {
+  font-weight: bold;
+}
+pre {
+    padding: 20px;
+    background-color: #EEF0F3;
+    border: 1px solid #ccc;
+    word-wrap: break-word;
+}
+.form-control {
+	border: 1px solid #ccc;
+}
+.user {
+    padding: 15px;
+}
+.inner {
+	margin: 0 auto;
+	max-width: 100vw;
+	width: 400px;
+}
+form  {
+	display: flex;
+	flex-direction: column;
+}
+input {
+	margin-top:  5px;
+	margin-bottom: 20px;
+	outline: none;
+	height: 25px;
+}
+

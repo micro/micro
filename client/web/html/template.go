@@ -2,53 +2,25 @@ package html
 
 var (
 	LoginTemplate = `
-	{{define "basic"}}
-		<html>
-		<head>
-			<style>
-				.inner {
-					position: absolute;
-					left: 50%;
-					top: 40%;
-					transform: translate(-50%, -50%);
-					max-width: 100vw;
-					width: 400px;
-				}
+{{define "title"}}Login{{end}}
+{{define "heading"}}{{end}}
+{{define "style" }}{{end}}
+{{define "content"}}
+	<div class="error">{{ .error }}</div>
+	<div class='inner'>
+		<h3>Login</h3>
+		<form method='post'>
+			<label for='username'>Username</label>
+			<input type='username' name='username' required />
 
-				form  {
-					display: flex;
-					flex-direction: column;
-				}
+			<label for='password'>Password</label>
+			<input type='password' name='password' required />
 
-				input {
-					margin-top:  5px;
-					margin-bottom: 20px;
-					outline: none;
-					height: 25px;
-				}
-
-				input[type=submit] {
-					
-				}
-			</style>
-		</head>
-		<body>
-			<div class="error">{{ .error }}</div>
-			<div class='inner'>
-				<h1>Login</h1>
-				<form method='post'>
-					<label for='username'>Username</label>
-					<input type='username' name='username' required />
-
-					<label for='password'>Password</label>
-					<input type='password' name='password' required />
-
-					<input type='submit' value='Submit' />
-				</form>
-			</div>
-		</body>
-		</html>
-	{{end}}
+			<input type='submit' value='Submit' />
+		</form>
+	</div>
+{{end}}
+{{define "script"}}{{end}}
 `
 
 	LayoutTemplate = `
@@ -58,42 +30,7 @@ var (
 		<title>{{ template "title" . }} | Micro</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-		<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
-		<style>
-		  html, body {
-		    font-size: 16px;
-		    font-family: 'Source Sans Pro', sans-serif;
-		  }
-		  html a { color: #333333; }
-                  .navbar { margin-top: 50px; };
-		  .navbar-brand img { display: inline; }
-		  #navBar, .navbar-toggle { margin-top: 15px; }
-		  .icon-bar { background-color: #333333; }
-		  .nav>li>a:focus, .nav>li>a:hover { background-color: white; }
-		  .logo { font-size: 2em; }
-		 .search {
-		    position: relative;
-		    max-width: 600px;
-		    margin: 0 auto;
-		    border-radius: 0;
-		    border: 0;
-		    box-shadow: none;
-		    border-bottom: 1px solid #ccc;
-		 }
-		 .search:focus {
-		    border-color: transparent;
-		    outline: 0;
-		    box-shadow: none;
-		    border-bottom: 1px solid #ccc;
-	 	 }
-		 pre {
-		    background-color: #EEF0F3;
-		    border: 1px solid #ccc;
-		 }
-		 .user {
-		    padding: 15px;
-		 }
-		</style>
+	        <link rel="stylesheet" href="/assets/mu.css">
 		<style>
 		{{ template "style" . }}
 		</style>
@@ -117,10 +54,12 @@ var (
                       Logged in as: {{.User}}
                     </span>
                   {{end}}
+		  {{if .User}}
 	          <li><a href="/">Home</a></li>
 	          <li><a href="/client">Client</a></li>
 	          <li><a href="/services">Services</a></li>
-	          {{if .LoginURL}}<li><a href="{{.LoginURL}}" class="navbar-link">{{.LoginTitle}}</a></li>{{end}}
+	          <li><a href="{{.LoginURL}}" class="navbar-link">{{.LoginTitle}}</a></li>
+		  {{end}}
 	        </ul>
               </div>
 	    </div>
@@ -167,56 +106,7 @@ var (
 	IndexTemplate = `
 {{define "title"}}Home{{end}}
 {{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
-{{define "style" }}
-.search {
-  border-radius: 0;
-  border: 0;
-  box-shadow: none;
-  border-bottom: 1px solid #ccc;
-}
-.search:focus {
-  border-color: transparent;
-  outline: 0;
-  box-shadow: none;
-  border-bottom: 1px solid #ccc;
-}
-.service {
-	margin: 5px 3px 5px 3px;
-	padding: 20px;
-	text-align: center;
-	display: block;
-}
-.search { border-radius: 100px; }
-.apps {
-  max-width: 600px;
-  text-align: center;
-  margin: 0 auto;
-}
-.icon {
-  width: 60px;
-  height: 60px;
-  display: block;
-  border-radius: 50px; 
-  border: 2px solid whitesmoke;
-  background-color: #fcfcfc;
-  color: #AFACBE;
-  font-size: 40px;
-  font-weight: bold;
-}
-.icon:hover {
-  color: #23527c;
-  border: 2px solid #23527c;
-}
-.apps .service:hover {
-  text-decoration: none;
-  font-weight: bold;
-}
-@media only screen and (max-width: 500px) {
-  .service {
-    padding: 5px;
-  }
-}
-{{end}}
+{{define "style" }}{{end}}
 {{define "content"}}
 	{{if .Results.HasWebServices}}
 		<div class="apps">
@@ -266,15 +156,7 @@ jQuery(function($, undefined) {
 	CallTemplate = `
 {{define "title"}}Client{{end}}
 {{define "heading"}}<h3>Client</h3>{{end}}
-{{define "style"}}
-	pre {
-		word-wrap: break-word;
-		border: 0;
-	}
-	.form-control {
-		border: 1px solid #ccc;
-	}
-{{end}}
+{{define "style"}}{{end}}
 {{define "content"}}
 <div class="row">
   <div class="panel">
@@ -309,7 +191,7 @@ jQuery(function($, undefined) {
 			<div class="form-group">
 			</div>
 			<div class="form-group">
-				<label for="metadata">Metadata</label>
+				<label for="metadata">Headers</label>
 				<ul class="list-group">
 					<input class="form-control" type=text name=metadata id=metadata placeholder="Metadata" value="{}"/>
 				</ul>
@@ -454,7 +336,7 @@ jQuery(function($, undefined) {
 	<div style="max-width: 600px; margin: 0 auto; min-height: 400px; height: calc(100vh - 400px); overflow: scroll;">
 	{{range .Results}}
 	<div style="margin: 5px 5px 5px 15px;">
-	    <a href="/service/{{.Name}}" data-filter={{.Name}} class="service">{{.Name}}</a>
+	    <a href="/service/{{.Name}}" data-filter={{.Name}} class="list-item">{{.Name}}</a>
 	</div>
 	{{end}}
         </div>
@@ -478,18 +360,7 @@ jQuery(function($, undefined) {
 	ServiceTemplate = `
 {{define "title"}}Service{{end}}
 {{define "heading"}}<h3>{{with $svc := index .Results 0}}{{Title $svc.Name}}{{end}}</h3>{{end}}
-{{define "style"}}
-.table>tbody>tr>th, .table>tbody>tr>td {
-    border-top: none;
-}
-.endpoint {
-  cursor: pointer;
-}
-.bold {
-  font-weight: bold;
-}
-pre {padding: 20px;}
-{{end}}
+{{define "style"}}{{end}}
 {{define "script"}}
 <script type="text/javascript">
   $('.endpoint').on('click', function() {
@@ -563,15 +434,7 @@ pre {padding: 20px;}
 	WebTemplate = `
 {{define "title"}}{{Title .Name}}{{end}}
 {{define "heading"}}<h3>{{Title .Name}}</h3>{{end}}
-{{define "style"}}
-	pre {
-		word-wrap: break-word;
-		border: 0;
-	}
-	.form-control {
-		border: 1px solid #ccc;
-	}
-{{end}}
+{{define "style"}}{{end}}
 {{define "content"}}
 <div class="row">
   <div class="panel">
