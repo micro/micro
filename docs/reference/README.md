@@ -58,32 +58,6 @@ wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh
 powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
 ```
 
-### Kubernetes
-
-Micro can be installed onto a Kubernetes cluster using helm. Micro will be deployed in full and leverage zero-dep implementations designed for Kubernetes. For example, micro store will internally leverage a file store on a persistent volume, meaning there are no infrastructure dependencies required.
-
-#### Dependencies
-
-You will need to be connected to a Kubernetes cluster
-
-#### Install
-
-Install micro with the following commands:
-
-```shell
-helm repo add micro https://micro.github.io/helm
-helm install micro micro/micro
-```
-
-#### Uninstall
-
-Uninstall micro with the following commands:
-
-```shell
-helm uninstall micro
-helm repo remove micro
-```
-
 ## Server
 
 The micro server is a distributed systems runtime for the Cloud and beyond. It provides the building 
