@@ -102,6 +102,9 @@ form  {
 	display: flex;
 	flex-direction: column;
 }
+.form-group {
+  margin-bottom: 0px;
+}
 input {
 	margin-top:  5px;
 	margin-bottom: 20px;
