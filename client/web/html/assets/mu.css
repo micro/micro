@@ -3,7 +3,7 @@ html, body {
 	font-family: arial, sans-serif;
 }
 a { color: #333333; }
-.navbar { margin-top: 50px; }
+.navbar { margin-top: 2em; }
 .navbar-brand img { display: inline; }
 #navBar, .navbar-toggle { margin-top: 15px; }
 .icon-bar { background-color: #333333; }
@@ -111,4 +111,6 @@ input {
 	outline: none;
 	height: 25px;
 }
-
+textarea#request {
+  margin-bottom: 10px;
+}

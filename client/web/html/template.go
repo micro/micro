@@ -9,14 +9,14 @@ var (
 	<div class="error">{{ .error }}</div>
 	<div class='inner'>
 		<h3>Login</h3>
-		<form method='post'>
+		<form id="login" method='post'>
 			<label for='username'>Username</label>
-			<input type='username' name='username' required />
+			<input id="username" type='username' name='username' required />
 
 			<label for='password'>Password</label>
-			<input type='password' name='password' required />
+			<input id="password" type='password' name='password' required />
 
-			<input type='submit' value='Submit' />
+			<button class="btn btn-default">Submit</button>
 		</form>
 	</div>
 {{end}}
@@ -58,7 +58,7 @@ var (
 	          <li><a href="/">Home</a></li>
 	          <li><a href="/client">Client</a></li>
 	          <li><a href="/services">Services</a></li>
-	          <li><a href="{{.LoginURL}}" class="navbar-link">{{.LoginTitle}}</a></li>
+	          <li><a href="{{.LoginURL}}">{{.LoginTitle}}</a></li>
 		  {{end}}
 	        </ul>
               </div>
@@ -162,7 +162,7 @@ jQuery(function($, undefined) {
   <div class="panel">
     <div class="panel-body">
 	<div class="col-sm-5">
-		<form id="call-form" onsubmit="return call();">
+		<form id="call-form" onsubmit="return submitCall();">
 			<div class="form-group">
 				<label for="service">Service</label>
 				<ul class="list-group">
@@ -191,10 +191,6 @@ jQuery(function($, undefined) {
 			<div class="form-group">
 			</div>
 			<div class="form-group">
-				<label for="metadata">Headers</label>
-				<ul class="list-group">
-					<input class="form-control" type=text name=metadata id=metadata placeholder="Metadata" value="{}"/>
-				</ul>
 				<label for="request">Request</label>
 				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
@@ -267,24 +263,7 @@ jQuery(function($, undefined) {
 		});
 	</script>
 	<script>
-		function call() {
-			var req = new XMLHttpRequest()
-			req.onreadystatechange = function() {
-				if(req.readyState != 4) {
-					return
-				}
-				if (req.readyState == 4 && req.status == 200) {
-					document.getElementById("response").innerText = JSON.stringify(JSON.parse(req.responseText), null, 2);
-				} else if (req.responseText.slice(0, 1) == "{") {
-					document.getElementById("response").innerText = JSON.stringify(JSON.parse(req.responseText), null, 2);
-				} else if (req.responseText.length > 0) {
-					document.getElementById("response").innerText = req.responseText;
-				} else {
-					document.getElementById("response").innerText = "Request error " + req.status;
-				}
-				console.log(req.responseText);
-			}
-
+		function submitCall() {
 			var service = document.forms[0].elements["service"].value;
 			var endpoint = document.forms[0].elements["endpoint"].value
 			if (!($('#otherendpoint').prop('disabled'))) {
@@ -292,14 +271,9 @@ jQuery(function($, undefined) {
 			}
 
 			var request;
-			var headers;
 
 			try {
-				var md = document.forms[0].elements["metadata"].value;
 				var rq = document.forms[0].elements["request"].value
-				if (md.length > 0) {
-					headers = JSON.parse(md);
-				}
 				if (rq.length > 0) {
 					request = JSON.parse(rq);
 				};
@@ -310,18 +284,12 @@ jQuery(function($, undefined) {
 
 			endpoint = endpoint.replace(".", "/");
 
-			req.open("POST", "{{.ApiURL}}/" + service + "/" + endpoint, true);
-			req.setRequestHeader("Content-type","application/json");
-			req.setRequestHeader("Authorization", "Bearer {{.Token}}");
-			req.setRequestHeader("Micro-Namespace", {{.Namespace}});
+			call("{{.ApiURL}}/" + service + "/" + endpoint, request)
+			    .then(function(response) {
+					document.getElementById("response").innerText = JSON.stringify(response, null, 2);
+					console.log(response);
+			    });
 
-			if (headers != undefined) {
-				for (let [key, value] of Object.entries(headers)) {
-					req.setRequestHeader(key, value);
-				}
-			}
-
-			req.send(JSON.stringify(request));
 
 			return false;
 		};	
@@ -447,7 +415,7 @@ jQuery(function($, undefined) {
 	    {{end}}
         </div>
 	<div class="col-sm-4">
-		<form id="call-form" onsubmit="return call();">
+		<form id="call-form" onsubmit="return submitCall();">
 			<input class="form-control" type=text name=service id=service style="display: none;">
 			<input class="form-control" type=text name=endpoint id=endpoint style="display: none;">
 			<input class="form-control" type=text name=request id=request style="display: none;">
@@ -540,24 +508,7 @@ jQuery(function($, undefined) {
 			return false;
 		};
 
-		function call() {
-			var req = new XMLHttpRequest()
-			req.onreadystatechange = function() {
-				if(req.readyState != 4) {
-					return
-				}
-				if (req.readyState == 4 && req.status == 200) {
-					document.getElementById("response").innerText = JSON.stringify(JSON.parse(req.responseText), null, 2);
-				} else if (req.responseText.slice(0, 1) == "{") {
-					document.getElementById("response").innerText = JSON.stringify(JSON.parse(req.responseText), null, 2);
-				} else if (req.responseText.length > 0) {
-					document.getElementById("response").innerText = req.responseText;
-				} else {
-					document.getElementById("response").innerText = "Request error " + req.status;
-				}
-				console.log(req.responseText);
-			}
-
+		function submitCall() {
 			var service = document.forms[0].elements["service"].value
 			var endpoint = document.forms[0].elements["endpoint"].value
 
@@ -586,17 +537,11 @@ jQuery(function($, undefined) {
 
 			endpoint = endpoint.replace(".", "/");
 
-			req.open("POST", "{{.ApiURL}}/" + service + "/" + endpoint, true);
-			req.setRequestHeader("Content-type","application/json");
-			req.setRequestHeader("Authorization", "Bearer {{.Token}}");
-			req.setRequestHeader("Micro-Namespace", {{.Namespace}});
-			if (headers != undefined) {
-				for (let [key, value] of Object.entries(headers)) {
-					req.setRequestHeader(key, value);
-				}
-			}
-
-			req.send(JSON.stringify(request));
+			call("{{.ApiURL}}/" + service + "/" + endpoint, request)
+			    .then(function(response) {
+					document.getElementById("response").innerText = JSON.stringify(response, null, 2);
+					console.log(response);
+			    });
 
 			return false;
 		};	
