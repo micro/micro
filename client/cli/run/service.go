@@ -468,41 +468,49 @@ func killService(ctx *cli.Context) error {
 	// get name from flag
 	name := ctx.String("name")
 
-	if v := ctx.Args().Get(0); len(v) > 0 {
-		name = v
-	}
-
-	// special case
-	if name == "." {
-		dir, _ := os.Getwd()
-		name = filepath.Base(dir)
-	}
-
-	var ref string
-	if parts := strings.Split(name, "@"); len(parts) > 1 {
-		name = parts[0]
-		ref = parts[1]
-	}
-	if ref == "" {
-		ref = "latest"
-	}
-	service := &runtime.Service{
-		Name:    name,
-		Version: ref,
-	}
-
-	// determine the namespace
+	// determine the environment
 	env, err := util.GetEnv(ctx)
 	if err != nil {
 		return err
 	}
+	// get the namespace
 	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
 
-	err = runtime.Delete(service, runtime.DeleteNamespace(ns))
-	return util.CliError(err)
+	// range over the args
+	for _, arg := range ctx.Args().Slice() {
+		if len(arg) > 0 {
+			name = arg
+		}
+
+		// special case
+		if name == "." {
+			dir, _ := os.Getwd()
+			name = filepath.Base(dir)
+		}
+
+		var ref string
+		if parts := strings.Split(name, "@"); len(parts) > 1 {
+			name = parts[0]
+			ref = parts[1]
+		}
+		if ref == "" {
+			ref = "latest"
+		}
+		service := &runtime.Service{
+			Name:    name,
+			Version: ref,
+		}
+
+		err = runtime.Delete(service, runtime.DeleteNamespace(ns))
+		if err != nil {
+			return util.CliError(err)
+		}
+	}
+
+	return nil
 }
 
 func updateService(ctx *cli.Context) error {
