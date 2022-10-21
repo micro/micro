@@ -12,7 +12,6 @@ import (
 	"github.com/micro/micro/v3/service/auth/noop"
 	"github.com/micro/micro/v3/service/broker"
 	memBroker "github.com/micro/micro/v3/service/broker/memory"
-	"github.com/micro/micro/v3/service/build/golang"
 	"github.com/micro/micro/v3/service/client"
 	grpcClient "github.com/micro/micro/v3/service/client/grpc"
 	"github.com/micro/micro/v3/service/config"
@@ -24,9 +23,7 @@ import (
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/micro/v3/service/router"
-	k8sRouter "github.com/micro/micro/v3/service/router/kubernetes"
 	regRouter "github.com/micro/micro/v3/service/router/registry"
-	"github.com/micro/micro/v3/service/runtime/kubernetes"
 	"github.com/micro/micro/v3/service/runtime/local"
 	"github.com/micro/micro/v3/service/server"
 	grpcServer "github.com/micro/micro/v3/service/server/grpc"
@@ -37,7 +34,6 @@ import (
 	"github.com/urfave/cli/v2"
 
 	microAuth "github.com/micro/micro/v3/service/auth"
-	microBuilder "github.com/micro/micro/v3/service/build"
 	microEvents "github.com/micro/micro/v3/service/events"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microStore "github.com/micro/micro/v3/service/store"
@@ -48,12 +44,11 @@ import (
 // profiles which when called will configure micro to run in that environment
 var profiles = map[string]*Profile{
 	// built in profiles
-	"client":     Client,
-	"service":    Service,
-	"server":     Server,
-	"test":       Test,
-	"local":      Local,
-	"kubernetes": Kubernetes,
+	"client":  Client,
+	"service": Service,
+	"server":  Server,
+	"test":    Test,
+	"local":   Local,
 }
 
 // Profile configures an environment
@@ -127,75 +122,6 @@ var Local = &Profile{
 		if err != nil {
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
-
-		return nil
-	},
-}
-
-// Kubernetes profile to run on kubernetes with zero deps. Designed for use with the micro helm chart
-var Kubernetes = &Profile{
-	Name: "kubernetes",
-	Setup: func(ctx *cli.Context) (err error) {
-		microAuth.DefaultAuth = jwt.NewAuth()
-		SetupJWT(ctx)
-
-		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
-		microBuilder.DefaultBuilder, err = golang.NewBuilder()
-		if err != nil {
-			logger.Fatalf("Error configuring golang builder: %v", err)
-		}
-
-		microEvents.DefaultStream, err = memStream.NewStream()
-		if err != nil {
-			logger.Fatalf("Error configuring stream: %v", err)
-		}
-
-		microStore.DefaultStore = file.NewStore(file.WithDir("/store"))
-		microStore.DefaultBlobStore, err = file.NewBlobStore(file.WithDir("/store/blob"))
-		if err != nil {
-			logger.Fatalf("Error configuring file blob store: %v", err)
-		}
-
-		// set the store in the model
-		model.DefaultModel = model.NewModel(
-			model.WithStore(microStore.DefaultStore),
-		)
-
-		// the registry service uses the memory registry, the other core services will use the default
-		// rpc client and call the registry service
-		if ctx.Args().Get(1) == "registry" {
-			SetupRegistry(memory.NewRegistry())
-		}
-
-		// the broker service uses the memory broker, the other core services will use the default
-		// rpc client and call the broker service
-		if ctx.Args().Get(1) == "broker" {
-			SetupBroker(memBroker.NewBroker())
-		}
-
-		config.DefaultConfig, err = storeConfig.NewConfig(microStore.DefaultStore, "")
-		if err != nil {
-			logger.Fatalf("Error configuring config: %v", err)
-		}
-		SetupConfigSecretKey(ctx)
-
-		// Use k8s routing which is DNS based
-		router.DefaultRouter = k8sRouter.NewRouter()
-		client.DefaultClient.Init(client.Router(router.DefaultRouter))
-
-		// Configure tracing with Jaeger:
-		tracingServiceName := ctx.Args().Get(1)
-		if len(tracingServiceName) == 0 {
-			tracingServiceName = "Micro"
-		}
-		openTracer, _, err := jaeger.New(
-			opentelemetry.WithServiceName(tracingServiceName),
-			opentelemetry.WithTraceReporterAddress("localhost:6831"),
-		)
-		if err != nil {
-			logger.Fatalf("Error configuring opentracing: %v", err)
-		}
-		opentelemetry.DefaultOpenTracer = openTracer
 
 		return nil
 	},
