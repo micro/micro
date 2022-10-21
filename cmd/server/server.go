@@ -110,10 +110,6 @@ func Run(context *cli.Context) error {
 
 	// save the runtime
 	runtimeServer := runtime.DefaultRuntime
-	// get the runtime environment
-	runtimeEnv := runtimeServer.String()
-	// exit after starting
-	runtimeExit := false
 
 	// start the services
 	for _, service := range services {
@@ -139,35 +135,7 @@ func Run(context *cli.Context) error {
 
 		// for kubernetes we want to provide a port and instruct the service to bind to it. we don't do
 		// this locally because the services are not isolated and the ports will conflict
-		var port string
-
-		if runtimeEnv == "kubernetes" {
-			switch service {
-			case "api":
-				// run the api on :443, the standard port for HTTPs
-				port = "443"
-				env = append(env, "MICRO_API_ADDRESS=:443")
-				// pass :8080 for the internal service address, since this is the default port used for the
-				// static (k8s) router. Because the http api will register on :443 it won't conflict
-				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
-			case "proxy":
-				// run the proxy on :443, the standard port for HTTPs
-				port = "443"
-				env = append(env, "MICRO_PROXY_ADDRESS=:443")
-				// pass :8080 for the internal service address, since this is the default port used for the
-				// static (k8s) router. Because the grpc proxy will register on :443 it won't conflict
-				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
-			case "network":
-				port = "8443"
-				env = append(env, "MICRO_SERVICE_ADDRESS=:8443")
-			default:
-				port = "8080"
-				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
-			}
-
-			// exit after starting services
-			runtimeExit = true
-		}
+		port := "8080"
 
 		// we want to pass through the global args so go up one level in the context lineage
 		if len(context.Lineage()) > 1 {
@@ -185,10 +153,6 @@ func Run(context *cli.Context) error {
 			runtime.WithEnv(env),
 			runtime.WithPort(port),
 			runtime.WithRetries(10),
-			runtime.WithServiceAccount("micro"),
-			runtime.WithVolume("store-pvc", "/store"),
-			runtime.CreateImage(context.String("image")),
-			runtime.CreateNamespace("micro"),
 			runtime.WithSecret("MICRO_AUTH_PUBLIC_KEY", auth.DefaultAuth.Options().PublicKey),
 			runtime.WithSecret("MICRO_AUTH_PRIVATE_KEY", auth.DefaultAuth.Options().PrivateKey),
 		}
@@ -199,11 +163,6 @@ func Run(context *cli.Context) error {
 			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
 		}
-	}
-
-	// server is deployed as a job in k8s, meaning it should exit once the services have been created.
-	if runtimeExit {
-		return nil
 	}
 
 	log.Info("Starting server runtime")
