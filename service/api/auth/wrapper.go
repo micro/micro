@@ -31,7 +31,7 @@ func Wrapper(r resolver.Resolver, prefix string) api.Wrapper {
 			handler:       h,
 			resolver:      r,
 			servicePrefix: prefix,
-			useBlockList: useBlockList,
+			useBlockList:  useBlockList,
 		}
 	}
 }
@@ -40,7 +40,7 @@ type authWrapper struct {
 	handler       http.Handler
 	resolver      resolver.Resolver
 	servicePrefix string
-	useBlockList bool
+	useBlockList  bool
 }
 
 func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
