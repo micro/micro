@@ -1,5 +1,5 @@
 html, body {
-  font-size: 16px;
+  font-size: 14px;
   font-family: arial, sans-serif;
 }
 #header,#container,#footer {
@@ -10,7 +10,7 @@ html, body {
 #container {
   max-width: 1024px;
 }
-a { color: #333333; }
+a { color: #333333; text-decoration: none; }
 #logo {
   font-size: 2em;
   text-decoration: none;
