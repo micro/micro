@@ -208,13 +208,13 @@ function renderService(service) {
             var eps = {};
 
             rsp.services[0].endpoints.forEach(function(endpoint) {
-		var parts = endpoint.name.split(".");
-		var name = parts[1];
+                var parts = endpoint.name.split(".");
+                var name = parts[1];
 
-		// eg auth != accounts
-		if (service != parts[0].toLowerCase()) {
-		    name = parts[0] + "/" + parts[1];
-		}
+                // eg auth != accounts
+                if (service != parts[0].toLowerCase()) {
+                    name = parts[0] + "/" + parts[1];
+                }
                 // define a new div for the endpoint
                 var ep = document.createElement("div")
                 ep.setAttribute("class", "endpoint");
@@ -248,15 +248,15 @@ function renderEndpoint(service, endpoint, method) {
             content.appendChild(request);
             content.appendChild(response);
 
-	    // construct the endpoint
+            // construct the endpoint
             var name = service.capitalize() + "." + endpoint;
             if (method != undefined) {
                 name = endpoint + "." + method;
-		heading.innerText += " " + method;
-	    } else {
-		method = endpoint;
+                heading.innerText += " " + method;
+            } else {
+                method = endpoint;
                 endpoint = service.capitalize();
-	    }
+            }
 
             rsp.services[0].endpoints.forEach(function(ep) {
                 // render the form
@@ -278,37 +278,37 @@ function renderEndpoint(service, endpoint, method) {
                             if (entry.name.length == 0) {
                                 continue
                             }
-			    if (entry.value.length == 0) {
-				    continue
-			    }
+                            if (entry.value.length == 0) {
+                                continue
+                            }
                             request[entry.name] = entry.value;
                         }
 
                         // renders the output recursively
                         var render = function(key, val, depth) {
                             // print the value if it's not an object
-			    var print = function(key, val) {
-				var value = document.createElement("div");
-				value.setAttribute("class", "field");
-				key = key.capitalize();
-				value.innerText = `${key}: ${val}`
-				return value;
-			    }
-			    // not an object, just print it
-			    if (typeof val != "object") {
-				return print(key, val)
-			    }
-			    // if it's an array then check types and print
-			    if (val.constructor == Array) {
-				if (typeof val[0] != "object") {
-				    return print(key, val);
-				}
-			    }
+                            var print = function(key, val) {
+                                var value = document.createElement("div");
+                                value.setAttribute("class", "field");
+                                key = key.capitalize();
+                                value.innerText = `${key}: ${val}`
+                                return value;
+                            }
+                            // not an object, just print it
+                            if (typeof val != "object") {
+                                return print(key, val)
+                            }
+                            // if it's an array then check types and print
+                            if (val.constructor == Array) {
+                                if (typeof val[0] != "object") {
+                                    return print(key, val);
+                                }
+                            }
 
-			    // is actually a number
-			    if (val.constructor == Number) {
+                            // is actually a number
+                            if (val.constructor == Number) {
                                 return print(key, val);
-			    }
+                            }
 
                             var output = document.createElement("div");
                             output.setAttribute("class", "response");
@@ -326,14 +326,14 @@ function renderEndpoint(service, endpoint, method) {
 
                         call(service, endpoint, method, request)
                             .then(function(rsp) {
-				// prepend to response
-				response.innerText = '';
+                                // prepend to response
+                                response.innerText = '';
                                 // set a title
                                 var h4 = document.createElement("h4");
                                 h4.setAttribute("class", "title");
                                 h4.innerText = "Response";
                                 response.appendChild(h4);
-				// render values
+                                // render values
                                 response.appendChild(render("response", rsp, 0));
                             });
                     };
@@ -348,15 +348,15 @@ function renderEndpoint(service, endpoint, method) {
                         form.appendChild(input);
                     });
 
-		    // generate the button
+                    // generate the button
                     var submit = document.createElement("button")
                     submit.innerText = "Submit";
                     form.appendChild(submit);
                     request.appendChild(form);
                 }
-		// end forEach
+                // end forEach
             })
-	    // end Promise
+            // end Promise
         });
 }
 
@@ -374,7 +374,7 @@ function submitLogout(form) {
 function main() {
     // parse the url
     if (window.location.pathname == "/") {
-	console.log("render services");
+        console.log("render services");
         return renderServices();
     }
 
@@ -382,17 +382,17 @@ function main() {
 
     // process service
     if (parts.length == 2) {
-	console.log("render service", parts[1]);
+        console.log("render service", parts[1]);
         renderService(parts[1]);
     }
 
     if (parts.length == 3) {
-	console.log("render endpoint", parts[1], parts[2]);
+        console.log("render endpoint", parts[1], parts[2]);
         renderEndpoint(parts[1], parts[2]);
     }
 
     if (parts.length == 4) {
         console.log("render endpoint", parts[1], parts[2], parts[3]);
-	renderEndpoint(parts[1], parts[2], parts[3]);
+        renderEndpoint(parts[1], parts[2], parts[3]);
     }
 }
