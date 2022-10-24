@@ -7,20 +7,9 @@ var (
 {{define "style" }}{{end}}
 {{define "content"}}
 	<div class="error">{{ .error }}</div>
-	<div class='inner'>
-		<h3>Login</h3>
-		<form id="login" method='post'>
-			<label for='username'>Username</label>
-			<input id="username" type='username' name='username' required />
-
-			<label for='password'>Password</label>
-			<input id="password" type='password' name='password' required />
-
-			<button class="btn btn-default">Submit</button>
-		</form>
-	</div>
+	<div id="login" class='inner'></div>
 {{end}}
-{{define "script"}}{{end}}
+{{define "script"}}<script>renderLogin();</script>{{end}}
 `
 
 	LayoutTemplate = `
@@ -29,7 +18,6 @@ var (
 	<head>
 		<title>{{ template "title" . }} | Micro</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 	        <link rel="stylesheet" href="/assets/mu.css">
 		<style>
 		{{ template "style" . }}
@@ -37,45 +25,21 @@ var (
 		{{ template "head" . }}
 	</head>
 	<body>
-	  <nav class="navbar">
-	    <div class="container">
-              <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navBar">
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span> 
-                </button>
-                <a class="navbar-brand logo" href="/">Micro</a>
-              </div>
-              <div class="collapse navbar-collapse" id="navBar">
-	        <ul class="nav navbar-nav navbar-right" id="dev">
-		  {{if gt (len .User) 0 }}
-                    <span class="user small" style="position: absolute; top: -40px; right: 20px;">
-                      Logged in as: {{.User}}
-                    </span>
-                  {{end}}
-		  {{if .User}}
-	          <li><a href="/">Home</a></li>
-	          <li><a href="/client">Client</a></li>
-	          <li><a href="/services">Services</a></li>
-	          <li><a href="{{.LoginURL}}">{{.LoginTitle}}</a></li>
-		  {{end}}
-	        </ul>
-              </div>
-	    </div>
-	  </nav>
-          <div class="container">
-            <div class="row">
-	      <div class="col-sm-12">
-                {{ template "heading" . }}
-                {{ template "content" . }}
-              </div>
-            </div>
+	  <div id="header">
+            <a id="logo" href="/">Micro</a>
+	    <ul id="menu">
+                {{if .Token}}
+	        <li><a href="/logout">Logout</a></li>
+		{{end}}
+	    </ul>
           </div>
+          <div id="container">
+              <div id="heading">{{ template "heading" . }}</div>
+              <div id="content">{{ template "content" . }}</div>
+          </div>
+	  <div id="footer"></div>
 	  <script src="/assets/mu.js"></script>
-	  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-	  {{template "script" . }}
+	  <script src="/assets/jquery.min.js"></script>
 	  <script type="text/javascript">
 		function toggle(e) {
 		      var ev = window.event? event : e
@@ -90,465 +54,31 @@ var (
 		}
 
 		document.onkeydown = toggle;
+
+		// set the api url
+		setURL({{.ApiURL}});
 	  </script>
+	  {{template "script" . }}
 	</body>
 </html>
 {{end}}
-{{ define "style" }}
-.service { border-radius: 100px; }
-{{end}}
+{{ define "style" }}{{end}}
 {{ define "head" }}{{end}}
 {{ define "script" }}{{end}}
 {{ define "title" }}Web{{end}}
 {{ define "heading" }}<h3>&nbsp;</h3>{{end}}
 `
-
 	IndexTemplate = `
 {{define "title"}}Home{{end}}
-{{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
+{{define "heading"}}{{end}}
 {{define "style" }}{{end}}
 {{define "content"}}
-	{{if .Results.HasWebServices}}
-		<div class="apps">
-			{{range .Results.WebServices}}
-			<div style="display: inline-block; max-width: 150px; vertical-align: top;">
-			<a href="{{.Link}}" data-filter={{.Name}} class="service">
-			  <div style="padding: 5px; max-width: 80px; display: block; margin: 0 auto;">
-				{{if .Icon }}<img src="{{.Icon}}" style="width: 70px; height: auto;"/>{{else}}
-				<div class="icon">{{First .Name}}</div>
-				{{end}}
-			  </div>
-			  <div>{{Title .Name}}</div>
-			</a>
-			</div>
-			{{end}}
-		</div>
-	{{end}}
+<div id="services"></div>
 {{end}}
 {{define "script"}}
-<script type="text/javascript">
-jQuery(function($, undefined) {
-	var refs = $('a[data-filter]');
-	$('.search').on('keyup', function() {
-		var val = $.trim(this.value);
-		refs.hide();
-		refs.filter(function() {
-			return $(this).data('filter').search(val) >= 0
-		}).show();
-	});
-
-	$('.search').on('keypress', function(e) {
-		if (e.which != 13) {
-			return;
-		}
-		$('.service').each(function() {
-			if ($(this).css('display') == "none") {
-				return;
-			}
-			window.location.href = $(this).attr('href');
-		})
-	});
-});
-
-</script>
+<script type="text/javascript">main()</script>
 {{end}}
 `
-	CallTemplate = `
-{{define "title"}}Client{{end}}
-{{define "heading"}}<h3>Client</h3>{{end}}
-{{define "style"}}{{end}}
-{{define "content"}}
-<div class="row">
-  <div class="panel">
-    <div class="panel-body">
-	<div class="col-sm-5">
-		<form id="call-form" onsubmit="return submitCall();">
-			<div class="form-group">
-				<label for="service">Service</label>
-				<ul class="list-group">
-					<select class="form-control" type=text name=service id=service> 
-					<option disabled selected> -- select a service -- </option>
-					{{range $key, $value := .Results}}
-					<option class = "list-group-item" value="{{$key}}">{{$key}}</option>
-					{{end}}
-					</select>
-				</ul>
-			</div>
-			<div class="form-group">
-				<label for="endpoint">Endpoint</label>
-				<ul class="list-group">
-					<select class="form-control" type=text name=endpoint id=endpoint>
-					<option disabled selected> -- select an endpoint -- </option>
-					</select>
-				</ul>
-			</div>
-			<div class="form-group other" style="display: none;">
-				<label for="otherendpoint">Other Endpoint</label>
-				<ul class="list-group">
-					<input class="form-control" type=text name=otherendpoint id=otherendpoint placeholder="Endpoint"/>
-				</ul>
-			</div>
-			<div class="form-group">
-			</div>
-			<div class="form-group">
-				<label for="request">Request</label>
-				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
-			</div>
-			<div class="form-group">
-				<button class="btn btn-default">Call</button>
-			</div>
-		</form>
-	</div>
-	<div class="col-sm-7">
-		<p><b>Response</b><span class="pull-right"><a href="#" onclick="copyResponse()">Copy</a></p>
-		<pre id="response" style="min-height: 405px; max-height: 405px; overflow: scroll;">{}</pre>
-	</div>
-    </div>
-  </div>
-</div>
-{{end}}
-{{define "script"}}
-	<script>
-		function copyResponse() {
-			var copyText = document.getElementById("response");
-			const textArea = document.createElement('textarea');
-			textArea.textContent = copyText.innerText;
-			textArea.style = "position: absolute; left: -1000px; top: -1000px";	
-			document.body.append(textArea);
-			textArea.select();
-			textArea.setSelectionRange(0, 99999);
-			document.execCommand("copy");
-			document.body.removeChild(textArea);
-			return false;
-		}
-	</script>
-	<script>
-		$(document).ready(function(){
-			//Function executes on change of first select option field 
-			$("#service").change(function(){
-				var select = $("#service option:selected").val();
-				$("#endpoint").empty();
-				$("#endpoint").append("<option disabled selected> -- select an endpoint -- </option>");
-				var s_map = {};
-				{{ range $service, $endpoints := .Results }}
-				var m_list = [];
-				{{range $index, $element := $endpoints}}
-				m_list[{{$index}}] = {{$element.Name}}
-				{{end}}
-				s_map[{{$service}}] = m_list
-				{{ end }}
-				if (select in s_map) {
-					var serviceEndpoints = s_map[select]
-					var len = serviceEndpoints.length;
-					for(var i = 0; i < len; i++) {
-						$("#endpoint").append("<option value=\""+serviceEndpoints[i]+"\">"+serviceEndpoints[i]+"</option>");	
-					}
-				}
-				$("#endpoint").append("<option value=\"other\"> - Other</option>");
-			});
-
-			//Function executes on change of second select option field 
-			$("#endpoint").change(function(){
-				var select = $("#endpoint option:selected").val();
-				if (select == "other") {
-					$(".other").css('display', 'block');
-					$("#otherendpoint").attr("disabled", false);
-				} else {
-					$(".other").css('display', 'none');
-					$("#otherendpoint").attr("disabled", true);
-					$('#otherendpoint').val('');
-				}
-
-			});
-		});
-	</script>
-	<script>
-		function submitCall() {
-			var service = document.forms[0].elements["service"].value;
-			var endpoint = document.forms[0].elements["endpoint"].value
-			if (!($('#otherendpoint').prop('disabled'))) {
-				endpoint = document.forms[0].elements["otherendpoint"].value
-			}
-
-			var request;
-
-			try {
-				var rq = document.forms[0].elements["request"].value
-				if (rq.length > 0) {
-					request = JSON.parse(rq);
-				};
-			} catch(e) {
-				document.getElementById("response").innerText = "Invalid request: " + e.message;
-				return false;
-			}
-
-			endpoint = endpoint.replace(".", "/");
-
-			call("{{.ApiURL}}/" + service + "/" + endpoint, request)
-			    .then(function(response) {
-					document.getElementById("response").innerText = JSON.stringify(response, null, 2);
-					console.log(response);
-			    });
-
-
-			return false;
-		};	
-	</script>
-{{end}}
-`
-	RegistryTemplate = `
-{{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
-{{define "title"}}Services{{end}}
-{{define "content"}}
-	<p style="margin: 0;">&nbsp;</p>
-	<div style="max-width: 600px; margin: 0 auto; min-height: 400px; height: calc(100vh - 400px); overflow: scroll;">
-	{{range .Results}}
-	<div style="margin: 5px 5px 5px 15px;">
-	    <a href="/service/{{.Name}}" data-filter={{.Name}} class="list-item">{{.Name}}</a>
-	</div>
-	{{end}}
-        </div>
-{{end}}
-{{define "script"}}
-<script type="text/javascript">
-jQuery(function($, undefined) {
-	var refs = $('a[data-filter]');
-	$('.search').on('keyup', function() {
-		var val = $.trim(this.value);
-		refs.hide();
-		refs.filter(function() {
-			return $(this).data('filter').search(val) >= 0
-		}).show();
-	});
-});
-</script>
-{{end}}
-`
-
-	ServiceTemplate = `
-{{define "title"}}Service{{end}}
-{{define "heading"}}<h3>{{with $svc := index .Results 0}}{{Title $svc.Name}}{{end}}</h3>{{end}}
-{{define "style"}}{{end}}
-{{define "script"}}
-<script type="text/javascript">
-  $('.endpoint').on('click', function() {
-	var val = $(this).parent().find("table");
-	var state = $(this).find(".state");
-	if (val.css('display') == 'none') {
-	  state.text("[-]");
-	  val.css('display', 'table');
-	} else {
-	  val.css('display', 'none');
-	  state.text("[+]");
-	}
-  });
-</script>
-{{end}}
-{{define "content"}}
-	<hr>
-	<h4 class="bold">Nodes</h4>
-	{{range .Results}}
-	<h5>Version: {{.Version}}</h5>
-	<table class="table">
-		<thead>
-			<th>Id</th>
-			<th>Address</th>
-			<th>Metadata</th>
-		<thead>
-		<tbody>
-			{{range .Nodes}}
-			<tr>
-				<td>{{.Id}}</td>
-				<td>{{.Address}}</td>
-				<td>{{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</td>
-			</tr>
-			{{end}}
-		</tbody>
-	</table>
-	{{end}}
-	{{with $svc := index .Results 0}}
-	{{if $svc.Endpoints}}
-	<h4 class="bold">Endpoints</h4>
-	<hr/>
-	{{end}}
-	{{range $svc.Endpoints}}
-	<div>
-		<h4 class="endpoint"><span class="state">[+]</span> {{.Name}}</h4>
-		<table class="table" style="display: none;">
-			<tbody>
-				{{if .Metadata}}
-				<tr>
-					<th class="col-sm-2" scope="row">Metadata</th>
-					<td>{{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</td>
-				</tr>
-				{{end}}
-				<tr>
-					<th class="col-sm-2" scope="row">Request</th>
-					<td><pre>{{format .Request}}</pre></td>
-				</tr>
-				<tr>
-					<th class="col-sm-2" scope="row">Response</th>
-					<td><pre>{{format .Response}}</pre></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-	{{end}}
-	{{end}}
-{{end}}
-
-`
-
-	WebTemplate = `
-{{define "title"}}{{Title .Name}}{{end}}
-{{define "heading"}}<h3>{{Title .Name}}</h3>{{end}}
-{{define "style"}}{{end}}
-{{define "content"}}
-<div class="row">
-  <div class="panel">
-    <div class="panel-body">
-	<div class="col-sm-2">
-	    {{ range $service, $endpoints := .Results }}
-              {{ range $endpoint := $endpoints }}
-                <div><a id="{{$endpoint.Name}}" href="#{{$endpoint.Name}}" onclick="setEndpoint(this)">{{Split $endpoint.Name}}</a></div>
-              {{end}}
-	    {{end}}
-        </div>
-	<div class="col-sm-4">
-		<form id="call-form" onsubmit="return submitCall();">
-			<input class="form-control" type=text name=service id=service style="display: none;">
-			<input class="form-control" type=text name=endpoint id=endpoint style="display: none;">
-			<input class="form-control" type=text name=request id=request style="display: none;">
-			<div class="form-group">
-				<p><b>Request</b></p>
-				<div id="inputs"></div>
-			</div>
-			<div class="form-group">
-				<button class="btn btn-default">Submit</button>
-			</div>
-		</form>
-	</div>
-	<div class="col-sm-6">
-		<p><b>Response</b><span class="pull-right"><a href="#" onclick="copyResponse()">Copy</a></p>
-		<pre id="response" style="min-height: 405px; max-height: 405px; overflow: scroll;">{}</pre>
-	</div>
-    </div>
-  </div>
-</div>
-{{end}}
-{{define "script"}}
-	<script>
-		function copyResponse() {
-			var copyText = document.getElementById("response");
-			const textArea = document.createElement('textarea');
-			textArea.textContent = copyText.innerText;
-			textArea.style = "position: absolute; left: -1000px; top: -1000px";	
-			document.body.append(textArea);
-			textArea.select();
-			textArea.setSelectionRange(0, 99999);
-			document.execCommand("copy");
-			document.body.removeChild(textArea);
-			return false;
-		}
-	</script>
-	<script>
-		$(document).ready(function(){
-			document.getElementById("service").value = "{{.Name}}";
-
-			//Function executes on change of first select option field 
-			{{ range $service, $endpoints := .Results }}
-				{{range $index, $element := $endpoints}}
-					{{ if eq $index 0 }}
-						var el = document.getElementById("{{$element.Name}}");
-						setEndpoint(el);
-					{{ end }}
-				{{end}}
-			{{ end }}
-		});
-	</script>
-	<script>
-		function setEndpoint(el) {
-			var id = el.id;
-			var map = {};
-			{{ range $service, $endpoints := .Results }}
-				{{range $index, $element := $endpoints}}
-					map[{{$element.Name}}] = [];
-					{{ range $value := $element.Request.Values }}
-						map[{{$element.Name}}].push({{$value.Name}});
-					{{end}}
-
-					// set all to unselected
-					document.getElementById("{{$element.Name}}").style.fontWeight = "normal";
-				{{end}}
-			{{end}}
-
-			var inputs = document.getElementById("inputs");
-			inputs.innerHTML = '';
-
-			// get values for the endpoint
-			var values = map[id];
-
-			values.forEach(function(value) {
-				var input = document.createElement('input')
-				input.className = 'form-control';
-				input.type = 'text';
-				input.name = 'value[]' + value;
-				input.id = 'value[]' + value;
-				input.placeholder = value;
-				input.autocomplete = 'off';
-				input.style = 'margin-bottom: 10px;';
-				inputs.appendChild(input);
-			});
-
-			// set the endpoint value
-			document.getElementById("endpoint").value = el.id;
-			// select the endpoint link
-			el.style.fontWeight = "bold";
-
-			return false;
-		};
-
-		function submitCall() {
-			var service = document.forms[0].elements["service"].value
-			var endpoint = document.forms[0].elements["endpoint"].value
-
-			var request;
-			var headers;
-
-			try {
-				var data = {};
-				var inputs = document.getElementById("call-form").elements;
-
-				for (i = 0; i < inputs.length; i++) {
-					var val = inputs[i];
-					if (val.id.startsWith("value[]")) {
-						var v = document.getElementById(val.id);
-						if (v.value.length > 0) {
-							data[val.name.replace('value[]','')] = v.value;
-						}
-					}
-				};
-				console.log(data);
-				request = data;
-			} catch(e) {
-				document.getElementById("response").innerText = "Invalid request: " + e.message;
-				return false;
-			}
-
-			endpoint = endpoint.replace(".", "/");
-
-			call("{{.ApiURL}}/" + service + "/" + endpoint, request)
-			    .then(function(response) {
-					document.getElementById("response").innerText = JSON.stringify(response, null, 2);
-					console.log(response);
-			    });
-
-			return false;
-		};	
-	</script>
-{{end}}
-`
-
 	NotFoundTemplate = `
 {{define "title"}}404: Not Found{{end}}
 {{define "heading"}}<h3>404: Not Found</h3>{{end}}
