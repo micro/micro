@@ -194,7 +194,7 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 	}
 
 	templateData := map[string]interface{}{
-		"ApiURL":    apiURL,
+		"ApiURL":    template.URL(apiURL),
 		"Token":     token,
 		"Results":   data,
 		"Namespace": Namespace,
@@ -256,6 +256,7 @@ func Run(ctx *cli.Context) error {
 	srv.HandleFunc("/", srv.indexHandler)
 	srv.HandleFunc("/{service}", srv.indexHandler)
 	srv.HandleFunc("/{service}/{endpoint}", srv.indexHandler)
+	srv.HandleFunc("/{service}/{endpoint}/{method}", srv.indexHandler)
 
 	// create new http server
 	server := &http.Server{

@@ -25,35 +25,21 @@ var (
 		{{ template "head" . }}
 	</head>
 	<body>
-	  <nav class="navbar">
-	    <div class="container">
-              <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navBar">
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span> 
-                </button>
-                <a class="navbar-brand logo" href="/">Micro</a>
-              </div>
-              <div class="collapse navbar-collapse" id="navBar">
-	        <ul class="nav navbar-nav navbar-right" id="dev">
-		  {{if .Token}}
-	          <li><a href="/logout">Logout</a></li>
-		  {{end}}
-	        </ul>
-              </div>
-	    </div>
-	  </nav>
-          <div class="container">
-            <div class="row">
-	      <div class="col-sm-12">
-                <div id="heading">{{ template "heading" . }}</div>
-                <div id="content">{{ template "content" . }}</div>
-              </div>
-            </div>
+	  <div id="header">
+            <a id="logo" href="/">Micro</a>
+	    <ul id="menu">
+                {{if .Token}}
+	        <li><a href="/logout">Logout</a></li>
+		{{end}}
+	    </ul>
           </div>
+          <div id="container">
+              <div id="heading">{{ template "heading" . }}</div>
+              <div id="content">{{ template "content" . }}</div>
+          </div>
+	  <div id="footer"></div>
 	  <script src="/assets/mu.js"></script>
-	  {{template "script" . }}
+	  <script src="/assets/jquery.min.js"></script>
 	  <script type="text/javascript">
 		function toggle(e) {
 		      var ev = window.event? event : e
@@ -70,14 +56,13 @@ var (
 		document.onkeydown = toggle;
 
 		// set the api url
-		setURL("{{.ApiURL}}");
+		setURL({{.ApiURL}});
 	  </script>
+	  {{template "script" . }}
 	</body>
 </html>
 {{end}}
-{{ define "style" }}
-.service { border-radius: 100px; }
-{{end}}
+{{ define "style" }}{{end}}
 {{ define "head" }}{{end}}
 {{ define "script" }}{{end}}
 {{ define "title" }}Web{{end}}

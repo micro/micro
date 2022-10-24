@@ -23,11 +23,11 @@ function setCookie(name, value, expiry) {
     document.cookie = name + "=" + value + ";" + expires + ";path=/";
 }
 
-async function call(service = '', endpoint = '', data = {}) {
+async function call(service = '', endpoint = '', method = '', data = {}) {
     var token = getCookie(cookie);
 
     // Default options are marked with *
-    const response = await fetch(`${url}/${service}/${endpoint}`, {
+    const response = await fetch(`${url}/${service}/${endpoint}/${method}`, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         headers: {
             'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ async function call(service = '', endpoint = '', data = {}) {
 }
 
 async function login(username, password) {
-    return call('auth', 'Token', {
+    return call('auth', 'Auth', 'Token', {
         "id": username,
         "secret": password,
         "token_expiry": 30 * 86400,
@@ -55,14 +55,14 @@ async function logout() {
 }
 
 async function listServices() {
-    return call('registry', 'ListServices')
+    return call('registry', 'Registry', 'ListServices')
         .then(function(rsp) {
             return rsp.services;
         });
 }
 
 async function getService(name) {
-    return call('registry', 'GetService', {
+    return call('registry', 'Registry', 'GetService', {
         "service": name
     });
 }
@@ -98,7 +98,6 @@ function renderLogin() {
     password.required = true;
 
     var submit = document.createElement("button")
-    submit.setAttribute("class", "btn btn-default");
     submit.innerText = "Submit";
 
     div.appendChild(h3);
@@ -142,15 +141,12 @@ function renderServices(fn) {
 
     var render = function(rsp) {
         rsp.forEach(function(srv) {
-            var div = document.createElement("div")
-            div.setAttribute("class", "app-icon");
             var a = document.createElement("a");
             a.href = "/" + srv.name;
             a.setAttribute("data-filter", srv.name);
             a.setAttribute("class", "service");
             a.innerText = srv.name;
-            div.appendChild(a);
-            service.appendChild(div);
+            service.appendChild(a);
         });
 
         // setup search filtering
@@ -212,7 +208,13 @@ function renderService(service) {
             var eps = {};
 
             rsp.services[0].endpoints.forEach(function(endpoint) {
-                var name = endpoint.name.split(".")[1];
+		var parts = endpoint.name.split(".");
+		var name = parts[1];
+
+		// eg auth != accounts
+		if (service != parts[0].toLowerCase()) {
+		    name = parts[0] + "/" + parts[1];
+		}
                 // define a new div for the endpoint
                 var ep = document.createElement("div")
                 ep.setAttribute("class", "endpoint");
@@ -230,27 +232,35 @@ function renderService(service) {
         });
 }
 
-function renderEndpoint(service, endpoint) {
+function renderEndpoint(service, endpoint, method) {
     getService(service)
         .then(function(rsp) {
-            console.log("rendering", service, endpoint);
+            console.log("rendering", service, endpoint, method);
             var heading = document.getElementById("heading");
             heading.innerText = service + " " + endpoint;
             var content = document.getElementById("content");
             content.innerHTML = "";
             var request = document.createElement("div");
             request.id = "request";
-            var response = document.createElement("response");
+            var response = document.createElement("div");
             response.id = "response";
 
             content.appendChild(request);
             content.appendChild(response);
 
-            rsp.services[0].endpoints.forEach(function(ep) {
-                var name = ep.name.split(".")[1];
+	    // construct the endpoint
+            var name = service.capitalize() + "." + endpoint;
+            if (method != undefined) {
+                name = endpoint + "." + method;
+		heading.innerText += " " + method;
+	    } else {
+		method = endpoint;
+                endpoint = service.capitalize();
+	    }
 
+            rsp.services[0].endpoints.forEach(function(ep) {
                 // render the form
-                if (endpoint == name) {
+                if (name == ep.name) {
                     console.log("rending endpoint", ep.name);
                     // get request info
                     // render a form
@@ -295,22 +305,18 @@ function renderEndpoint(service, endpoint) {
 				}
 			    }
 
+			    // is actually a number
+			    if (val.constructor == Number) {
+                                return print(key, val);
+			    }
+
                             var output = document.createElement("div");
                             output.setAttribute("class", "response");
-
-                            if (depth == 0) {
-                                // set a title
-                                var h4 = document.createElement("h4");
-                                h4.setAttribute("class", "title");
-                                h4.innerText = key;
-                                output.appendChild(h4);
-                            }
 
                             // iterate the objects as needed
                             for (const [key, value] of Object.entries(val)) {
                                 // append the next output value
                                 depth++
-				console.log(typeof value, key, value);
                                 output.appendChild(render(key, value, depth));
                             }
 
@@ -318,13 +324,17 @@ function renderEndpoint(service, endpoint) {
                             return output;
                         }
 
-                        call(service, endpoint, request)
+                        call(service, endpoint, method, request)
                             .then(function(rsp) {
-                                // render output;
-                                var result = document.createElement("div");
-                                result.appendChild(render("response", rsp, 0));
+				// prepend to response
 				response.innerText = '';
-                                response.prepend(result);
+                                // set a title
+                                var h4 = document.createElement("h4");
+                                h4.setAttribute("class", "title");
+                                h4.innerText = "Response";
+                                response.appendChild(h4);
+				// render values
+                                response.appendChild(render("response", rsp, 0));
                             });
                     };
 
@@ -338,14 +348,15 @@ function renderEndpoint(service, endpoint) {
                         form.appendChild(input);
                     });
 
+		    // generate the button
                     var submit = document.createElement("button")
-                    submit.setAttribute("class", "btn btn-default");
                     submit.innerText = "Submit";
                     form.appendChild(submit);
                     request.appendChild(form);
                 }
+		// end forEach
             })
-
+	    // end Promise
         });
 }
 
@@ -363,6 +374,7 @@ function submitLogout(form) {
 function main() {
     // parse the url
     if (window.location.pathname == "/") {
+	console.log("render services");
         return renderServices();
     }
 
@@ -370,10 +382,17 @@ function main() {
 
     // process service
     if (parts.length == 2) {
+	console.log("render service", parts[1]);
         renderService(parts[1]);
     }
 
     if (parts.length == 3) {
+	console.log("render endpoint", parts[1], parts[2]);
         renderEndpoint(parts[1], parts[2]);
+    }
+
+    if (parts.length == 4) {
+        console.log("render endpoint", parts[1], parts[2], parts[3]);
+	renderEndpoint(parts[1], parts[2], parts[3]);
     }
 }

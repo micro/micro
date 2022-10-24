@@ -1,57 +1,66 @@
 html, body {
-	font-size: 16px;
-	font-family: arial, sans-serif;
+  font-size: 16px;
+  font-family: arial, sans-serif;
+}
+#header,#container,#footer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2em;
+}
+#container {
+  max-width: 1024px;
 }
 a { color: #333333; }
-.navbar { margin-top: 2em; }
-.navbar-brand img { display: inline; }
-.navbar-brand:hover {color: #333333; }
-.icon-bar { background-color: #333333; }
-.nav>li>a:focus, .nav>li>a:hover { background-color: white; }
-.logo { font-size: 2em; }
+#logo {
+  font-size: 2em;
+  text-decoration: none;
+}
+#menu {
+  float: right;
+  list-style: none;
+}
 #heading {
   font-size: 1.5em;
   text-transform: capitalize;
+  margin-bottom: 1.5em;
+}
+button:hover {
+  cursor: pointer;
 }
 .response {
   margin-bottom: 10px;
+  overflow-wrap: break-word;
 }
 .search {
-	width: 100%;
-	position: relative;
-	margin: 0 auto;
-	margin-bottom: 10px;
-	border-radius: 0;
-	border: 0;
-	box-shadow: none;
-	border-bottom: 1px solid #ccc;
+  width: 100%;
+  position: relative;
+  margin: 0 auto;
+  margin-bottom: 10px;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+  border-bottom: 1px solid #ccc;
 }
 .search:focus {
-	border-color: transparent;
-	outline: 0;
-	box-shadow: none;
-	border-bottom: 1px solid #ccc;
+  border-color: transparent;
+  outline: 0;
+  box-shadow: none;
+  border-bottom: 1px solid #ccc;
 }
 #services {
   height: calc(100vh - 250px);
   overflow: auto;
 }
-.service {
-        margin: 5px 3px 5px 3px;
-}
 .key, .title {
   text-transform: capitalize;
 }
-.apps {
-  max-width: 600px;
-  text-align: center;
-  margin: 0 auto;
-}
 .table>tbody>tr>th, .table>tbody>tr>td {
-    border-top: none;
+  border-top: none;
 }
-.endpoint {
+.endpoint, .service {
+  margin-bottom: 5px;
   cursor: pointer;
+  display: block;
 }
 .bold {
   font-weight: bold;
@@ -60,31 +69,30 @@ a { color: #333333; }
     padding: 15px;
 }
 .inner {
-	margin: 0 auto;
-	max-width: 100vw;
-	width: 400px;
+  margin: 0 auto;
+  max-width: 100vw;
+  width: 400px;
 }
 form  {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 .form-control {
-	border: 1px solid #ccc;
+  border: 1px solid #ccc;
 }
 .form-group {
   margin-bottom: 0px;
 }
 input {
-	margin-top:  5px;
-	margin-bottom: 20px;
-	outline: none;
-	height: 25px;
+  margin-bottom: 10px;
+  outline: none;
+  height: 25px;
 }
 pre {
-    padding: 20px;
-    background-color: #EEF0F3;
-    border: 1px solid #ccc;
-    word-wrap: break-word;
+  padding: 20px;
+  background-color: #EEF0F3;
+  border: 1px solid #ccc;
+  word-wrap: break-word;
 }
 textarea#request {
   margin-bottom: 10px;
