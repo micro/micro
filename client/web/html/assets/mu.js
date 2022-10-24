@@ -161,7 +161,7 @@ function renderServices(fn) {
     // the search box
     // <h4><input class="input-lg search" type=text placeholder="Search" autofocus></h4>
     var input = document.createElement("input")
-    input.setAttribute("class", "input-lg search");
+    input.setAttribute("class", "search");
     input.type = "text"
     input.placeholder = "Search"
     input.autofocus = true;

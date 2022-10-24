@@ -20,9 +20,9 @@ a { color: #333333; }
   list-style: none;
 }
 #heading {
+  margin-bottom: 10px;
   font-size: 1.5em;
   text-transform: capitalize;
-  margin-bottom: 1.5em;
 }
 button:hover {
   cursor: pointer;
@@ -35,7 +35,6 @@ button:hover {
   width: 100%;
   position: relative;
   margin: 0 auto;
-  margin-bottom: 10px;
   border-radius: 0;
   border: 0;
   box-shadow: none;
@@ -97,7 +96,4 @@ textarea#request {
   margin-bottom: 10px;
 }
 @media only screen and (max-width: 500px) {
-  .service {
-    padding: 5px;
-  }
 }
