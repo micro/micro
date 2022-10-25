@@ -271,17 +271,13 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/client"
-	proto "github.com/micro/services/helloworld/proto"
+	pb "github.com/micro/services/helloworld/proto"
 )
 
-func callService(c client.Client) {
-	// create the proto client for helloworld
-	hw := proto.NewHelloworldService("helloworld", c)
-
+func callService(hw pb.HelloworldService) {
 	for {
 		// call an endpoint on the service
-		rsp, err := hw.Call(context.Background(), &proto.CallRequest{
+		rsp, err := hw.Call(context.Background(), &pb.CallRequest{
 			Name: "John",
 		})
 		if err != nil {
@@ -302,8 +298,11 @@ func main() {
 		service.Name("caller"),
 	)
 
+	// new helloworld client
+	hw := pb.NewHelloworldService("helloworld", srv.Client())
+	
 	// run the client caller
-	go callService(srv.Client())
+	go callService(hw)
 	
 	// run the service
 	service.Run()
