@@ -333,7 +333,7 @@ import (
     "fmt"
     "os"
 
-    "github.com/micro/micro/v3/client/api"
+    "github.com/micro/micro-go"
 )
 
 type Request struct {
@@ -346,7 +346,7 @@ type Response struct {
 
 func main() {
 	token := os.Getenv("TOKEN")
-	c := api.NewClient(nil)
+	c := micro.NewClient(nil)
 
 	// set your api token
 	c.SetToken(token)
