@@ -27,7 +27,6 @@ var (
 	API       = "http://localhost:8080"
 	Address   = ":8082"
 	Namespace = "micro"
-	Resolver  = "path"
 	LoginURL  = "/login"
 	// Host name the web dashboard is served on
 	Host, _ = os.Hostname()
