@@ -113,7 +113,7 @@ function renderServices(fn) {
     var search = function() {
         var refs = $('a[data-filter]');
         $('.search').on('keyup', function() {
-            var val = $.trim(this.value);
+            var val = $.trim(this.value.toLowerCase());
             refs.hide();
             refs.filter(function() {
                 return $(this).data('filter').search(val) >= 0
