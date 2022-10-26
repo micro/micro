@@ -258,6 +258,9 @@ function renderEndpoint(service, endpoint, method) {
                 endpoint = service.capitalize();
             }
 
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const params = Object.fromEntries(urlSearchParams.entries());
+
             rsp.services[0].endpoints.forEach(function(ep) {
                 // render the form
                 if (name == ep.name) {
@@ -266,6 +269,7 @@ function renderEndpoint(service, endpoint, method) {
                     // render a form
                     // render output
                     var form = document.createElement("form");
+                    form.id = name;
 
                     form.onsubmit = function(ev) {
                         ev.preventDefault();
@@ -290,6 +294,8 @@ function renderEndpoint(service, endpoint, method) {
                             });
                     };
 
+                    var submitForm = false;
+
                     ep.request.values.forEach(function(value) {
                         var input = document.createElement("input");
                         input.id = value.name
@@ -297,6 +303,12 @@ function renderEndpoint(service, endpoint, method) {
                         input.name = value.name;
                         input.placeholder = value.name;
                         input.autocomplete = "off";
+
+                        if (params[value.name] != undefined) {
+                            input.value = params[value.name];
+                            submitForm = true;
+                        }
+
                         form.appendChild(input);
                     });
 
@@ -305,6 +317,11 @@ function renderEndpoint(service, endpoint, method) {
                     submit.innerText = "Submit";
                     form.appendChild(submit);
                     request.appendChild(form);
+
+                    // auto-submit when we have form values
+                    if (submitForm) {
+                        $(form).submit();
+                    }
                 }
                 // end forEach
             })
@@ -375,7 +392,6 @@ function renderResponse(response, rsp) {
 
     var output = document.createElement("div");
     output.id = "output";
-    output.appendChild(textOutput);
 
     var links = document.createElement("span");
     links.id = "links";
@@ -411,6 +427,11 @@ function renderResponse(response, rsp) {
     // add links to header
     h4.appendChild(links);
 
+    if (window.location.hash == "#json") {
+        output.appendChild(jsonOutput);
+    } else {
+        output.appendChild(textOutput);
+    }
     // set the response output;
     response.appendChild(h4);
     response.appendChild(output);
