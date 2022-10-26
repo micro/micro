@@ -11,6 +11,7 @@ html, body {
   max-width: 1024px;
 }
 a { color: #333333; text-decoration: none; }
+a:hover { text-decoration: underline; }
 #error {
   color: red;
 }
@@ -20,6 +21,7 @@ a { color: #333333; text-decoration: none; }
 }
 #logo {
   font-size: 2em;
+  font-weight: 600;
   text-decoration: none;
 }
 #links {
@@ -42,9 +44,6 @@ button:hover {
 .response {
   margin-bottom: 10px;
   overflow-wrap: break-word;
-}
-.response a {
-  color: navy;
 }
 .search {
   width: 100%;
