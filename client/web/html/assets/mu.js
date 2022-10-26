@@ -11,21 +11,21 @@ Object.defineProperty(String.prototype, 'capitalize', {
 });
 
 String.prototype.parseURL = function(embed) {
-        return this.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function(url) {
-                if (embed == true) {
-                        var match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-                        if (match && match[2].length == 11) {
-                                return '<div class="iframe">'+
-                                '<iframe src="//www.youtube.com/embed/' + match[2] +
-                                '" frameborder="0" allowfullscreen></iframe>' + '</div>';
-                        };
-                        if (url.match(/^.*giphy.com\/media\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+.gif$/)) {
-                                return '<div class="animation"><img src="'+url+'"></div>';
-                        }
-                };
-                // var pretty = url.replace(/^http(s)?:\/\/(www\.)?/, '');
-                return url.link(url);
-        });
+    return this.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function(url) {
+        if (embed == true) {
+            var match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+            if (match && match[2].length == 11) {
+                return '<div class="iframe">' +
+                    '<iframe src="//www.youtube.com/embed/' + match[2] +
+                    '" frameborder="0" allowfullscreen></iframe>' + '</div>';
+            };
+            if (url.match(/^.*giphy.com\/media\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+.gif$/)) {
+                return '<div class="animation"><img src="' + url + '"></div>';
+            }
+        };
+        // var pretty = url.replace(/^http(s)?:\/\/(www\.)?/, '');
+        return url.link(url);
+    });
 };
 
 function getCookie(name) {
@@ -64,9 +64,9 @@ async function login(username, password) {
         "token_expiry": 30 * 86400,
     }).then(function(rsp) {
         if (rsp.token == undefined) {
-	  var error = document.getElementById("error");
-	  error.innerText = rsp.detail;
-	}
+            var error = document.getElementById("error");
+            error.innerText = rsp.detail;
+        }
 
         setCookie(cookie, rsp.token.access_token, rsp.token.expiry);
         window.location.href = "/";
@@ -319,13 +319,17 @@ function renderEndpoint(service, endpoint, method) {
 
                     var submitForm = false;
 
-                    ep.request.values.forEach(function(value) {
+                    ep.request.values.forEach(function(value, idx) {
                         var input = document.createElement("input");
                         input.id = value.name
                         input.type = "text";
                         input.name = value.name;
                         input.placeholder = value.name;
                         input.autocomplete = "off";
+
+                        if (idx == 0) {
+                            input.autofocus = true;
+                        }
 
                         if (params[value.name] != undefined) {
                             input.value = params[value.name];
@@ -359,7 +363,12 @@ function renderOutput(key, val, depth) {
         var value = document.createElement("div");
         value.setAttribute("class", "field");
         key = key.capitalize();
-	val = val.parseURL();
+
+        // parse a URL if its a string
+        if (val.parseURL != undefined) {
+            val = val.parseURL();
+        }
+
         value.innerHTML = `${key}: ${val}`
         return value;
     }
