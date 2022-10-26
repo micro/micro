@@ -11,6 +11,13 @@ html, body {
   max-width: 1024px;
 }
 a { color: #333333; text-decoration: none; }
+#error {
+  color: red;
+}
+#login, #error {
+  margin: 0 auto;
+  max-width: 400px;
+}
 #logo {
   font-size: 2em;
   text-decoration: none;
@@ -35,6 +42,9 @@ button:hover {
 .response {
   margin-bottom: 10px;
   overflow-wrap: break-word;
+}
+.response a {
+  color: navy;
 }
 .search {
   width: 100%;
@@ -71,10 +81,6 @@ button:hover {
 }
 .user {
     padding: 15px;
-}
-.inner {
-  margin: 0 auto;
-  max-width: 400px;
 }
 form  {
   display: flex;

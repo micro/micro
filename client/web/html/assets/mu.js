@@ -10,6 +10,24 @@ Object.defineProperty(String.prototype, 'capitalize', {
     enumerable: false
 });
 
+String.prototype.parseURL = function(embed) {
+        return this.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function(url) {
+                if (embed == true) {
+                        var match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+                        if (match && match[2].length == 11) {
+                                return '<div class="iframe">'+
+                                '<iframe src="//www.youtube.com/embed/' + match[2] +
+                                '" frameborder="0" allowfullscreen></iframe>' + '</div>';
+                        };
+                        if (url.match(/^.*giphy.com\/media\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+.gif$/)) {
+                                return '<div class="animation"><img src="'+url+'"></div>';
+                        }
+                };
+                // var pretty = url.replace(/^http(s)?:\/\/(www\.)?/, '');
+                return url.link(url);
+        });
+};
+
 function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -45,6 +63,11 @@ async function login(username, password) {
         "secret": password,
         "token_expiry": 30 * 86400,
     }).then(function(rsp) {
+        if (rsp.token == undefined) {
+	  var error = document.getElementById("error");
+	  error.innerText = rsp.detail;
+	}
+
         setCookie(cookie, rsp.token.access_token, rsp.token.expiry);
         window.location.href = "/";
     });
@@ -336,7 +359,8 @@ function renderOutput(key, val, depth) {
         var value = document.createElement("div");
         value.setAttribute("class", "field");
         key = key.capitalize();
-        value.innerText = `${key}: ${val}`
+	val = val.parseURL();
+        value.innerHTML = `${key}: ${val}`
         return value;
     }
     // not an object, just print it

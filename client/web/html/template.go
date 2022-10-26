@@ -6,8 +6,8 @@ var (
 {{define "heading"}}{{end}}
 {{define "style" }}{{end}}
 {{define "content"}}
-	<div class="error">{{ .error }}</div>
-	<div id="login" class='inner'></div>
+	<div id="error">{{ .error }}</div>
+	<div id="login"></div>
 {{end}}
 {{define "script"}}<script>renderLogin();</script>{{end}}
 `
