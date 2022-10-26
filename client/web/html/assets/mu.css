@@ -15,6 +15,11 @@ a { color: #333333; text-decoration: none; }
   font-size: 2em;
   text-decoration: none;
 }
+#links {
+  float: right;
+  font-size: 0.8em;
+  font-weight: normal;
+}
 #menu {
   float: right;
   list-style: none;
@@ -88,7 +93,7 @@ input {
 }
 pre {
   padding: 20px;
-  background-color: #EEF0F3;
+  background-color: #whitesmoke;
   border: 1px solid #ccc;
   word-wrap: break-word;
 }

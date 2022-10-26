@@ -284,57 +284,9 @@ function renderEndpoint(service, endpoint, method) {
                             request[entry.name] = entry.value;
                         }
 
-                        // renders the output recursively
-                        var render = function(key, val, depth) {
-                            // print the value if it's not an object
-                            var print = function(key, val) {
-                                var value = document.createElement("div");
-                                value.setAttribute("class", "field");
-                                key = key.capitalize();
-                                value.innerText = `${key}: ${val}`
-                                return value;
-                            }
-                            // not an object, just print it
-                            if (typeof val != "object") {
-                                return print(key, val)
-                            }
-                            // if it's an array then check types and print
-                            if (val.constructor == Array) {
-                                if (typeof val[0] != "object") {
-                                    return print(key, val);
-                                }
-                            }
-
-                            // is actually a number
-                            if (val.constructor == Number) {
-                                return print(key, val);
-                            }
-
-                            var output = document.createElement("div");
-                            output.setAttribute("class", "response");
-
-                            // iterate the objects as needed
-                            for (const [key, value] of Object.entries(val)) {
-                                // append the next output value
-                                depth++
-                                output.appendChild(render(key, value, depth));
-                            }
-
-                            // return the entire rendered value
-                            return output;
-                        }
-
                         call(service, endpoint, method, request)
                             .then(function(rsp) {
-                                // prepend to response
-                                response.innerText = '';
-                                // set a title
-                                var h4 = document.createElement("h4");
-                                h4.setAttribute("class", "title");
-                                h4.innerText = "Response";
-                                response.appendChild(h4);
-                                // render values
-                                response.appendChild(render("response", rsp, 0));
+				    renderResponse(response, rsp);
                             });
                     };
 
@@ -358,6 +310,110 @@ function renderEndpoint(service, endpoint, method) {
             })
             // end Promise
         });
+}
+
+// renders the output recursively as a set of divs
+function renderOutput(key, val, depth) {
+    // print the value if it's not an object
+    var print = function(key, val) {
+	var value = document.createElement("div");
+	value.setAttribute("class", "field");
+	key = key.capitalize();
+	value.innerText = `${key}: ${val}`
+	return value;
+    }
+    // not an object, just print it
+    if (typeof val != "object") {
+	return print(key, val)
+    }
+    // if it's an array then check types and print
+    if (val.constructor == Array) {
+	if (typeof val[0] != "object") {
+	    return print(key, val);
+	}
+    }
+
+    // is actually a number
+    if (val.constructor == Number) {
+	return print(key, val);
+    }
+
+    var output = document.createElement("div");
+    output.setAttribute("class", "response");
+
+    // iterate the objects as needed
+    for (const [key, value] of Object.entries(val)) {
+	// append the next output value
+	depth++
+	output.appendChild(renderOutput(key, value, depth));
+    }
+
+    // return the entire rendered value
+    return output;
+}
+
+// returns JSON formatted in a pre object
+function renderJSON(val) {
+    var json = document.createElement("pre");
+    json.innerText = JSON.stringify(val, null, "\t");
+    return json;
+}
+
+// render the response output
+function renderResponse(response, rsp) {
+	response.innerText = '';
+
+	// set a title
+	var h4 = document.createElement("h4");
+	h4.setAttribute("class", "title");
+	h4.innerText = "Response";
+
+	// text based output
+	var textOutput = renderOutput("response", rsp, 0);
+	// json based output
+	var jsonOutput = renderJSON(rsp);
+
+	var output = document.createElement("div");
+	output.id = "output";
+	output.appendChild(textOutput);
+
+	var links = document.createElement("span");
+	links.id = "links";
+
+	// create the output links
+	var textBtn = document.createElement("a");
+	var divider = document.createElement("span");
+	var jsonBtn = document.createElement("a");
+	divider.innerText = ' | ';
+	textBtn.innerText = "Text";
+	jsonBtn.innerText = "JSON";
+
+	// execute on text
+	textBtn.onclick = function(ev) {
+	    ev.preventDefault();
+	    output.innerText = '';
+	    output.appendChild(textOutput);
+	};
+
+	// execute on json
+	jsonBtn.onclick = function(ev) {
+	    ev.preventDefault();
+	    output.innerText = '';
+	    output.appendChild(jsonOutput);
+	};
+
+	textBtn.href = '#text';
+	jsonBtn.href = '#json';
+	// create the links
+	links.appendChild(textBtn);
+	links.appendChild(divider);
+	links.appendChild(jsonBtn);
+	// add links to header
+	h4.appendChild(links);
+
+	// set the response output;
+	response.appendChild(h4);
+	response.appendChild(output);
 }
 
 function submitLogin(form) {
