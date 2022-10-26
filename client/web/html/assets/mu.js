@@ -362,14 +362,14 @@ function renderOutput(key, val, depth) {
     var print = function(key, val) {
         var value = document.createElement("div");
         value.setAttribute("class", "field");
-        key = key.capitalize();
+        key = key.replace("_", " ", -1).capitalize();
 
         // parse a URL if its a string
         if (val.parseURL != undefined) {
             val = val.parseURL();
         }
 
-        value.innerHTML = `${key}: ${val}`
+        value.innerHTML = `<span class="key">${key}</span>: <span class="value">${val}</span>`
         return value;
     }
     // not an object, just print it

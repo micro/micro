@@ -64,8 +64,14 @@ button:hover {
   height: calc(100vh - 250px);
   overflow: auto;
 }
+.field {
+  margin-bottom: 3px;
+}
 .key, .title {
   text-transform: capitalize;
+}
+.key {
+  color: grey;
 }
 .table>tbody>tr>th, .table>tbody>tr>td {
   border-top: none;
@@ -98,8 +104,8 @@ input {
 }
 pre {
   padding: 20px;
-  background-color: #whitesmoke;
   border: 1px solid #ccc;
+  overflow: auto;
   word-wrap: break-word;
 }
 textarea#request {
