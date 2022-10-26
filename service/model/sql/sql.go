@@ -22,7 +22,7 @@ type DB struct {
 }
 
 // NewDB provides a new database connection. If [name].db.address is found 
-// in the config then it's 
+// in the config then it's used as the address, otherwise we use sqlite. 
 func NewDB(name string) (*DB, error) {
 	dbAddress := "sqlite://" + name + ".db"
 
