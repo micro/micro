@@ -28,6 +28,21 @@ String.prototype.parseURL = function(embed) {
     });
 };
 
+function generateURL(service = '', endpoint = '', query = []) {
+    var u = `/${service}/${endpoint}`;
+    var q = "";
+
+    query.forEach(function(val) {
+        if (q.length == 0) {
+            q = "?" + val;
+            return
+        }
+        q += "&" + val;
+    })
+
+    return u + q;
+}
+
 function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -146,7 +161,27 @@ function renderServices(fn) {
         $('.search').on('keypress', function(e) {
             if (e.which != 13) {
                 return;
+            };
+            var val = $.trim(this.value);
+            var parts = val.split(" ");
+
+            // assuming it's some full query
+            if (parts.length > 1) {
+                service = parts[0];
+                endpoint = parts[1];
+                request = [];
+
+                // assemble a request
+                parts.slice(2).forEach(function(val) {
+                    if (val.split("=").length == 2) {
+                        request.push(val);
+                    }
+                });
+
+                window.location.href = generateURL(service, endpoint, request);
             }
+
+            // partial string
             $('.service').each(function() {
                 if ($(this).css('display') == "none") {
                     return;
@@ -272,12 +307,12 @@ function renderEndpoint(service, endpoint, method) {
             content.appendChild(response);
 
             // construct the endpoint
-            var name = service.capitalize() + "." + endpoint;
+            var name = service.capitalize() + "." + endpoint.capitalize();
             if (method != undefined) {
-                name = endpoint + "." + method;
-                heading.innerText += " " + method;
+                name = endpoint.capitalize() + "." + method.capitalize();
+                heading.innerText += " " + method.capitalize();
             } else {
-                method = endpoint;
+                method = endpoint.capitalize();
                 endpoint = service.capitalize();
             }
 
@@ -369,7 +404,7 @@ function renderOutput(key, val, depth) {
             val = val.parseURL();
         }
 
-        value.innerHTML = `<span class="key">${key}</span>: <span class="value">${val}</span>`
+        value.innerHTML = `<span class="key">${key}</span>&nbsp;<span class="value">${val}</span>`
         return value;
     }
     // not an object, just print it
