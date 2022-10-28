@@ -397,7 +397,7 @@ function renderOutput(key, val, depth) {
     var print = function(key, val) {
         var value = document.createElement("div");
         value.setAttribute("class", "field");
-        key = key.replace("_", " ", -1).capitalize();
+        key = key.replaceAll("_", " ").capitalize();
 
         // parse a URL if its a string
         if (val.parseURL != undefined) {
