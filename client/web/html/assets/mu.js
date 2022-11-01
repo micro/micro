@@ -25,6 +25,11 @@ String.prototype.parseURL = function(embed) {
         };
         // var pretty = url.replace(/^http(s)?:\/\/(www\.)?/, '');
         return url.link(url);
+    }).replace(/[\@\#]([a-zA-z0-9_]+)/g, function(m,m1) {
+            var t = '<a href="http://twitter.com/';
+            if(m.charAt(0) == '#')
+                t += 'hashtag/';
+            return t + encodeURI(m1) + '" target="_blank">' + m + '</a>';
     });
 };
 
@@ -110,7 +115,13 @@ async function setURL(u) {
 }
 
 function renderLogin() {
-    var div = document.getElementById("login");
+    var content = document.getElementById("content");
+    content.innerHTML = '';
+
+    var div = document.createElement("div");
+    div.id = "login";
+
+    content.appendChild(div);
 
     var h3 = document.createElement("h3");
     h3.innerText = "Login";
@@ -355,6 +366,10 @@ function renderEndpoint(service, endpoint, method) {
                     var submitForm = false;
 
                     ep.request.values.forEach(function(value, idx) {
+			// create a label
+			var label = document.createElement("label");
+			label.innerText = value.name.split("_").join(" ").capitalize();
+			// create the input
                         var input = document.createElement("input");
                         input.id = value.name
                         input.type = "text";
@@ -371,6 +386,7 @@ function renderEndpoint(service, endpoint, method) {
                             submitForm = true;
                         }
 
+			form.appendChild(label);
                         form.appendChild(input);
                     });
 
@@ -517,6 +533,13 @@ function submitLogout(form) {
 }
 
 function main() {
+    // check cookie
+    var token = getCookie(cookie);
+
+    if (token == undefined || token == "") {
+	return renderLogin();
+    }
+
     // parse the url
     if (window.location.pathname == "/") {
         console.log("render services");

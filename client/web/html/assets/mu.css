@@ -102,6 +102,9 @@ input {
   outline: none;
   height: 25px;
 }
+label {
+  margin-bottom: 3px;
+}
 pre {
   padding: 20px;
   border: 1px solid #ccc;
