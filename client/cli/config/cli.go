@@ -18,14 +18,19 @@ import (
 
 func setConfig(ctx *cli.Context) error {
 	args := ctx.Args()
+
+	if args.Len() == 0 {
+		return cli.ShowSubcommandHelp(ctx)
+	}
+
 	// key val
 	key := args.Get(0)
 	val := args.Get(1)
 
 	pb := proto.NewConfigService("config", client.DefaultClient)
 
-	if args.Len() == 0 {
-		return cli.ShowSubcommandHelp(ctx)
+	if len(key) == 0 || len(val) == 0{
+		return fmt.Errorf("missing path or value")
 	}
 
 	env, err := util.GetEnv(ctx)
@@ -74,14 +79,10 @@ func parseValue(s string) (interface{}, error) {
 
 func getConfig(ctx *cli.Context) error {
 	args := ctx.Args()
+	all := ctx.Bool("all");
 
-	if args.Len() == 0 {
+	if args.Len() == 0 && !all {
 		return cli.ShowSubcommandHelp(ctx)
-	}
-	// key val
-	key := args.Get(0)
-	if len(key) == 0 {
-		return fmt.Errorf("key cannot be blank")
 	}
 
 	env, err := util.GetEnv(ctx)
@@ -92,6 +93,9 @@ func getConfig(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
+	// key val
+	key := args.Get(0)
 
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
@@ -170,6 +174,10 @@ func init() {
 							Name:    "secret",
 							Aliases: []string{"s"},
 							Usage:   "Set it as a secret value",
+						},
+						&cli.BoolFlag{
+							Name:    "all",
+							Usage:   "Get the whole config",
 						},
 					},
 				},
