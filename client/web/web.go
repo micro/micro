@@ -253,6 +253,7 @@ func Run(ctx *cli.Context) error {
 	srv.HandleFunc("/logout", srv.logoutHandler)
 	srv.PathPrefix("/assets/").Handler(http.FileServer(http.FS(htmlContent)))
 	srv.HandleFunc("/", srv.indexHandler)
+	srv.HandleFunc("/services", srv.indexHandler)
 	srv.HandleFunc("/{service}", srv.indexHandler)
 	srv.HandleFunc("/{service}/{endpoint}", srv.indexHandler)
 	srv.HandleFunc("/{service}/{endpoint}/{method}", srv.indexHandler)

@@ -158,7 +158,7 @@ function renderLogin() {
     div.appendChild(form);
 }
 
-function renderServices(fn) {
+function renderIndex(fn) {
     var search = function() {
         var refs = $('a[data-filter]');
         $('.search').on('keyup', function() {
@@ -226,11 +226,109 @@ function renderServices(fn) {
 
         // setup search filtering
         search();
+    }
 
-        // execute user defined function
-        if (fn != undefined) {
-            fn();
-        }
+    // the search box
+    // <h4><input class="input-lg search" type=text placeholder="Search" autofocus></h4>
+    var input = document.createElement("input")
+    input.setAttribute("class", "search");
+    input.type = "text"
+    input.placeholder = "Search"
+    input.autofocus = true;
+
+    // render from the cache
+    if (services.length > 0) {
+        return render(services);
+    }
+
+    // reset content
+    heading.innerHTML = "";
+    content.innerHTML = "";
+
+    // append the search box
+    heading.appendChild(input);
+
+    // append services to content
+    content.appendChild(service);
+
+
+    // execute user defined function
+    renderQueries();
+
+    // call the backend
+    listServices().then(function(rsp) {
+        // cache the list for next time
+        rsp.forEach(function(srv) {
+            services[srv.name] = srv;
+        });
+
+        // render the content
+        render(rsp);
+    });
+}
+
+function renderServices() {
+    var search = function() {
+        var refs = $('a[data-filter]');
+        $('.search').on('keyup', function() {
+            var val = $.trim(this.value.toLowerCase());
+            refs.hide();
+            refs.filter(function() {
+                return $(this).data('filter').search(val) >= 0
+            }).show();
+        });
+
+        $('.search').on('keypress', function(e) {
+            if (e.which != 13) {
+                return;
+            };
+            var val = $.trim(this.value);
+            var parts = val.split(" ");
+
+            // assuming it's some full query
+            if (parts.length > 1) {
+                service = parts[0];
+                endpoint = parts[1];
+                request = [];
+
+                // assemble a request
+                parts.slice(2).forEach(function(val) {
+                    if (val.split("=").length == 2) {
+                        request.push(val);
+                    }
+                });
+
+                window.location.href = generateURL(service, endpoint, request);
+            }
+
+            // partial string
+            $('.service').each(function() {
+                if ($(this).css('display') == "none") {
+                    return;
+                }
+                window.location.href = $(this).attr('href');
+            })
+        });
+    };
+
+    // load into the #services div
+    var heading = document.getElementById("heading");
+    var content = document.getElementById("content");
+    var service = document.createElement("div");
+    //service.id = "services";
+
+    var render = function(rsp) {
+        rsp.forEach(function(srv) {
+            var a = document.createElement("a");
+            a.href = "/" + srv.name;
+            a.setAttribute("data-filter", srv.name);
+            a.setAttribute("class", "service");
+            a.innerText = srv.name;
+            service.appendChild(a);
+        });
+
+        // setup search filtering
+        search();
     }
 
     // the search box
@@ -249,11 +347,11 @@ function renderServices(fn) {
     // call the backend
     listServices().then(function(rsp) {
         // reset content
-        heading.innerHTML = "";
+        heading.innerHTML = "Services";
         content.innerHTML = "";
 
         // append the search box
-        heading.appendChild(input);
+        //heading.appendChild(input);
 
         // append services to content
         content.appendChild(service);
@@ -587,8 +685,13 @@ function main() {
 
     // parse the url
     if (window.location.pathname == "/") {
+        console.log("render index");
+        return renderIndex();
+    }
+
+    if (window.location.pathname == "/services") {
         console.log("render services");
-        return renderServices(renderQueries);
+        return renderServices();
     }
 
     var parts = window.location.pathname.split("/")

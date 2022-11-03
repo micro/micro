@@ -33,6 +33,10 @@ a:hover { text-decoration: underline; }
   float: right;
   list-style: none;
 }
+#menu li {
+  display: inline-block;
+  margin-left: 10px;
+}
 #heading {
   margin-bottom: 10px;
   font-size: 1.5em;
@@ -63,6 +67,7 @@ button:hover {
 #services {
   height: calc(100vh - 250px);
   width: 100%;
+  max-width: 1024px;
   position: absolute;
   overflow: auto;
   background: white;
