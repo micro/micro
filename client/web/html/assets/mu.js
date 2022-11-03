@@ -25,11 +25,11 @@ String.prototype.parseURL = function(embed) {
         };
         // var pretty = url.replace(/^http(s)?:\/\/(www\.)?/, '');
         return url.link(url);
-    }).replace(/[\@\#]([a-zA-z0-9_]+)/g, function(m,m1) {
-            var t = '<a href="http://twitter.com/';
-            if(m.charAt(0) == '#')
-                t += 'hashtag/';
-            return t + encodeURI(m1) + '" target="_blank">' + m + '</a>';
+    }).replace(/[\@\#]([a-zA-z0-9_]+)/g, function(m, m1) {
+        var t = '<a href="http://twitter.com/';
+        if (m.charAt(0) == '#')
+            t += 'hashtag/';
+        return t + encodeURI(m1) + '" target="_blank">' + m + '</a>';
     });
 };
 
@@ -163,6 +163,11 @@ function renderServices(fn) {
         var refs = $('a[data-filter]');
         $('.search').on('keyup', function() {
             var val = $.trim(this.value.toLowerCase());
+            if (val.length == 0) {
+                $('#services').hide();
+            } else {
+                $('#services').show();
+            }
             refs.hide();
             refs.filter(function() {
                 return $(this).data('filter').search(val) >= 0
@@ -207,6 +212,7 @@ function renderServices(fn) {
     var content = document.getElementById("content");
     var service = document.createElement("div");
     service.id = "services";
+    service.style.display = 'none';
 
     var render = function(rsp) {
         rsp.forEach(function(srv) {
@@ -306,7 +312,7 @@ function renderEndpoint(service, endpoint, method) {
         .then(function(rsp) {
             console.log("rendering", service, endpoint, method);
             var heading = document.getElementById("heading");
-            heading.innerText = service + " " + endpoint;
+            heading.innerText = service + " / " + endpoint;
             var content = document.getElementById("content");
             content.innerHTML = "";
             var request = document.createElement("div");
@@ -319,9 +325,12 @@ function renderEndpoint(service, endpoint, method) {
 
             // construct the endpoint
             var name = service.capitalize() + "." + endpoint.capitalize();
+            var query = service + " " + endpoint;
+
             if (method != undefined) {
                 name = endpoint.capitalize() + "." + method.capitalize();
-                heading.innerText += " " + method.capitalize();
+                heading.innerText += " / " + method.capitalize();
+                service += " " + method;
             } else {
                 method = endpoint.capitalize();
                 endpoint = service.capitalize();
@@ -366,10 +375,10 @@ function renderEndpoint(service, endpoint, method) {
                     var submitForm = false;
 
                     ep.request.values.forEach(function(value, idx) {
-			// create a label
-			var label = document.createElement("label");
-			label.innerText = value.name.split("_").join(" ").capitalize();
-			// create the input
+                        // create a label
+                        var label = document.createElement("label");
+                        label.innerText = value.name.split("_").join(" ").capitalize();
+                        // create the input
                         var input = document.createElement("input");
                         input.id = value.name
                         input.type = "text";
@@ -386,7 +395,7 @@ function renderEndpoint(service, endpoint, method) {
                             submitForm = true;
                         }
 
-			form.appendChild(label);
+                        form.appendChild(label);
                         form.appendChild(input);
                     });
 
@@ -400,6 +409,9 @@ function renderEndpoint(service, endpoint, method) {
                     if (submitForm) {
                         $(form).submit();
                     }
+
+                    // save the query
+                    saveQuery(query);
                 }
                 // end forEach
             })
@@ -458,6 +470,27 @@ function renderJSON(val) {
     var json = document.createElement("pre");
     json.innerText = JSON.stringify(val, null, "\t");
     return json;
+}
+
+// renders the recent queries
+function renderQueries() {
+    var recent = document.createElement("div");
+    recent.id = "recent";
+    recent.innerHTML = '<h4>Recent</h4>';
+    var content = document.getElementById("content");
+    content.appendChild(recent);
+
+    var queries = JSON.parse(localStorage.getItem('recent'));
+    if (queries == null) {
+        return
+    }
+    Object.entries(queries).forEach(([key, value]) => {
+        var a = document.createElement("a");
+        a.href = value;
+        a.innerText = key;
+        a.setAttribute("class", "query");
+        recent.appendChild(a);
+    });
 }
 
 // render the response output
@@ -528,6 +561,17 @@ function submitLogin(form) {
     return false;
 }
 
+function saveQuery(q) {
+    var recent = JSON.parse(localStorage.getItem('recent'));
+    if (recent == null) {
+        recent = {};
+    }
+    var key = q + window.location.search.replace(/^\?/, " ");
+    console.log("saving", key, window.location.href);
+    recent[key] = window.location.href;
+    localStorage.setItem('recent', JSON.stringify(recent));
+}
+
 function submitLogout(form) {
     logout()
 }
@@ -537,13 +581,13 @@ function main() {
     var token = getCookie(cookie);
 
     if (token == undefined || token == "") {
-	return renderLogin();
+        return renderLogin();
     }
 
     // parse the url
     if (window.location.pathname == "/") {
         console.log("render services");
-        return renderServices();
+        return renderServices(renderQueries);
     }
 
     var parts = window.location.pathname.split("/")

@@ -62,7 +62,11 @@ button:hover {
 }
 #services {
   height: calc(100vh - 250px);
+  width: 100%;
+  position: absolute;
   overflow: auto;
+  background: white;
+  z-index: 1;
 }
 .field {
   margin-bottom: 3px;
@@ -76,7 +80,7 @@ button:hover {
 .table>tbody>tr>th, .table>tbody>tr>td {
   border-top: none;
 }
-.endpoint, .service {
+.endpoint, .service, .query {
   margin-bottom: 5px;
   cursor: pointer;
   display: block;
