@@ -474,16 +474,17 @@ function renderJSON(val) {
 
 // renders the recent queries
 function renderQueries() {
+    var queries = JSON.parse(localStorage.getItem('recent'));
+    if (queries == null) {
+        return
+    }
+
     var recent = document.createElement("div");
     recent.id = "recent";
     recent.innerHTML = '<h4>Recent</h4>';
     var content = document.getElementById("content");
     content.appendChild(recent);
 
-    var queries = JSON.parse(localStorage.getItem('recent'));
-    if (queries == null) {
-        return
-    }
     Object.entries(queries).forEach(([key, value]) => {
         var a = document.createElement("a");
         a.href = value;
