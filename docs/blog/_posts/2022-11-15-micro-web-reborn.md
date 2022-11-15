@@ -62,6 +62,6 @@ so seeing the index listing is a useful feature. This will link directly through
 
 The goal for Micro Web is to enable consumption of Micro services through a browser or mobile device. The idea being that we can facilitate 
 immediate access to query the data or execute API endpoints without the need for dev tools like the CLI or client libraries. In future 
-we'll look to extend this by provide more powerful visualisation via widgets and embedding into external web apps and services.
+we'll look to extend this by providing more powerful visualisation via widgets and embedding into external web apps and services.
 
 Find the source on [GitHub](https://github.com/micro/micro). Follow us on [Twitter](https://twitter.com/MicroDotDev) for updates.
