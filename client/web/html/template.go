@@ -26,9 +26,10 @@ var (
 	</head>
 	<body>
 	  <div id="header">
-            <a id="logo" href="/"><img src="/assets/mu.png" width=45px height=auto /></a>
+            <a id="logo" href="/">Micro</a>
             {{if .Token}}
 	    <ul id="menu">
+	        <li><a href="/">Home</a></li>
 	        <li><a href="/services">Services</a></li>
 	        <li><a href="/logout">Logout</a></li>
 	    </ul>
