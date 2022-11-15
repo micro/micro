@@ -397,3 +397,7 @@ Browse to `localhost:8082`
 ## License
 
 See [LICENSE](LICENSE) which makes use of [Apache 2.0](https://opensource.org/licenses/Apache-2.0).
+
+## Updates
+
+Follow on [Twitter](https://twitter.com/MicroDotDev) for updates
