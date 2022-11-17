@@ -1,4 +1,4 @@
-FROM alpine:3.12.1 as builder
+FROM alpine:3.17 as builder
 
 COPY --from=golang:1.18-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:${PATH}"
@@ -10,7 +10,7 @@ RUN go mod download
 COPY . /
 RUN make ; rm -rf $GOPATH/pkg/mod
 
-FROM alpine:3.12.1
+FROM alpine:3.17
 COPY --from=golang:1.18-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:${PATH}"
 
