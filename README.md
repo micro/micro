@@ -68,6 +68,17 @@ Micro bakes in the concept of `Environments` and multi-tenancy through `Namespac
 development and in the cloud for staging and production, seamlessly switch between them using the CLI commands `micro env set [environment]` 
 and `micro user set [namespace]`.
 
+## Docs
+
+- [Introduction](https://micro.dev/introduction) - A high level introduction to Micro
+- [Getting Started](https://micro.dev/getting-started) - The helloworld quickstart guide
+- [Upgrade Guide](https://micro.dev/upgrade-guide) - Update your go-micro project to use micro v3.
+- [Architecture](https://micro.dev/architecture) - Describes the architecture, design and tradeoffs
+- [Reference](https://micro.dev/reference) - In-depth reference for Micro CLI and services
+- [Resources](https://micro.dev/resources) - External resources and contributions
+- [Roadmap](https://micro.dev/roadmap) - Stuff on our agenda over the long haul
+- [FAQ](https://micro.dev/faq) - Frequently asked questions
+
 ## Installation
 
 ### From Source
@@ -382,17 +393,6 @@ micro web
 ```
 
 Browse to `localhost:8082`
-
-## Docs
-
-- [Introduction](https://micro.dev/introduction) - A high level introduction to Micro
-- [Getting Started](https://micro.dev/getting-started) - The helloworld quickstart guide
-- [Upgrade Guide](https://micro.dev/upgrade-guide) - Update your go-micro project to use micro v3.
-- [Architecture](https://micro.dev/architecture) - Describes the architecture, design and tradeoffs
-- [Reference](https://micro.dev/reference) - In-depth reference for Micro CLI and services
-- [Resources](https://micro.dev/resources) - External resources and contributions
-- [Roadmap](https://micro.dev/roadmap) - Stuff on our agenda over the long haul
-- [FAQ](https://micro.dev/faq) - Frequently asked questions
 
 ## License
 
