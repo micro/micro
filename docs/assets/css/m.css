@@ -201,7 +201,14 @@
 .pricing i {
   color: green;
 }
-
+.feature {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  min-height: 155px;https://twitter.com/nordicapis/status/1595038645538344961
+}
+.feature p {
+  margin: 0;
+}
 .features td {
   padding: .50rem;
 }
