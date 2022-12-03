@@ -401,3 +401,9 @@ See [LICENSE](LICENSE) which makes use of [Apache 2.0](https://opensource.org/li
 ## Updates
 
 Follow on [Twitter](https://twitter.com/MicroDotDev) for updates
+
+## Development
+
+[1 click deploy](https://marketplace.digitalocean.com/apps/micro) a Micro Dev environment on a DigitalOcean Droplet
+
+Use our [refcode](https://marketplace.digitalocean.com/apps/micro?refcode=1eb1b2aca272&action=deploy) so we get $25 credit too!
