@@ -13,6 +13,9 @@
     <a href="https://marketplace.digitalocean.com/apps/micro?refcode=1eb1b2aca272&action=deploy"><img
     alt="DigitalOcean Droplet"
     src="https://img.shields.io/badge/digitalocean-droplet-blue.svg"></a>    
+    <a href="https://twitter.com/MicroDotDev"><img
+    alt="Twitter @MicroDotDev"
+    src="https://img.shields.io/badge/twitter-follow-blue.svg"></a>    
 </p>
 
 An API first development platform
