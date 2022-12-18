@@ -27,8 +27,6 @@ architecture pattern and provides a set of services which act as the building bl
 
 Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
-<img src="docs/images/micro-3.0.png" />
-
 ## Features
 
 Below are the core components that make up Micro.
@@ -37,7 +35,9 @@ Below are the core components that make up Micro.
 
 Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
 this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
-into any underlying system. 
+into any underlying system.
+
+<img src="docs/images/micro-3.0.png" />
 
 The server is composed of the following services.
 
