@@ -27,6 +27,8 @@ architecture pattern and provides a set of services which act as the building bl
 
 Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
+<img src="docs/images/micro-3.0.png" />
+
 ## Features
 
 Below are the core components that make up Micro.
