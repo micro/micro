@@ -39,8 +39,6 @@ into any underlying system.
 
 The server is composed of the following services.
 
-<img src="docs/images/micro-3.0.png" />
-
 - **API** - A Gateway which dynamically maps HTTP requests to RPC using path based resolution
 - **Auth** - Authentication and authorization out of the box using JWT tokens and rule based access control.
 - **Broker** - Ephemeral pubsub messaging for asynchronous communication and distributing notifications
@@ -51,6 +49,8 @@ The server is composed of the following services.
 - **Runtime** - Service lifecycle and process management with support for source to running auto build
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
+
+<img src="docs/images/micro-3.0.png" />
 
 **Framework**
 
