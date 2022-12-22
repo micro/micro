@@ -13,6 +13,9 @@
     <a href="https://marketplace.digitalocean.com/apps/micro?refcode=1eb1b2aca272&action=deploy"><img
     alt="DigitalOcean Droplet"
     src="https://img.shields.io/badge/digitalocean-droplet-blue.svg"></a>    
+    <a href="https://twitter.com/MicroDotDev"><img
+    alt="Twitter @MicroDotDev"
+    src="https://img.shields.io/badge/twitter-follow-blue.svg"></a>    
 </p>
 
 An API first development platform
@@ -32,7 +35,7 @@ Below are the core components that make up Micro.
 
 Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
 this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
-into any underlying system. 
+into any underlying system.
 
 The server is composed of the following services.
 
@@ -46,6 +49,8 @@ The server is composed of the following services.
 - **Runtime** - Service lifecycle and process management with support for source to running auto build
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
+
+<img src="docs/images/micro-3.0.png" />
 
 **Framework**
 
