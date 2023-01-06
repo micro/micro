@@ -18,7 +18,7 @@
     src="https://img.shields.io/badge/twitter-follow-blue.svg"></a>    
 </p>
 
-API first development platform
+API first cloud platform
 
 ## Overview 
 
