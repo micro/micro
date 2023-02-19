@@ -158,7 +158,7 @@ micro services
 Call the service and verify output
 
 ```sh
-$ micro helloworld --name=Alice
+$ micro helloworld call --name=Alice
 {
         "msg": "Hello Alice"
 }
@@ -190,7 +190,6 @@ changing user config. For the most part this is syntactic sugar for user conveni
 subset of well known commands.
 
 ```
-signup
 login
 run
 update
