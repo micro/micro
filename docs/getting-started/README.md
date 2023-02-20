@@ -146,7 +146,7 @@ Micro auto-generates CLI commands for your service in the form: `micro [service]
 default method being "Call". Arguments can be passed as flags, hence we can call our service using:
 
 ```sh
-$ micro helloworld --name=Jane
+$ micro helloworld call --name=Jane
 {
 	"msg": "Hello Jane"
 }
@@ -168,6 +168,7 @@ USAGE:
 
 COMMANDS:
 	call
+	stream
 ```
 
 To see the flags for subcommands of `helloworld`:
