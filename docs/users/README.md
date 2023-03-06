@@ -25,6 +25,7 @@ If you're using Micro, feel free to add your company
 - [Coesia](https://www.coesia.com/en) - Industrial and packaging solutions
 - [Dark Cubed](http://darkcubed.com) - Cyber security services
 - [Elumium](https://www.elumium.com/) - Tenant communications
+- [FlameIT - Immersion Cooling](https://flameit.io) - Tailor-made Immersion Cooling IT hardware solutions
 - [Glue](https://glue.group) - Digital development agency
 - [Hightech](https://hightech.fm/) - Tech media platform
 - [Honeywell](https://www.honeywell.com/) - Produces commercial and consumer products, engineering services and aerospace systems.
@@ -62,4 +63,3 @@ If you're using Micro, feel free to add your company
 - [Volvo Cars](https://www.volvocars.com) - Car manufacturer
 - [VXLab](https://www.vxlab.com/) - Visual programming platform
 - [Wonderbly](https://www.wonderbly.com/) - Childrens book company
-
