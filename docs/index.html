@@ -34,6 +34,17 @@
         font-family: medium-content-sans-serif-font, "Lucida Grande",
           "Lucida Sans Unicode", "Lucida Sans", Geneva, Arial, sans-serif;
       }
+      #blurb {
+        font-size: 5em;
+	max-width: 600px;
+	margin: 0 auto;
+	font-weight: bold;
+      }
+      @media only screen and (max-width: 600px) {
+        #blurb {
+          font-size: 3.5em;
+	}
+      }
     </style>
   </head>
   <body>
@@ -43,7 +54,7 @@
 	<div class="col-md-10 offset-md-1">
 	    <div class="row">
 		<div class="col-md-12">
-		   <h1 style="font-size: 3.5em;"><b>Powering the future of cloud</b></h1>
+		   <h1 id="blurb">Powering the future of cloud</h1>
 		   <br>
 		   <p style="font-size: 1.2em; max-width: 600px; margin: 0 auto;">
 		        Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on.
