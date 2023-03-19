@@ -15,7 +15,7 @@
     a { color: #3B94D9; }
 
     button {
-      background-color: blue; /* Green */
+      background-color: black; /* Green */
       border: none;
       color: whitesmoke;
       padding: 15px 32px;
@@ -24,7 +24,7 @@
       text-decoration: none;
       display: inline-block;
       font-size: 16px;
-      border-radius: 50px;
+      border-radius: 5px;
       font-weight: bold;
     }
 
