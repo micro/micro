@@ -15,7 +15,7 @@
     a { color: #3B94D9; }
 
     button {
-      background-color: blue; /* Green */
+      background-color: black; /* Green */
       border: none;
       color: whitesmoke;
       padding: 15px 32px;
@@ -24,7 +24,7 @@
       text-decoration: none;
       display: inline-block;
       font-size: 16px;
-      border-radius: 50px;
+      border-radius: 5px;
       font-weight: bold;
     }
 
@@ -202,9 +202,7 @@
   color: green;
 }
 .feature {
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  min-height: 155px;https://twitter.com/nordicapis/status/1595038645538344961
+  min-height: 155px;
 }
 .feature p {
   margin: 0;
