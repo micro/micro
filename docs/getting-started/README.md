@@ -9,9 +9,9 @@ summary: A getting started guide for Micro
 
 ## Getting Started
 
-This is a getting started guide for Micro which teaches you how to go from install to helloworld and beyond.
+This is a guide to teach you how to go from install to helloworld and beyond with Micro.
 
-## Contents
+## Overview
 {: .no_toc }
 
 
@@ -64,10 +64,9 @@ powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/mas
 docker pull ghcr.io/micro/micro:latest
 ```
 
-## Running a service
+## Running the server
 
-Before diving into writing a service, let's run an existing one, because it's just a few commands away!
-
+Before diving into writing a service, let's start by running an existing one.
 
 First, we have to start the `micro server`. The command to do that is:
 
@@ -109,9 +108,13 @@ store
 
 All those services are ones started by our `micro server`. This is pretty cool, but still it's not something we launched! Let's start a service for which existence we can actually take credit for. If we go to [github.com/micro/services](https://github.com/micro/services), we see a bunch of services written by micro authors. One of them is the `helloworld`. Try our luck, shall we?
 
-The command to run services is `micro run`.
+## Running a service
 
-Simply issue the following command
+Micro builds and runs services from source, whether they're local or a remote git repository.
+
+The command to run services is `micro run`. 
+
+Simply issue the following command with the source repo
 
 ```sh
 $ micro run github.com/micro/services/helloworld
@@ -524,5 +527,5 @@ This is just a brief getting started guide for quickly getting up and running wi
 Come back from time to time to learn more as this guide gets continually upgraded. If you're 
 interested in learning more Micro magic, have a look at the following sources:
 
-- Read the [docs](../)
+- Read the [docs](../docs)
 - Learn by [example](https://github.com/micro/services)

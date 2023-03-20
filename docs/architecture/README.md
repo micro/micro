@@ -66,7 +66,7 @@ Below is the architecture of the Micro Server which is composed of a number of i
 is accessed through a HTTP or gRPC API. Micro is runtime agnostic and provides plugin for running on many 
 different architectures whether its local, kubernetes or beyond.
 
-<img src="../images/micro-3.0.png">
+<img src="../images/micro.png">
 
 **Service Architecture**
 

@@ -24,7 +24,7 @@ Micro is a platform for cloud native development. It addresses the key requireme
 Micro leverages the microservices architecture pattern and provides a set of services which act as the building blocks of a 
 platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
-<img src="{{ site.baseurl }}/images/micro-3.0.png" />
+<img src="{{ site.baseurl }}/images/micro.png" />
 
 Micro is the all encompassing end to end platform experience from source to running and beyond built with a developer first focus.
 
