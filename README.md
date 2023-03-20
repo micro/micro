@@ -49,7 +49,7 @@ The server is composed of the following services.
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
 
-<img src="docs/images/micro-3.0.png" />
+<img src="docs/images/micro.png" />
 
 **Framework**
 
