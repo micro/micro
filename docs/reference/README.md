@@ -12,13 +12,13 @@ summary: Reference - a comprehensive guide to Micro
 
 This reference doc is an in depth guide for the technical details and usage of Micro
 
-## Contents
+## Overview
 {: .no_toc }
 
 * TOC
 {:toc}
 
-## Overview
+## Introduction
 
 Micro is a platform for cloud native development. It consists of a server, command line interface and 
 service framework which enables you to build, run, manage and consume Micro services. This reference 
