@@ -26,6 +26,8 @@ Micro addresses the key requirements for building services in the cloud. It leve
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals 
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
+<img src="docs/images/micro.png" />
+
 ## Features
 
 Below are the core components that make up Micro.
@@ -48,8 +50,6 @@ The server is composed of the following services.
 - **Runtime** - Service lifecycle and process management with support for source to running auto build
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
-
-<img src="docs/images/micro.png" />
 
 **Framework**
 
