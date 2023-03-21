@@ -405,10 +405,6 @@ Browse to `localhost:8082`
 
 See [LICENSE](LICENSE) which makes use of [Apache 2.0](https://opensource.org/licenses/Apache-2.0).
 
-## Updates
-
-Follow on [Twitter](https://twitter.com/MicroDotDev) for updates
-
 ## Development
 
 [1 click deploy](https://marketplace.digitalocean.com/apps/micro) a Micro Dev environment on a DigitalOcean Droplet
