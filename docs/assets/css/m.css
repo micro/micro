@@ -222,3 +222,6 @@
 .right {
   float: right;
 }
+ul {
+    list-style-type: square;
+}
