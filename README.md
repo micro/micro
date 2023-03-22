@@ -10,7 +10,7 @@
     <a href="https://opensource.org/licenses/Apache-2.0"><img
     alt="Apache License"
     src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
-    <a href="https://marketplace.digitalocean.com/apps/micro?refcode=1eb1b2aca272&action=deploy"><img
+    <a href="https://marketplace.digitalocean.com/apps/micro"><img
     alt="DigitalOcean Droplet"
     src="https://img.shields.io/badge/digitalocean-droplet-blue.svg"></a>    
     <a href="https://twitter.com/MicroDotDev"><img
