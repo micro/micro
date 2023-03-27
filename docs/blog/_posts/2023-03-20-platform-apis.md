@@ -25,7 +25,7 @@ Client side frameworks require developers not only to rewrite applications to us
 
 Based on learnings from Azure Service Fabric, Dapr has managed to codify the platform needs as a single set of APIs which can be consumed largely without a client framework or direct knowledge of cloud infrastructure. It has in principle defined what the abstraction layer for the Cloud should be. 
 
-Micro has predates Dapr and has long since been focused on the same primitives as it learned from prior art in Go Micro and the industry at large. Ultimately it doesn't 
+Micro predates Dapr and has long since been focused on the same primitives as it learned from prior art in Go Micro and the industry at large. Ultimately it doesn't 
 matter which came first, but moreso that we're converging on a similar set of building blocks for the next layer on top of container orchestration platforms, service mesh and CNCF technologies.
 
 ## APIs Primitives
