@@ -21,7 +21,7 @@ jobs:
       run: git fetch --prune --unshallow
 
     - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+      uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: micro/micro
         username: ${{ secrets.DOCKER_USERNAME }}

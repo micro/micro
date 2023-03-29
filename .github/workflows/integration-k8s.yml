@@ -20,7 +20,7 @@ jobs:
       uses: engineerd/setup-kind@v0.3.0
 
     - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+      uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: micro/micro
         username: ${{ secrets.DOCKER_USERNAME }}
