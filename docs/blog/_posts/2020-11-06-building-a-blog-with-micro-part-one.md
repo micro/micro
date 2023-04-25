@@ -10,7 +10,7 @@ This series will cover how to build a blog service using Micro. We'll decompose 
 In part one we'll focus on building a Post service. It will be good way to learn how to build nontrivial applications with 
 the [store](https://micro.dev/reference#store) and the [model](https://github.com/micro/dev/tree/master/model).
 
-The most important takeaway from this post will likely be the the usage of the key-value store for non-trivial usecases 
+The most important takeaway from this post will likely be the usage of the key-value store for non-trivial usecases 
 (such as querying blog posts by slug and listing them by reverse creation order).
 
 ## The Basics

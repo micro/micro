@@ -187,7 +187,7 @@ func (m *mem) lookupPreviousEvents(sub *subscriber, startTime time.Time) {
 	}
 }
 
-// handleEvents sends the event to any registered subscribers.
+// handleEvent sends the event to any registered subscribers.
 func (m *mem) handleEvent(ev *events.Event) {
 	m.RLock()
 	subs := m.subs

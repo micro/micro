@@ -25,7 +25,7 @@ import (
 	"text/template"
 )
 
-// renderTemplateFile renders template for a given resource into writer w
+// renderTemplate renders template for a given resource into writer w
 func renderTemplate(resource string, w io.Writer, data interface{}) error {
 	t := template.Must(template.New("kubernetes").Parse(templates[resource]))
 
