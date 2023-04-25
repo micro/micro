@@ -123,7 +123,7 @@ func (m *memoryStore) set(prefix string, r *store.Record) {
 	i.value = make([]byte, len(r.Value))
 	i.metadata = make(map[string]interface{})
 
-	// copy the the value
+	// copy the value
 	copy(i.value, r.Value)
 
 	// set the expiry

@@ -180,7 +180,7 @@ func (r *registryRouter) createRoutes(service *registry.Service, network string)
 	return routes
 }
 
-// manageServiceRoutes applies action to all routes of the service.
+// manageRoutes applies action to all routes of the service.
 // It returns error of the action fails with error.
 func (r *registryRouter) manageRoutes(service *registry.Service, action, network string) error {
 	// action is the routing table action

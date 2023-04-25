@@ -363,8 +363,8 @@ func (n *node) PrunePeer(id string) {
 	n.walk(untilNoMorePeers, prunePeer)
 }
 
-// PruneStalePeerNodes prunes the peers that have not been seen for longer than pruneTime
-// It returns a map of the the nodes that got pruned
+// PruneStalePeers prunes the peers that have not been seen for longer than pruneTime
+// It returns a map of the nodes that got pruned
 func (n *node) PruneStalePeers(pruneTime time.Duration) map[string]*node {
 	n.Lock()
 	defer n.Unlock()

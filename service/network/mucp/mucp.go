@@ -1106,7 +1106,7 @@ func (n *mucpNetwork) pruneRoutes(q ...router.LookupOption) error {
 	return nil
 }
 
-// pruneNodeRoutes prunes routes that were either originated by or routable via given node
+// prunePeerRoutes prunes routes that were either originated by or routable via given node
 func (n *mucpNetwork) prunePeerRoutes(peer *node) error {
 	// lookup all routes originated by router
 	q := []router.LookupOption{
@@ -1354,7 +1354,7 @@ func (n *mucpNetwork) manage() {
 	}
 }
 
-// getAdvertProtoRoutes returns a list of routes to advertise to remote peer
+// getProtoRoutes returns a list of routes to advertise to remote peer
 // based on the advertisement strategy encoded in protobuf
 // It returns error if the routes failed to be retrieved from the routing table
 func (n *mucpNetwork) getProtoRoutes() ([]*pb.Route, error) {

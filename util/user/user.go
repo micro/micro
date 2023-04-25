@@ -185,7 +185,7 @@ func generatePublicKey(publickey *rsa.PublicKey) ([]byte, error) {
 	return pubPEM, nil
 }
 
-// writePemToFile writes keys to a file
+// writeKeyToFile writes keys to a file
 func writeKeyToFile(keyBytes []byte, saveFileTo string) error {
 	file, err := os.OpenFile(saveFileTo, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {

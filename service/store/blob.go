@@ -51,14 +51,14 @@ func BlobNamespace(ns string) BlobOption {
 	}
 }
 
-// BlobNamespace sets the Public option
+// BlobPublic sets the Public option
 func BlobPublic(p bool) BlobOption {
 	return func(o *BlobOptions) {
 		o.Public = p
 	}
 }
 
-// BlobNamespace sets the Public option
+// BlobContentType sets the Public option
 func BlobContentType(contentType string) BlobOption {
 	return func(o *BlobOptions) {
 		o.ContentType = contentType
