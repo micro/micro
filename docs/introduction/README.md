@@ -122,7 +122,7 @@ You can assume not only are your services built for a Cloud first era but that y
 
 ## Micro Services
 
-Check out the [Micr Services](https://github.com/micro/services) repository for real world reusable services.
+Check out the [Micro Services](https://github.com/micro/services) repository for real world reusable services.
 
 ## Getting Started
 
