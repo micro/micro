@@ -1,4 +1,4 @@
-FROM golang:1.19
+FROM golang:1.20
 
 WORKDIR /
 RUN apt-get update && \
