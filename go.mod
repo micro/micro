@@ -1,6 +1,6 @@
 module github.com/micro/micro/v3
 
-go 1.17
+go 1.20
 
 require (
 	github.com/bitly/go-simplejson v0.5.0
