@@ -12,6 +12,16 @@ pagination:
     color: #9EABB3;
   }
   .post-title a { color: black; }
+  article.post {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 10px;
+  }
+  time.post-date {
+    margin-bottom: 10px;
+    display: block;
+  }
 </style>
 
 <main id="content" class="content" role="main">
@@ -25,17 +35,17 @@ pagination:
         <header class="post-header">
             <h2 class="post-title"><a href="{{ post.url | prepend:site.baseurl }}">{{ post.title }}</a></h2>
         </header>
+        <time class="post-date" datetime="{{ post.date | date:"%Y-%m-%d" }}">
+            {{ post.date | date_to_string }}
+        </time> 
         <section class="post-excerpt">
-            {{ post.excerpt }} <a class="read-more" href="{{ post.url | prepend:site.baseurl }}">more &raquo;</a>
+            {{ post.excerpt }} <a class="read-more" href="{{ post.url | prepend:site.baseurl }}">Read more</a>
         </section>
         <footer class="post-meta">
             {% if site.author %}
                 <img class="author-thumb" src="{{ site.baseurl }}/blog/images/profile.jpg" alt="Author's profile picture" nopin="nopin" />
                 <a href="{{ site.author_url }}">{{ site.author }}</a>
             {% endif %}
-            <time class="post-date" datetime="{{ post.date | date:"%Y-%m-%d" }}">
-                {{ post.date | date_to_string }}
-            </time> 
         </footer>
     </article>
 

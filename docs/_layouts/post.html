@@ -23,14 +23,16 @@
       {% if page.title %}
       <h1 style="border-bottom: 0">{{ page.title }}</h1>
       {% endif %}
-
+      <time class="post-date" datetime="{{ post.date | date:"%Y-%m-%d" }}">
+	      <h5>{{ page.date | date_to_string }}</h5>
+      </time> 
       {{ content }}
 
-      {% if site.github.private != true and site.github.license %}
       <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
+      {% if site.open_source %}
         This site is open source. {% github_edit_link "Improve this page" %}.
-      </div>
       {% endif %}
+      </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
     <script>anchors.add();</script>
