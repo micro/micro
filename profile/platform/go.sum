@@ -282,8 +282,8 @@ github.com/mattn/go-runewidth v0.0.7/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m
 github.com/mattn/go-tty v0.0.0-20180219170247-931426f7535a/go.mod h1:XPvLUNfbS4fJH25nqRHfWLMa1ONC8Amw+mIA639KxkE=
 github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0jegS5sx/RkqARlsWZ6pIwiU=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
-github.com/micro/micro/plugin/etcd/v3 v3.0.0-20220816083658-7f875afc6a39 h1:9qrQQuyKw5WqSDQ/jQ0erjLBCJTnTTxK4a1aGrcIsE8=
-github.com/micro/micro/plugin/etcd/v3 v3.0.0-20220816083658-7f875afc6a39/go.mod h1:sUk0YCrz3qdEVx9euaPlAkdXcc+SQJHTNfSrjbh/Fmg=
+github.com/micro/micro/plugin/etcd/v3 v3.0.0-20230515204944-1f7c09d742f7 h1:SG0RnRxGnAU+lPVkhFXLhMfcdSqUxn/UodErBjTOzUs=
+github.com/micro/micro/plugin/etcd/v3 v3.0.0-20230515204944-1f7c09d742f7/go.mod h1:fI/L+yuKUeqeWcrIrz8Yym1e+XKLGsSV270LYvUbBw8=
 github.com/micro/micro/plugin/postgres/v3 v3.0.0-20210825142032-d27318700a59 h1:l7TUeAMHeZNXHFZRjaUq2/B5BZvxhD6Ezeu7QCNpSmM=
 github.com/micro/micro/plugin/postgres/v3 v3.0.0-20210825142032-d27318700a59/go.mod h1:xx/UW5gji91EHNCrtDU2yseWm3hjG0+xlhfriU1IsFk=
 github.com/micro/micro/plugin/prometheus/v3 v3.0.0-20201217215412-2f7ad18595ff h1:PvLSWPb++sc1W2ooEWGmVHgqgDA8N8ObtLlbdSfSsjc=

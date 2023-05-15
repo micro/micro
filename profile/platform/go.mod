@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/go-redis/redis/v8 v8.11.3
-	github.com/micro/micro/plugin/etcd/v3 v3.0.0-20220816083658-7f875afc6a39
+	github.com/micro/micro/plugin/etcd/v3 v3.0.0-20230515204944-1f7c09d742f7
 	github.com/micro/micro/plugin/postgres/v3 v3.0.0-20210825142032-d27318700a59
 	github.com/micro/micro/plugin/prometheus/v3 v3.0.0-20201217215412-2f7ad18595ff
 	github.com/micro/micro/plugin/redis/blocklist/v3 v3.0.0-20220908113659-758df06ca38b
@@ -73,4 +73,3 @@ require (
 
 replace github.com/soheilhy/cmux => github.com/soheilhy/cmux v0.1.5
 
-replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
