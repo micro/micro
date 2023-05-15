@@ -2,11 +2,9 @@ module github.com/micro/micro/v3/cmd/micro-platform
 
 go 1.20
 
-replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
-
 require (
-	github.com/micro/micro/profile/platform v0.0.0-20220918075038-0c595e39fef9
-	github.com/micro/micro/v3 v3.16.1-0.20230514073437-dda318a11a48
+	github.com/micro/micro/profile/platform v0.0.0-20230515210522-97d0cf86ad4f
+	github.com/micro/micro/v3 v3.17.1-0.20230515204723-a9683a99bf96
 )
 
 require (
@@ -15,11 +13,11 @@ require (
 	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/caddyserver/certmagic v0.10.6 // indirect
 	github.com/cenkalti/backoff/v4 v4.0.0 // indirect
-	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/cloudflare/cloudflare-go v0.10.9 // indirect
-	github.com/coreos/go-semver v0.2.0 // indirect
-	github.com/coreos/go-systemd/v22 v22.0.0 // indirect
+	github.com/coreos/go-semver v0.3.0 // indirect
+	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
@@ -45,7 +43,7 @@ require (
 	github.com/lib/pq v1.8.0 // indirect
 	github.com/mattn/go-runewidth v0.0.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
-	github.com/micro/micro/plugin/etcd/v3 v3.0.0-20220816083658-7f875afc6a39 // indirect
+	github.com/micro/micro/plugin/etcd/v3 v3.0.0-20230515210422-e4e07001fe5c // indirect
 	github.com/micro/micro/plugin/postgres/v3 v3.0.0-20210825142032-d27318700a59 // indirect
 	github.com/micro/micro/plugin/prometheus/v3 v3.0.0-20201217215412-2f7ad18595ff // indirect
 	github.com/micro/micro/plugin/redis/blocklist/v3 v3.0.0-20220908113659-758df06ca38b // indirect
@@ -78,10 +76,12 @@ require (
 	github.com/urfave/cli/v2 v2.3.0 // indirect
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
-	go.etcd.io/etcd v0.5.0-alpha.5.0.20200425165423-262c93980547 // indirect
-	go.uber.org/atomic v1.6.0 // indirect
-	go.uber.org/multierr v1.5.0 // indirect
-	go.uber.org/zap v1.16.0 // indirect
+	go.etcd.io/etcd/api/v3 v3.5.9 // indirect
+	go.etcd.io/etcd/client/pkg/v3 v3.5.9 // indirect
+	go.etcd.io/etcd/client/v3 v3.5.9 // indirect
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
@@ -89,7 +89,7 @@ require (
 	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
-	google.golang.org/grpc v1.53.0 // indirect
+	google.golang.org/grpc v1.54.1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/square/go-jose.v2 v2.4.1 // indirect
