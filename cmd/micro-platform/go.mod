@@ -3,8 +3,8 @@ module github.com/micro/micro/v3/cmd/micro-platform
 go 1.20
 
 require (
-	github.com/micro/micro/profile/platform v0.0.0-20230515210522-97d0cf86ad4f
-	github.com/micro/micro/v3 v3.17.1-0.20230515204723-a9683a99bf96
+	github.com/micro/micro/profile/platform v0.0.0-20230516124806-98c1c19eedea
+	github.com/micro/micro/v3 v3.18.2-0.20230516124806-98c1c19eedea
 )
 
 require (
