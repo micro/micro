@@ -26,7 +26,7 @@ Micro addresses the key requirements for building services in the cloud. It leve
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals 
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
-<img src="docs/images/micro.png?v=1" />
+<img src="https://micro.dev/images/micro.png?v=1" />
 
 ## Features
 
