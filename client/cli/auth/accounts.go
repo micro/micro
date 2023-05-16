@@ -83,6 +83,9 @@ func createAccount(ctx *cli.Context) error {
 	if len(ctx.String("secret")) > 0 {
 		options = append(options, auth.WithSecret(ctx.String("secret")))
 	}
+	if len(ctx.String("type")) > 0 {
+		options = append(options, auth.WithType(ctx.String("type")))
+	}
 	acc, err := auth.Generate(ctx.Args().First(), options...)
 	if err != nil {
 		return fmt.Errorf("Error creating account: %v", err)

@@ -39,6 +39,25 @@ var (
 			Name:  "scopes",
 			Usage: "Comma separated list of scopes to give the account",
 		},
+		&cli.StringFlag{
+			Name:  "type",
+			Usage: "The type of account e.g client, user, service",
+		},
+	}
+	// accountFlags are provided to the create account command
+	tokenFlags = []cli.Flag{
+		&cli.StringFlag{
+			Name:  "id",
+			Usage: "The account id",
+		},
+		&cli.StringFlag{
+			Name:  "secret",
+			Usage: "The account secret (password)",
+		},
+		&cli.IntFlag{
+			Name:  "expiry",
+			Usage: "The expiry time in seconds. Default no expiry",
+		},
 	}
 )
 
@@ -83,6 +102,15 @@ func init() {
 								Usage: "Namespace to use when creating the account",
 							}),
 							Action: createAccount,
+						},
+						{
+							Name:  "token",
+							Usage: "Create an auth token",
+							Flags: append(tokenFlags, &cli.StringFlag{
+								Name:  "namespace",
+								Usage: "Namespace to use when creating the account",
+							}),
+							Action: createToken,
 						},
 					},
 				},
