@@ -99,11 +99,18 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 	if ct == "" {
 		ct = "application/json"
 	}
+	// grpc hack
+	streamCt := ct
+
+	if c.String() == "grpc" {
+		streamCt = "application/grpc+json"
+	}
+
 	req := c.NewRequest(
 		service.Name,
 		service.Endpoint.Name,
 		request,
-		client.WithContentType(ct),
+		client.WithContentType(streamCt),
 		client.StreamingRequest(),
 	)
 
@@ -391,8 +398,15 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 		ct = "application/json"
 	}
 
+	// grpc hack
+	streamCt := ct
+
+	if c.String() == "grpc" {
+		streamCt = "application/grpc+json"
+	}
+
 	// create stream
-	req := c.NewRequest(service.Name, service.Endpoint.Name, nil, client.WithContentType(ct), client.StreamingRequest())
+	req := c.NewRequest(service.Name, service.Endpoint.Name, nil, client.WithContentType(streamCt), client.StreamingRequest())
 	str, err := c.Stream(ctx, req, client.WithRouter(router.New(service.Services)))
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
