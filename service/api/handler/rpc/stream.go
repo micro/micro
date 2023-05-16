@@ -371,6 +371,8 @@ func (s *stream) bufToClientLoop(cancel context.CancelFunc, wg *sync.WaitGroup, 
 
 // serveWebsocket will stream rpc back over websockets assuming json
 func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request, service *api.Service, c client.Client) {
+	logger.Info("Serving websocket ", service.Name, service.Endpoint.Name)
+
 	var rspHdr http.Header
 	// we use Sec-Websocket-Protocol to pass auth headers so just accept anything here
 	if prots := r.Header.Values("Sec-WebSocket-Protocol"); len(prots) > 0 {
@@ -383,7 +385,7 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 	conn, err := upgrader.Upgrade(w, r, rspHdr)
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-			logger.Error(err)
+			logger.Error("Upgrade failed", err)
 		}
 		return
 	}
@@ -405,6 +407,7 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 		streamCt = "application/grpc+json"
 	}
 
+	logger.Info("Connecting websocket stream to backend", service.Name, service.Endpoint.Name, ct, streamCt)
 	// create stream
 	req := c.NewRequest(service.Name, service.Endpoint.Name, nil, client.WithContentType(streamCt), client.StreamingRequest())
 	str, err := c.Stream(ctx, req, client.WithRouter(router.New(service.Services)))
