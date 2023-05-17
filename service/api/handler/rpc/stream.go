@@ -450,7 +450,7 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 
 	// determine the message type
 	msgType := websocket.BinaryMessage
-	if ct == "application/json" {
+	if strings.Contains(ct, "json") {
 		msgType = websocket.TextMessage
 	}
 
