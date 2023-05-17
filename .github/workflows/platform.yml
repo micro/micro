@@ -28,7 +28,6 @@ jobs:
         run: |
           cd cmd/micro-platform
           GOPROXY=direct go get github.com/micro/micro/v3@master
-          GOPROXY=direct go get github.com/micro/micro/profile/platform@master
           GOPROXY=direct go get
 
       - name: Publish to platform image to registry

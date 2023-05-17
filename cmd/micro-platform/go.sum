@@ -287,8 +287,6 @@ github.com/micro/micro/plugin/redis/stream/v3 v3.0.0-20210622092058-b12502169757
 github.com/micro/micro/plugin/redis/stream/v3 v3.0.0-20210622092058-b12502169757/go.mod h1:jajB3N30fHCtExeafehUv76QCBmy4APeaua8tTMOm30=
 github.com/micro/micro/plugin/s3/v3 v3.0.0-20220203170347-2c86e5fb6d13 h1:pawh2ZuOWpXHWFmRdp4jEzCE2DrYT1Op4pm5zHy2Nps=
 github.com/micro/micro/plugin/s3/v3 v3.0.0-20220203170347-2c86e5fb6d13/go.mod h1:uVU5Mf/D7kucC8qhTayMwMnPX2POVCze7Tprx2rAaYw=
-github.com/micro/micro/profile/platform v0.0.0-20230517122557-05f46fc5c933 h1:lPJC5jk0aF3g8lZnPofT52xlmAlatIso6EieNicDenU=
-github.com/micro/micro/profile/platform v0.0.0-20230517122557-05f46fc5c933/go.mod h1:r8QgbWGP3STfngILfKJ/MiHyYEuV7QMw8Cb+kwY3Oz4=
 github.com/micro/micro/v3 v3.0.4/go.mod h1:dZa1KcK6Uh9ny7nhgHxOvoPiZR5cAnZefYT+EMmGwp4=
 github.com/micro/micro/v3 v3.2.2-0.20210526102354-5294ad2ae421/go.mod h1:3ogxiE772ZvjjZlyzUHP++7+h5TtEu6Jdbbo6lDUw6Y=
 github.com/micro/micro/v3 v3.2.2-0.20210607125937-d152c4ec7749/go.mod h1:3ogxiE772ZvjjZlyzUHP++7+h5TtEu6Jdbbo6lDUw6Y=

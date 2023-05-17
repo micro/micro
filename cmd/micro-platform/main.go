@@ -11,7 +11,7 @@ import (
 	_ "github.com/micro/micro/v3/cmd/usage"
 
 	// load platform profile
-	_ "github.com/micro/micro/profile/platform"
+	_ "github.com/micro/micro/v3/cmd/micro-platform/profile"
 )
 
 func main() {
