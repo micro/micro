@@ -8,7 +8,7 @@ This build of Micro includes the platform profile. It's leveraging highly availa
 distributed infrastructure in a cloud based environment. The platform image is hosted 
 at `ghcr.io/micro/platform`. It makes use of kubernetes, redis, etcd, postgres and more.
 
-## Depends On
+## Dependencies
 
 - Etcd
 - Redis
