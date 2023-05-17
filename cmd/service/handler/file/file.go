@@ -13,7 +13,7 @@ import (
 	"github.com/micro/micro/v3/service/server"
 )
 
-//Proxy for a proxy instance
+// Proxy for a proxy instance
 type Proxy struct {
 	options proxy.Options
 
@@ -105,7 +105,7 @@ func (p *Proxy) String() string {
 	return "file"
 }
 
-//NewSingleHostProxy returns a Proxy which stand for a endpoint.
+// NewSingleHostProxy returns a Proxy which stand for a endpoint.
 func NewSingleHostProxy(url string) proxy.Proxy {
 	return &Proxy{
 		Endpoint: url,

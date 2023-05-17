@@ -58,6 +58,8 @@ func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Pu
 }
 
 func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Stream_ConsumeStream) error {
+	logger.Infof("New consumer for %s\n", req.Topic)
+
 	// authorize the request
 	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "events.Stream.Consume"); err != nil {
 		return err

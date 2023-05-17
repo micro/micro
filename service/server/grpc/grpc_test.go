@@ -86,45 +86,45 @@ func (s *testServer) Call(ctx context.Context, req *pb.Request, rsp *pb.Response
 }
 
 /*
-func BenchmarkServer(b *testing.B) {
-	r := rmemory.NewRegistry()
-	br := bmemory.NewBroker()
-	tr := tgrpc.NewTransport()
-	s := gsrv.NewServer(
-		server.Broker(br),
-		server.Name("foo"),
-		server.Registry(r),
-		server.Transport(tr),
-	)
-	c := gcli.NewClient(
-		client.Registry(r),
-		client.Broker(br),
-		client.Transport(tr),
-	)
-	ctx := context.TODO()
+	func BenchmarkServer(b *testing.B) {
+		r := rmemory.NewRegistry()
+		br := bmemory.NewBroker()
+		tr := tgrpc.NewTransport()
+		s := gsrv.NewServer(
+			server.Broker(br),
+			server.Name("foo"),
+			server.Registry(r),
+			server.Transport(tr),
+		)
+		c := gcli.NewClient(
+			client.Registry(r),
+			client.Broker(br),
+			client.Transport(tr),
+		)
+		ctx := context.TODO()
 
-	h := &testServer{}
-	pb.RegisterTestHandler(s, h)
-	if err := s.Start(); err != nil {
-		b.Fatalf("failed to start: %v", err)
-	}
-
-	// check registration
-	services, err := r.GetService("foo")
-	if err != nil || len(services) == 0 {
-		b.Fatalf("failed to get service: %v # %d", err, len(services))
-	}
-
-	defer func() {
-		if err := s.Stop(); err != nil {
-			b.Fatalf("failed to stop: %v", err)
+		h := &testServer{}
+		pb.RegisterTestHandler(s, h)
+		if err := s.Start(); err != nil {
+			b.Fatalf("failed to start: %v", err)
 		}
-	}()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		c.Call()
-	}
+		// check registration
+		services, err := r.GetService("foo")
+		if err != nil || len(services) == 0 {
+			b.Fatalf("failed to get service: %v # %d", err, len(services))
+		}
+
+		defer func() {
+			if err := s.Stop(); err != nil {
+				b.Fatalf("failed to stop: %v", err)
+			}
+		}()
+
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			c.Call()
+		}
 
 }
 */

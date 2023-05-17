@@ -29,7 +29,7 @@ func setConfig(ctx *cli.Context) error {
 
 	pb := proto.NewConfigService("config", client.DefaultClient)
 
-	if len(key) == 0 || len(val) == 0{
+	if len(key) == 0 || len(val) == 0 {
 		return fmt.Errorf("missing path or value")
 	}
 
@@ -79,7 +79,7 @@ func parseValue(s string) (interface{}, error) {
 
 func getConfig(ctx *cli.Context) error {
 	args := ctx.Args()
-	all := ctx.Bool("all");
+	all := ctx.Bool("all")
 
 	if args.Len() == 0 && !all {
 		return cli.ShowSubcommandHelp(ctx)
@@ -176,8 +176,8 @@ func init() {
 							Usage:   "Set it as a secret value",
 						},
 						&cli.BoolFlag{
-							Name:    "all",
-							Usage:   "Get the whole config",
+							Name:  "all",
+							Usage: "Get the whole config",
 						},
 					},
 				},

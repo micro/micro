@@ -31,6 +31,7 @@ import (
 	pbapi "github.com/micro/micro/v3/proto/api"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	raw "github.com/micro/micro/v3/util/codec/bytes"
@@ -299,6 +300,7 @@ func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, sto
 		select {
 		case <-stopCtx.Done():
 			return
+		default:
 		}
 
 		fmt.Println("Trying to read")
@@ -405,7 +407,6 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 
 	logger.Infof("Connecting websocket stream to backend %s %s %s", service.Name, service.Endpoint.Name, ct)
 
-
 	_, msg, err := conn.ReadMessage()
 	if err != nil {
 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
@@ -415,6 +416,18 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 		}
 		return
 	}
+
+	md, _ := metadata.FromContext(ctx)
+	// reset content type
+	md["Content-Type"] = ct
+	// delete websocket info
+	delete(md, "Connection")
+	delete(md, "Upgrade")
+	delete(md, "Sec-Websocket-Extensions")
+	delete(md, "Sec-Websocket-Version")
+	delete(md, "Sec-Websocket-Key")
+
+	ctx = metadata.NewContext(ctx, md)
 
 	// create stream
 	req := c.NewRequest(service.Name, service.Endpoint.Name, &raw.Frame{Data: msg}, client.WithContentType(ct))

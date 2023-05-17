@@ -1,8 +1,9 @@
 // Package cli implements the `micro store` subcommands
 // for example:
-//   micro store snapshot
-//   micro store restore
-//   micro store sync
+//
+//	micro store snapshot
+//	micro store restore
+//	micro store sync
 package cli
 
 import (

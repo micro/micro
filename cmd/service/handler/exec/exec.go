@@ -93,7 +93,7 @@ func (p *Proxy) String() string {
 	return "exec"
 }
 
-//NewSingleHostProxy returns a router which sends requests to a single file
+// NewSingleHostProxy returns a router which sends requests to a single file
 func NewSingleHostProxy(url string) proxy.Proxy {
 	return &Proxy{
 		Endpoint: url,

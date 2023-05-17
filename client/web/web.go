@@ -21,7 +21,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-//Meta Fields of micro web
+// Meta Fields of micro web
 var (
 	Name      = "web"
 	API       = "http://localhost:8080"
