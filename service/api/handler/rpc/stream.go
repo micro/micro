@@ -246,6 +246,8 @@ func (s *stream) processWSReadsAndWrites() {
 	go s.bufToClientLoop(cancel, &wg, stopCtx, msgs)
 	go s.clientToServerLoop(cancel, &wg, stopCtx)
 	wg.Wait()
+
+	fmt.Println("EXITING")
 }
 
 func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGroup, stopCtx context.Context) {
@@ -275,18 +277,11 @@ func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGrou
 			return
 		}
 
-		var request interface{}
-		switch s.messageType {
-		case websocket.TextMessage:
-			m := json.RawMessage(msg)
-			request = &m
-		default:
-			request = &raw.Frame{Data: msg}
-		}
-
-		if err := s.stream.Send(request); err != nil {
+		// write the raw request
+		err = s.stream.Send(&raw.Frame{Data: msg})
+		if err != nil {
 			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-				logger.Error(err)
+				logger.Error("Error sending request ", err)
 			}
 			return
 		}
@@ -299,15 +294,18 @@ func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, sto
 		cancel()
 		wg.Done()
 	}()
-	rsp := s.stream.Response()
+
 	for {
 		select {
 		case <-stopCtx.Done():
 			return
-		default:
 		}
-		bytes, err := rsp.Read()
-		if err != nil {
+
+		fmt.Println("Trying to read")
+
+		var frame raw.Frame
+		if err := s.stream.Recv(&frame); err != nil {
+			fmt.Println("Error reading from stream", err)
 			if err == io.EOF {
 				// clean exit
 				return
@@ -318,12 +316,12 @@ func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, sto
 			s.conn.WriteMessage(websocket.CloseAbnormalClosure, []byte{})
 			return
 		}
+
 		select {
 		case <-stopCtx.Done():
 			return
-		case msgs <- bytes:
+		case msgs <- frame.Data:
 		}
-
 	}
 
 }
@@ -401,19 +399,38 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 	}
 
 	// grpc hack
-	streamCt := ct
-
 	if c.String() == "grpc" {
-		streamCt = "application/grpc+json"
+		ct = "application/grpc+json"
 	}
 
-	logger.Info("Connecting websocket stream to backend", service.Name, service.Endpoint.Name, ct, streamCt)
+	logger.Infof("Connecting websocket stream to backend %s %s %s", service.Name, service.Endpoint.Name, ct)
+
+
+	_, msg, err := conn.ReadMessage()
+	if err != nil {
+		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+				logger.Error(err)
+			}
+		}
+		return
+	}
+
 	// create stream
-	req := c.NewRequest(service.Name, service.Endpoint.Name, nil, client.WithContentType(streamCt), client.StreamingRequest())
+	req := c.NewRequest(service.Name, service.Endpoint.Name, &raw.Frame{Data: msg}, client.WithContentType(ct))
 	str, err := c.Stream(ctx, req, client.WithRouter(router.New(service.Services)))
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 			logger.Error(err)
+		}
+		return
+	}
+
+	// write the raw request
+	err = str.Send(&raw.Frame{Data: msg})
+	if err != nil {
+		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+			logger.Error("Error sending request ", err)
 		}
 		return
 	}
