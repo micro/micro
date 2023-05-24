@@ -177,6 +177,12 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 	}
 
 	apiURL := API
+
+	// set api from the hdear if available
+	if v := r.Header.Get("Micro-API"); len(v) > 0 {
+		apiURL = v
+	}
+
 	u, err := url.Parse(apiURL)
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)

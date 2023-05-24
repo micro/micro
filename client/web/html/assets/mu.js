@@ -1,5 +1,5 @@
 var namespace = "micro";
-var url = "http://localhost:8080";
+var api = "http://localhost:8080";
 var cookie = "micro-token";
 var services = {};
 
@@ -65,7 +65,7 @@ async function call(service = '', endpoint = '', method = '', data = {}) {
     var token = getCookie(cookie);
 
     // Default options are marked with *
-    const response = await fetch(`${url}/${service}/${endpoint}/${method}`, {
+    const response = await fetch(`${api}/${service}/${endpoint}/${method}`, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         headers: {
             'Content-Type': 'application/json',
@@ -110,8 +110,8 @@ async function getService(name) {
     });
 }
 
-async function setURL(u) {
-    url = u;
+async function setAPI(u) {
+    api = u;
 }
 
 function renderLogin() {

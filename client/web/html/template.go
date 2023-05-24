@@ -58,7 +58,7 @@ var (
 		document.onkeydown = toggle;
 
 		// set the api url
-		setURL({{.ApiURL}});
+		setAPI({{.ApiURL}});
 	  </script>
 	  {{template "script" . }}
 	</body>
