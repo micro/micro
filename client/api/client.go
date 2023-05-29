@@ -1,5 +1,5 @@
-// Package client provides a micro api client
-package client
+// Package api provides a micro api client
+package api
 
 import (
 	"bytes"
