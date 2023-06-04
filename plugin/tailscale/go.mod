@@ -1,11 +1,11 @@
-module github.com/micro/micro/plugin/tailscale/transport/v3
+module github.com/micro/micro/plugin/tailscale/v3
 
-go 1.18
+go 1.20
 
-replace github.com/micro/micro/v3 => ../../..
+// replace github.com/micro/micro/v3 => ../../..
 
 require (
-	github.com/micro/micro/v3 v3.0.0-00010101000000-000000000000
+	github.com/micro/micro/v3 v3.18.6-0.20230604084149-bc174d728167
 	tailscale.com v1.32.3
 )
 
@@ -58,11 +58,11 @@ require (
 	go4.org/netipx v0.0.0-20220725152314-7e7bdc8411bf // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e // indirect
-	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/term v0.5.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
+	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/term v0.6.0 // indirect
+	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
 	golang.zx2c4.com/wintun v0.0.0-20211104114900-415007cec224 // indirect
 	golang.zx2c4.com/wireguard v0.0.0-20220904105730-b51010ba13f0 // indirect
