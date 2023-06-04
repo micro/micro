@@ -20,7 +20,6 @@ import (
 	"github.com/micro/micro/v3/service/events"
 	evStore "github.com/micro/micro/v3/service/events/store"
 	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/metrics"
 	"github.com/micro/micro/v3/service/registry"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/kubernetes"
@@ -32,7 +31,6 @@ import (
 
 	// plugins
 	"github.com/micro/micro/plugin/etcd/v3"
-	"github.com/micro/micro/plugin/prometheus/v3"
 	redisBroker "github.com/micro/micro/plugin/redis/broker/v3"
 	redisstream "github.com/micro/micro/plugin/redis/stream/v3"
 )
@@ -63,16 +61,6 @@ var Profile = &profile.Profile{
 			profile.SetupRegistry(etcd.NewRegistry(registry.Addrs(ctx.String("registry_address"))))
 			profile.SetupJWT(ctx)
 			profile.SetupConfigSecretKey(ctx)
-
-			// Set up a default metrics reporter (being careful not to clash with any that have already been set):
-			if !metrics.IsSet() {
-				prometheusReporter, err := prometheus.New()
-				if err != nil {
-					retErr = err
-					return
-				}
-				metrics.SetDefaultMetricsReporter(prometheusReporter)
-			}
 
 			var err error
 			if ctx.Args().Get(1) == "events" {
@@ -176,15 +164,6 @@ var ClientProfile = &profile.Profile{
 	Setup: func(ctx *cli.Context) error {
 		var retErr error
 		clientOnce.Do(func() {
-			// Set up a default metrics reporter (being careful not to clash with any that have already been set):
-			if !metrics.IsSet() {
-				prometheusReporter, err := prometheus.New()
-				if err != nil {
-					retErr = err
-					return
-				}
-				metrics.SetDefaultMetricsReporter(prometheusReporter)
-			}
 			auth2.DefaultBlockList = blocklist.New(
 				os.Getenv("MICRO_API_REDIS_ADDRESS"),
 				os.Getenv("MICRO_API_REDIS_USER"),
