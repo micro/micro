@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"net/http"
 	"reflect"
 	"runtime/debug"
 	"sort"
