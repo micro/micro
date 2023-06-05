@@ -11,7 +11,6 @@ import (
 	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/util/report"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -45,7 +44,6 @@ func login(ctx *cli.Context) error {
 
 	// clear tokens and try again
 	if err := token.Remove(ctx); err != nil {
-		report.Errorf(ctx, "%v: Token remove: %v", username, err.Error())
 		return err
 	}
 
@@ -60,11 +58,9 @@ func login(ctx *cli.Context) error {
 	}
 	tok, err := auth.Token(auth.WithCredentials(username, password), auth.WithTokenIssuer(ns))
 	if err != nil {
-		report.Errorf(ctx, "%v: Getting token: %v", username, err.Error())
 		return err
 	}
 	if err := token.Save(ctx, tok); err != nil {
-		report.Errorf(ctx, "%s: Save token: %s", username, err.Error())
 		return err
 	}
 

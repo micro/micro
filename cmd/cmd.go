@@ -40,7 +40,6 @@ import (
 	"github.com/micro/micro/v3/service/store"
 	uconf "github.com/micro/micro/v3/util/config"
 	"github.com/micro/micro/v3/util/helper"
-	"github.com/micro/micro/v3/util/report"
 	"github.com/micro/micro/v3/util/user"
 	"github.com/micro/micro/v3/util/wrapper"
 	"github.com/urfave/cli/v2"
@@ -767,12 +766,6 @@ func (c *command) Init(opts ...Option) error {
 }
 
 func (c *command) Run() error {
-	defer func() {
-		if r := recover(); r != nil {
-			report.Errorf(nil, fmt.Sprintf("panic: %v", string(debug.Stack())))
-			panic(r)
-		}
-	}()
 	return c.app.Run(os.Args)
 }
 
