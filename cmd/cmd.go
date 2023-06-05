@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
-	"runtime/debug"
 	"sort"
 	"strings"
 	"sync"
