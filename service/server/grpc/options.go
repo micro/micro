@@ -21,7 +21,6 @@ import (
 	"crypto/tls"
 	"net"
 
-	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/micro/micro/v3/service/broker/memory"
 	memReg "github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/micro/v3/service/server"
@@ -74,16 +73,6 @@ func Listener(l net.Listener) server.Option {
 // Options to be used to configure gRPC options
 func Options(opts ...grpc.ServerOption) server.Option {
 	return setServerOption(grpcOptions{}, opts)
-}
-
-// GRPCWebOptions to be used to start a gRPC Web server
-func GRPCWebOptions(opts ...grpcweb.Option) server.Option {
-	return setServerOption(grpcWebOptions{}, opts)
-}
-
-// GRPCWebPort to be used to start a gRPC Web server
-func GRPCWebPort(addr string) server.Option {
-	return setServerOption(grpcWebPort{}, addr)
 }
 
 // Deprecated: use MaxRecvMsgSize or MaxSendMsgSize instead

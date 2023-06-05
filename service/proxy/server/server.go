@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
-	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/micro/micro/v3/service"
 	bmem "github.com/micro/micro/v3/service/broker/memory"
 	muclient "github.com/micro/micro/v3/service/client"
@@ -53,12 +52,6 @@ func Run(ctx *cli.Context) error {
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
-	}
-	if ctx.Bool("grpc-web") {
-		GRPCWebEnabled = ctx.Bool("grpcWeb")
-	}
-	if len(ctx.String("grpc-web-port")) > 0 {
-		GRPCWebAddress = ctx.String("grpcWebAddr")
 	}
 	if len(ctx.String("endpoint")) > 0 {
 		Endpoint = ctx.String("endpoint")
@@ -191,15 +184,6 @@ func Run(ctx *cli.Context) error {
 		log.Infof("Proxy [%s] serving protocol: %s", p.String(), Protocol)
 	}
 
-	if GRPCWebEnabled {
-		serverOpts = append(serverOpts, sgrpc.GRPCWebPort(GRPCWebAddress))
-		serverOpts = append(serverOpts, sgrpc.GRPCWebOptions(
-			grpcweb.WithCorsForRegisteredEndpointsOnly(false),
-			grpcweb.WithOriginFunc(func(origin string) bool { return true })))
-
-		log.Infof("Proxy [%s] serving gRPC-Web on %s", p.String(), GRPCWebAddress)
-	}
-
 	// create a new grpc server
 	srv := sgrpc.NewServer(serverOpts...)
 
@@ -280,16 +264,6 @@ var (
 			Name:    "endpoint",
 			Usage:   "Set the endpoint to route to e.g greeter or localhost:9090",
 			EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
-		},
-		&cli.BoolFlag{
-			Name:    "grpc-web",
-			Usage:   "Enable the gRPCWeb server",
-			EnvVars: []string{"MICRO_PROXY_GRPC_WEB"},
-		},
-		&cli.StringFlag{
-			Name:    "grpc-web-addr",
-			Usage:   "Set the gRPC web addr on the proxy",
-			EnvVars: []string{"MICRO_PROXY_GRPC_WEB_ADDRESS"},
 		},
 	}
 )

@@ -26,9 +26,9 @@ import (
 	"strings"
 
 	"github.com/micro/micro/v3/service/api"
-	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/api/handler"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/util/codec/bytes"
@@ -124,10 +124,10 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	cx := ctx.FromRequest(r)
 
 	// strip headers grpc doesn't like
-        md, _ := metadata.FromContext(cx)
-        // delete websocket info
-        delete(md, "Connection")
-        cx = metadata.NewContext(cx, md)
+	md, _ := metadata.FromContext(cx)
+	// delete websocket info
+	delete(md, "Connection")
+	cx = metadata.NewContext(cx, md)
 
 	// set merged context to request
 	*r = *r.Clone(cx)
