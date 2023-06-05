@@ -26,7 +26,6 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	gcli "github.com/micro/micro/v3/service/client/grpc"
 	"github.com/micro/micro/v3/service/errors"
-	tgrpc "github.com/micro/micro/v3/service/network/transport/grpc"
 	rmemory "github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/micro/v3/service/router"
 	rtreg "github.com/micro/micro/v3/service/router/registry"
@@ -131,20 +130,17 @@ func (s *testServer) Call(ctx context.Context, req *pb.Request, rsp *pb.Response
 func TestGRPCServer(t *testing.T) {
 	r := rmemory.NewRegistry()
 	b := bmemory.NewBroker()
-	tr := tgrpc.NewTransport()
 	rtr := rtreg.NewRouter(router.Registry(r))
 
 	s := gsrv.NewServer(
 		server.Broker(b),
 		server.Name("foo"),
 		server.Registry(r),
-		server.Transport(tr),
 	)
 
 	c := gcli.NewClient(
 		client.Router(rtr),
 		client.Broker(b),
-		client.Transport(tr),
 	)
 	ctx := context.TODO()
 
@@ -225,12 +221,10 @@ func TestGRPCServer(t *testing.T) {
 func TestGRPCServerWithPanicWrapper(t *testing.T) {
 	r := rmemory.NewRegistry()
 	b := bmemory.NewBroker()
-	tr := tgrpc.NewTransport()
 	s := gsrv.NewServer(
 		server.Broker(b),
 		server.Name("foo"),
 		server.Registry(r),
-		server.Transport(tr),
 		server.WrapHandler(func(hf server.HandlerFunc) server.HandlerFunc {
 			return func(ctx context.Context, req server.Request, rsp interface{}) error {
 				// make it panic
@@ -280,12 +274,10 @@ func TestGRPCServerWithPanicWrapper(t *testing.T) {
 func TestGRPCServerWithPanicHandler(t *testing.T) {
 	r := rmemory.NewRegistry()
 	b := bmemory.NewBroker()
-	tr := tgrpc.NewTransport()
 	s := gsrv.NewServer(
 		server.Broker(b),
 		server.Name("foo"),
 		server.Registry(r),
-		server.Transport(tr),
 	)
 
 	h := &testServer{}
