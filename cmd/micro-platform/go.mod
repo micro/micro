@@ -11,7 +11,6 @@ require (
 	github.com/micro/micro/plugin/redis/stream/v3 v3.0.0-20210622092058-b12502169757
 	github.com/micro/micro/plugin/s3/v3 v3.0.0-20220203170347-2c86e5fb6d13
 	github.com/micro/micro/v3 v3.18.5-0.20230517122557-05f46fc5c933
-	github.com/opentracing/opentracing-go v1.2.0
 	github.com/urfave/cli/v2 v2.3.0
 )
 
@@ -53,6 +52,7 @@ require (
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/nightlyone/lockfile v1.0.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
+	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect

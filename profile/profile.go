@@ -29,8 +29,6 @@ import (
 	grpcServer "github.com/micro/micro/v3/service/server/grpc"
 	"github.com/micro/micro/v3/service/store/file"
 	mem "github.com/micro/micro/v3/service/store/memory"
-	"github.com/micro/micro/v3/util/opentelemetry"
-	"github.com/micro/micro/v3/util/opentelemetry/jaeger"
 	"github.com/urfave/cli/v2"
 
 	microAuth "github.com/micro/micro/v3/service/auth"
@@ -182,20 +180,6 @@ var Server = &Profile{
 		if err != nil {
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
-
-		// Configure tracing with Jaeger (forced tracing):
-		tracingServiceName := ctx.Args().Get(1)
-		if len(tracingServiceName) == 0 {
-			tracingServiceName = "Micro"
-		}
-		openTracer, _, err := jaeger.New(
-			opentelemetry.WithServiceName(tracingServiceName),
-			opentelemetry.WithSamplingRate(1),
-		)
-		if err != nil {
-			logger.Fatalf("Error configuring opentracing: %v", err)
-		}
-		opentelemetry.DefaultOpenTracer = openTracer
 
 		return nil
 	},

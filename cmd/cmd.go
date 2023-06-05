@@ -570,7 +570,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
 		client.DefaultClient = wrapper.TraceCall(client.DefaultClient)
 		client.DefaultClient = wrapper.LogClient(client.DefaultClient)
-		client.DefaultClient = wrapper.OpentraceClient(client.DefaultClient)
 
 		// wrap the server
 		server.DefaultServer.Init(
@@ -579,7 +578,6 @@ func (c *command) Before(ctx *cli.Context) error {
 			server.WrapHandler(wrapper.HandlerStats()),
 			server.WrapHandler(wrapper.LogHandler()),
 			server.WrapHandler(wrapper.MetricsHandler()),
-			server.WrapHandler(wrapper.OpenTraceHandler()),
 		)
 	})
 
