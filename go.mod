@@ -21,7 +21,6 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/hashicorp/go-version v1.2.1
 	github.com/hpcloud/tail v1.0.0
-	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/kr/pretty v0.3.0
 	github.com/miekg/dns v1.1.43
 	github.com/nightlyone/lockfile v1.0.0
@@ -55,7 +54,6 @@ require (
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/cloudflare/cloudflare-go v0.10.9 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
-	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
@@ -74,7 +72,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
-	github.com/rs/cors v1.7.0 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect

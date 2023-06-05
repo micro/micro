@@ -35,7 +35,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	pberr "github.com/micro/micro/v3/proto/errors"
 	"github.com/micro/micro/v3/service/broker"
 	meta "github.com/micro/micro/v3/service/context/metadata"
@@ -1020,28 +1019,6 @@ func (g *grpcServer) Start() error {
 	if err := g.Register(); err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 			logger.Errorf("Server register error: %v", err)
-		}
-	}
-
-	if g.opts.Context != nil {
-		gRPCWebAddr := ":8082"
-		if g.opts.Context.Value(grpcWebPort{}) != nil {
-			if p, ok := g.opts.Context.Value(grpcWebPort{}).(string); ok && p != "" {
-				gRPCWebAddr = p
-			}
-		}
-
-		if c, ok := g.opts.Context.Value(grpcWebOptions{}).([]grpcweb.Option); ok && len(c) > 0 {
-			wrappedGrpc := grpcweb.WrapServer(g.srv, c...)
-			webGRPCServer := &http.Server{
-				Addr:      gRPCWebAddr,
-				TLSConfig: config.TLSConfig,
-				Handler:   http.Handler(wrappedGrpc),
-			}
-
-			go webGRPCServer.ListenAndServe()
-
-			logger.Infof("Server [gRPC-Web] Listening on %s", gRPCWebAddr)
 		}
 	}
 
