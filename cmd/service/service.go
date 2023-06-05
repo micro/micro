@@ -29,10 +29,6 @@ import (
 	registry "github.com/micro/micro/v3/service/registry/server"
 	runtime "github.com/micro/micro/v3/service/runtime/server"
 	store "github.com/micro/micro/v3/service/store/server"
-
-	// misc commands
-	"github.com/micro/micro/v3/cmd/service/handler/exec"
-	"github.com/micro/micro/v3/cmd/service/handler/file"
 )
 
 // Run starts a micro service sidecar to encapsulate any app
@@ -78,12 +74,6 @@ func Run(ctx *ccli.Context) {
 		p = grpc.NewProxy(prox.WithEndpoint(endpoint))
 	case strings.HasPrefix(endpoint, "http"):
 		p = http.NewProxy(prox.WithEndpoint(endpoint))
-	case strings.HasPrefix(endpoint, "file"):
-		endpoint = strings.TrimPrefix(endpoint, "file://")
-		p = file.NewProxy(prox.WithEndpoint(endpoint))
-	case strings.HasPrefix(endpoint, "exec"):
-		endpoint = strings.TrimPrefix(endpoint, "exec://")
-		p = exec.NewProxy(prox.WithEndpoint(endpoint))
 	default:
 		p = mucp.NewProxy(prox.WithEndpoint(endpoint))
 	}
