@@ -12,8 +12,6 @@ import (
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/network"
 	"github.com/micro/micro/v3/service/network/handler"
-	"github.com/micro/micro/v3/service/network/transport"
-	"github.com/micro/micro/v3/service/network/transport/grpc"
 	"github.com/micro/micro/v3/service/network/tunnel"
 	tmucp "github.com/micro/micro/v3/service/network/tunnel/mucp"
 	"github.com/micro/micro/v3/service/proxy"
@@ -121,10 +119,6 @@ func Run(ctx *cli.Context) error {
 			return err
 		}
 		config.InsecureSkipVerify = true
-
-		tunOpts = append(tunOpts, tunnel.Transport(
-			grpc.NewTransport(transport.TLSConfig(config)),
-		))
 	}
 
 	gateway := ctx.String("gateway")

@@ -19,7 +19,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/micro/micro/v3/service/network/transport"
-	"github.com/micro/micro/v3/service/network/transport/grpc"
+	"github.com/micro/micro/v3/service/network/transport/quic"
 )
 
 var (
@@ -154,6 +154,6 @@ func DefaultOptions() Options {
 		Id:        uuid.New().String(),
 		Address:   DefaultAddress,
 		Token:     DefaultToken,
-		Transport: grpc.NewTransport(),
+		Transport: quic.NewTransport(),
 	}
 }
