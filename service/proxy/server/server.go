@@ -25,7 +25,6 @@ import (
 	"github.com/micro/micro/v3/util/helper"
 	"github.com/micro/micro/v3/util/muxer"
 	"github.com/micro/micro/v3/util/sync/memory"
-	"github.com/micro/micro/v3/util/wrapper"
 	"github.com/urfave/cli/v2"
 )
 
@@ -185,7 +184,6 @@ func Run(ctx *cli.Context) error {
 	authOpt := server.WrapHandler(authHandler())
 	serverOpts = append(serverOpts, authOpt)
 	serverOpts = append(serverOpts, server.WithRouter(p))
-	serverOpts = append(serverOpts, server.WrapHandler(wrapper.OpenTraceHandler()))
 
 	if len(Endpoint) > 0 {
 		log.Infof("Proxy [%s] serving endpoint: %s", p.String(), Endpoint)

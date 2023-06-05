@@ -34,7 +34,6 @@ import (
 	"github.com/micro/micro/v3/util/acme/certmagic"
 	"github.com/micro/micro/v3/util/helper"
 	"github.com/micro/micro/v3/util/sync/memory"
-	"github.com/micro/micro/v3/util/wrapper"
 	"github.com/urfave/cli/v2"
 )
 
@@ -326,8 +325,6 @@ func Run(ctx *cli.Context) error {
 			h = v(h)
 		}
 	}
-
-	h = wrapper.HTTPWrapper(h)
 
 	// append the auth wrapper
 	h = auth.Wrapper(rr, Namespace)(h)
