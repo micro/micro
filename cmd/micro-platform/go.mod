@@ -10,7 +10,7 @@ require (
 	github.com/micro/micro/plugin/redis/broker/v3 v3.0.0-20210622092058-b12502169757
 	github.com/micro/micro/plugin/redis/stream/v3 v3.0.0-20210622092058-b12502169757
 	github.com/micro/micro/plugin/s3/v3 v3.0.0-20220203170347-2c86e5fb6d13
-	github.com/micro/micro/v3 v3.18.5-0.20230517122557-05f46fc5c933
+	github.com/micro/micro/v3 v3.18.6-0.20230605083623-270d5c301ab6
 	github.com/urfave/cli/v2 v2.3.0
 )
 
@@ -52,7 +52,6 @@ require (
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/nightlyone/lockfile v1.0.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
-	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -65,8 +64,6 @@ require (
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf // indirect
-	github.com/uber/jaeger-client-go v2.29.1+incompatible // indirect
-	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.9 // indirect
