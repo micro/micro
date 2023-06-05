@@ -104,11 +104,6 @@ var Profile = &profile.Profile{
 				}
 			}
 
-			reporterAddress := os.Getenv("MICRO_TRACING_REPORTER_ADDRESS")
-			if len(reporterAddress) == 0 {
-				reporterAddress = jaeger.DefaultReporterAddress
-			}
-
 			microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 			microBuilder.DefaultBuilder, err = golang.NewBuilder()
 			if err != nil {
