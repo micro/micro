@@ -14,7 +14,7 @@ require (
 	github.com/go-acme/lego/v3 v3.4.0
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang-jwt/jwt v0.0.0-20210529014511-0f726ea0e725
-	github.com/golang/protobuf v1.5.2
+	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.7.3
@@ -25,11 +25,11 @@ require (
 	github.com/miekg/dns v1.1.43
 	github.com/nightlyone/lockfile v1.0.0
 	github.com/olekukonko/tablewriter v0.0.4
-	github.com/onsi/gomega v1.20.1
+	github.com/onsi/gomega v1.27.6
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
-	github.com/quic-go/quic-go v0.35.1
+	github.com/quic-go/quic-go v0.35.2-0.20230604200428-e1bcedc78cfe
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/stoewer/go-strcase v1.2.0
 	github.com/stretchr/objx v0.5.0
@@ -39,7 +39,7 @@ require (
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	go.etcd.io/bbolt v1.3.5
 	golang.org/x/crypto v0.4.0
-	golang.org/x/net v0.8.0
+	golang.org/x/net v0.10.0
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4
 	google.golang.org/grpc v1.54.1
 	google.golang.org/protobuf v1.28.1
@@ -55,7 +55,7 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
+	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
@@ -73,7 +73,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.7 // indirect
 	github.com/mattn/go-sqlite3 v1.14.15 // indirect
-	github.com/onsi/ginkgo/v2 v2.2.0 // indirect
+	github.com/onsi/ginkgo/v2 v2.9.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/quic-go/qtls-go1-19 v0.3.2 // indirect
 	github.com/quic-go/qtls-go1-20 v0.2.2 // indirect
@@ -81,12 +81,12 @@ require (
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20221205204356-47842c84f3db // indirect
-	golang.org/x/mod v0.8.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/term v0.6.0 // indirect
-	golang.org/x/text v0.8.0 // indirect
+	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/term v0.8.0 // indirect
+	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
-	golang.org/x/tools v0.6.0 // indirect
+	golang.org/x/tools v0.9.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/square/go-jose.v2 v2.3.1 // indirect
