@@ -200,17 +200,6 @@ func init() {
 			Action: newAction(c),
 		}
 
-		// setup the plugins
-		for _, p := range plugin.Plugins(plugin.Module(c.Name)) {
-			if cmds := p.Commands(); len(cmds) > 0 {
-				command.Subcommands = append(command.Subcommands, cmds...)
-			}
-
-			if flags := p.Flags(); len(flags) > 0 {
-				command.Flags = append(command.Flags, flags...)
-			}
-		}
-
 		// set the command
 		subcommands[i] = command
 	}
@@ -246,17 +235,6 @@ func init() {
 			},
 		},
 		Subcommands: subcommands,
-	}
-
-	// register global plugins and flags
-	for _, p := range plugin.Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
 	}
 
 	cmd.Register(command)
