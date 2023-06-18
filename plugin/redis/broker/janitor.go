@@ -37,14 +37,14 @@ func (r *redisBroker) cleanupConsumers() error {
 		return err
 	}
 	for _, streamName := range keys {
-		logger.Infof("Cleaning up stream %s", streamName)
+		logger.Debugf("Cleaning up stream %s", streamName)
 		s, err := r.redisClient.XInfoStreamFull(ctx, streamName, 1).Result()
 		if err != nil {
 			logger.Errorf("Error getting info on groups for %s: %s", streamName, err)
 			continue
 		}
 		for _, g := range s.Groups {
-			logger.Infof("Cleaning up stream %s group %s", streamName, g.Name)
+			logger.Debugf("Cleaning up stream %s group %s", streamName, g.Name)
 			for _, c := range g.Consumers {
 				// Seen time is the last time this consumer read a message successfully.
 				// This means if the stream is low volume you could delete currently connected consumers
@@ -52,7 +52,7 @@ func (r *redisBroker) cleanupConsumers() error {
 				if c.SeenTime.Add(janitorConsumerTimeout).After(now) {
 					continue
 				}
-				logger.Infof("Cleaning up consumer %s, it is %s old", c.Name, time.Since(c.SeenTime))
+				logger.Debugf("Cleaning up consumer %s, it is %s old", c.Name, time.Since(c.SeenTime))
 				if err := r.redisClient.XGroupDelConsumer(ctx, streamName, g.Name, c.Name).Err(); err != nil {
 					logger.Errorf("Error deleting consumer %s %s %s: %s", streamName, g.Name, c.Name, err)
 					continue
