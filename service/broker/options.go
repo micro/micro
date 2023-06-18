@@ -47,11 +47,6 @@ type SubscribeOptions struct {
 	// Handler executed when errors occur processing messages
 	ErrorHandler ErrorHandler
 
-	// Subscribers with the same queue name
-	// will create a shared subscription where each
-	// receives a subset of messages.
-	Queue string
-
 	// Other options for implementations of the interface
 	// can be stored in a context
 	Context context.Context
@@ -100,13 +95,6 @@ func Codec(c codec.Marshaler) Option {
 func HandleError(h ErrorHandler) SubscribeOption {
 	return func(o *SubscribeOptions) {
 		o.ErrorHandler = h
-	}
-}
-
-// Queue sets the name of the queue to share messages on
-func Queue(name string) SubscribeOption {
-	return func(o *SubscribeOptions) {
-		o.Queue = name
 	}
 }
 

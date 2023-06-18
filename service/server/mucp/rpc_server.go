@@ -709,10 +709,6 @@ func (s *rpcServer) Register() error {
 	// subscribe for all of the subscribers
 	for sb := range s.subscribers {
 		var opts []broker.SubscribeOption
-		if queue := sb.Options().Queue; len(queue) > 0 {
-			opts = append(opts, broker.Queue(queue))
-		}
-
 		if cx := sb.Options().Context; cx != nil {
 			opts = append(opts, broker.SubscribeContext(cx))
 		}

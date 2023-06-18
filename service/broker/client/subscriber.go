@@ -8,7 +8,6 @@ import (
 
 type serviceSub struct {
 	topic   string
-	queue   string
 	handler broker.Handler
 	stream  pb.Broker_SubscribeService
 	closed  chan bool

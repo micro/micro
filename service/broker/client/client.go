@@ -65,11 +65,10 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 		o(&options)
 	}
 	if logger.V(logger.DebugLevel, logger.DefaultLogger) {
-		logger.Debugf("Subscribing to topic %s queue %s broker %v", topic, options.Queue, b.Addrs)
+		logger.Debugf("Subscribing to topic %s broker %v", topic, b.Addrs)
 	}
 	stream, err := b.Client.Subscribe(context.DefaultContext, &pb.SubscribeRequest{
 		Topic: topic,
-		Queue: options.Queue,
 	}, client.WithAuthToken(), client.WithAddress(b.Addrs...), client.WithRequestTimeout(time.Hour))
 	if err != nil {
 		return nil, err
@@ -77,7 +76,6 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 
 	sub := &serviceSub{
 		topic:   topic,
-		queue:   options.Queue,
 		handler: handler,
 		stream:  stream,
 		closed:  make(chan bool),
@@ -95,7 +93,7 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 			default:
 				if logger.V(logger.DebugLevel, logger.DefaultLogger) {
 					// run the subscriber
-					logger.Debugf("Streaming from broker %v to topic [%s] queue [%s]", b.Addrs, topic, options.Queue)
+					logger.Debugf("Streaming from broker %v to topic [%s]", b.Addrs, topic)
 				}
 				if err := sub.run(); err != nil {
 					if logger.V(logger.DebugLevel, logger.DefaultLogger) {
@@ -103,7 +101,6 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 					}
 					stream, err := b.Client.Subscribe(context.DefaultContext, &pb.SubscribeRequest{
 						Topic: topic,
-						Queue: options.Queue,
 					}, client.WithAuthToken(), client.WithAddress(b.Addrs...), client.WithRequestTimeout(time.Hour))
 					if err != nil {
 						if logger.V(logger.DebugLevel, logger.DefaultLogger) {

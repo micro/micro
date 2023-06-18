@@ -843,10 +843,6 @@ func (g *grpcServer) Register() error {
 	for sb := range g.subscribers {
 		handler := g.createSubHandler(sb, g.opts)
 		var opts []broker.SubscribeOption
-		if queue := sb.Options().Queue; len(queue) > 0 {
-			opts = append(opts, broker.Queue(queue))
-		}
-
 		if cx := sb.Options().Context; cx != nil {
 			opts = append(opts, broker.SubscribeContext(cx))
 		}
