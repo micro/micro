@@ -18,8 +18,6 @@ import (
 	"github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
-	_ "github.com/micro/micro/v3/cmd/usage"
-	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/broker"
@@ -727,13 +725,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		config.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
 	} else if config.DefaultConfig == nil {
 		config.DefaultConfig, _ = storeConf.NewConfig(store.DefaultStore, ctx.String("namespace"))
-	}
-
-	// initialize plugins
-	for _, p := range plugin.Plugins() {
-		if err := p.Init(ctx); err != nil {
-			return err
-		}
 	}
 
 	return nil

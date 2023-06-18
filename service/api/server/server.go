@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
-	"github.com/micro/micro/v3/plugin"
 	pb "github.com/micro/micro/v3/proto/api"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api"
@@ -317,13 +316,6 @@ func Run(ctx *cli.Context) error {
 			router.WithRegistry(registry.DefaultRegistry),
 		)
 		r.PathPrefix(APIPath).Handler(Meta(srv.Client(), rt, Namespace))
-	}
-
-	// register all the http handler plugins
-	for _, p := range plugin.Plugins() {
-		if v := p.Handler(); v != nil {
-			h = v(h)
-		}
 	}
 
 	// append the auth wrapper

@@ -14,7 +14,6 @@ import (
 
 	tmpl "github.com/micro/micro/v3/client/cli/new/template"
 	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/cmd/usage"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
 )
@@ -85,14 +84,6 @@ func create(c config) error {
 	if _, err := os.Stat(c.Dir); !os.IsNotExist(err) {
 		return fmt.Errorf("%s already exists", c.Dir)
 	}
-
-	// create usage report
-	u := usage.New("new")
-	// a single request/service
-	u.Metrics.Count["requests"] = uint64(1)
-	u.Metrics.Count["services"] = uint64(1)
-	// send report
-	go usage.Report(u)
 
 	// just wait
 	<-time.After(time.Millisecond * 250)

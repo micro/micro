@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
 	prox "github.com/micro/micro/v3/service/proxy"

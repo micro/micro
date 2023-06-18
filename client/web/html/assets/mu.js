@@ -64,14 +64,19 @@ function setCookie(name, value, expiry) {
 async function call(service = '', endpoint = '', method = '', data = {}) {
     var token = getCookie(cookie);
 
+    var headers = {
+        'Content-Type': 'application/json',
+        'Micro-Namespace': namespace,
+    }
+
+    if (token != undefined) {
+	headers['Authorization'] = 'Bearer ' + token;
+    }
+
     // Default options are marked with *
     const response = await fetch(`${api}/${service}/${endpoint}/${method}`, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token,
-            'Micro-Namespace': namespace,
-        },
+        headers: headers,
         body: JSON.stringify(data) // body data type must match "Content-Type" header
     });
     return response.json(); // parses JSON response into native JavaScript objects

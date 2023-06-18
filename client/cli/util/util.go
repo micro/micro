@@ -17,15 +17,11 @@ import (
 const (
 	// EnvLocal is a builtin environment, it represents your local `micro server`
 	EnvLocal = "local"
-	// EnvPlatform is a builtin highly available environment in the cloud,
-	EnvPlatform = "platform"
 )
 
 const (
 	// localProxyAddress is the default proxy address for environment server
 	localProxyAddress = "127.0.0.1:8081"
-	// platformProxyAddress is the default proxy address for environment platform
-	platformProxyAddress = "proxy.m3o.com"
 )
 
 var (
@@ -52,11 +48,6 @@ var defaultEnvs = map[string]Env{
 		Name:         EnvLocal,
 		ProxyAddress: localProxyAddress,
 		Description:  "Local running Micro Server",
-	},
-	EnvPlatform: {
-		Name:         EnvPlatform,
-		ProxyAddress: platformProxyAddress,
-		Description:  "Cloud hosted Micro Platform",
 	},
 }
 
@@ -229,14 +220,6 @@ func DelEnv(ctx *cli.Context, envName string) error {
 	}
 	delete(envs, envName)
 	return setEnvs(envs)
-}
-
-func IsPlatform(ctx *cli.Context) bool {
-	env, err := GetEnv(ctx)
-	if err == nil && env.Name == EnvPlatform {
-		return true
-	}
-	return false
 }
 
 type Exec func(*cli.Context, []string) ([]byte, error)
