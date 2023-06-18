@@ -86,6 +86,8 @@ func (r *redisBroker) Publish(topic string, m *broker.Message, opts ...broker.Pu
 	return r.redisClient.XAdd(context.Background(), &redis.XAddArgs{
 		Stream: topic,
 		Values: []string{"event", string(payload)},
+		MaxLen: 1,
+		Approx: true,
 	}).Err()
 
 }
