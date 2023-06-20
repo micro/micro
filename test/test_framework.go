@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/util/namespace"
 	"github.com/micro/micro/v3/util/user"
 )
 
