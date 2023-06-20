@@ -23,7 +23,7 @@ import (
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
-	configCli "github.com/micro/micro/v3/service/config/client"
+	configCli "github.com/micro/micro/v3/client/config"
 	storeConf "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
@@ -43,17 +43,17 @@ import (
 
 	muruntime "github.com/micro/micro/v3/service/runtime"
 
-	authSrv "github.com/micro/micro/v3/service/auth/client"
-	brokerSrv "github.com/micro/micro/v3/service/broker/client"
+	authSrv "github.com/micro/micro/v3/client/auth"
+	brokerSrv "github.com/micro/micro/v3/client/broker"
 	grpcCli "github.com/micro/micro/v3/service/client/grpc"
-	eventsSrv "github.com/micro/micro/v3/service/events/client"
+	eventsSrv "github.com/micro/micro/v3/client/events"
 	noopMet "github.com/micro/micro/v3/service/metrics/noop"
 	mucpNet "github.com/micro/micro/v3/service/network/mucp"
-	registrySrv "github.com/micro/micro/v3/service/registry/client"
-	routerSrv "github.com/micro/micro/v3/service/router/client"
-	runtimeSrv "github.com/micro/micro/v3/service/runtime/client"
+	registrySrv "github.com/micro/micro/v3/client/registry"
+	routerSrv "github.com/micro/micro/v3/client/router"
+	runtimeSrv "github.com/micro/micro/v3/client/runtime"
 	grpcSvr "github.com/micro/micro/v3/service/server/grpc"
-	storeSrv "github.com/micro/micro/v3/service/store/client"
+	storeSrv "github.com/micro/micro/v3/client/store"
 )
 
 type Cmd interface {
