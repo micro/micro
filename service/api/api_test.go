@@ -202,7 +202,7 @@ func TestRequestPayloadFromRequest(t *testing.T) {
 			t.Fatalf("Failed to extract payload from request: %v", err)
 		}
 		if string(extByte) != string(jsonUrlBytes) {
-			t.Fatalf("Expected %v and %v to match", string(extByte), jsonUrlBytes)
+			t.Fatalf("Expected %v and %v to match", string(extByte), string(jsonUrlBytes))
 		}
 	})
 
