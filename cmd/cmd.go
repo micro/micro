@@ -18,7 +18,7 @@ import (
 	configCli "github.com/micro/micro/v3/client/config"
 	clitoken "github.com/micro/micro/v3/cmd/cli/token"
 	"github.com/micro/micro/v3/cmd/cli/util"
-	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/profile"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/client"
