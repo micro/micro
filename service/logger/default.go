@@ -23,8 +23,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	dlog "github.com/micro/micro/v3/service/debug/log"
 )
 
 func init() {
@@ -108,16 +106,12 @@ func (l *defaultLogger) Log(level Level, v ...interface{}) {
 		fields["file"] = fmt.Sprintf("%s:%d", logCallerfilePath(file), line)
 	}
 
-	rec := dlog.Record{
-		Timestamp: time.Now(),
-		Message:   strings.ReplaceAll(fmt.Sprint(v...), "\n", ""),
-		Metadata:  make(map[string]string, len(fields)),
-	}
+	timestamp := time.Now()
+	message := strings.ReplaceAll(fmt.Sprint(v...), "\n", "")
 
 	keys := make([]string, 0, len(fields))
-	for k, v := range fields {
+	for k, _ := range fields {
 		keys = append(keys, k)
-		rec.Metadata[k] = fmt.Sprintf("%v", v)
 	}
 
 	sort.Strings(keys)
@@ -127,8 +121,8 @@ func (l *defaultLogger) Log(level Level, v ...interface{}) {
 		metadata += fmt.Sprintf(" %s=%v", k, fields[k])
 	}
 
-	t := rec.Timestamp.Format("2006-01-02 15:04:05")
-	fmt.Fprintf(l.opts.Out, "%s %s %v\n", t, metadata, rec.Message)
+	t := timestamp.Format("2006-01-02 15:04:05")
+	fmt.Fprintf(l.opts.Out, "%s %s %v\n", t, metadata, message)
 }
 
 func (l *defaultLogger) Logf(level Level, format string, v ...interface{}) {
@@ -147,16 +141,12 @@ func (l *defaultLogger) Logf(level Level, format string, v ...interface{}) {
 		fields["file"] = fmt.Sprintf("%s:%d", logCallerfilePath(file), line)
 	}
 
-	rec := dlog.Record{
-		Timestamp: time.Now(),
-		Message:   strings.ReplaceAll(fmt.Sprintf(format, v...), "\n", ""),
-		Metadata:  make(map[string]string, len(fields)),
-	}
+	timestamp := time.Now()
+	message := strings.ReplaceAll(fmt.Sprintf(format, v...), "\n", "")
 
 	keys := make([]string, 0, len(fields))
-	for k, v := range fields {
+	for k, _ := range fields {
 		keys = append(keys, k)
-		rec.Metadata[k] = fmt.Sprintf("%v", v)
 	}
 
 	sort.Strings(keys)
@@ -166,8 +156,8 @@ func (l *defaultLogger) Logf(level Level, format string, v ...interface{}) {
 		metadata += fmt.Sprintf(" %s=%v", k, fields[k])
 	}
 
-	t := rec.Timestamp.Format("2006-01-02 15:04:05")
-	fmt.Fprintf(l.opts.Out, "%s %s %v\n", t, metadata, rec.Message)
+	t := timestamp.Format("2006-01-02 15:04:05")
+	fmt.Fprintf(l.opts.Out, "%s %s %v\n", t, metadata, message)
 }
 
 func (l *defaultLogger) Options() Options {

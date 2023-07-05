@@ -14,7 +14,6 @@ import (
 
 	_ "github.com/micro/micro/v3/cmd/cli/auth"
 	_ "github.com/micro/micro/v3/cmd/cli/config"
-	_ "github.com/micro/micro/v3/cmd/cli/debug"
 	_ "github.com/micro/micro/v3/cmd/cli/gen"
 	_ "github.com/micro/micro/v3/cmd/cli/init"
 	_ "github.com/micro/micro/v3/cmd/cli/network"

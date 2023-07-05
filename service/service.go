@@ -6,15 +6,12 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"runtime"
 	"syscall"
 
 	"github.com/urfave/cli/v2"
 
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service/client"
-	mudebug "github.com/micro/micro/v3/service/debug"
-	debug "github.com/micro/micro/v3/service/debug/handler"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/server"
@@ -167,28 +164,6 @@ func (s *Service) Run() error {
 	// ensure service's have a name, this is injected by the runtime manager
 	if len(s.Name()) == 0 {
 		return errMissingName
-	}
-
-	// register the debug handler
-	s.Server().Handle(
-		s.Server().NewHandler(
-			debug.NewHandler(),
-			server.InternalHandler(true),
-		),
-	)
-
-	// start the profiler
-	if mudebug.DefaultProfiler != nil {
-		// to view mutex contention
-		runtime.SetMutexProfileFraction(5)
-		// to view blocking profile
-		runtime.SetBlockProfileRate(1)
-
-		if err := mudebug.DefaultProfiler.Start(); err != nil {
-			return err
-		}
-
-		defer mudebug.DefaultProfiler.Stop()
 	}
 
 	if logger.V(logger.InfoLevel, logger.DefaultLogger) {

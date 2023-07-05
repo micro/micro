@@ -25,7 +25,6 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/broker/memory"
-	"github.com/micro/micro/v3/service/debug/trace"
 	"github.com/micro/micro/v3/service/network/transport"
 	thttp "github.com/micro/micro/v3/service/network/transport/http"
 	"github.com/micro/micro/v3/service/registry"
@@ -37,7 +36,6 @@ type Options struct {
 	Codecs       map[string]codec.NewCodec
 	Broker       broker.Broker
 	Registry     registry.Registry
-	Tracer       trace.Tracer
 	Auth         auth.Auth
 	Transport    transport.Transport
 	Metadata     map[string]string
@@ -184,13 +182,6 @@ func Context(ctx context.Context) Option {
 func Registry(r registry.Registry) Option {
 	return func(o *Options) {
 		o.Registry = r
-	}
-}
-
-// Tracer mechanism for distributed tracking
-func Tracer(t trace.Tracer) Option {
-	return func(o *Options) {
-		o.Tracer = t
 	}
 }
 
