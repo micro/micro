@@ -28,7 +28,7 @@ require (
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
-	github.com/quic-go/quic-go v0.35.2-0.20230604200428-e1bcedc78cfe
+	github.com/quic-go/quic-go v0.36.1
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/stoewer/go-strcase v1.2.0
 	github.com/stretchr/objx v0.5.0
