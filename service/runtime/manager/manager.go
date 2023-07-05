@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/build"
-	"github.com/micro/micro/v3/service/build/util/tar"
+	"github.com/micro/micro/v3/service/runtime/build"
+	"github.com/micro/micro/v3/service/runtime/build/util/tar"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"

@@ -10,9 +10,9 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/micro/micro/v3/service/build"
-	"github.com/micro/micro/v3/service/build/util/tar"
-	"github.com/micro/micro/v3/service/build/util/zip"
+	"github.com/micro/micro/v3/service/runtime/build"
+	"github.com/micro/micro/v3/service/runtime/build/util/tar"
+	"github.com/micro/micro/v3/service/runtime/build/util/zip"
 )
 
 // NewBuilder returns a golang build which can build a go binary given some source
