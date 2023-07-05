@@ -28,7 +28,6 @@ import (
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/metrics"
 	"github.com/micro/micro/v3/service/network"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/router"
@@ -253,7 +252,6 @@ func setupDefaults() {
 	client.DefaultClient = grpcCli.NewClient()
 	server.DefaultServer = grpcSvr.NewServer()
 	network.DefaultNetwork = mucpNet.NewNetwork()
-	metrics.DefaultMetricsReporter = noopMet.New()
 
 	// setup rpc implementations after the client is configured
 	auth.DefaultAuth = authSrv.NewAuth()
