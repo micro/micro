@@ -12,12 +12,12 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/micro/micro/v3/util/namespace"
 	"github.com/micro/micro/v3/cmd/cli/util"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/registry"
 	cbytes "github.com/micro/micro/v3/util/codec/bytes"
+	"github.com/micro/micro/v3/util/namespace"
 	"github.com/serenize/snaker"
 	"github.com/urfave/cli/v2"
 )

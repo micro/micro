@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/micro/micro/v3/util/namespace"
 	"github.com/micro/micro/v3/cmd/cli/util"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/util/namespace"
 	"github.com/urfave/cli/v2"
 )
 

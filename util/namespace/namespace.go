@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/util/config"
-	"github.com/micro/micro/v3/service/context/metadata"
 )
 
 const (

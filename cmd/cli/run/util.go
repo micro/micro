@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 
 	pb "github.com/micro/micro/v3/proto/runtime"
-	"github.com/micro/micro/v3/service/runtime/build/util/tar"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/build/util/tar"
 	"github.com/micro/micro/v3/service/runtime/source/git"
 	"github.com/urfave/cli/v2"
 )

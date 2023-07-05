@@ -16,8 +16,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/micro/micro/v3/cmd/web/html"
 	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/cmd/web/html"
 	"github.com/urfave/cli/v2"
 )
 

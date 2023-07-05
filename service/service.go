@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -26,20 +25,6 @@ var (
 // Service is a Micro Service which honours the go-micro/service interface
 type Service struct {
 	opts Options
-}
-
-// Run the default service and waits for it to exist
-func Run() {
-	// setup a new service, calling New() will trigger the cmd package
-	// to parse the command line and
-	srv := New()
-
-	if err := srv.Run(); err == errMissingName {
-		fmt.Println("Micro services must be run using \"micro run\"")
-		os.Exit(1)
-	} else if err != nil {
-		logger.Fatalf("Error running %v service: %v", srv.Name(), err)
-	}
 }
 
 // New returns a new Micro Service

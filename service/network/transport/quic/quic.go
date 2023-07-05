@@ -6,9 +6,9 @@ import (
 	"encoding/gob"
 	"time"
 
-	"github.com/quic-go/quic-go"
 	"github.com/micro/micro/v3/service/network/transport"
 	utls "github.com/micro/micro/v3/util/tls"
+	"github.com/quic-go/quic-go"
 )
 
 type quicSocket struct {
@@ -117,8 +117,8 @@ func (q *quicTransport) Dial(addr string, opts ...transport.DialOption) (transpo
 		}
 	}
 	s, err := quic.DialAddr(context.Background(), addr, config, &quic.Config{
-		MaxIdleTimeout: time.Minute * 2,
-		KeepAlivePeriod:      time.Minute,
+		MaxIdleTimeout:  time.Minute * 2,
+		KeepAlivePeriod: time.Minute,
 	})
 	if err != nil {
 		return nil, err

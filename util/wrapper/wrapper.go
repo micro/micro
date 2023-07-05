@@ -206,4 +206,3 @@ func CacheClient(c client.Client) client.Client {
 		Client: c,
 	}
 }
-

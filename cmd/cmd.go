@@ -15,7 +15,7 @@ import (
 	"unicode"
 
 	"github.com/google/uuid"
-	"github.com/micro/micro/v3/util/namespace"
+	configCli "github.com/micro/micro/v3/client/config"
 	clitoken "github.com/micro/micro/v3/cmd/cli/token"
 	"github.com/micro/micro/v3/cmd/cli/util"
 	"github.com/micro/micro/v3/profile"
@@ -23,7 +23,6 @@ import (
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
-	configCli "github.com/micro/micro/v3/client/config"
 	storeConf "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
@@ -36,6 +35,7 @@ import (
 	"github.com/micro/micro/v3/service/store"
 	uconf "github.com/micro/micro/v3/util/config"
 	"github.com/micro/micro/v3/util/helper"
+	"github.com/micro/micro/v3/util/namespace"
 	"github.com/micro/micro/v3/util/user"
 	"github.com/micro/micro/v3/util/wrapper"
 	"github.com/urfave/cli/v2"
@@ -44,14 +44,14 @@ import (
 
 	authSrv "github.com/micro/micro/v3/client/auth"
 	brokerSrv "github.com/micro/micro/v3/client/broker"
-	grpcCli "github.com/micro/micro/v3/service/client/grpc"
 	eventsSrv "github.com/micro/micro/v3/client/events"
-	mucpNet "github.com/micro/micro/v3/service/network/mucp"
 	registrySrv "github.com/micro/micro/v3/client/registry"
 	routerSrv "github.com/micro/micro/v3/client/router"
 	runtimeSrv "github.com/micro/micro/v3/client/runtime"
-	grpcSvr "github.com/micro/micro/v3/service/server/grpc"
 	storeSrv "github.com/micro/micro/v3/client/store"
+	grpcCli "github.com/micro/micro/v3/service/client/grpc"
+	mucpNet "github.com/micro/micro/v3/service/network/mucp"
+	grpcSvr "github.com/micro/micro/v3/service/server/grpc"
 )
 
 type Cmd interface {
