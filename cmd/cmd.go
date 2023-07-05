@@ -46,7 +46,6 @@ import (
 	brokerSrv "github.com/micro/micro/v3/client/broker"
 	grpcCli "github.com/micro/micro/v3/service/client/grpc"
 	eventsSrv "github.com/micro/micro/v3/client/events"
-	noopMet "github.com/micro/micro/v3/service/metrics/noop"
 	mucpNet "github.com/micro/micro/v3/service/network/mucp"
 	registrySrv "github.com/micro/micro/v3/client/registry"
 	routerSrv "github.com/micro/micro/v3/client/router"
