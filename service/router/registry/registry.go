@@ -322,14 +322,32 @@ func (r *registryRouter) Close() error {
 func (r *registryRouter) Lookup(service string, opts ...router.LookupOption) ([]router.Route, error) {
 	q := router.NewLookup(opts...)
 
-	// if we find the routes filter and return them
+	// lookup a route in the table by service name
 	routes, err := r.table.Read(router.ReadService(service))
+
+	// assuming successful lookup
 	if err == nil {
+		// filter the routes based on user input
 		routes = router.Filter(routes, q)
 		if len(routes) == 0 {
+			// return error if there's no route
 			return nil, router.ErrRouteNotFound
 		}
+		// otherwise return route
 		return routes, nil
+	}
+
+	// could not find a route, check if we have a default
+	if len(r.options.Gateway) > 0 {
+		q := router.NewLookup(router.LookupGateway(r.options.Gateway))
+
+		// read all the routes
+		if routes, err := r.table.Read(router.ReadService("*")); err == nil {
+			// filter all the routes based on our gateway
+			if routes = router.Filter(routes, q); len(routes) > 0 {
+				return routes, nil
+			}
+		}
 	}
 
 	// lookup the route
@@ -362,6 +380,7 @@ func (r *registryRouter) Lookup(service string, opts ...router.LookupOption) ([]
 	if len(routes) == 0 {
 		return nil, router.ErrRouteNotFound
 	}
+
 	return routes, nil
 }
 
