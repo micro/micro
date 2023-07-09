@@ -4,9 +4,9 @@ import (
 	"time"
 
 	// TODO: replace with micro/v3/service/cli
-	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/server"
+	"micro.dev/v4/cmd"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/server"
 )
 
 // Options for micro service

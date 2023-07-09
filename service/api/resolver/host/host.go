@@ -20,7 +20,7 @@ package host
 import (
 	"net/http"
 
-	"github.com/micro/micro/v3/service/api/resolver"
+	"micro.dev/v4/service/api/resolver"
 )
 
 type Resolver struct {

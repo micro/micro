@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/micro/micro/v3/service/broker"
+	"micro.dev/v4/service/broker"
 )
 
 func TestMemoryBroker(t *testing.T) {

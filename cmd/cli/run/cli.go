@@ -2,8 +2,8 @@
 package runtime
 
 import (
-	"github.com/micro/micro/v3/cmd"
 	"github.com/urfave/cli/v2"
+	"micro.dev/v4/cmd"
 )
 
 // flags is shared flags so we don't have to continually re-add

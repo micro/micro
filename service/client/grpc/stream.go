@@ -21,8 +21,8 @@ import (
 	"io"
 	"sync"
 
-	"github.com/micro/micro/v3/service/client"
 	"google.golang.org/grpc"
+	"micro.dev/v4/service/client"
 )
 
 // Implements the streamer interface

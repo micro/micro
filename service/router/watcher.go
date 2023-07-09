@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/micro/v3/router/watcher.go
+// Original source: micro.dev/v4/router/watcher.go
 
 package router
 

@@ -39,8 +39,8 @@ github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/kr/pretty v0.3.0 h1:WgNl7dwNpEZ6jJ9k1snq4pZsg7DOEN8hP9Xw0Tsjwk0=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
-github.com/micro/micro/v3 v3.19.1-0.20230709181230-4ec5acb2c369 h1:cHsMe6R4pZIKIIzfNJ8T1ImPL387GVKxl+8j/gBHG0c=
-github.com/micro/micro/v3 v3.19.1-0.20230709181230-4ec5acb2c369/go.mod h1:evxEgkPX36H5n/qcQoKsAYPoGKHaTQE7QD6M53izG9o=
+micro.dev/v4 v3.19.1-0.20230709181230-4ec5acb2c369 h1:cHsMe6R4pZIKIIzfNJ8T1ImPL387GVKxl+8j/gBHG0c=
+micro.dev/v4 v3.19.1-0.20230709181230-4ec5acb2c369/go.mod h1:evxEgkPX36H5n/qcQoKsAYPoGKHaTQE7QD6M53izG9o=
 github.com/miekg/dns v1.1.43 h1:JKfpVSCB84vrAmHzyrsxB5NAr5kLoMXZArPSw7Qlgyg=
 github.com/miekg/dns v1.1.43/go.mod h1:+evo5L0630/F6ca/Z9+GAqzhjGyn8/c+TBaOyfEl0V4=
 github.com/nightlyone/lockfile v1.0.0 h1:RHep2cFKK4PonZJDdEl4GmkabuhbsRMgk/k3uAmxBiA=

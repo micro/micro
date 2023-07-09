@@ -3,12 +3,12 @@ package server
 import (
 	"time"
 
-	pb "github.com/micro/micro/v3/proto/broker"
-	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/broker"
-	"github.com/micro/micro/v3/service/broker/handler"
-	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
+	pb "micro.dev/v4/proto/broker"
+	"micro.dev/v4/service"
+	"micro.dev/v4/service/broker"
+	"micro.dev/v4/service/broker/handler"
+	"micro.dev/v4/service/logger"
 )
 
 var (

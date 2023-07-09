@@ -18,7 +18,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/micro/micro/v3/service/registry"
+	"micro.dev/v4/service/registry"
 )
 
 func TestRemove(t *testing.T) {

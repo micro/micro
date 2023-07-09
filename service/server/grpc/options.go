@@ -21,12 +21,12 @@ import (
 	"crypto/tls"
 	"net"
 
-	"github.com/micro/micro/v3/service/broker/memory"
-	memReg "github.com/micro/micro/v3/service/registry/memory"
-	"github.com/micro/micro/v3/service/server"
-	"github.com/micro/micro/v3/util/codec"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
+	"micro.dev/v4/service/broker/memory"
+	memReg "micro.dev/v4/service/registry/memory"
+	"micro.dev/v4/service/server"
+	"micro.dev/v4/util/codec"
 )
 
 type codecsKey struct{}

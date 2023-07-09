@@ -6,15 +6,15 @@ package network
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/micro/micro/v3/proto/router"
 	math "math"
+	_ "micro.dev/v4/proto/router"
 )
 
 import (
 	context "context"
-	api "github.com/micro/micro/v3/service/api"
-	client "github.com/micro/micro/v3/service/client"
-	server "github.com/micro/micro/v3/service/server"
+	api "micro.dev/v4/service/api"
+	client "micro.dev/v4/service/client"
+	server "micro.dev/v4/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

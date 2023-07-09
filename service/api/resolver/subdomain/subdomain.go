@@ -23,9 +23,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/micro/micro/v3/service/api/resolver"
-	"github.com/micro/micro/v3/service/logger"
 	"golang.org/x/net/publicsuffix"
+	"micro.dev/v4/service/api/resolver"
+	"micro.dev/v4/service/logger"
 )
 
 func NewResolver(parent resolver.Resolver, opts ...resolver.Option) resolver.Resolver {

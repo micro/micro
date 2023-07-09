@@ -21,10 +21,10 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/micro/micro/v3/proto/api"
-	"github.com/micro/micro/v3/service/api/auth"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/util/auth/namespace"
+	"micro.dev/v4/proto/api"
+	"micro.dev/v4/service/api/auth"
+	"micro.dev/v4/service/errors"
+	"micro.dev/v4/util/auth/namespace"
 )
 
 // Handler represents a HTTP handler that manages a request

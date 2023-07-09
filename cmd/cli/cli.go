@@ -8,20 +8,20 @@ import (
 	"strings"
 
 	"github.com/chzyer/readline"
-	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/cmd/cli/util"
 	"github.com/urfave/cli/v2"
+	"micro.dev/v4/cmd"
+	"micro.dev/v4/cmd/cli/util"
 
-	_ "github.com/micro/micro/v3/cmd/cli/auth"
-	_ "github.com/micro/micro/v3/cmd/cli/config"
-	_ "github.com/micro/micro/v3/cmd/cli/gen"
-	_ "github.com/micro/micro/v3/cmd/cli/init"
-	_ "github.com/micro/micro/v3/cmd/cli/network"
-	_ "github.com/micro/micro/v3/cmd/cli/new"
-	_ "github.com/micro/micro/v3/cmd/cli/run"
-	_ "github.com/micro/micro/v3/cmd/cli/shutdown"
-	_ "github.com/micro/micro/v3/cmd/cli/store"
-	_ "github.com/micro/micro/v3/cmd/cli/user"
+	_ "micro.dev/v4/cmd/cli/auth"
+	_ "micro.dev/v4/cmd/cli/config"
+	_ "micro.dev/v4/cmd/cli/gen"
+	_ "micro.dev/v4/cmd/cli/init"
+	_ "micro.dev/v4/cmd/cli/network"
+	_ "micro.dev/v4/cmd/cli/new"
+	_ "micro.dev/v4/cmd/cli/run"
+	_ "micro.dev/v4/cmd/cli/shutdown"
+	_ "micro.dev/v4/cmd/cli/store"
+	_ "micro.dev/v4/cmd/cli/user"
 )
 
 var (

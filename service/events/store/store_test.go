@@ -18,8 +18,8 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/micro/micro/v3/service/events"
 	"github.com/stretchr/testify/assert"
+	"micro.dev/v4/service/events"
 )
 
 func TestStore(t *testing.T) {

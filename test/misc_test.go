@@ -77,7 +77,7 @@ func testNew(t *T) {
 				t.Fatal(string(outp))
 				return
 			}
-			if _, err := f.WriteString("\nreplace github.com/micro/micro/v3 => ../.."); err != nil {
+			if _, err := f.WriteString("\nreplace micro.dev/v4 => ../.."); err != nil {
 				t.Fatal(string(outp))
 				return
 			}

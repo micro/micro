@@ -4,7 +4,7 @@
     <a href="https://goreportcard.com/report/github.com/micro/micro">
     <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/micro/micro">
     </a>
-	<a href="https://pkg.go.dev/github.com/micro/micro/v3?tab=doc"><img
+	<a href="https://pkg.go.dev/micro.dev/v4?tab=doc"><img
     alt="Go.Dev reference"
     src="https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white"></a>
     <a href="https://opensource.org/licenses/Apache-2.0"><img
@@ -91,7 +91,7 @@ and `micro user set [namespace]`.
 ### From Source
 
 ```
-go install github.com/micro/micro/v3@latest
+go install micro.dev/v4@latest
 ```
 
 ### Docker Image
@@ -288,7 +288,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/micro/micro/v3/service"
+	"micro.dev/v4/service"
 	pb "github.com/micro/services/helloworld/proto"
 )
 

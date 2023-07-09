@@ -3,12 +3,12 @@ package client
 import (
 	"time"
 
-	pb "github.com/micro/micro/v3/proto/registry"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/registry/util"
+	pb "micro.dev/v4/proto/registry"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/context"
+	"micro.dev/v4/service/errors"
+	"micro.dev/v4/service/registry"
+	"micro.dev/v4/service/registry/util"
 )
 
 var name = "registry"

@@ -21,7 +21,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/micro/micro/v3/service/server"
+	"micro.dev/v4/service/server"
 )
 
 type MockServer struct {

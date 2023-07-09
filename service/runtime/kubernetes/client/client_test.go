@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/micro/micro/v3/service/runtime"
+	"micro.dev/v4/service/runtime"
 
-	"github.com/micro/micro/v3/service/runtime/kubernetes/api"
-	"github.com/micro/micro/v3/test/fakes"
+	"micro.dev/v4/service/runtime/kubernetes/api"
+	"micro.dev/v4/test/fakes"
 
 	. "github.com/onsi/gomega"
 )

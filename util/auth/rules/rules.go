@@ -21,7 +21,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/micro/micro/v3/service/auth"
+	"micro.dev/v4/service/auth"
 )
 
 // VerifyAccess an account has access to a resource using the rules provided. If the account does not have

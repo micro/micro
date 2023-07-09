@@ -12,10 +12,10 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/micro/micro/v3/cmd"
-	tmpl "github.com/micro/micro/v3/cmd/cli/new/template"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
+	"micro.dev/v4/cmd"
+	tmpl "micro.dev/v4/cmd/cli/new/template"
 )
 
 func protoComments(goDir, alias string) []string {

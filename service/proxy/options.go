@@ -18,8 +18,8 @@
 package proxy
 
 import (
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/router"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/router"
 )
 
 type Options struct {

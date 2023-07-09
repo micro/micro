@@ -19,8 +19,8 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/micro/micro/v3/service/store"
 	"github.com/stretchr/testify/assert"
+	"micro.dev/v4/service/store"
 )
 
 func TestBlobStore(t *testing.T) {

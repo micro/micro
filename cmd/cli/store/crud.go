@@ -10,11 +10,11 @@ import (
 	"unicode/utf8"
 
 	"github.com/dustin/go-humanize"
-	"github.com/micro/micro/v3/cmd/cli/util"
-	"github.com/micro/micro/v3/service/store"
-	"github.com/micro/micro/v3/util/namespace"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
+	"micro.dev/v4/cmd/cli/util"
+	"micro.dev/v4/service/store"
+	"micro.dev/v4/util/namespace"
 )
 
 // read gets something from the store

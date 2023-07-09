@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package runtime;
 
-option go_package = "github.com/micro/micro/v3/proto/runtime;runtime";
+option go_package = "micro.dev/v4/proto/runtime;runtime";
 
 service Runtime {
 	rpc Create(CreateRequest) returns (CreateResponse) {};

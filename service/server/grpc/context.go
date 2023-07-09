@@ -19,7 +19,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/server"
+	"micro.dev/v4/service/server"
 )
 
 func setServerOption(k, v interface{}) server.Option {

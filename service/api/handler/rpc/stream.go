@@ -28,14 +28,14 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	pbapi "github.com/micro/micro/v3/proto/api"
-	"github.com/micro/micro/v3/service/api"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
-	raw "github.com/micro/micro/v3/util/codec/bytes"
-	"github.com/micro/micro/v3/util/router"
+	pbapi "micro.dev/v4/proto/api"
+	"micro.dev/v4/service/api"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/context/metadata"
+	"micro.dev/v4/service/errors"
+	"micro.dev/v4/service/logger"
+	raw "micro.dev/v4/util/codec/bytes"
+	"micro.dev/v4/util/router"
 )
 
 const (

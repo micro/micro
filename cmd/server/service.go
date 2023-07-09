@@ -1,20 +1,20 @@
 package server
 
 import (
-	"github.com/micro/micro/v3/cmd"
 	ccli "github.com/urfave/cli/v2"
+	"micro.dev/v4/cmd"
 
 	// services
-	api "github.com/micro/micro/v3/service/api/server"
-	auth "github.com/micro/micro/v3/service/auth/server"
-	broker "github.com/micro/micro/v3/service/broker/server"
-	config "github.com/micro/micro/v3/service/config/server"
-	events "github.com/micro/micro/v3/service/events/server"
-	network "github.com/micro/micro/v3/service/network/server"
-	proxy "github.com/micro/micro/v3/service/proxy/server"
-	registry "github.com/micro/micro/v3/service/registry/server"
-	runtime "github.com/micro/micro/v3/service/runtime/server"
-	store "github.com/micro/micro/v3/service/store/server"
+	api "micro.dev/v4/service/api/server"
+	auth "micro.dev/v4/service/auth/server"
+	broker "micro.dev/v4/service/broker/server"
+	config "micro.dev/v4/service/config/server"
+	events "micro.dev/v4/service/events/server"
+	network "micro.dev/v4/service/network/server"
+	proxy "micro.dev/v4/service/proxy/server"
+	registry "micro.dev/v4/service/registry/server"
+	runtime "micro.dev/v4/service/runtime/server"
+	store "micro.dev/v4/service/store/server"
 )
 
 type srvCommand struct {

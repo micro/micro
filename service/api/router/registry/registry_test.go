@@ -19,8 +19,8 @@ package registry
 import (
 	"testing"
 
-	"github.com/micro/micro/v3/service/registry"
 	"github.com/stretchr/testify/assert"
+	"micro.dev/v4/service/registry"
 )
 
 func TestStoreRegex(t *testing.T) {

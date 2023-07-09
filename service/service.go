@@ -9,11 +9,11 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/model"
-	"github.com/micro/micro/v3/service/server"
+	"micro.dev/v4/cmd"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/logger"
+	"micro.dev/v4/service/model"
+	"micro.dev/v4/service/server"
 )
 
 var (

@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/service/store"
 	"github.com/pkg/errors"
+	"micro.dev/v4/service/store"
 )
 
 // Snapshot creates snapshots of a go-micro store

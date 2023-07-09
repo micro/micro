@@ -9,10 +9,10 @@ import (
 	"sync"
 	"time"
 
-	pb "github.com/micro/micro/v3/proto/store"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/store"
-	"github.com/micro/micro/v3/util/auth/namespace"
+	pb "micro.dev/v4/proto/store"
+	"micro.dev/v4/service/errors"
+	"micro.dev/v4/service/store"
+	"micro.dev/v4/util/auth/namespace"
 )
 
 const (

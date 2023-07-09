@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/micro/micro/v3/service/store"
 	"github.com/pkg/errors"
+	"micro.dev/v4/service/store"
 )
 
 // Restore emits records from a go-micro store snapshot

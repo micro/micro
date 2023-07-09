@@ -4,13 +4,13 @@ import (
 	"context"
 	"time"
 
-	pb "github.com/micro/micro/v3/proto/registry"
-	"github.com/micro/micro/v3/service"
-	log "github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/registry/handler"
-	"github.com/micro/micro/v3/service/registry/util"
 	"github.com/urfave/cli/v2"
+	pb "micro.dev/v4/proto/registry"
+	"micro.dev/v4/service"
+	log "micro.dev/v4/service/logger"
+	"micro.dev/v4/service/registry"
+	"micro.dev/v4/service/registry/handler"
+	"micro.dev/v4/service/registry/util"
 )
 
 var (

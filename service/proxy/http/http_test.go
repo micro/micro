@@ -23,13 +23,13 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/micro/micro/v3/service/client"
-	cgrpc "github.com/micro/micro/v3/service/client/grpc"
-	"github.com/micro/micro/v3/service/registry/memory"
-	"github.com/micro/micro/v3/service/router"
-	"github.com/micro/micro/v3/service/router/registry"
-	"github.com/micro/micro/v3/service/server"
-	sgrpc "github.com/micro/micro/v3/service/server/grpc"
+	"micro.dev/v4/service/client"
+	cgrpc "micro.dev/v4/service/client/grpc"
+	"micro.dev/v4/service/registry/memory"
+	"micro.dev/v4/service/router"
+	"micro.dev/v4/service/router/registry"
+	"micro.dev/v4/service/server"
+	sgrpc "micro.dev/v4/service/server/grpc"
 )
 
 type testHandler struct{}

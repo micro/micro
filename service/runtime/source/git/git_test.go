@@ -24,7 +24,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/micro/micro/v3/test/fakes"
+	"micro.dev/v4/test/fakes"
 
 	"github.com/onsi/gomega/types"
 

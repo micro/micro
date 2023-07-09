@@ -4,7 +4,7 @@ package network;
 
 import "github.com/micro/micro/proto/router/router.proto";
 
-option go_package = "github.com/micro/micro/v3/proto/network;network";
+option go_package = "micro.dev/v4/proto/network;network";
 
 // Network service is usesd to gain visibility into networks
 service Network {

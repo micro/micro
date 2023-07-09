@@ -4,8 +4,8 @@ package muxer
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/proxy"
-	"github.com/micro/micro/v3/service/server"
+	"micro.dev/v4/service/proxy"
+	"micro.dev/v4/service/server"
 )
 
 // Server is a proxy muxer that incudes the use of the DefaultHandler

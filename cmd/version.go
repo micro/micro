@@ -6,7 +6,7 @@ var (
 	GitTag    string
 	BuildDate string
 
-	version    = "latest"
+	version = "latest"
 )
 
 func buildVersion() string {

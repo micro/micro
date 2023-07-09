@@ -15,7 +15,7 @@
 package roundrobin
 
 import (
-	"github.com/micro/micro/v3/util/selector"
+	"micro.dev/v4/util/selector"
 )
 
 // NewSelector returns an initalised round robin selector

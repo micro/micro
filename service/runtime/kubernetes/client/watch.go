@@ -21,7 +21,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/micro/micro/v3/service/runtime/kubernetes/api"
+	"micro.dev/v4/service/runtime/kubernetes/api"
 )
 
 const (

@@ -11,9 +11,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/store"
 	"github.com/stoewer/go-strcase"
+	"micro.dev/v4/service/auth"
+	"micro.dev/v4/service/store"
 )
 
 type model struct {

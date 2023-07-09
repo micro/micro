@@ -19,7 +19,7 @@ package rules
 import (
 	"testing"
 
-	"github.com/micro/micro/v3/service/auth"
+	"micro.dev/v4/service/auth"
 )
 
 func TestVerify(t *testing.T) {

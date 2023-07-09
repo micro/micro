@@ -5,7 +5,7 @@ This is protobuf code generation for micro. We use protoc-gen-micro to reduce bo
 ## Install
 
 ```
-go get github.com/micro/micro/v3/cmd/protoc-gen-micro@master
+go get micro.dev/v4/cmd/protoc-gen-micro@master
 ```
 
 Also required: 
@@ -112,7 +112,7 @@ message Response {
 }
 ```
 
-The proto generates a `RegisterGreeterHandler` function with a [api.Endpoint](https://godoc.org/github.com/micro/micro/v3/service/api#Endpoint). 
+The proto generates a `RegisterGreeterHandler` function with a [api.Endpoint](https://godoc.org/micro.dev/v4/service/api#Endpoint). 
 
 ```diff
 func RegisterGreeterHandler(s server.Server, hdlr GreeterHandler, opts ...server.HandlerOption) error {
