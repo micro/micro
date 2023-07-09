@@ -30,7 +30,6 @@ import (
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/server"
-	"github.com/micro/micro/v3/util/acme"
 	"github.com/micro/micro/v3/util/codec"
 	"github.com/micro/micro/v3/util/codec/bytes"
 	"github.com/micro/micro/v3/util/codec/jsonrpc"
@@ -74,14 +73,13 @@ type Server interface {
 }
 
 type Options struct {
-	EnableACME   bool
-	EnableCORS   bool
-	ACMEProvider acme.Provider
-	EnableTLS    bool
-	ACMEHosts    []string
-	TLSConfig    *tls.Config
-	Resolver     resolver.Resolver
-	Wrappers     []Wrapper
+	EnableACME bool
+	EnableCORS bool
+	EnableTLS  bool
+	ACMEHosts  []string
+	TLSConfig  *tls.Config
+	Resolver   resolver.Resolver
+	Wrappers   []Wrapper
 }
 
 type Option func(*Options)
@@ -97,24 +95,6 @@ func WrapHandler(w ...Wrapper) Option {
 func EnableCORS(b bool) Option {
 	return func(o *Options) {
 		o.EnableCORS = b
-	}
-}
-
-func EnableACME(b bool) Option {
-	return func(o *Options) {
-		o.EnableACME = b
-	}
-}
-
-func ACMEHosts(hosts ...string) Option {
-	return func(o *Options) {
-		o.ACMEHosts = hosts
-	}
-}
-
-func ACMEProvider(p acme.Provider) Option {
-	return func(o *Options) {
-		o.ACMEProvider = p
 	}
 }
 
