@@ -2,14 +2,13 @@ module github.com/micro/micro/service/runtime/cells/go/loader
 
 go 1.20
 
-require github.com/micro/micro/v3 v3.19.0
+require github.com/micro/micro/v3 v3.19.1-0.20230709181230-4ec5acb2c369
 
 require (
 	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/evanphx/json-patch/v5 v5.5.0 // indirect
-	github.com/go-acme/lego/v3 v3.4.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang-jwt/jwt v0.0.0-20210529014511-0f726ea0e725 // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -27,7 +26,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/quic-go/qtls-go1-19 v0.3.2 // indirect
 	github.com/quic-go/qtls-go1-20 v0.2.2 // indirect
-	github.com/quic-go/quic-go v0.35.2-0.20230604200428-e1bcedc78cfe // indirect
+	github.com/quic-go/quic-go v0.36.1 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
