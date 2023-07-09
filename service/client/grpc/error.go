@@ -17,8 +17,8 @@
 package grpc
 
 import (
-	"github.com/micro/micro/v3/service/errors"
 	"google.golang.org/grpc/status"
+	"micro.dev/v4/service/errors"
 )
 
 func microError(err error) error {

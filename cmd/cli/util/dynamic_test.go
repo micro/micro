@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	goregistry "github.com/micro/micro/v3/service/registry"
+	goregistry "micro.dev/v4/service/registry"
 )
 
 type parseCase struct {

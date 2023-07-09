@@ -6,14 +6,14 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/server"
-	inauth "github.com/micro/micro/v3/util/auth"
-	"github.com/micro/micro/v3/util/cache"
+	"micro.dev/v4/service/auth"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/context/metadata"
+	"micro.dev/v4/service/errors"
+	"micro.dev/v4/service/logger"
+	"micro.dev/v4/service/server"
+	inauth "micro.dev/v4/util/auth"
+	"micro.dev/v4/util/cache"
 )
 
 type authWrapper struct {

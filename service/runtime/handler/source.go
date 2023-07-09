@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"io"
 
-	pb "github.com/micro/micro/v3/proto/runtime"
-	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/store"
+	pb "micro.dev/v4/proto/runtime"
+	"micro.dev/v4/service/auth"
+	"micro.dev/v4/service/errors"
+	"micro.dev/v4/service/store"
 )
 
 const (

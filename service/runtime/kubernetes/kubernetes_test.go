@@ -26,8 +26,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/micro/micro/v3/service/runtime"
 	"github.com/stretchr/testify/assert"
+	"micro.dev/v4/service/runtime"
 )
 
 func setupClient(t *testing.T) {

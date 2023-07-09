@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v3/service/runtime/source/git"
 	"github.com/onsi/gomega/types"
+	"micro.dev/v4/service/runtime/source/git"
 
 	. "github.com/onsi/gomega"
 
-	"github.com/micro/micro/v3/test/fakes"
+	"micro.dev/v4/test/fakes"
 )
 
 func TestFmtDuration(t *testing.T) {

@@ -25,14 +25,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/micro/micro/v3/service/api"
-	"github.com/micro/micro/v3/service/api/handler"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/util/codec/bytes"
-	"github.com/micro/micro/v3/util/ctx"
+	"micro.dev/v4/service/api"
+	"micro.dev/v4/service/api/handler"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/context/metadata"
+	"micro.dev/v4/service/errors"
+	"micro.dev/v4/service/logger"
+	"micro.dev/v4/util/codec/bytes"
+	"micro.dev/v4/util/ctx"
 )
 
 const (

@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/gofrs/uuid"
-	fs "github.com/micro/micro/v3/service/store/file"
+	fs "micro.dev/v4/service/store/file"
 )
 
 type User struct {

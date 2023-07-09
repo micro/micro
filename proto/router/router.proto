@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package router;
 
-option go_package = "github.com/micro/micro/v3/proto/router;router";
+option go_package = "micro.dev/v4/proto/router;router";
 
 // Router service is used by the proxy to lookup routes
 service Router {

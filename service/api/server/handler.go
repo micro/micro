@@ -4,17 +4,17 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/micro/micro/v3/service/api"
-	"github.com/micro/micro/v3/service/api/handler"
-	"github.com/micro/micro/v3/service/api/router"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/errors"
+	"micro.dev/v4/service/api"
+	"micro.dev/v4/service/api/handler"
+	"micro.dev/v4/service/api/router"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/errors"
 
-	aapi "github.com/micro/micro/v3/service/api/handler/api"
-	"github.com/micro/micro/v3/service/api/handler/event"
-	ahttp "github.com/micro/micro/v3/service/api/handler/http"
-	"github.com/micro/micro/v3/service/api/handler/rpc"
-	"github.com/micro/micro/v3/service/api/handler/web"
+	aapi "micro.dev/v4/service/api/handler/api"
+	"micro.dev/v4/service/api/handler/event"
+	ahttp "micro.dev/v4/service/api/handler/http"
+	"micro.dev/v4/service/api/handler/rpc"
+	"micro.dev/v4/service/api/handler/web"
 )
 
 type metaHandler struct {

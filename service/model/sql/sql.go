@@ -11,9 +11,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
-	"github.com/micro/micro/v3/service/config"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/util/user"
+	"micro.dev/v4/service/config"
+	"micro.dev/v4/service/logger"
+	"micro.dev/v4/util/user"
 )
 
 // The sql DB

@@ -17,8 +17,8 @@ package roundrobin
 import (
 	"testing"
 
-	"github.com/micro/micro/v3/util/selector"
 	"github.com/stretchr/testify/assert"
+	"micro.dev/v4/util/selector"
 )
 
 func TestRoundRobin(t *testing.T) {

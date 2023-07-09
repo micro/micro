@@ -1,8 +1,8 @@
 package util
 
 import (
-	pb "github.com/micro/micro/v3/proto/registry"
-	"github.com/micro/micro/v3/service/registry"
+	pb "micro.dev/v4/proto/registry"
+	"micro.dev/v4/service/registry"
 )
 
 func values(v []*registry.Value) []*pb.Value {

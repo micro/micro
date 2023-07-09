@@ -7,12 +7,12 @@ import (
 	"reflect"
 	"time"
 
-	pb "github.com/micro/micro/v3/proto/store"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context"
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/store"
+	pb "micro.dev/v4/proto/store"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/context"
+	"micro.dev/v4/service/context/metadata"
+	"micro.dev/v4/service/errors"
+	"micro.dev/v4/service/store"
 )
 
 type srv struct {

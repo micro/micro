@@ -1,11 +1,11 @@
 package store
 
 import (
-	pb "github.com/micro/micro/v3/proto/store"
-	"github.com/micro/micro/v3/service"
-	log "github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/store/handler"
 	"github.com/urfave/cli/v2"
+	pb "micro.dev/v4/proto/store"
+	"micro.dev/v4/service"
+	log "micro.dev/v4/service/logger"
+	"micro.dev/v4/service/store/handler"
 )
 
 var (

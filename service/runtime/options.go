@@ -18,7 +18,7 @@ import (
 	"context"
 	"io"
 
-	"github.com/micro/micro/v3/service/client"
+	"micro.dev/v4/service/client"
 )
 
 type Option func(o *Options)

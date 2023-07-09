@@ -16,8 +16,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v3/util/namespace"
-	"github.com/micro/micro/v3/util/user"
+	"micro.dev/v4/util/namespace"
+	"micro.dev/v4/util/user"
 )
 
 const (

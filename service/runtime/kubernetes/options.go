@@ -3,7 +3,7 @@ package kubernetes
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/runtime"
+	"micro.dev/v4/service/runtime"
 )
 
 type runtimeClassNameKey struct{}

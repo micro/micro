@@ -18,11 +18,11 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/micro/micro/v3/service/events"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/store"
-	"github.com/micro/micro/v3/service/store/memory"
 	"github.com/pkg/errors"
+	"micro.dev/v4/service/events"
+	"micro.dev/v4/service/logger"
+	"micro.dev/v4/service/store"
+	"micro.dev/v4/service/store/memory"
 )
 
 const joinKey = "/"

@@ -24,11 +24,11 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
-	"github.com/micro/micro/v3/util/codec"
-	"github.com/micro/micro/v3/util/codec/bytes"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/metadata"
+	"micro.dev/v4/util/codec"
+	"micro.dev/v4/util/codec/bytes"
 )
 
 type jsonCodec struct{}

@@ -17,7 +17,7 @@ package file
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/store"
+	"micro.dev/v4/service/store"
 )
 
 type dirKey struct{}

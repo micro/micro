@@ -7,15 +7,15 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/micro/micro/v3/service/api"
-	"github.com/micro/micro/v3/service/api/resolver"
-	"github.com/micro/micro/v3/service/api/resolver/subdomain"
-	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/config"
-	"github.com/micro/micro/v3/service/logger"
-	inauth "github.com/micro/micro/v3/util/auth"
-	"github.com/micro/micro/v3/util/ctx"
-	"github.com/micro/micro/v3/util/namespace"
+	"micro.dev/v4/service/api"
+	"micro.dev/v4/service/api/resolver"
+	"micro.dev/v4/service/api/resolver/subdomain"
+	"micro.dev/v4/service/auth"
+	"micro.dev/v4/service/config"
+	"micro.dev/v4/service/logger"
+	inauth "micro.dev/v4/util/auth"
+	"micro.dev/v4/util/ctx"
+	"micro.dev/v4/util/namespace"
 )
 
 // Wrapper wraps a handler and authenticates requests

@@ -24,7 +24,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/micro/micro/v3/service/logger"
+	"micro.dev/v4/service/logger"
 )
 
 // Request is used to construct a http request for the k8s API.

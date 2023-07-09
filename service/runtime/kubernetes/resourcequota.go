@@ -1,9 +1,9 @@
 package kubernetes
 
 import (
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/kubernetes/client"
+	"micro.dev/v4/service/logger"
+	"micro.dev/v4/service/runtime"
+	"micro.dev/v4/service/runtime/kubernetes/client"
 )
 
 // createResourceQuota creates a resourcequota resource

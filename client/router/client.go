@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"sync"
 
-	pb "github.com/micro/micro/v3/proto/router"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/router"
+	pb "micro.dev/v4/proto/router"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/context"
+	"micro.dev/v4/service/errors"
+	"micro.dev/v4/service/router"
 )
 
 var (

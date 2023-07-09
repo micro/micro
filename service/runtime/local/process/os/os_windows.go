@@ -21,7 +21,7 @@ import (
 	"os/exec"
 	"strconv"
 
-	"github.com/micro/micro/v3/service/runtime/local/process"
+	"micro.dev/v4/service/runtime/local/process"
 )
 
 func (p *Process) Exec(exe *process.Binary) error {

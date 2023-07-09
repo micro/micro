@@ -17,7 +17,7 @@
 package resolver
 
 import (
-	"github.com/micro/micro/v3/service/registry"
+	"micro.dev/v4/service/registry"
 )
 
 type Options struct {

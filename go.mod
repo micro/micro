@@ -1,4 +1,4 @@
-module github.com/micro/micro/v3
+module micro.dev/v4
 
 go 1.20
 

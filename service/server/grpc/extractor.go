@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/micro/micro/v3/service/registry"
+	"micro.dev/v4/service/registry"
 )
 
 func extractValue(v reflect.Type, d int) *registry.Value {

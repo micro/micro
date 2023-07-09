@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/cmd/cli/util"
-	proto "github.com/micro/micro/v3/proto/config"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context"
-	log "github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/util/helper"
-	"github.com/micro/micro/v3/util/namespace"
 	"github.com/urfave/cli/v2"
+	"micro.dev/v4/cmd"
+	"micro.dev/v4/cmd/cli/util"
+	proto "micro.dev/v4/proto/config"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/context"
+	log "micro.dev/v4/service/logger"
+	"micro.dev/v4/util/helper"
+	"micro.dev/v4/util/namespace"
 )
 
 func setConfig(ctx *cli.Context) error {

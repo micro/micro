@@ -22,12 +22,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/broker"
-	"github.com/micro/micro/v3/service/broker/memory"
-	"github.com/micro/micro/v3/service/registry"
-	memReg "github.com/micro/micro/v3/service/registry/memory"
-	"github.com/micro/micro/v3/util/codec"
+	"micro.dev/v4/service/auth"
+	"micro.dev/v4/service/broker"
+	"micro.dev/v4/service/broker/memory"
+	"micro.dev/v4/service/registry"
+	memReg "micro.dev/v4/service/registry/memory"
+	"micro.dev/v4/util/codec"
 )
 
 type Options struct {

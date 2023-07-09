@@ -2,7 +2,7 @@ module github.com/micro/micro/service/runtime/cells/go/loader
 
 go 1.20
 
-require github.com/micro/micro/v3 v3.19.1-0.20230709181230-4ec5acb2c369
+require micro.dev/v4 v3.19.1-0.20230709181230-4ec5acb2c369
 
 require (
 	github.com/bitly/go-simplejson v0.5.0 // indirect

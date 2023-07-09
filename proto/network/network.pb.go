@@ -7,9 +7,9 @@ import (
 	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	router "github.com/micro/micro/v3/proto/router"
 	grpc "google.golang.org/grpc"
 	math "math"
+	router "micro.dev/v4/proto/router"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

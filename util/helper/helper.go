@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/urfave/cli/v2"
+	"micro.dev/v4/service/context/metadata"
 )
 
 func RequestToContext(r *http.Request) context.Context {

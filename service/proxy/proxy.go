@@ -20,7 +20,7 @@ package proxy
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/server"
+	"micro.dev/v4/service/server"
 )
 
 // Proxy can be used as a proxy server for go-micro services

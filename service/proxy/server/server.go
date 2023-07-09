@@ -3,19 +3,19 @@ package server
 import (
 	"strings"
 
-	"github.com/micro/micro/v3/service"
-	bmem "github.com/micro/micro/v3/service/broker/memory"
-	muclient "github.com/micro/micro/v3/service/client"
-	log "github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/proxy"
-	"github.com/micro/micro/v3/service/proxy/grpc"
-	"github.com/micro/micro/v3/service/proxy/http"
-	"github.com/micro/micro/v3/service/registry/noop"
-	murouter "github.com/micro/micro/v3/service/router"
-	"github.com/micro/micro/v3/service/server"
-	sgrpc "github.com/micro/micro/v3/service/server/grpc"
-	"github.com/micro/micro/v3/util/muxer"
 	"github.com/urfave/cli/v2"
+	"micro.dev/v4/service"
+	bmem "micro.dev/v4/service/broker/memory"
+	muclient "micro.dev/v4/service/client"
+	log "micro.dev/v4/service/logger"
+	"micro.dev/v4/service/proxy"
+	"micro.dev/v4/service/proxy/grpc"
+	"micro.dev/v4/service/proxy/http"
+	"micro.dev/v4/service/registry/noop"
+	murouter "micro.dev/v4/service/router"
+	"micro.dev/v4/service/server"
+	sgrpc "micro.dev/v4/service/server/grpc"
+	"micro.dev/v4/util/muxer"
 )
 
 var (

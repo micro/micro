@@ -3,13 +3,13 @@ package server
 import (
 	"os"
 
-	pb "github.com/micro/micro/v3/proto/runtime"
-	"github.com/micro/micro/v3/service"
-	log "github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/handler"
-	"github.com/micro/micro/v3/service/runtime/manager"
 	"github.com/urfave/cli/v2"
+	pb "micro.dev/v4/proto/runtime"
+	"micro.dev/v4/service"
+	log "micro.dev/v4/service/logger"
+	"micro.dev/v4/service/runtime"
+	"micro.dev/v4/service/runtime/handler"
+	"micro.dev/v4/service/runtime/manager"
 )
 
 var (

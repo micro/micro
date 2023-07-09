@@ -23,12 +23,12 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/micro/micro/v3/service/broker"
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/server"
+	"micro.dev/v4/service/broker"
+	"micro.dev/v4/service/context/metadata"
+	"micro.dev/v4/service/errors"
+	"micro.dev/v4/service/logger"
+	"micro.dev/v4/service/registry"
+	"micro.dev/v4/service/server"
 )
 
 const (

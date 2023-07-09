@@ -25,9 +25,9 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/micro/micro/v3/service/api"
-	"github.com/micro/micro/v3/service/api/handler"
-	"github.com/micro/micro/v3/service/registry"
+	"micro.dev/v4/service/api"
+	"micro.dev/v4/service/api/handler"
+	"micro.dev/v4/service/registry"
 )
 
 const (

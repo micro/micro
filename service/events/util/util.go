@@ -3,8 +3,8 @@ package util
 import (
 	"time"
 
-	pb "github.com/micro/micro/v3/proto/events"
-	"github.com/micro/micro/v3/service/events"
+	pb "micro.dev/v4/proto/events"
+	"micro.dev/v4/service/events"
 )
 
 func SerializeEvent(ev *events.Event) *pb.Event {

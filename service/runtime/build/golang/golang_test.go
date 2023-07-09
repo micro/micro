@@ -12,8 +12,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/micro/micro/v3/service/runtime/build"
 	"github.com/stretchr/testify/assert"
+	"micro.dev/v4/service/runtime/build"
 )
 
 var (

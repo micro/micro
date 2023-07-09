@@ -20,7 +20,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/micro/v3/util/backoff"
+	"micro.dev/v4/util/backoff"
 )
 
 type BackoffFunc func(ctx context.Context, req Request, attempts int) (time.Duration, error)

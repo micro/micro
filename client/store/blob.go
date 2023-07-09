@@ -6,10 +6,10 @@ import (
 	"io"
 	"net/http"
 
-	pb "github.com/micro/micro/v3/proto/store"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/store"
+	pb "micro.dev/v4/proto/store"
+	"micro.dev/v4/service/client"
+	"micro.dev/v4/service/errors"
+	"micro.dev/v4/service/store"
 )
 
 const bufferSize = 1024

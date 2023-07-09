@@ -17,8 +17,8 @@
 package mock
 
 import (
-	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/server"
+	"micro.dev/v4/service/registry"
+	"micro.dev/v4/service/server"
 )
 
 type MockSubscriber struct {

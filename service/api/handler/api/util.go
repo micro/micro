@@ -23,8 +23,8 @@ import (
 	"net/http"
 	"strings"
 
-	api "github.com/micro/micro/v3/proto/api"
 	"github.com/oxtoacart/bpool"
+	api "micro.dev/v4/proto/api"
 )
 
 var (
