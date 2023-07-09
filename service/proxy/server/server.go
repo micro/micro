@@ -10,7 +10,6 @@ import (
 	"github.com/micro/micro/v3/service/proxy"
 	"github.com/micro/micro/v3/service/proxy/grpc"
 	"github.com/micro/micro/v3/service/proxy/http"
-	"github.com/micro/micro/v3/service/proxy/mucp"
 	"github.com/micro/micro/v3/service/registry/noop"
 	murouter "github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/server"
@@ -66,9 +65,6 @@ func Run(ctx *cli.Context) error {
 			Protocol = "grpc"
 		case strings.HasPrefix(Endpoint, "http://"):
 			Protocol = "http"
-		case strings.HasPrefix(Endpoint, "mucp://"):
-			ep = strings.TrimPrefix(Endpoint, "mucp://")
-			Protocol = "mucp"
 		}
 
 		popts = append(popts, proxy.WithEndpoint(ep))
@@ -89,8 +85,6 @@ func Run(ctx *cli.Context) error {
 	case "http":
 		p = http.NewProxy(popts...)
 		// TODO: http server
-	case "mucp":
-		p = mucp.NewProxy(popts...)
 	default:
 		// default to the grpc proxy
 		p = grpc.NewProxy(popts...)

@@ -24,12 +24,12 @@ import (
 	"testing"
 
 	"github.com/micro/micro/v3/service/client"
-	cmucp "github.com/micro/micro/v3/service/client/mucp"
+	cgrpc "github.com/micro/micro/v3/service/client/grpc"
 	"github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/router/registry"
 	"github.com/micro/micro/v3/service/server"
-	"github.com/micro/micro/v3/service/server/mucp"
+	sgrpc "github.com/micro/micro/v3/service/server/grpc"
 )
 
 type testHandler struct{}
@@ -76,7 +76,7 @@ func TestHTTPProxy(t *testing.T) {
 	)
 
 	// new micro service
-	service := mucp.NewServer(
+	service := sgrpc.NewServer(
 		server.Context(ctx),
 		server.Name("foobar"),
 		server.Registry(reg),
@@ -90,7 +90,7 @@ func TestHTTPProxy(t *testing.T) {
 	// server
 	go http.Serve(c, nil)
 
-	cl := cmucp.NewClient(
+	cl := cgrpc.NewClient(
 		client.Router(rtr),
 	)
 
