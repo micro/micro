@@ -25,8 +25,6 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/broker/memory"
-	"github.com/micro/micro/v3/service/network/transport"
-	thttp "github.com/micro/micro/v3/service/network/transport/http"
 	"github.com/micro/micro/v3/service/registry"
 	memReg "github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/micro/v3/util/codec"
@@ -37,7 +35,6 @@ type Options struct {
 	Broker       broker.Broker
 	Registry     registry.Registry
 	Auth         auth.Auth
-	Transport    transport.Transport
 	Metadata     map[string]string
 	Name         string
 	Address      string
@@ -84,10 +81,6 @@ func newOptions(opt ...Option) Options {
 
 	if opts.Registry == nil {
 		opts.Registry = memReg.NewRegistry()
-	}
-
-	if opts.Transport == nil {
-		opts.Transport = thttp.NewTransport()
 	}
 
 	if opts.RegisterCheck == nil {
@@ -192,13 +185,6 @@ func Auth(a auth.Auth) Option {
 	}
 }
 
-// Transport mechanism for communication e.g http, rabbitmq, etc
-func Transport(t transport.Transport) Option {
-	return func(o *Options) {
-		o.Transport = t
-	}
-}
-
 // Metadata associated with the server
 func Metadata(md map[string]string) Option {
 	return func(o *Options) {
@@ -232,18 +218,6 @@ func TLSConfig(t *tls.Config) Option {
 	return func(o *Options) {
 		// set the internal tls
 		o.TLSConfig = t
-
-		// set the default transport if one is not
-		// already set. Required for Init call below.
-		if o.Transport == nil {
-			o.Transport = thttp.NewTransport()
-		}
-
-		// set the transport tls
-		o.Transport.Init(
-			transport.Secure(true),
-			transport.TLSConfig(t),
-		)
 	}
 }
 

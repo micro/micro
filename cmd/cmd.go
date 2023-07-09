@@ -50,7 +50,6 @@ import (
 	runtimeSrv "github.com/micro/micro/v3/client/runtime"
 	storeSrv "github.com/micro/micro/v3/client/store"
 	grpcCli "github.com/micro/micro/v3/service/client/grpc"
-	mucpNet "github.com/micro/micro/v3/service/network/mucp"
 	grpcSvr "github.com/micro/micro/v3/service/server/grpc"
 )
 
@@ -250,7 +249,6 @@ func init() {
 func setupDefaults() {
 	client.DefaultClient = grpcCli.NewClient()
 	server.DefaultServer = grpcSvr.NewServer()
-	network.DefaultNetwork = mucpNet.NewNetwork()
 
 	// setup rpc implementations after the client is configured
 	auth.DefaultAuth = authSrv.NewAuth()

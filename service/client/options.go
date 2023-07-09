@@ -22,8 +22,6 @@ import (
 
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/broker/memory"
-	"github.com/micro/micro/v3/service/network/transport"
-	thttp "github.com/micro/micro/v3/service/network/transport/http"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/router"
 	regRouter "github.com/micro/micro/v3/service/router/registry"
@@ -39,11 +37,10 @@ type Options struct {
 	Proxy string
 
 	// Plugged interfaces
-	Broker    broker.Broker
-	Codecs    map[string]codec.NewCodec
-	Router    router.Router
-	Selector  selector.Selector
-	Transport transport.Transport
+	Broker   broker.Broker
+	Codecs   map[string]codec.NewCodec
+	Router   router.Router
+	Selector selector.Selector
 
 	// Lookup used for looking up routes
 	Lookup LookupFunc
@@ -128,15 +125,13 @@ func NewOptions(options ...Option) Options {
 			Retry:          DefaultRetry,
 			Retries:        DefaultRetries,
 			RequestTimeout: DefaultRequestTimeout,
-			DialTimeout:    transport.DefaultDialTimeout,
 		},
-		Lookup:    LookupRoute,
-		PoolSize:  DefaultPoolSize,
-		PoolTTL:   DefaultPoolTTL,
-		Broker:    memory.NewBroker(),
-		Router:    regRouter.NewRouter(),
-		Selector:  roundrobin.NewSelector(),
-		Transport: thttp.NewTransport(),
+		Lookup:   LookupRoute,
+		PoolSize: DefaultPoolSize,
+		PoolTTL:  DefaultPoolTTL,
+		Broker:   memory.NewBroker(),
+		Router:   regRouter.NewRouter(),
+		Selector: roundrobin.NewSelector(),
 	}
 
 	for _, o := range options {
@@ -185,13 +180,6 @@ func PoolSize(d int) Option {
 func PoolTTL(d time.Duration) Option {
 	return func(o *Options) {
 		o.PoolTTL = d
-	}
-}
-
-// Transport to use for communication e.g http, rabbitmq, etc
-func Transport(t transport.Transport) Option {
-	return func(o *Options) {
-		o.Transport = t
 	}
 }
 
