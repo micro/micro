@@ -27,6 +27,7 @@ import (
 	"github.com/hpcloud/tail"
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/runtime"
+	"micro.dev/v4/util/user"
 )
 
 // defaultNamespace to use if not provided as an option
@@ -34,9 +35,9 @@ const defaultNamespace = "micro"
 
 var (
 	// The directory for logs to be output
-	LogDir = filepath.Join(os.TempDir(), "micro", "logs")
+	LogDir = filepath.Join(user.Dir, "logs")
 	// The source directory where code lives
-	SourceDir = filepath.Join(os.TempDir(), "micro", "uploads")
+	SourceDir = filepath.Join(user.Dir, "uploads")
 )
 
 type localRuntime struct {

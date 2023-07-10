@@ -20,7 +20,7 @@ require (
 	github.com/kr/pretty v0.3.0
 	github.com/nightlyone/lockfile v1.0.0
 	github.com/olekukonko/tablewriter v0.0.4
-	github.com/onsi/gomega v1.27.6
+	github.com/onsi/gomega v1.10.0
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
@@ -63,7 +63,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.7 // indirect
 	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/onsi/ginkgo v1.7.0 // indirect
-	github.com/onsi/ginkgo/v2 v2.9.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect

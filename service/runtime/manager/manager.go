@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -20,6 +19,7 @@ import (
 	"micro.dev/v4/service/runtime/source/git"
 	"micro.dev/v4/service/store"
 	"micro.dev/v4/util/namespace"
+	"micro.dev/v4/util/user"
 )
 
 const (
@@ -355,7 +355,7 @@ func (m *manager) checkoutBlobSource(srv *service) (string, error) {
 		return "", err
 	}
 
-	dir, err := ioutil.TempDir(os.TempDir(), "blob-*")
+	dir, err := ioutil.TempDir(user.Dir, "blob-*")
 	if err != nil {
 		return "", err
 	}

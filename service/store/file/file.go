@@ -24,6 +24,7 @@ import (
 
 	bolt "go.etcd.io/bbolt"
 	"micro.dev/v4/service/store"
+	"micro.dev/v4/util/user"
 )
 
 var (
@@ -33,7 +34,7 @@ var (
 	// DefaultTable when none is specified
 	DefaultTable = "micro"
 	// DefaultDir is the default directory for bbolt files
-	DefaultDir = filepath.Join(os.TempDir(), "micro", "store")
+	DefaultDir = filepath.Join(user.Dir, "store")
 
 	// bucket used for data storage
 	dataBucket = "data"

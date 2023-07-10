@@ -21,7 +21,7 @@ vendor:
 	go mod vendor
 
 build:
-	go build -a -installsuffix cgo -ldflags "-s -w ${LDFLAGS}" -o $(NAME)
+	go build -a -installsuffix cgo -ldflags "-s -w ${LDFLAGS}" -o $(NAME) cmd/micro/main.go
 
 docker:
 	docker buildx build --platform linux/amd64 --platform linux/arm64 --tag $(IMAGE_NAME):$(IMAGE_TAG) --tag $(IMAGE_NAME):latest --push .

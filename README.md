@@ -91,7 +91,7 @@ and `micro user set [namespace]`.
 ### From Source
 
 ```
-go install micro.dev/v4@latest
+go install -o micro micro.dev/v4/cmd/micro@latest
 ```
 
 ### Docker Image
