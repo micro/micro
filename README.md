@@ -389,7 +389,7 @@ new micro.Client({ token: process.env.TOKEN })
 
 For more see the [getting started](https://micro.dev/getting-started) guide.
 
-## Web Dashboard
+## Micro Web
 
 Use services via the web with the Micro Web dashboard
 
@@ -397,13 +397,9 @@ Use services via the web with the Micro Web dashboard
 micro web
 ```
 
-Browse to `localhost:8082`
+Browse to [localhost:8082](http://localhost:8082)
 
-## License
-
-See [LICENSE](LICENSE) which makes use of [Apache 2.0](https://opensource.org/licenses/Apache-2.0).
-
-## Development
+## Dev Environment
 
 [1 click deploy](https://marketplace.digitalocean.com/apps/micro) a Micro Dev environment on a DigitalOcean Droplet
 
