@@ -259,7 +259,7 @@ $ micro helloworld call --name=Jane
 }
 ```
 
-Curl it
+### Call via API
 
 ```
 curl "http://localhost:8080/helloworld?name=John"
@@ -322,16 +322,18 @@ Run it
 micro run .
 ```
 
-### Write an api client
+### Call via Client
 
-An api client is an external app or client which makes requests through the micro api
+An api client is an app or client which makes requests through the micro api
 
-Get a token
+Get your user token
+
 ```
 export TOKEN=`micro user token`
 ```
 
 Call helloworld
+
 ```go
 package main
 
