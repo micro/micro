@@ -228,7 +228,7 @@ Or from a git url
 micro run github.com/micro/services/helloworld
 ```
 
-### Check status of running service
+### Check service status
 
 ```sh
 $ micro status
@@ -236,7 +236,7 @@ NAME		VERSION	SOURCE					STATUS	BUILD	UPDATED	METADATA
 helloworld	latest	github.com/micro/services/helloworld	running	n/a	4s ago	owner=admin, group=micro
 ```
 
-### View logs of the service to verify it's running.
+### View service logs
 
 ```sh
 $ micro logs helloworld
