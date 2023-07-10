@@ -250,7 +250,7 @@ $ micro logs helloworld
 2020-10-06 17:52:21  file=grpc/grpc.go:732 level=info Registry [service] Registering node: helloworld-67627b23-3336-4b92-a032-09d8d13ecf95
 ```
 
-### Call the service
+### Call via CLI
 
 ```sh
 $ micro helloworld call --name=Jane
@@ -265,9 +265,9 @@ Curl it
 curl "http://localhost:8080/helloworld?name=John"
 ```
 
-### Write a client
+### Call via RPC
 
-A service client is used within another service and must be run by micro
+An RPC client is used within a service and must be run by micro
 
 ```go
 package main
