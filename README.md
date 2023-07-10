@@ -322,7 +322,7 @@ Run it
 micro run .
 ```
 
-### Call via Client
+### Call via Go
 
 An api client is an app or client which makes requests through the micro api
 
@@ -378,6 +378,18 @@ Run it
 
 ```
 go run main.go
+```
+
+### Call via JS
+
+```
+const micro = require('micro-js-client');
+
+new micro.Client({ token: process.env.TOKEN })
+  .call('helloworld', 'Call', {"name": "Alice"})
+  .then((response) => {
+    console.log(response);
+  });
 ```
 
 For more see the [getting started](https://micro.dev/getting-started) guide.
