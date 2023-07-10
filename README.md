@@ -265,7 +265,7 @@ Curl it
 curl "http://localhost:8080/helloworld?name=John"
 ```
 
-### Write a service client
+### Write a client
 
 A service client is used within another service and must be run by micro
 
