@@ -30,8 +30,8 @@ Below are the core components that make up Micro.
 
 ### Server
 
-Micro is built as a microkernel architecture, which abstracts away the complexity of the underlying infrastructure. It's composed 
-as a single logical server for the end user but behind the scenes is decomposed as a set of separate services.
+Micro is built as a microkernel architecture. It abstracts away the complexity of the underlying infrastructure by providing
+a set of building block services compose as a single logical server for the end user to consume.
 
 The server is composed of the following services.
 
