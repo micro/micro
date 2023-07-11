@@ -63,7 +63,7 @@ Configured and initialised by default, just import it and get started.
 ### Command Line
 
 The command line interface includes dynamic command mapping for all services running on the platform. It turns any service instantly into a CLI command along with flag parsing 
-for inputs. Includes support for multiple environments and namespaces, automatic refreshing of auth credentials, creating and running services, status info and logs.
+for inputs. Includes support for environments, namespaces, creating and running services, status info and logs.
 
 ### Environments
 
