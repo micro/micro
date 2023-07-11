@@ -46,11 +46,13 @@ The server consists of the following services.
 
 ### API
 
-The server embeds a HTTP API gateway (on port 8080) which can be used to make requests as simple JSON.
+The server embeds a HTTP API gateway (on port 8080) which can be used to make requests as simple JSON. 
+The API automatically maps HTTP Paths and POST requests to internal RPC service names and endpoints.
 
 ### Proxy
 
-Additionally there's a gRPC proxy (on port 8081) which used to make requests via the CLI or externally.
+Additionally there's a gRPC proxy (on port 8081) which used to make requests via the CLI or externally. 
+The proxy is identity aware which means it can be used to gatekeep remote access to Micro running anywhere.
 
 ### Framework
 
