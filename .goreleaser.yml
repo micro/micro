@@ -30,13 +30,6 @@ builds:
     goarch: arm64
 archives:
 - name_template: '{{.ProjectName}}-{{.Tag}}-{{.Os}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}'
-  replacements:
-    darwin: darwin
-    linux: linux
-    windows: windows
-    amd64: amd64
-    arm: arm
-    arm64: arm64
   format: tar.gz
   format_overrides:
   - goos: windows
