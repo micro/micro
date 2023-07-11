@@ -44,6 +44,14 @@ The server consists of the following services.
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
 
+### API
+
+The server embeds a HTTP API gateway (on port 8080) which can be used to make requests as simple JSON.
+
+### Proxy
+
+Additionally there's a gRPC proxy (on port 8081) which used to make requests via the CLI or externally.
+
 ### Framework
 
 Micro comes with a built in Go framework for service based development. 
