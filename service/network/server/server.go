@@ -7,11 +7,12 @@ import (
 	"micro.dev/v4/service"
 	"micro.dev/v4/service/client"
 	log "micro.dev/v4/service/logger"
-	"micro.dev/v4/service/proxy"
-	grpcProxy "micro.dev/v4/service/proxy/grpc"
 	"micro.dev/v4/service/router"
 	"micro.dev/v4/service/server"
+	"micro.dev/v4/service/server/grpc"
 	"micro.dev/v4/util/muxer"
+	"micro.dev/v4/util/proxy"
+	grpcProxy "micro.dev/v4/util/proxy/grpc"
 )
 
 var (
@@ -20,9 +21,9 @@ var (
 	// name of the micro network
 	networkName = "micro"
 	// address is the network address
-	address = ":8443"
-	// peerAddress is the address the network peers on
-	peerAddress = ":8085"
+	address = ":8085"
+	// netAddress is the rpc address
+	netAddress = ":8443"
 
 	// Flags specific to the network
 	Flags = []cli.Flag{
@@ -51,9 +52,6 @@ func Run(ctx *cli.Context) error {
 	}
 	if len(ctx.String("address")) > 0 {
 		address = ctx.String("address")
-	}
-	if len(ctx.String("peer_address")) > 0 {
-		peerAddress = ctx.String("peer_address")
 	}
 	if len(ctx.String("network")) > 0 {
 		networkName = ctx.String("network")
@@ -93,17 +91,25 @@ func Run(ctx *cli.Context) error {
 	// local mux
 	localMux := muxer.New(name, localProxy)
 
-	// init the local grpc server
-	service.Server().Init(
+	// set the handler
+	srv := grpc.NewServer(
+		server.Name(name),
+		server.Address(netAddress),
 		server.WithRouter(localMux),
 	)
 
-	log.Infof("Network [%s] listening on %s", networkName, peerAddress)
+	// start the grpc server
+	if err := srv.Start(); err != nil {
+		log.Fatal("Error starting network: %v", err)
+	}
+
+	log.Infof("Network [%s] listening on %s", networkName, netAddress)
 
 	if err := service.Run(); err != nil {
 		log.Errorf("Network %s failed: %v", networkName, err)
 		os.Exit(1)
 	}
 
-	return nil
+	// stop the grpc server
+	return srv.Stop()
 }

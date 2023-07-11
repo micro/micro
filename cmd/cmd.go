@@ -30,7 +30,6 @@ import (
 	"micro.dev/v4/service/network"
 	"micro.dev/v4/service/profile"
 	"micro.dev/v4/service/registry"
-	"micro.dev/v4/service/router"
 	"micro.dev/v4/service/runtime"
 	"micro.dev/v4/service/server"
 	"micro.dev/v4/service/store"
@@ -46,7 +45,6 @@ import (
 	brokerSrv "micro.dev/v4/client/broker"
 	eventsSrv "micro.dev/v4/client/events"
 	registrySrv "micro.dev/v4/client/registry"
-	routerSrv "micro.dev/v4/client/router"
 	runtimeSrv "micro.dev/v4/client/runtime"
 	storeSrv "micro.dev/v4/client/store"
 	grpcCli "micro.dev/v4/service/client/grpc"
@@ -256,7 +254,6 @@ func setupDefaults() {
 	events.DefaultStream = eventsSrv.NewStream()
 	events.DefaultStore = eventsSrv.NewStore()
 	registry.DefaultRegistry = registrySrv.NewRegistry()
-	router.DefaultRouter = routerSrv.NewRouter()
 	store.DefaultStore = storeSrv.NewStore()
 	store.DefaultBlobStore = storeSrv.NewBlobStore()
 	runtime.DefaultRuntime = runtimeSrv.NewRuntime()

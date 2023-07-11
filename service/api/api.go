@@ -27,7 +27,6 @@ import (
 	jsonpatch "github.com/evanphx/json-patch/v5"
 
 	"github.com/oxtoacart/bpool"
-	"micro.dev/v4/service/api/resolver"
 	"micro.dev/v4/service/context/metadata"
 	"micro.dev/v4/service/registry"
 	"micro.dev/v4/service/server"
@@ -78,7 +77,6 @@ type Options struct {
 	EnableTLS  bool
 	ACMEHosts  []string
 	TLSConfig  *tls.Config
-	Resolver   resolver.Resolver
 	Wrappers   []Wrapper
 }
 
@@ -110,16 +108,12 @@ func TLSConfig(t *tls.Config) Option {
 	}
 }
 
-func Resolver(r resolver.Resolver) Option {
-	return func(o *Options) {
-		o.Resolver = r
-	}
-}
-
 // Endpoint is a mapping between an RPC method and HTTP endpoint
 type Endpoint struct {
 	// RPC Method e.g. Greeter.Hello
 	Name string
+	// Domain
+	Domain string
 	// Description e.g what's this endpoint for
 	Description string
 	// API Handler e.g rpc, proxy
@@ -129,7 +123,7 @@ type Endpoint struct {
 	// HTTP Methods e.g GET, POST
 	Method []string
 	// HTTP Path e.g /greeter. Expect POSIX regex
-	Path []string
+	Path string
 	// Body destination
 	// "*" or "" - top level message value
 	// "string" - inner message value
@@ -142,6 +136,8 @@ type Endpoint struct {
 type Service struct {
 	// Name of service
 	Name string
+	// Domain of the service
+	Domain string
 	// The endpoint for this service
 	Endpoint *Endpoint
 	// Versions of this service
@@ -169,7 +165,7 @@ func Encode(e *Endpoint) map[string]string {
 	set("description", e.Description)
 	set("handler", e.Handler)
 	set("method", strings.Join(e.Method, ","))
-	set("path", strings.Join(e.Path, ","))
+	set("path", e.Path)
 	set("host", strings.Join(e.Host, ","))
 
 	return ep
@@ -185,7 +181,7 @@ func Decode(e map[string]string) *Endpoint {
 		Name:        e["endpoint"],
 		Description: e["description"],
 		Method:      slice(e["method"]),
-		Path:        slice(e["path"]),
+		Path:        e["path"],
 		Host:        slice(e["host"]),
 		Handler:     e["handler"],
 	}
@@ -201,22 +197,10 @@ func Validate(e *Endpoint) error {
 		return errors.New("name required")
 	}
 
-	for _, p := range e.Path {
-		ps := p[0]
-		pe := p[len(p)-1]
-
-		if ps == '^' && pe == '$' {
-			_, err := regexp.CompilePOSIX(p)
-			if err != nil {
-				return err
-			}
-		} else if ps == '^' && pe != '$' {
-			return errors.New("invalid path")
-		} else if ps != '^' && pe == '$' {
-			return errors.New("invalid path")
-		}
+	_, err := regexp.CompilePOSIX(e.Path)
+	if err != nil {
+		return err
 	}
-
 	if len(e.Handler) == 0 {
 		return errors.New("invalid handler")
 	}

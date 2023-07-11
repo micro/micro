@@ -28,7 +28,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	pbapi "micro.dev/v4/proto/api"
 	"micro.dev/v4/service/api"
 	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/context/metadata"
@@ -190,20 +189,7 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 				}
 				return
 			}
-			var bufOut string
-			var apiRsp pbapi.Response
-			if err := json.Unmarshal(buf, &apiRsp); err == nil && apiRsp.StatusCode > 0 {
-				// bit of a hack. If the response is actually an api response we want to set the headers and status code
-				for _, v := range apiRsp.Header {
-					for _, s := range v.Values {
-						w.Header().Add(v.Key, s)
-					}
-				}
-				w.WriteHeader(int(apiRsp.StatusCode))
-				bufOut = apiRsp.Body
-			} else {
-				bufOut = string(buf)
-			}
+			bufOut := string(buf)
 
 			// send the buffer
 			_, err = fmt.Fprint(w, bufOut)

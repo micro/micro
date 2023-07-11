@@ -69,6 +69,8 @@ type registryRouter struct {
 
 	sync.RWMutex
 	namespaces map[string]*namespaceEntry
+
+	resolver *apiResolver
 }
 
 func getDomain(srv *registry.Service) string {
@@ -239,7 +241,7 @@ func (r *registryRouter) store(namespace string, services []*registry.Service) {
 			// try get endpoint
 			ep, ok := eps[key]
 			if !ok {
-				ep = &api.Service{Name: service.Name}
+				ep = &api.Service{Name: service.Name, Domain: namespace}
 			}
 
 			// overwrite the endpoint
@@ -296,37 +298,33 @@ func (r *registryRouter) store(namespace string, services []*registry.Service) {
 			cep.hostregs = append(cep.hostregs, hostreg)
 		}
 
-		for _, p := range ep.Endpoint.Path {
-			var pcreok bool
+		p := ep.Endpoint.Path
+		var pcreok bool
 
-			if p[0] == '^' && p[len(p)-1] == '$' {
-				pcrereg, err := regexp.CompilePOSIX(p)
-				if err == nil {
-					cep.pcreregs = append(cep.pcreregs, pcrereg)
-					pcreok = true
-				}
-			}
-
-			rule, err := util.Parse(p)
-			if err != nil && !pcreok {
-				if logger.V(logger.TraceLevel, logger.DefaultLogger) {
-					logger.Tracef("endpoint have invalid path pattern: %v", err)
-				}
-				continue
-			} else if err != nil && pcreok {
-				continue
-			}
-
-			tpl := rule.Compile()
-			pathreg, err := util.NewPattern(tpl.Version, tpl.OpCodes, tpl.Pool, "")
-			if err != nil {
-				if logger.V(logger.TraceLevel, logger.DefaultLogger) {
-					logger.Tracef("endpoint have invalid path pattern: %v", err)
-				}
-				continue
-			}
-			cep.pathregs = append(cep.pathregs, pathreg)
+		if pcrereg, err := regexp.CompilePOSIX(p); err == nil {
+			cep.pcreregs = append(cep.pcreregs, pcrereg)
+			pcreok = true
 		}
+
+		rule, err := util.Parse(p)
+		if err != nil && !pcreok {
+			if logger.V(logger.TraceLevel, logger.DefaultLogger) {
+				logger.Tracef("endpoint have invalid path pattern: %v", err)
+			}
+			continue
+		} else if err != nil && pcreok {
+			continue
+		}
+
+		tpl := rule.Compile()
+		pathreg, err := util.NewPattern(tpl.Version, tpl.OpCodes, tpl.Pool, "")
+		if err != nil {
+			if logger.V(logger.TraceLevel, logger.DefaultLogger) {
+				logger.Tracef("endpoint have invalid path pattern: %v", err)
+			}
+			continue
+		}
+		cep.pathregs = append(cep.pathregs, pathreg)
 
 		nse.ceps[name] = cep
 	}
@@ -396,14 +394,6 @@ func (r *registryRouter) Close() error {
 	return nil
 }
 
-func (r *registryRouter) Register(ep *api.Endpoint) error {
-	return nil
-}
-
-func (r *registryRouter) Deregister(ep *api.Endpoint) error {
-	return nil
-}
-
 func (r *registryRouter) Endpoint(req *http.Request) (*api.Service, error) {
 	if r.isClosed() {
 		return nil, errors.New("router closed")
@@ -416,10 +406,7 @@ func (r *registryRouter) Endpoint(req *http.Request) (*api.Service, error) {
 	path := strings.Split(req.URL.Path[idx:], "/")
 
 	// resolve so we can get the namespace
-	rp, err := r.opts.Resolver.Resolve(req)
-	if err != nil {
-		return nil, err
-	}
+	rp := r.resolver.Resolve(req)
 	var ret *api.Service
 	r.RLock()
 	nse, ok := r.namespaces[rp.Domain]
@@ -546,12 +533,10 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 	// TODO: don't ignore that shit
 
 	// get the service name
-	rp, err := r.opts.Resolver.Resolve(req)
-	if err != nil {
-		return nil, err
-	}
+	rp := r.resolver.Resolve(req)
 	// service name
 	name := rp.Name
+	domain := rp.Domain
 
 	// trigger an endpoint refresh
 	select {
@@ -565,43 +550,17 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 		return nil, err
 	}
 
-	// only use endpoint matching when the meta handler is set aka api.Default
-	switch r.opts.Handler {
-	// rpc handlers
-	case "meta", "api", "rpc":
-		handler := r.opts.Handler
-
-		// set default handler to api
-		if r.opts.Handler == "meta" {
-			handler = "rpc"
-		}
-
-		// construct api service
-		return &api.Service{
-			Name: name,
-			Endpoint: &api.Endpoint{
-				Name:    rp.Method,
-				Handler: handler,
-			},
-			Services: services,
-		}, nil
-	// http handler
-	case "http", "proxy", "web":
-		// construct api service
-		return &api.Service{
-			Name: name,
-			Endpoint: &api.Endpoint{
-				Name:    req.URL.String(),
-				Handler: r.opts.Handler,
-				Host:    []string{req.Host},
-				Method:  []string{req.Method},
-				Path:    []string{req.URL.Path},
-			},
-			Services: services,
-		}, nil
-	}
-
-	return nil, errors.New("unknown handler")
+	// construct api service
+	return &api.Service{
+		Name:   name,
+		Domain: domain,
+		Endpoint: &api.Endpoint{
+			Name:    rp.Method,
+			Domain: domain,
+			Handler: "rpc",
+		},
+		Services: services,
+	}, nil
 }
 
 func newRouter(opts ...router.Option) *registryRouter {
@@ -610,6 +569,7 @@ func newRouter(opts ...router.Option) *registryRouter {
 		exit:        make(chan bool),
 		refreshChan: make(chan string),
 		opts:        options,
+		resolver: new(apiResolver),
 		rc:          cache.New(options.Registry),
 		namespaces: map[string]*namespaceEntry{
 			namespace.DefaultNamespace: &namespaceEntry{

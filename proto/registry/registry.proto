@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package registry;
 
-option go_package = "micro.dev/v4/proto/registry;registry";
+option go_package = "github.com/micro/micro/proto/registry;registry";
 
 service Registry {
 	rpc GetService(GetRequest) returns (GetResponse) {};

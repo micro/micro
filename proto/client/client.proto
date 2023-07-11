@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package client;
 
-option go_package = "micro.dev/v4/proto/client;client";
+option go_package = "github.com/micro/micro/proto/client;client";
 
 // Client is the micro client interface
 service Client {

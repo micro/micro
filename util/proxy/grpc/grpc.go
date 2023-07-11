@@ -27,10 +27,10 @@ import (
 	grpcc "micro.dev/v4/service/client/grpc"
 	"micro.dev/v4/service/errors"
 	"micro.dev/v4/service/logger"
-	"micro.dev/v4/service/proxy"
 	"micro.dev/v4/service/server"
 	"micro.dev/v4/util/codec"
 	"micro.dev/v4/util/codec/bytes"
+	"micro.dev/v4/util/proxy"
 )
 
 // Proxy will transparently proxy requests to an endpoint.
