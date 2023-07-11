@@ -132,16 +132,13 @@ See what's running:
 
 ```sh
 $ micro services
-api
 auth
 broker
 config
 events
 network
-proxy
 registry
 runtime
-server
 store
 ```
 
