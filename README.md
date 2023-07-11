@@ -28,7 +28,7 @@ Micro is API first development platform. It addresses the core requirements for 
 
 Below are the core components that make up Micro.
 
-**Server**
+### Server
 
 Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
 this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
@@ -45,19 +45,19 @@ The server is composed of the following services.
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
 
-**Framework**
+### Framework
 
 Micro comes with a built in Go framework for service based development. 
 The framework makes it drop dead simple to write your services without having to piece together endless lines of boilerplate code. Auto 
 configured and initialised by default, just import and get started quickly.
 
-**Command Line**
+### Command Line
 
 Micro brings not only a rich architectural model but a command line experience tailored for that need. The command line interface includes 
 dynamic command mapping for all services running on the platform. Turns any service instantly into a CLI command along with flag parsing 
 for inputs. Includes support for multiple environments and namespaces, automatic refreshing of auth credentials, creating and running services, status info and logs.
 
-**Environments**
+### Environments
 
 Micro bakes in the concept of `Environments` and multi-tenancy through `Namespaces`. Run your server locally for 
 development and in the cloud for staging and production, seamlessly switch between them using the CLI commands `micro env set [environment]` 
