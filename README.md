@@ -31,9 +31,9 @@ Below are the core components that make up Micro.
 ### Server
 
 Micro is built as a microkernel architecture. It abstracts away the complexity of the underlying infrastructure by providing
-a set of building block services compose as a single logical server for the end user to consume.
+a set of building block services composed as a single logical server for the end user to consume.
 
-The server is composed of the following services.
+The server consists of the following services.
 
 - **Auth** - Authentication and authorization out of the box using JWT tokens and rule based access control.
 - **Broker** - Ephemeral pubsub messaging for asynchronous communication and distributing notifications
