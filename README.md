@@ -67,7 +67,7 @@ for inputs. Includes support for environments, namespaces, creating and running 
 
 ### Remote Environments
 
-Micro bakes in the concept of remote `Environments`. Run your server locally for development and in the cloud for staging and production, 
+Micro bakes in the concept of `Environments`. Run your server locally for development and in the cloud for staging and production, 
 seamlessly switch between them using the CLI commands `micro env set [environment]`.
 
 ## Install
