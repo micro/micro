@@ -102,7 +102,6 @@ curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.
 
 The server starts with a single command ready to use
 
-### Local
 ```sh
 micro server
 ```
