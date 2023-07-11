@@ -59,8 +59,7 @@ configured and initialised by default, just import and get started quickly.
 
 Micro brings not only a rich architectural model but a command line experience tailored for that need. The command line interface includes 
 dynamic command mapping for all services running on the platform. Turns any service instantly into a CLI command along with flag parsing 
-for inputs. Includes support for multiple environments and namespaces, automatic refreshing of auth credentials, creating and running 
-services, status info and log streaming, plus much, much more.
+for inputs. Includes support for multiple environments and namespaces, automatic refreshing of auth credentials, creating and running services, status info and logs.
 
 **Environments**
 
