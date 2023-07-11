@@ -10,7 +10,7 @@ import (
 // it uses proxy routing to resolve names
 // /foo becomes namespace.foo
 // /v1/foo becomes namespace.v1.foo
-type apiResolver struct {}
+type apiResolver struct{}
 
 func (r *apiResolver) Resolve(req *http.Request) *Endpoint {
 	// get route
@@ -26,14 +26,14 @@ func (r *apiResolver) Resolve(req *http.Request) *Endpoint {
 	}
 
 	return &Endpoint{
-		Name: service,
+		Name:   service,
 		Method: endpoint,
 		Domain: domain,
 	}
 }
 
 type Endpoint struct {
-	Name string
+	Name   string
 	Method string
 	Domain string
 }

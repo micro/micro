@@ -556,7 +556,7 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 		Domain: domain,
 		Endpoint: &api.Endpoint{
 			Name:    rp.Method,
-			Domain: domain,
+			Domain:  domain,
 			Handler: "rpc",
 		},
 		Services: services,
@@ -569,7 +569,7 @@ func newRouter(opts ...router.Option) *registryRouter {
 		exit:        make(chan bool),
 		refreshChan: make(chan string),
 		opts:        options,
-		resolver: new(apiResolver),
+		resolver:    new(apiResolver),
 		rc:          cache.New(options.Registry),
 		namespaces: map[string]*namespaceEntry{
 			namespace.DefaultNamespace: &namespaceEntry{
