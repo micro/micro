@@ -15,7 +15,6 @@ import (
 	"micro.dev/v4/service/runtime"
 	"micro.dev/v4/service/runtime/build"
 	"micro.dev/v4/service/runtime/build/util/tar"
-	kclient "micro.dev/v4/service/runtime/kubernetes/client"
 	"micro.dev/v4/service/runtime/source/git"
 	"micro.dev/v4/service/store"
 	"micro.dev/v4/util/namespace"
@@ -658,7 +657,7 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		}
 
 		// the service might still be building and not have been created in the underlying runtime yet
-		rs, ok := rSrvMap[kclient.Format(s.Service.Name)+":"+kclient.Format(s.Service.Version)]
+		rs, ok := rSrvMap[s.Service.Name+":"+s.Service.Version]
 		if !ok {
 			continue
 		}
