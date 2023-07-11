@@ -359,7 +359,7 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 	key := fmt.Sprintf("%s.%s", rp.Name, rp.Method)
 
 	r.Lock()
-	namespace, ok := r.namespaces[key]
+	namespace, ok := r.namespaces[rp.Domain]
 	r.Unlock()
 
 	// got the namespace
