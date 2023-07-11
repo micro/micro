@@ -306,8 +306,6 @@ micro run .
 
 ### Call via Go
 
-An api client is an app or client which makes requests through the micro api
-
 Get your user token
 
 ```
