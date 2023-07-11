@@ -29,11 +29,6 @@ var (
 		"proxy",    // :8081
 		"api",      // :8080
 	}
-
-	// list the clients managed
-	clients = []string{
-		"web",
-	}
 )
 
 var (
@@ -155,25 +150,6 @@ func Run(context *cli.Context) error {
 		// NOTE: we use Version right now to check for the latest release
 		muService := &runtime.Service{Name: service, Version: "latest"}
 		if err := runtimeServer.Create(muService, args...); err != nil {
-			log.Errorf("Failed to create runtime environment: %v", err)
-			return err
-		}
-	}
-
-	// start the clients
-	for _, client := range clients {
-		log.Infof("Registering %s", client)
-
-		// runtime based on environment we run the service in
-		args := []runtime.CreateOption{
-			runtime.WithCommand(os.Args[0]),
-			runtime.WithArgs(client),
-			runtime.WithRetries(10),
-		}
-
-		// NOTE: we use Version right now to check for the latest release
-		srv := &runtime.Service{Name: client, Version: "latest"}
-		if err := runtimeServer.Create(srv, args...); err != nil {
 			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
 		}
