@@ -62,8 +62,7 @@ Configured and initialised by default, just import it and get started.
 
 ### Command Line
 
-Micro brings not only a rich architectural model but a command line experience tailored for that need. The command line interface includes 
-dynamic command mapping for all services running on the platform. Turns any service instantly into a CLI command along with flag parsing 
+The command line interface includes dynamic command mapping for all services running on the platform. It turns any service instantly into a CLI command along with flag parsing 
 for inputs. Includes support for multiple environments and namespaces, automatic refreshing of auth credentials, creating and running services, status info and logs.
 
 ### Environments
