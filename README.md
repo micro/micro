@@ -369,6 +369,8 @@ new micro.Client({ token: process.env.TOKEN })
   });
 ```
 
+## Get Started
+
 For more see the [getting started](https://micro.dev/getting-started) guide.
 
 ## Micro Web
@@ -381,7 +383,7 @@ micro web
 
 Browse to [localhost:8082](http://localhost:8082)
 
-## Dev Environment
+## Dev Env
 
 [1 click deploy](https://marketplace.digitalocean.com/apps/micro) a Micro Dev environment on a DigitalOcean Droplet
 
