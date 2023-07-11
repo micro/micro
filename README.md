@@ -18,7 +18,7 @@
     src="https://img.shields.io/badge/twitter-follow-blue.svg"></a>    
 </p>
 
-Micro is API first development platform. It addresses the core requirements for building services in the cloud by providing a set of services which act as the building blocks of any platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
+Micro is an API first development platform. It addresses the core requirements for building apps in the cloud by providing a set of services which act as the building blocks of any platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
 ## Overview
 
@@ -30,9 +30,8 @@ Below are the core components that make up Micro.
 
 ### Server
 
-Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
-this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
-into any underlying system.
+Micro is built as a microkernel architecture, which abstracts away the complexity of the underlying infrastructure. It's composed 
+as a single logical server for the end user but behind the scenes is decomposed into building block services that run as separate processes.
 
 The server is composed of the following services.
 
