@@ -22,13 +22,11 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 
 	"micro.dev/v4/service/api"
 	"micro.dev/v4/service/api/router"
-	"micro.dev/v4/service/context/metadata"
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/registry"
 	"micro.dev/v4/service/registry/cache"
@@ -52,8 +50,6 @@ type endpoint struct {
 type namespaceEntry struct {
 	sync.RWMutex
 	eps map[string]*api.Service
-	// compiled regexp for host and path
-	ceps map[string]*endpoint
 }
 
 // router is the default router
@@ -257,8 +253,7 @@ func (r *registryRouter) store(namespace string, services []*registry.Service) {
 	nse, ok := r.namespaces[namespace]
 	if !ok {
 		nse = &namespaceEntry{
-			eps:  map[string]*api.Service{},
-			ceps: map[string]*endpoint{},
+			eps: map[string]*api.Service{},
 		}
 		r.namespaces[namespace] = nse
 	}
@@ -279,55 +274,13 @@ func (r *registryRouter) store(namespace string, services []*registry.Service) {
 		delete(nse.eps, key)
 	}
 
-	// now set the eps we have
+	// set eps
 	for name, ep := range eps {
 		nse.eps[name] = ep
-		cep := &endpoint{}
-
-		for _, h := range ep.Endpoint.Host {
-			if h == "" || h == "*" {
-				continue
-			}
-			hostreg, err := regexp.CompilePOSIX(h)
-			if err != nil {
-				if logger.V(logger.TraceLevel, logger.DefaultLogger) {
-					logger.Tracef("endpoint have invalid host regexp: %v", err)
-				}
-				continue
-			}
-			cep.hostregs = append(cep.hostregs, hostreg)
-		}
-
-		p := ep.Endpoint.Path
-		var pcreok bool
-
-		if pcrereg, err := regexp.CompilePOSIX(p); err == nil {
-			cep.pcreregs = append(cep.pcreregs, pcrereg)
-			pcreok = true
-		}
-
-		rule, err := util.Parse(p)
-		if err != nil && !pcreok {
-			if logger.V(logger.TraceLevel, logger.DefaultLogger) {
-				logger.Tracef("endpoint have invalid path pattern: %v", err)
-			}
-			continue
-		} else if err != nil && pcreok {
-			continue
-		}
-
-		tpl := rule.Compile()
-		pathreg, err := util.NewPattern(tpl.Version, tpl.OpCodes, tpl.Pool, "")
-		if err != nil {
-			if logger.V(logger.TraceLevel, logger.DefaultLogger) {
-				logger.Tracef("endpoint have invalid path pattern: %v", err)
-			}
-			continue
-		}
-		cep.pathregs = append(cep.pathregs, pathreg)
-
-		nse.ceps[name] = cep
 	}
+
+	// save it
+	r.namespaces[namespace] = nse
 }
 
 // watch for endpoint changes
@@ -394,149 +347,29 @@ func (r *registryRouter) Close() error {
 	return nil
 }
 
-func (r *registryRouter) Endpoint(req *http.Request) (*api.Service, error) {
-	if r.isClosed() {
-		return nil, errors.New("router closed")
-	}
-
-	var idx int
-	if len(req.URL.Path) > 0 && req.URL.Path != "/" {
-		idx = 1
-	}
-	path := strings.Split(req.URL.Path[idx:], "/")
-
-	// resolve so we can get the namespace
-	rp := r.resolver.Resolve(req)
-	var ret *api.Service
-	r.RLock()
-	nse, ok := r.namespaces[rp.Domain]
-	r.RUnlock()
-	if !ok {
-		// no entry in cache
-		// TODO should we refresh the cache here?
-		return nil, errNotFound
-	}
-	nse.RLock()
-	defer nse.RUnlock()
-endpointLoop:
-	// loop through all endpoints to find either a path match or a regex match
-	// prefer path matches over regexp matches e.g. prefer /foobar over ^/.*$
-	// TODO: weighted matching
-	for n, e := range nse.eps {
-		cep, ok := nse.ceps[n]
-		if !ok {
-			continue
-		}
-		ep := e.Endpoint
-		var mMatch, hMatch bool
-		// 1. try method
-		for _, m := range ep.Method {
-			if m == req.Method {
-				mMatch = true
-				break
-			}
-		}
-		if !mMatch {
-			continue
-		}
-		if logger.V(logger.DebugLevel, logger.DefaultLogger) {
-			logger.Debugf("api method match %s", req.Method)
-		}
-
-		// 2. try host
-		if len(ep.Host) == 0 {
-			hMatch = true
-		} else {
-			for idx, h := range ep.Host {
-				if h == "" || h == "*" {
-					hMatch = true
-					break
-				} else {
-					if cep.hostregs[idx].MatchString(req.URL.Host) {
-						hMatch = true
-						break
-					}
-				}
-			}
-		}
-		if !hMatch {
-			continue
-		}
-		if logger.V(logger.DebugLevel, logger.DefaultLogger) {
-			logger.Debugf("api host match %s", req.URL.Host)
-		}
-
-		// 3. try path via google.api path matching
-		for _, pathreg := range cep.pathregs {
-			matches, err := pathreg.Match(path, "")
-			if err != nil {
-				if logger.V(logger.DebugLevel, logger.DefaultLogger) {
-					logger.Debugf("api gpath not match %s != %v", path, pathreg)
-				}
-				continue
-			}
-			if logger.V(logger.DebugLevel, logger.DefaultLogger) {
-				logger.Debugf("api gpath match %s = %v", path, pathreg)
-			}
-			ctx := req.Context()
-			md, ok := metadata.FromContext(ctx)
-			if !ok {
-				md = make(metadata.Metadata)
-			}
-			for k, v := range matches {
-				md[fmt.Sprintf("x-api-field-%s", k)] = v
-			}
-			md["x-api-body"] = ep.Body
-			*req = *req.Clone(metadata.NewContext(ctx, md))
-			ret = e
-			break endpointLoop
-		}
-
-		// 4. try path via pcre path matching
-		for _, pathreg := range cep.pcreregs {
-			if !pathreg.MatchString(req.URL.Path) {
-				if logger.V(logger.DebugLevel, logger.DefaultLogger) {
-					logger.Debugf("api pcre path not match %s != %v", path, pathreg)
-				}
-				continue
-			}
-			if logger.V(logger.DebugLevel, logger.DefaultLogger) {
-				logger.Debugf("api pcre path match %s != %v", path, pathreg)
-			}
-			ret = e
-			break
-		}
-
-		// TODO: Percentage traffic
-	}
-	if ret != nil {
-		return ret, nil
-	}
-
-	// no match
-	return nil, errNotFound
-}
-
 func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 	if r.isClosed() {
 		return nil, errors.New("router closed")
 	}
 
-	// try get an endpoint from cache
-	ep, err := r.Endpoint(req)
-	if err == nil {
-		return ep, nil
-	}
-
-	// error not nil
-	// ignore that shit
-	// TODO: don't ignore that shit
-
 	// get the service name
 	rp := r.resolver.Resolve(req)
-	// service name
-	name := rp.Name
-	domain := rp.Domain
+
+	// check the endpoint cache
+	key := fmt.Sprintf("%s.%s", rp.Name, rp.Method)
+
+	r.Lock()
+	namespace, ok := r.namespaces[key]
+	r.Unlock()
+
+	// got the namespace
+	if ok {
+		if srv, kk := namespace.eps[key]; kk {
+			return srv, nil
+		}
+
+		// not ok
+	}
 
 	// trigger an endpoint refresh
 	select {
@@ -545,18 +378,18 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 	}
 
 	// get service
-	services, err := r.rc.GetService(name, registry.GetDomain(rp.Domain))
+	services, err := r.rc.GetService(rp.Name, registry.GetDomain(rp.Domain))
 	if err != nil {
 		return nil, err
 	}
 
 	// construct api service
 	return &api.Service{
-		Name:   name,
-		Domain: domain,
+		Name:   rp.Name,
+		Domain: rp.Domain,
 		Endpoint: &api.Endpoint{
 			Name:    rp.Method,
-			Domain:  domain,
+			Domain:  rp.Domain,
 			Handler: "rpc",
 		},
 		Services: services,
@@ -573,8 +406,7 @@ func newRouter(opts ...router.Option) *registryRouter {
 		rc:          cache.New(options.Registry),
 		namespaces: map[string]*namespaceEntry{
 			namespace.DefaultNamespace: &namespaceEntry{
-				eps:  make(map[string]*api.Service),
-				ceps: make(map[string]*endpoint),
+				eps: make(map[string]*api.Service),
 			}},
 	}
 	go r.watch()

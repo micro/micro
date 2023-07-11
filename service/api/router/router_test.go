@@ -117,7 +117,6 @@ func TestRouterRegistryPcre(t *testing.T) {
 	defer s.Stop()
 
 	router := rregistry.NewRouter(
-		router.WithHandler(rpc.Handler),
 		router.WithRegistry(s.Options().Registry),
 	)
 	hrpc := rpc.NewHandler(
