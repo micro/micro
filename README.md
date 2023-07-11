@@ -359,7 +359,7 @@ go run main.go
 
 ### Call via JS
 
-```
+```js
 const micro = require('micro-js-client');
 
 new micro.Client({ token: process.env.TOKEN })
