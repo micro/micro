@@ -26,14 +26,14 @@ Micro is an API first development platform. It addresses the core requirements f
 
 ## Architecture
 
-Below are the core components that make up Micro.
+Below are the core components that make up Micro
 
 ### Server
 
 Micro is built as a microkernel architecture. It abstracts away the complexity of the underlying infrastructure by providing
 a set of building block services composed as a single logical server for the end user to consume.
 
-The server consists of the following services.
+The server consists of the following services
 
 - **Auth** - Authentication and authorization out of the box using JWT tokens and rule based access control.
 - **Broker** - Ephemeral pubsub messaging for asynchronous communication and distributing notifications
