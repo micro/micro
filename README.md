@@ -20,11 +20,9 @@
 
 Micro is API first development platform. It addresses the core requirements for building services in the cloud by providing a set of services which act as the building blocks of any platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
-## Overview
-
 <img src="https://micro.dev/images/micro.png?v=1" />
 
-## Features
+## Architecture
 
 Below are the core components that make up Micro.
 
