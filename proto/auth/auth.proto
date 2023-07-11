@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "micro.dev/v4/proto/auth;auth";
+option go_package = "github.com/micro/micro/proto/auth;auth";
 
 service Auth {
 	rpc Generate(GenerateRequest) returns (GenerateResponse) {};

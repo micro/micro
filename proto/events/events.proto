@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package events;
-option go_package = "micro.dev/v4/proto/event;events";
+option go_package = "github.com/micro/micro/proto/event;events";
 
 service Stream {
   rpc Publish(PublishRequest) returns (PublishResponse);

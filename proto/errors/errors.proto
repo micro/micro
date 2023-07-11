@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package errors;
 
-option go_package = "micro.dev/v4/proto/errors;errors";
+option go_package = "github.com/micro/micro/proto/errors;errors";
 
 message Error {
   string id = 1;

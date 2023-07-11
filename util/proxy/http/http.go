@@ -27,8 +27,8 @@ import (
 	"path"
 
 	"micro.dev/v4/service/errors"
-	"micro.dev/v4/service/proxy"
 	"micro.dev/v4/service/server"
+	"micro.dev/v4/util/proxy"
 )
 
 // Proxy will proxy rpc requests as http POST requests. It is a server.Proxy

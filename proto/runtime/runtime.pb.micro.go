@@ -11,7 +11,6 @@ import (
 
 import (
 	context "context"
-	api "micro.dev/v4/service/api"
 	client "micro.dev/v4/service/client"
 	server "micro.dev/v4/service/server"
 )
@@ -28,16 +27,9 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-
-// Api Endpoints for Runtime service
-
-func NewRuntimeEndpoints() []*api.Endpoint {
-	return []*api.Endpoint{}
-}
 
 // Client API for Runtime service
 
@@ -235,12 +227,6 @@ func (x *runtimeLogsStream) Send(m *LogRecord) error {
 	return x.stream.Send(m)
 }
 
-// Api Endpoints for Source service
-
-func NewSourceEndpoints() []*api.Endpoint {
-	return []*api.Endpoint{}
-}
-
 // Client API for Source service
 
 type SourceService interface {
@@ -367,12 +353,6 @@ func (x *sourceUploadStream) Recv() (*UploadRequest, error) {
 		return nil, err
 	}
 	return m, nil
-}
-
-// Api Endpoints for Build service
-
-func NewBuildEndpoints() []*api.Endpoint {
-	return []*api.Endpoint{}
 }
 
 // Client API for Build service

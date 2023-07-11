@@ -26,8 +26,6 @@ var (
 		"store",    // :8002
 		"events",   // :unset
 		"auth",     // :8010
-		"proxy",    // :8081
-		"api",      // :8080
 	}
 )
 
@@ -35,7 +33,7 @@ var (
 	// Name of the server microservice
 	Name = "server"
 	// Address is the server address
-	Address = ":10001"
+	Address = ":8081"
 )
 
 func init() {
@@ -47,7 +45,7 @@ func init() {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "address",
-				Usage:   "Set the micro server address :10001",
+				Usage:   "Set the micro server address :8081",
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
 			&cli.StringFlag{
@@ -123,10 +121,6 @@ func Run(context *cli.Context) error {
 			env = append(env, "MICRO_PROXY="+proxy)
 		}
 
-		// for kubernetes we want to provide a port and instruct the service to bind to it. we don't do
-		// this locally because the services are not isolated and the ports will conflict
-		port := "8080"
-
 		// we want to pass through the global args so go up one level in the context lineage
 		if len(context.Lineage()) > 1 {
 			globCtx := context.Lineage()[1]
@@ -141,7 +135,7 @@ func Run(context *cli.Context) error {
 			runtime.WithCommand(os.Args[0]),
 			runtime.WithArgs(cmdArgs...),
 			runtime.WithEnv(env),
-			runtime.WithPort(port),
+			runtime.WithPort("0"),
 			runtime.WithRetries(10),
 			runtime.WithSecret("MICRO_AUTH_PUBLIC_KEY", auth.DefaultAuth.Options().PublicKey),
 			runtime.WithSecret("MICRO_AUTH_PRIVATE_KEY", auth.DefaultAuth.Options().PrivateKey),
@@ -163,11 +157,25 @@ func Run(context *cli.Context) error {
 		return err
 	}
 
+	// start the proxy
+	wait := make(chan bool)
+
+	// run the proxy
+	go runProxy(context, wait)
+
+	// run the api
+	go runAPI(context, wait)
+
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL)
 	<-ch
 
+	// close wait chan
+	close(wait)
+
+	// stop the runtime
 	runtimeServer.Stop()
+
 	log.Info("Stopped server")
 
 	// just wait 1 sec

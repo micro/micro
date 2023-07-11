@@ -1,4 +1,4 @@
-package server
+package auth
 
 import (
 	"path"
@@ -7,7 +7,6 @@ import (
 )
 
 var (
-	proxyRe   = regexp.MustCompile("^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$")
 	versionRe = regexp.MustCompilePOSIX("^v[0-9]+$")
 )
 
@@ -42,39 +41,6 @@ func apiRoute(p string) (string, string) {
 	// Method is the last two parts
 	name := strings.Join(parts[:len(parts)-2], ".")
 	return name, methodName(parts[len(parts)-2:])
-}
-
-func proxyRoute(p string) string {
-	parts := strings.Split(p, "/")
-	if len(parts) < 2 {
-		return ""
-	}
-
-	var service string
-	var alias string
-
-	// /[service]/methods
-	if len(parts) > 2 {
-		// /v1/[service]
-		if versionRe.MatchString(parts[1]) {
-			service = parts[1] + "." + parts[2]
-			alias = parts[2]
-		} else {
-			service = parts[1]
-			alias = parts[1]
-		}
-		// /[service]
-	} else {
-		service = parts[1]
-		alias = parts[1]
-	}
-
-	// check service name is valid
-	if !proxyRe.MatchString(alias) {
-		return ""
-	}
-
-	return service
 }
 
 func methodName(parts []string) string {

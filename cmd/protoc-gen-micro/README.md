@@ -83,56 +83,6 @@ Alternative specify the Go plugin paths as arguments to the `protoc` command
 protoc --plugin=protoc-gen-go=$GOPATH/bin/protoc-gen-go --plugin=protoc-gen-micro=$GOPATH/bin/protoc-gen-micro --proto_path=$GOPATH/src:. --micro_out=. --go_out=. greeter.proto
 ```
 
-### Endpoint
-
-Add a micro API endpoint which routes directly to an RPC method
-
-Usage:
-
-1. Clone `github.com/googleapis/googleapis` to use this feature as it requires http annotations.
-2. The protoc command must include `-I$GOPATH/src/github.com/googleapis/googleapis` for the annotations import.
-
-```diff
-syntax = "proto3";
-
-import "google/api/annotations.proto";
-
-service Greeter {
-	rpc Hello(Request) returns (Response) {
-		option (google.api.http) = { post: "/hello"; body: "*"; };
-	}
-}
-
-message Request {
-	string name = 1;
-}
-
-message Response {
-	string msg = 1;
-}
-```
-
-The proto generates a `RegisterGreeterHandler` function with a [api.Endpoint](https://godoc.org/micro.dev/v4/service/api#Endpoint). 
-
-```diff
-func RegisterGreeterHandler(s server.Server, hdlr GreeterHandler, opts ...server.HandlerOption) error {
-	type greeter interface {
-		Hello(ctx context.Context, in *Request, out *Response) error
-	}
-	type Greeter struct {
-		greeter
-	}
-	h := &greeterHandler{hdlr}
-	opts = append(opts, api.WithEndpoint(&api.Endpoint{
-		Name:    "Greeter.Hello",
-		Path:    []string{"/hello"},
-		Method:  []string{"POST"},
-		Handler: "rpc",
-	}))
-	return s.Handle(s.NewHandler(&Greeter{h}, opts...))
-}
-```
-
 ## LICENSE
 
 protoc-gen-micro is a liberal reuse of protoc-gen-go hence we maintain the original license 

@@ -19,15 +19,9 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"testing"
-	"time"
 
-	"micro.dev/v4/service/api/handler"
-	"micro.dev/v4/service/api/handler/rpc"
-	"micro.dev/v4/service/api/router"
-	rregistry "micro.dev/v4/service/api/router/registry"
 	"micro.dev/v4/service/client"
 	gcli "micro.dev/v4/service/client/grpc"
 	rmemory "micro.dev/v4/service/registry/memory"
@@ -45,18 +39,6 @@ type testServer struct {
 
 // TestHello implements helloworld.GreeterServer
 func (s *testServer) Call(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
-	rsp.Msg = "Hello " + req.Uuid
-	return nil
-}
-
-// TestHello implements helloworld.GreeterServer
-func (s *testServer) CallPcre(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
-	rsp.Msg = "Hello " + req.Uuid
-	return nil
-}
-
-// TestHello implements helloworld.GreeterServer
-func (s *testServer) CallPcreInvalid(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	rsp.Msg = "Hello " + req.Uuid
 	return nil
 }
@@ -110,34 +92,4 @@ func check(t *testing.T, addr string, path string, expected string) {
 	if string(buf) != jsonMsg {
 		t.Fatalf("invalid message received, parsing error %s != %s", buf, jsonMsg)
 	}
-}
-
-func TestRouterRegistryPcre(t *testing.T) {
-	s, c := initial(t)
-	defer s.Stop()
-
-	router := rregistry.NewRouter(
-		router.WithHandler(rpc.Handler),
-		router.WithRegistry(s.Options().Registry),
-	)
-	hrpc := rpc.NewHandler(
-		handler.WithClient(c),
-		handler.WithRouter(router),
-	)
-	hsrv := &http.Server{
-		Handler:        hrpc,
-		Addr:           "127.0.0.1:6543",
-		WriteTimeout:   15 * time.Second,
-		ReadTimeout:    15 * time.Second,
-		IdleTimeout:    20 * time.Second,
-		MaxHeaderBytes: 1024 * 1024 * 1, // 1Mb
-	}
-
-	go func() {
-		log.Println(hsrv.ListenAndServe())
-	}()
-
-	defer hsrv.Close()
-	time.Sleep(1 * time.Second)
-	check(t, hsrv.Addr, "http://%s/api/v0/test/call/TEST", `{"msg":"Hello TEST"}`)
 }

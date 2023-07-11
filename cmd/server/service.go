@@ -5,13 +5,11 @@ import (
 	"micro.dev/v4/cmd"
 
 	// services
-	api "micro.dev/v4/service/api/server"
 	auth "micro.dev/v4/service/auth/server"
 	broker "micro.dev/v4/service/broker/server"
 	config "micro.dev/v4/service/config/server"
 	events "micro.dev/v4/service/events/server"
 	network "micro.dev/v4/service/network/server"
-	proxy "micro.dev/v4/service/proxy/server"
 	registry "micro.dev/v4/service/registry/server"
 	runtime "micro.dev/v4/service/runtime/server"
 	store "micro.dev/v4/service/store/server"
@@ -24,11 +22,6 @@ type srvCommand struct {
 }
 
 var srvCommands = []srvCommand{
-	{
-		Name:    "api",
-		Command: api.Run,
-		Flags:   api.Flags,
-	},
 	{
 		Name:    "auth",
 		Command: auth.Run,
@@ -51,11 +44,6 @@ var srvCommands = []srvCommand{
 		Name:    "network",
 		Command: network.Run,
 		Flags:   network.Flags,
-	},
-	{
-		Name:    "proxy",
-		Command: proxy.Run,
-		Flags:   proxy.Flags,
 	},
 	{
 		Name:    "registry",

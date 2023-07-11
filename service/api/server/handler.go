@@ -6,31 +6,21 @@ import (
 
 	"micro.dev/v4/service/api"
 	"micro.dev/v4/service/api/handler"
+	"micro.dev/v4/service/api/handler/rpc"
 	"micro.dev/v4/service/api/router"
 	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/errors"
-
-	aapi "micro.dev/v4/service/api/handler/api"
-	"micro.dev/v4/service/api/handler/event"
-	ahttp "micro.dev/v4/service/api/handler/http"
-	"micro.dev/v4/service/api/handler/rpc"
-	"micro.dev/v4/service/api/handler/web"
 )
 
 type metaHandler struct {
-	c  client.Client
-	r  router.Router
-	ns string
+	c client.Client
+	r router.Router
 }
 
 var (
 	// built in handlers
 	handlers = map[string]handler.Handler{
-		"rpc":   rpc.NewHandler(),
-		"web":   web.NewHandler(),
-		"http":  ahttp.NewHandler(),
-		"event": event.NewHandler(),
-		"api":   aapi.NewHandler(),
+		"rpc": rpc.NewHandler(),
 	}
 )
 
@@ -62,7 +52,7 @@ func (c *serverContext) Domain() string {
 func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	service, err := m.r.Route(r)
 	if err != nil {
-		er := errors.InternalServerError(m.ns, err.Error())
+		er := errors.InternalServerError("micro", err.Error())
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(500)
 		w.Write([]byte(er.Error()))
@@ -74,35 +64,21 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// create a new server context
 	srvContext := &serverContext{
 		Context: ctx,
-		domain:  m.ns,
+		domain:  service.Domain,
 		client:  m.c,
 		service: service,
 	}
 	// clone request with new context
 	req := r.Clone(srvContext)
 
-	// get the necessary handler
-	hd := service.Endpoint.Handler
-	// retrieve the handler for the request
-	if len(hd) == 0 {
-		hd = "rpc"
-	}
-
-	hdr, ok := handlers[hd]
-	if !ok {
-		// use the catch all rpc handler
-		hdr = handlers["rpc"]
-	}
-
-	// serve the request
-	hdr.ServeHTTP(w, req)
+	// serve request
+	handlers["rpc"].ServeHTTP(w, req)
 }
 
 // Meta is a http.Handler that routes based on endpoint metadata
-func Meta(c client.Client, r router.Router, ns string) http.Handler {
+func Meta(c client.Client, r router.Router) http.Handler {
 	return &metaHandler{
-		c:  c,
-		r:  r,
-		ns: ns,
+		c: c,
+		r: r,
 	}
 }

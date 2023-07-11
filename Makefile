@@ -9,7 +9,7 @@ LDFLAGS=-X $(GIT_IMPORT).BuildDate=$(BUILD_DATE) -X $(GIT_IMPORT).GitCommit=$(GI
 IMAGE_TAG=$(GIT_TAG)-$(GIT_COMMIT)
 PROTO_FLAGS=--go_opt=paths=source_relative --micro_opt=paths=source_relative
 PROTO_PATH=$(GOPATH)/src:.
-SRC_DIR=$(GOPATH)/src
+SRC_DIR=.
 
 all: build
 
@@ -28,7 +28,7 @@ docker:
 
 .PHONY: proto
 proto:
-	find proto/ -name '*.proto' -exec protoc --proto_path=$(PROTO_PATH) $(PROTO_FLAGS) --micro_out=$(SRC_DIR) --go_out=plugins=grpc:$(SRC_DIR) {} \;
+	find proto/ -name '*.proto' -exec protoc --proto_path=$(PROTO_PATH) $(PROTO_FLAGS) --micro_out=$(SRC_DIR) --go_out=$(SRC_DIR) {} \;
 
 
 vet:
