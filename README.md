@@ -18,13 +18,11 @@
     src="https://img.shields.io/badge/twitter-follow-blue.svg"></a>    
 </p>
 
-API first development platform
+An API first development platform
 
 ## Overview 
 
-Micro addresses the key requirements for building services in the cloud. It leverages the microservices
-architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals 
-with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
+Micro addresses the requirements for building services in the cloud. It provides a set of services which act as the building blocks of a platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
 <img src="https://micro.dev/images/micro.png?v=1" />
 
