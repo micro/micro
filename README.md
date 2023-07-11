@@ -22,7 +22,7 @@ Micro is API first development platform. It addresses the core requirements for 
 
 <img src="https://micro.dev/images/micro.png?v=1" />
 
-## Architecture
+## Overview
 
 Below are the core components that make up Micro.
 
