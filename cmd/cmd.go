@@ -683,15 +683,19 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// Setup store options
 	storeOpts := []store.StoreOption{}
+
 	if len(ctx.String("store_address")) > 0 {
 		storeOpts = append(storeOpts, store.Nodes(strings.Split(ctx.String("store_address"), ",")...))
 	}
+
 	if len(ctx.String("namespace")) > 0 {
 		storeOpts = append(storeOpts, store.Database(ctx.String("namespace")))
 	}
+
 	if len(ctx.String("service_name")) > 0 {
 		storeOpts = append(storeOpts, store.Table(ctx.String("service_name")))
 	}
+
 	if err := store.DefaultStore.Init(storeOpts...); err != nil {
 		logger.Fatalf("Error configuring store: %v", err)
 	}

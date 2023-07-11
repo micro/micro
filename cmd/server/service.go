@@ -61,6 +61,20 @@ var srvCommands = []srvCommand{
 }
 
 func init() {
+	flags := []ccli.Flag{
+		&ccli.StringFlag{
+			Name:    "name",
+			Usage:   "Name of the service",
+			EnvVars: []string{"MICRO_SERVICE_NAME"},
+			Value:   "service",
+		},
+		&ccli.StringFlag{
+			Name:    "address",
+			Usage:   "Address of the service",
+			EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
+		},
+	}
+
 	subcommands := make([]*ccli.Command, len(srvCommands))
 
 	for i, c := range srvCommands {
@@ -77,6 +91,7 @@ func init() {
 
 	command := &ccli.Command{
 		Name:        "service",
+		Flags:       flags,
 		Subcommands: subcommands,
 	}
 

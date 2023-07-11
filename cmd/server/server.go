@@ -111,6 +111,7 @@ func Run(context *cli.Context) error {
 
 		env := envvars
 		env = append(env, "MICRO_PROFILE="+profile)
+		env = append(env, "MICRO_SERVICE_NAME="+service)
 
 		// set the proxy address, default to the network running locally
 		if service != "network" {
