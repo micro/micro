@@ -78,13 +78,7 @@ and `micro user set [namespace]`.
 make build
 ```
 
-### Docker Image
-
-```
-docker pull ghcr.io/micro/micro:latest
-```
-
-### Install Binaries
+### Prebuilt Binaries
 
 #### Windows
 
