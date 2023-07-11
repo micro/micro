@@ -257,7 +257,7 @@ $ micro helloworld call --name=Jane
 ### Call via API
 
 ```
-curl "http://localhost:8080/helloworld?name=John"
+curl "http://localhost:8080/helloworld/Call?name=John"
 ```
 
 ### Call via RPC
