@@ -46,7 +46,7 @@ The server consists of the following services
 
 ### API
 
-The server embeds a HTTP API gateway (on port 8080) which can be used to make requests as simple JSON. 
+The server embeds a HTTP API (on port 8080) which can be used to make requests as simple JSON. 
 The API automatically maps HTTP Paths and POST requests to internal RPC service names and endpoints.
 
 ### Proxy
