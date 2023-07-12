@@ -14,7 +14,6 @@ import (
 	"micro.dev/v4/service/broker"
 	memBroker "micro.dev/v4/service/broker/memory"
 	"micro.dev/v4/service/client"
-	grpcClient "micro.dev/v4/service/client/grpc"
 	"micro.dev/v4/service/config"
 	storeConfig "micro.dev/v4/service/config/store"
 	evStore "micro.dev/v4/service/events/store"
@@ -27,7 +26,6 @@ import (
 	regRouter "micro.dev/v4/service/router/registry"
 	"micro.dev/v4/service/runtime/local"
 	"micro.dev/v4/service/server"
-	grpcServer "micro.dev/v4/service/server/grpc"
 	"micro.dev/v4/service/store/file"
 	mem "micro.dev/v4/service/store/memory"
 
@@ -46,7 +44,6 @@ var profiles = map[string]*Profile{
 	"service": Service,
 	"server":  Server,
 	"test":    Test,
-	"local":   Local,
 }
 
 // Profile configures an environment
@@ -81,48 +78,6 @@ func Load(name string) (*Profile, error) {
 var Client = &Profile{
 	Name:  "client",
 	Setup: func(ctx *cli.Context) error { return nil },
-}
-
-// Local profile to run as a single process
-var Local = &Profile{
-	Name: "local",
-	Setup: func(ctx *cli.Context) error {
-		// set client/server
-		client.DefaultClient = grpcClient.NewClient()
-		server.DefaultServer = grpcServer.NewServer()
-
-		microAuth.DefaultAuth = jwt.NewAuth()
-		microStore.DefaultStore = file.NewStore(file.WithDir(filepath.Join(user.Dir, "server", "store")))
-		SetupConfigSecretKey(ctx)
-		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
-
-		SetupJWT(ctx)
-		SetupRegistry(memory.NewRegistry())
-		SetupBroker(memBroker.NewBroker())
-
-		// set the store in the model
-		model.DefaultModel = model.NewModel(
-			model.WithStore(microStore.DefaultStore),
-		)
-
-		microRuntime.DefaultRuntime = local.NewRuntime()
-
-		var err error
-		microEvents.DefaultStream, err = memStream.NewStream()
-		if err != nil {
-			logger.Fatalf("Error configuring stream: %v", err)
-		}
-		microEvents.DefaultStore = evStore.NewStore(
-			evStore.WithStore(microStore.DefaultStore),
-		)
-
-		microStore.DefaultBlobStore, err = file.NewBlobStore()
-		if err != nil {
-			logger.Fatalf("Error configuring file blob store: %v", err)
-		}
-
-		return nil
-	},
 }
 
 var Server = &Profile{
