@@ -1000,6 +1000,6 @@ type manager struct {
 func New() runtime.Runtime {
 	return &manager{
 		exit:    make(chan bool, 1),
-		Runtime: NewCache(runtime.DefaultRuntime),
+		Runtime: runtime.DefaultRuntime,
 	}
 }
