@@ -57,7 +57,7 @@ The proxy is identity aware which means it can be used to gatekeep remote access
 ### Framework
 
 Micro comes with a built in Go framework for service based development. 
-The framework lets you write your services without having to piece together endless lines of boilerplate code. 
+The framework lets you write services without having to piece together endless lines of boilerplate code. 
 Configured and initialised by default, just import it and get started.
 
 ### Command Line
