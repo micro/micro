@@ -46,7 +46,7 @@ The server consists of the following services
 
 ### API
 
-The server embeds a HTTP API gateway (on port 8080) which can be used to make requests as simple JSON. 
+The server embeds a HTTP API (on port 8080) which can be used to make requests as simple JSON. 
 The API automatically maps HTTP Paths and POST requests to internal RPC service names and endpoints.
 
 ### Proxy
@@ -57,8 +57,8 @@ The proxy is identity aware which means it can be used to gatekeep remote access
 ### Framework
 
 Micro comes with a built in Go framework for service based development. 
-The framework makes it drop dead simple to write your services without having to piece together endless lines of boilerplate code. 
-Configured and initialised by default, just import it and get started.
+The framework lets you write services without piecing together endless lines of boilerplate code. 
+Configured and initialised by default, import it and get started.
 
 ### Command Line
 
