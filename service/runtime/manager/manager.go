@@ -924,7 +924,7 @@ func (m *manager) Start() error {
 	m.running = true
 
 	// start the runtime we're going to manage
-	if err := runtime.DefaultRuntime.Start(); err != nil {
+	if err := m.Runtime.Start(); err != nil {
 		return err
 	}
 
@@ -980,7 +980,7 @@ func (m *manager) Stop() error {
 	default:
 	}
 
-	return runtime.DefaultRuntime.Stop()
+	return m.Runtime.Stop()
 }
 
 // String describes runtime
