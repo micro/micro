@@ -23,7 +23,6 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
-	pberr "micro.dev/v4/proto/errors"
 	bmemory "micro.dev/v4/service/broker/memory"
 	"micro.dev/v4/service/client"
 	gcli "micro.dev/v4/service/client/grpc"
@@ -34,6 +33,7 @@ import (
 	"micro.dev/v4/service/server"
 	gsrv "micro.dev/v4/service/server/grpc"
 	pb "micro.dev/v4/service/server/grpc/proto"
+	pberr "micro.dev/v4/service/server/grpc/proto"
 )
 
 // server is used to implement helloworld.GreeterServer.
