@@ -100,11 +100,6 @@ var (
 			EnvVars: []string{"MICRO_ENV"},
 		},
 		&cli.StringFlag{
-			Name:    "profile",
-			Usage:   "Set the micro server profile: e.g. local or kubernetes",
-			EnvVars: []string{"MICRO_PROFILE"},
-		},
-		&cli.StringFlag{
 			Name:    "namespace",
 			EnvVars: []string{"MICRO_NAMESPACE"},
 			Usage:   "Namespace the service is operating in",
@@ -195,11 +190,6 @@ var (
 			EnvVars: []string{"MICRO_STORE_ADDRESS"},
 			Usage:   "Comma-separated list of store addresses",
 		},
-		&cli.StringFlag{
-			Name:    "proxy_address",
-			Usage:   "Proxy requests via the HTTP address specified",
-			EnvVars: []string{"MICRO_PROXY"},
-		},
 		&cli.BoolFlag{
 			Name:    "report_usage",
 			Usage:   "Report usage statistics",
@@ -212,6 +202,11 @@ var (
 			EnvVars: []string{"MICRO_SERVICE_NAME"},
 		},
 		&cli.StringFlag{
+			Name:    "profile",
+			Usage:   "Set the micro server profile: e.g. local or kubernetes",
+			EnvVars: []string{"MICRO_SERVICE_PROFILE"},
+		},
+		&cli.StringFlag{
 			Name:    "service_version",
 			Usage:   "Version of the micro service",
 			EnvVars: []string{"MICRO_SERVICE_VERSION"},
@@ -220,6 +215,11 @@ var (
 			Name:    "service_address",
 			Usage:   "Address to run the service on",
 			EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
+		},
+		&cli.StringFlag{
+			Name:    "service_network",
+			Usage:   "Network address",
+			EnvVars: []string{"MICRO_SERVICE_NETWORK"},
 		},
 		&cli.StringFlag{
 			Name:    "config_secret_key",
@@ -530,22 +530,22 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 
 	// set the proxy address
-	var proxy string
-	if c.service || ctx.IsSet("proxy_address") {
+	var netAddress string
+	if c.service || ctx.IsSet("service_network") {
 		// use the proxy address passed as a flag, this is normally
 		// the micro network
-		proxy = ctx.String("proxy_address")
+		netAddress = ctx.String("service_network")
 	} else {
 		// for CLI, use the external proxy which is loaded from the
 		// local config
 		var err error
-		proxy, err = util.CLIProxyAddress(ctx)
+		netAddress, err = util.CLIProxyAddress(ctx)
 		if err != nil {
 			return err
 		}
 	}
-	if len(proxy) > 0 {
-		client.DefaultClient.Init(client.Proxy(proxy))
+	if len(netAddress) > 0 {
+		client.DefaultClient.Init(client.Network(netAddress))
 	}
 
 	// use the internal network lookup
@@ -585,7 +585,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(ctx.String("auth_public_key")) > 0 || len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
-	} else if v := ctx.Args().First(); v == "server" || v == "service" || prof == "local" {
+	} else if v := ctx.Args().First(); v == "server" || v == "service" {
 		privKey, pubKey, err := user.GetJWTCerts()
 		if err != nil {
 			logger.Fatalf("Error getting keys: %v", err)

@@ -10,7 +10,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"micro.dev/v4/cmd"
-	"micro.dev/v4/service/auth"
+	"micro.dev/v4/service/client"
 	log "micro.dev/v4/service/logger"
 	"micro.dev/v4/service/runtime"
 )
@@ -48,12 +48,6 @@ func init() {
 				Usage:   "Set the micro server address :8081",
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
-			&cli.StringFlag{
-				Name:    "image",
-				Usage:   "Set the micro server image",
-				EnvVars: []string{"MICRO_SERVER_IMAGE"},
-				Value:   "micro/micro:latest",
-			},
 		},
 		Action: func(ctx *cli.Context) error {
 			Run(ctx)
@@ -62,6 +56,13 @@ func init() {
 	}
 
 	cmd.Register(command)
+}
+
+func setNetwork() {
+	// set out client network to the local one
+	client.DefaultClient.Init(
+		client.Network("127.0.0.1:8443"),
+	)
 }
 
 // Run runs the entire platform
@@ -89,7 +90,7 @@ func Run(context *cli.Context) error {
 		}
 
 		// skip the profile and proxy, that's set below since it can be service specific
-		if comps[0] == "MICRO_PROFILE" || comps[0] == "MICRO_PROXY" {
+		if comps[0] == "MICRO_SERVICE_PROFILE" || comps[0] == "MICRO_SERVICE_NETWORK" {
 			continue
 		}
 
@@ -106,20 +107,19 @@ func Run(context *cli.Context) error {
 		// all things run by the server are `micro service [name]`
 		cmdArgs := []string{"service"}
 
-		// TODO: remove hacks
 		profile := context.String("profile")
 
 		env := envvars
-		env = append(env, "MICRO_PROFILE="+profile)
 		env = append(env, "MICRO_SERVICE_NAME="+service)
+		env = append(env, "MICRO_SERVICE_PROFILE="+profile)
 
 		// set the proxy address, default to the network running locally
 		if service != "network" {
-			proxy := context.String("proxy_address")
-			if len(proxy) == 0 {
-				proxy = "127.0.0.1:8443"
+			netAddress := context.String("service_network")
+			if len(netAddress) == 0 {
+				netAddress = "127.0.0.1:8443"
 			}
-			env = append(env, "MICRO_PROXY="+proxy)
+			env = append(env, "MICRO_SERVICE_NETWORK="+netAddress)
 		}
 
 		// we want to pass through the global args so go up one level in the context lineage
@@ -138,8 +138,6 @@ func Run(context *cli.Context) error {
 			runtime.WithEnv(env),
 			runtime.WithPort("0"),
 			runtime.WithRetries(10),
-			runtime.WithSecret("MICRO_AUTH_PUBLIC_KEY", auth.DefaultAuth.Options().PublicKey),
-			runtime.WithSecret("MICRO_AUTH_PRIVATE_KEY", auth.DefaultAuth.Options().PrivateKey),
 		}
 
 		// NOTE: we use Version right now to check for the latest release
@@ -160,6 +158,8 @@ func Run(context *cli.Context) error {
 
 	// start the proxy
 	wait := make(chan bool)
+
+	setNetwork()
 
 	// run the proxy
 	go runProxy(context, wait)
