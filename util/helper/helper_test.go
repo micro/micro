@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"micro.dev/v4/service/context"
+	metadata "micro.dev/v4/service/context"
 )
 
 func TestRequestToContext(t *testing.T) {
