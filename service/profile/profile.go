@@ -10,7 +10,6 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"micro.dev/v4/service/auth/jwt"
-	"micro.dev/v4/service/auth/noop"
 	"micro.dev/v4/service/broker"
 	memBroker "micro.dev/v4/service/broker/memory"
 	"micro.dev/v4/service/client"
@@ -27,7 +26,6 @@ import (
 	"micro.dev/v4/service/runtime/local"
 	"micro.dev/v4/service/server"
 	"micro.dev/v4/service/store/file"
-	mem "micro.dev/v4/service/store/memory"
 
 	microAuth "micro.dev/v4/service/auth"
 	microEvents "micro.dev/v4/service/events"
@@ -43,7 +41,6 @@ var profiles = map[string]*Profile{
 	"client":  Client,
 	"service": Service,
 	"server":  Server,
-	"test":    Test,
 }
 
 // Profile configures an environment
@@ -144,23 +141,6 @@ var Server = &Profile{
 var Service = &Profile{
 	Name:  "service",
 	Setup: func(ctx *cli.Context) error { return nil },
-}
-
-// Test profile is used for the go test suite
-var Test = &Profile{
-	Name: "test",
-	Setup: func(ctx *cli.Context) error {
-		microAuth.DefaultAuth = noop.NewAuth()
-		microStore.DefaultStore = mem.NewStore()
-		microStore.DefaultBlobStore, _ = file.NewBlobStore()
-		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
-		SetupRegistry(memory.NewRegistry())
-		// set the store in the model
-		model.DefaultModel = model.NewModel(
-			model.WithStore(microStore.DefaultStore),
-		)
-		return nil
-	},
 }
 
 // SetupRegistry configures the registry
