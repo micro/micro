@@ -13,7 +13,7 @@
 // Original source: github.com/micro/go-micro/v3/metadata/metadata.go
 
 // Package metadata is a way of defining message headers
-package metadata
+package context
 
 import (
 	"context"

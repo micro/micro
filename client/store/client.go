@@ -10,7 +10,7 @@ import (
 	pb "micro.dev/v4/proto/store"
 	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/context"
-	"micro.dev/v4/service/context/metadata"
+	metadata "micro.dev/v4/service/context"
 	"micro.dev/v4/service/errors"
 	"micro.dev/v4/service/store"
 )

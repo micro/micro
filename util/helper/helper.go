@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/service/context/metadata"
+	metadata "micro.dev/v4/service/context"
 )
 
 func RequestToContext(r *http.Request) context.Context {

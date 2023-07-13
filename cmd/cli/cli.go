@@ -20,7 +20,7 @@ import (
 	"micro.dev/v4/cmd"
 	"micro.dev/v4/cmd/cli/util"
 	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context/metadata"
+	metadata "micro.dev/v4/service/context"
 	"micro.dev/v4/service/registry"
 	cbytes "micro.dev/v4/util/codec/bytes"
 	"micro.dev/v4/util/namespace"

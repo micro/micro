@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context/metadata"
+	metadata "micro.dev/v4/service/context"
 )
 
 // Lookup provides a lookup function that checks for namespace as the Micro-Namespace header

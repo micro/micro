@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"micro.dev/v4/service/auth"
-	"micro.dev/v4/service/context/metadata"
+	metadata "micro.dev/v4/service/context"
 	"micro.dev/v4/service/errors"
 	"micro.dev/v4/service/server"
 	inauth "micro.dev/v4/util/auth"

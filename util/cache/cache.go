@@ -9,7 +9,7 @@ import (
 
 	cache "github.com/patrickmn/go-cache"
 	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context/metadata"
+	metadata "micro.dev/v4/service/context"
 )
 
 // New returns an initialised cache.

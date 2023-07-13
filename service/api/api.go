@@ -27,7 +27,7 @@ import (
 	jsonpatch "github.com/evanphx/json-patch/v5"
 
 	"github.com/oxtoacart/bpool"
-	"micro.dev/v4/service/context/metadata"
+	metadata "micro.dev/v4/service/context"
 	"micro.dev/v4/service/registry"
 	"micro.dev/v4/service/server"
 	"micro.dev/v4/util/codec"

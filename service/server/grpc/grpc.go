@@ -37,7 +37,7 @@ import (
 	"golang.org/x/net/http2"
 	"golang.org/x/net/netutil"
 	"micro.dev/v4/service/broker"
-	meta "micro.dev/v4/service/context/metadata"
+	meta "micro.dev/v4/service/context"
 	"micro.dev/v4/service/errors"
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/registry"

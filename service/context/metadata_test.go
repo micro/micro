@@ -12,7 +12,7 @@
 //
 // Original source: github.com/micro/go-micro/v3/metadata/metadata_test.go
 
-package metadata
+package context
 
 import (
 	"context"

@@ -30,7 +30,7 @@ import (
 	"github.com/gorilla/websocket"
 	"micro.dev/v4/service/api"
 	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context/metadata"
+	metadata "micro.dev/v4/service/context"
 	"micro.dev/v4/service/errors"
 	"micro.dev/v4/service/logger"
 	raw "micro.dev/v4/util/codec/bytes"

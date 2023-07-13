@@ -29,7 +29,7 @@ import (
 
 	"micro.dev/v4/service/broker"
 	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context/metadata"
+	metadata "micro.dev/v4/service/context"
 	"micro.dev/v4/service/errors"
 	raw "micro.dev/v4/util/codec/bytes"
 

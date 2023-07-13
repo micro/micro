@@ -24,7 +24,7 @@ import (
 	"strings"
 
 	"micro.dev/v4/service/broker"
-	"micro.dev/v4/service/context/metadata"
+	metadata "micro.dev/v4/service/context"
 	"micro.dev/v4/service/errors"
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/registry"
