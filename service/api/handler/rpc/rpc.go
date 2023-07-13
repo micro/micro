@@ -89,27 +89,14 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, bsize)
 
 	defer r.Body.Close()
-	var service *api.Service
-	var c client.Client
 
-	if v, ok := r.Context().(handler.Context); ok {
-		// we were given the service
-		service = v.Service()
-		c = v.Client()
-	} else if h.opts.Router != nil {
-		// try get service from router
-		s, err := h.opts.Router.Route(r)
-		if err != nil {
-			writeError(w, r, errors.InternalServerError("go.micro.api", err.Error()))
-			return
-		}
-		service = s
-		c = h.opts.Client
-	} else {
-		// we have no way of routing the request
-		writeError(w, r, errors.InternalServerError("go.micro.api", "no route found"))
+	// try get service from router
+	service, err := h.opts.Router.Route(r)
+	if err != nil {
+		writeError(w, r, errors.InternalServerError("go.micro.api", err.Error()))
 		return
 	}
+	c := h.opts.Client
 
 	ct := r.Header.Get("Content-Type")
 
