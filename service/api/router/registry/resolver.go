@@ -37,3 +37,7 @@ type Endpoint struct {
 	Method string
 	Domain string
 }
+
+func NewResolver() *apiResolver {
+	return new(apiResolver)
+}

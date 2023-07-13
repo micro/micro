@@ -53,7 +53,7 @@ func runAPI(ctx *cli.Context, wait chan bool) error {
 	// initialise
 	api.Init(opts...)
 	// register the http handler
-	api.Handle("/", h)
+	api.Handle("/", authWrapper()(h))
 
 	// Start API
 	if err := api.Start(); err != nil {
