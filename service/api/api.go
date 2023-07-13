@@ -49,19 +49,6 @@ func (b *buffer) Write(_ []byte) (int, error) {
 	return 0, nil
 }
 
-type API interface {
-	// Initialise options
-	Init(...Option) error
-	// Get the options
-	Options() Options
-	// Register a http handler
-	Register(*Endpoint) error
-	// Register a route
-	Deregister(*Endpoint) error
-	// Implementation of api
-	String() string
-}
-
 // Server serves api requests
 type Server interface {
 	Address() string
