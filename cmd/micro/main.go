@@ -1,4 +1,4 @@
-package main
+package main // import micro.dev/v4/cmd/micro
 
 //go:generate ./scripts/generate.sh
 
