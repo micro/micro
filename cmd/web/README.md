@@ -1,6 +1,6 @@
 # Micro Web
 
-A web dashboard for Micro
+A web app for Micro
 
 ## Usage
 

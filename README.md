@@ -9,10 +9,7 @@
     src="https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white"></a>
     <a href="https://opensource.org/licenses/Apache-2.0"><img
     alt="Apache License"
-    src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
-    <a href="https://marketplace.digitalocean.com/apps/micro"><img
-    alt="DigitalOcean Droplet"
-    src="https://img.shields.io/badge/digitalocean-droplet-blue.svg"></a>    
+    src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>    
     <a href="https://twitter.com/MicroDotDev"><img
     alt="Twitter @MicroDotDev"
     src="https://img.shields.io/badge/twitter-follow-blue.svg"></a>    
