@@ -403,12 +403,6 @@ func (m *manager) runtimeEnv(srv *runtime.Service, options *runtime.CreateOption
 
 	// overwrite any values
 	env := map[string]string{
-		// pass the service's name and version
-		"MICRO_SERVICE_NAME":    srv.Name,
-		"MICRO_SERVICE_VERSION": srv.Version,
-		// ensure a profile for the services isn't set, they
-		// should use the default RPC clients
-		"MICRO_SERVICE_PROFILE": "service",
 		// set the proxy for the service to use (e.g. micro network)
 		// using the proxy which has been configured for the runtime
 		"MICRO_SERVICE_NETWORK": client.DefaultClient.Options().Network,

@@ -7,8 +7,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/urfave/cli/v2"
-
 	"micro.dev/v4/cmd"
 	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/logger"
@@ -28,28 +26,9 @@ type Service struct {
 
 // New returns a new Micro Service
 func New(opts ...Option) *Service {
-	// before extracts service options from the CLI flags. These
-	// aren't set by the cmd package to prevent a circular dependancy.
-	// prepend them to the array so options passed by the user to this
-	// function are applied after (taking precedence)
-	before := func(ctx *cli.Context) error {
-		if n := ctx.String("service_name"); len(n) > 0 {
-			opts = append(opts, Name(n))
-		}
-		if v := ctx.String("service_version"); len(v) > 0 {
-			opts = append(opts, Version(v))
-		}
-		// service address injected by the runtime takes priority as the service port must match the
-		// port the server is running on
-		if a := ctx.String("service_address"); len(a) > 0 {
-			opts = append(opts, Address(a))
-		}
-		return nil
-	}
-
 	// setup micro, this triggers the Before
 	// function which parses CLI flags.
-	cmd.New(cmd.SetupOnly(), cmd.Before(before)).Run()
+	cmd.New(cmd.Service()).Run()
 
 	// return a new service
 	return &Service{opts: newOptions(opts...)}

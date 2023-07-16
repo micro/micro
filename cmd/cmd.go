@@ -470,7 +470,7 @@ func New(opts ...Option) *command {
 	// if this option has been set, we're running a service
 	// and no action needs to be performed. The CMD package
 	// is just being used to parse flags and configure micro.
-	if setupOnlyFromContext(options.Context) {
+	if serviceFromContext(options.Context) {
 		cmd.service = true
 		cmd.app.Action = func(ctx *cli.Context) error { return nil }
 	}
@@ -517,7 +517,11 @@ func (c *command) Before(ctx *cli.Context) error {
 		case "service", "server":
 			prof = "server"
 		default:
-			prof = "client"
+			if c.service {
+				prof = "service"
+			} else {
+				prof = "client"
+			}
 		}
 	}
 
