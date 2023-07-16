@@ -19,6 +19,7 @@ import (
 	memStream "micro.dev/v4/service/events/stream/memory"
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/model"
+	"micro.dev/v4/service/model/sql"
 	"micro.dev/v4/service/registry"
 	"micro.dev/v4/service/registry/memory"
 	"micro.dev/v4/service/router"
@@ -111,9 +112,7 @@ var Server = &Profile{
 		}
 
 		// set the store in the model
-		model.DefaultModel = model.NewModel(
-			model.WithStore(microStore.DefaultStore),
-		)
+		model.DefaultModel = sql.NewModel()
 
 		// use the local runtime, note: the local runtime is designed to run source code directly so
 		// the runtime builder should NOT be set when using this implementation

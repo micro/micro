@@ -13,12 +13,53 @@ import (
 
 	"micro.dev/v4/service/config"
 	"micro.dev/v4/service/logger"
+	"micro.dev/v4/service/model"
 	"micro.dev/v4/util/user"
 )
 
 // The sql DB
 type DB struct {
 	*gorm.DB
+}
+
+func (d *DB) Register(v interface{}) error {
+	return d.DB.AutoMigrate(v)
+}
+
+func (d *DB) Create(v interface{}) error {
+	return d.DB.Create(v).Error
+}
+
+func (d *DB) Update(v interface{}) error {
+	return d.DB.Save(v).Error
+}
+
+func (d *DB) Delete(v interface{}) error {
+	return d.DB.Delete(v).Error
+}
+
+func (d *DB) Read(v interface{}) error {
+	return d.DB.First(v).Error
+}
+
+func (d *DB) Query(res interface{}, where ...interface{}) error {
+	return d.DB.Find(res, where...).Error
+}
+
+func NewModel(opts ...model.Option) model.Model {
+	var options model.Options
+	for _, o := range opts {
+		o(&options)
+	}
+
+	if len(options.Database) == 0 {
+		options.Database = "micro"
+	}
+
+	// create a new database handle
+	db, _ := NewDB(options.Database)
+
+	return db
 }
 
 // NewDB provides a new database connection. If [name].db.address is found

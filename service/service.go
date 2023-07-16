@@ -10,6 +10,7 @@ import (
 	"micro.dev/v4/cmd"
 	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/logger"
+	"micro.dev/v4/service/model"
 	"micro.dev/v4/service/server"
 )
 
@@ -70,6 +71,10 @@ func (s *Service) Client() client.Client {
 
 func (s *Service) Server() server.Server {
 	return server.DefaultServer
+}
+
+func (s *Service) Model() model.Model {
+	return model.DefaultModel
 }
 
 func (s *Service) Start() error {
