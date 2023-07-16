@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"os/exec"
 	"sort"
 	"strings"
 	"sync"
@@ -322,17 +321,6 @@ func action(c *cli.Context) error {
 		return helper.MissingCommand(c)
 	}
 
-	// if an executable is available with the name of
-	// the command, execute it with the arguments from
-	// index 1 on.
-	v, err := exec.LookPath("micro-" + c.Args().First())
-	if err == nil {
-		ce := exec.Command(v, c.Args().Slice()[1:]...)
-		ce.Stdout = os.Stdout
-		ce.Stderr = os.Stderr
-		return ce.Run()
-	}
-
 	// lookup the service, e.g. "micro config set" would
 	// firstly check to see if the service, e.g. config
 	// exists within the current namespace, then it would
@@ -383,7 +371,6 @@ func New(opts ...Option) *command {
 	if options.Action != nil {
 		cmd.app.Action = options.Action
 	}
-	// cmd to add to use registry
 
 	return cmd
 }
