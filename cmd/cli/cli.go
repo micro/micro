@@ -29,7 +29,6 @@ import (
 	_ "micro.dev/v4/cmd/cli/config"
 	_ "micro.dev/v4/cmd/cli/gen"
 	_ "micro.dev/v4/cmd/cli/init"
-	_ "micro.dev/v4/cmd/cli/network"
 	_ "micro.dev/v4/cmd/cli/new"
 	_ "micro.dev/v4/cmd/cli/run"
 	_ "micro.dev/v4/cmd/cli/shutdown"

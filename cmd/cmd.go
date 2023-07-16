@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -52,17 +49,12 @@ import (
 )
 
 type Cmd interface {
-	// Init initialises options
-	// Note: Use Run to parse command line
-	Init(opts ...Option) error
 	// Options set within this command
 	Options() Options
 	// The cli app within this cmd
 	App() *cli.App
 	// Run executes the command
 	Run() error
-	// Implementation
-	String() string
 }
 
 type command struct {
@@ -131,106 +123,14 @@ var (
 			Usage:   "Private key for JWT auth (base64 encoded PEM)",
 		},
 		&cli.StringFlag{
-			Name:    "registry_address",
-			EnvVars: []string{"MICRO_REGISTRY_ADDRESS"},
-			Usage:   "Comma-separated list of registry addresses",
-		},
-		&cli.StringFlag{
-			Name:    "registry_tls_ca",
-			Usage:   "Certificate authority for TLS with registry",
-			EnvVars: []string{"MICRO_REGISTRY_TLS_CA"},
-		},
-		&cli.StringFlag{
-			Name:    "registry_tls_cert",
-			Usage:   "Client cert for TLS with registry",
-			EnvVars: []string{"MICRO_REGISTRY_TLS_CERT"},
-		},
-		&cli.StringFlag{
-			Name:    "registry_tls_key",
-			Usage:   "Client key for TLS with registry",
-			EnvVars: []string{"MICRO_REGISTRY_TLS_KEY"},
-		},
-		&cli.StringFlag{
-			Name:    "broker_address",
-			EnvVars: []string{"MICRO_BROKER_ADDRESS"},
-			Usage:   "Comma-separated list of broker addresses",
-		},
-		&cli.StringFlag{
-			Name:    "events_tls_ca",
-			Usage:   "Certificate authority for TLS with events",
-			EnvVars: []string{"MICRO_EVENTS_TLS_CA"},
-		},
-		&cli.StringFlag{
-			Name:    "events_tls_cert",
-			Usage:   "Client cert for TLS with events",
-			EnvVars: []string{"MICRO_EVENTS_TLS_CERT"},
-		},
-		&cli.StringFlag{
-			Name:    "events_tls_key",
-			Usage:   "Client key for TLS with events",
-			EnvVars: []string{"MICRO_EVENTS_TLS_KEY"},
-		},
-		&cli.StringFlag{
-			Name:    "broker_tls_ca",
-			Usage:   "Certificate authority for TLS with broker",
-			EnvVars: []string{"MICRO_BROKER_TLS_CA"},
-		},
-		&cli.StringFlag{
-			Name:    "broker_tls_cert",
-			Usage:   "Client cert for TLS with broker",
-			EnvVars: []string{"MICRO_BROKER_TLS_CERT"},
-		},
-		&cli.StringFlag{
-			Name:    "broker_tls_key",
-			Usage:   "Client key for TLS with broker",
-			EnvVars: []string{"MICRO_BROKER_TLS_KEY"},
-		},
-		&cli.StringFlag{
-			Name:    "store_address",
-			EnvVars: []string{"MICRO_STORE_ADDRESS"},
-			Usage:   "Comma-separated list of store addresses",
-		},
-		&cli.BoolFlag{
-			Name:    "report_usage",
-			Usage:   "Report usage statistics",
-			EnvVars: []string{"MICRO_REPORT_USAGE"},
-			Value:   true,
-		},
-		&cli.StringFlag{
-			Name:    "service_name",
-			Usage:   "Name of the micro service",
-			EnvVars: []string{"MICRO_SERVICE_NAME"},
-		},
-		&cli.StringFlag{
 			Name:    "profile",
 			Usage:   "Set the micro server profile: e.g. local or kubernetes",
 			EnvVars: []string{"MICRO_SERVICE_PROFILE"},
 		},
 		&cli.StringFlag{
-			Name:    "service_version",
-			Usage:   "Version of the micro service",
-			EnvVars: []string{"MICRO_SERVICE_VERSION"},
-		},
-		&cli.StringFlag{
-			Name:    "service_address",
-			Usage:   "Address to run the service on",
-			EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
-		},
-		&cli.StringFlag{
-			Name:    "service_network",
-			Usage:   "Network address",
+			Name:    "network",
+			Usage:   "Service network address",
 			EnvVars: []string{"MICRO_SERVICE_NETWORK"},
-		},
-		&cli.StringFlag{
-			Name:    "config_secret_key",
-			Usage:   "Key to use when encoding/decoding secret config values. Will be generated and saved to file if not provided.",
-			Value:   "",
-			EnvVars: []string{"MICRO_CONFIG_SECRET_KEY"},
-		},
-		&cli.StringFlag{
-			Name:    "tracing_reporter_address",
-			Usage:   "The host:port of the opentracing agent e.g. localhost:6831",
-			EnvVars: []string{"MICRO_TRACING_REPORTER_ADDRESS"},
 		},
 	}
 )
@@ -535,10 +435,10 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// set the proxy address
 	var netAddress string
-	if c.service || ctx.IsSet("service_network") {
+	if c.service || ctx.IsSet("network") {
 		// use the proxy address passed as a flag, this is normally
 		// the micro network
-		netAddress = ctx.String("service_network")
+		netAddress = ctx.String("network")
 	} else {
 		// for CLI, use the external proxy which is loaded from the
 		// local config
@@ -618,26 +518,6 @@ func (c *command) Before(ctx *cli.Context) error {
 	// setup registry
 	registryOpts := []registry.Option{}
 
-	// Parse registry TLS certs
-	if len(ctx.String("registry_tls_cert")) > 0 || len(ctx.String("registry_tls_key")) > 0 {
-		cert, err := tls.LoadX509KeyPair(ctx.String("registry_tls_cert"), ctx.String("registry_tls_key"))
-		if err != nil {
-			logger.Fatalf("Error loading registry tls cert: %v", err)
-		}
-
-		// load custom certificate authority
-		caCertPool := x509.NewCertPool()
-		if len(ctx.String("registry_tls_ca")) > 0 {
-			crt, err := ioutil.ReadFile(ctx.String("registry_tls_ca"))
-			if err != nil {
-				logger.Fatalf("Error loading registry tls certificate authority: %v", err)
-			}
-			caCertPool.AppendCertsFromPEM(crt)
-		}
-
-		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
-		registryOpts = append(registryOpts, registry.TLSConfig(cfg))
-	}
 	if len(ctx.String("registry_address")) > 0 {
 		addresses := strings.Split(ctx.String("registry_address"), ",")
 		registryOpts = append(registryOpts, registry.Addrs(addresses...))
@@ -652,26 +532,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		brokerOpts = append(brokerOpts, broker.Addrs(ctx.String("broker_address")))
 	}
 
-	// Parse broker TLS certs
-	if len(ctx.String("broker_tls_cert")) > 0 || len(ctx.String("broker_tls_key")) > 0 {
-		cert, err := tls.LoadX509KeyPair(ctx.String("broker_tls_cert"), ctx.String("broker_tls_key"))
-		if err != nil {
-			logger.Fatalf("Error loading broker TLS cert: %v", err)
-		}
-
-		// load custom certificate authority
-		caCertPool := x509.NewCertPool()
-		if len(ctx.String("broker_tls_ca")) > 0 {
-			crt, err := ioutil.ReadFile(ctx.String("broker_tls_ca"))
-			if err != nil {
-				logger.Fatalf("Error loading broker TLS certificate authority: %v", err)
-			}
-			caCertPool.AppendCertsFromPEM(crt)
-		}
-
-		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
-		brokerOpts = append(brokerOpts, broker.TLSConfig(cfg))
-	}
 	if err := broker.DefaultBroker.Init(brokerOpts...); err != nil {
 		logger.Fatalf("Error configuring broker: %v", err)
 	}
@@ -726,37 +586,8 @@ func (c *command) Before(ctx *cli.Context) error {
 	return nil
 }
 
-func (c *command) Init(opts ...Option) error {
-	for _, o := range opts {
-		o(&c.opts)
-	}
-	if len(c.opts.Name) > 0 {
-		c.app.Name = c.opts.Name
-	}
-	if len(c.opts.Version) > 0 {
-		c.app.Version = c.opts.Version
-	}
-	c.app.HideVersion = len(c.opts.Version) == 0
-	c.app.Usage = c.opts.Description
-
-	//allow user's flags to add
-	if len(c.opts.Flags) > 0 {
-		c.app.Flags = append(c.app.Flags, c.opts.Flags...)
-	}
-	//action to replace
-	if c.opts.Action != nil {
-		c.app.Action = c.opts.Action
-	}
-
-	return nil
-}
-
 func (c *command) Run() error {
 	return c.app.Run(os.Args)
-}
-
-func (c *command) String() string {
-	return "micro"
 }
 
 // Register CLI commands

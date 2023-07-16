@@ -19,7 +19,7 @@ var (
 	// name of the network service
 	name = "network"
 	// name of the micro network
-	networkName = "micro"
+	network = "micro"
 	// address is the network address
 	address = ":8085"
 	// netAddress is the rpc address
@@ -40,7 +40,7 @@ var (
 		&cli.StringFlag{
 			Name:    "network",
 			Usage:   "Set the micro network name: micro",
-			EnvVars: []string{"MICRO_NETWORK"},
+			EnvVars: []string{"MICRO_NETWORK_NAME"},
 		},
 	}
 )
@@ -54,7 +54,7 @@ func Run(ctx *cli.Context) error {
 		address = ctx.String("address")
 	}
 	if len(ctx.String("network")) > 0 {
-		networkName = ctx.String("network")
+		network = ctx.String("network")
 	}
 
 	// Initialise the local service
@@ -75,7 +75,7 @@ func Run(ctx *cli.Context) error {
 	rtr := router.DefaultRouter
 
 	rtr.Init(
-		router.Network(networkName),
+		router.Network(network),
 		router.Id(id),
 		router.Gateway(gateway),
 		router.Cache(),
@@ -103,10 +103,10 @@ func Run(ctx *cli.Context) error {
 		log.Fatal("Error starting network: %v", err)
 	}
 
-	log.Infof("Network [%s] listening on %s", networkName, netAddress)
+	log.Infof("Network [%s] listening on %s", network, netAddress)
 
 	if err := service.Run(); err != nil {
-		log.Errorf("Network %s failed: %v", networkName, err)
+		log.Errorf("Network %s failed: %v", network, err)
 		os.Exit(1)
 	}
 
