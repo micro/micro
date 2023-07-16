@@ -83,9 +83,9 @@ var Server = &Profile{
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microStore.DefaultStore = file.NewStore(file.WithDir(filepath.Join(user.Dir, "server", "store")))
-		SetupConfigSecretKey(ctx)
+		SetupConfigSecretKey()
 		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
-		SetupJWT(ctx)
+		SetupJWT()
 
 		// the registry service uses the memory registry, the other core services will use the default
 		// rpc client and call the registry service
@@ -158,7 +158,7 @@ func SetupBroker(b broker.Broker) {
 }
 
 // SetupJWT configures the default internal system rules
-func SetupJWT(ctx *cli.Context) {
+func SetupJWT() {
 	for _, rule := range inAuth.SystemRules {
 		if err := microAuth.DefaultAuth.Grant(rule); err != nil {
 			logger.Fatal("Error creating default rule: %v", err)
@@ -166,13 +166,10 @@ func SetupJWT(ctx *cli.Context) {
 	}
 }
 
-func SetupConfigSecretKey(ctx *cli.Context) {
-	key := ctx.String("config_secret_key")
-	if len(key) == 0 {
-		k, err := user.GetConfigSecretKey()
-		if err != nil {
-			logger.Fatal("Error getting config secret: %v", err)
-		}
-		os.Setenv("MICRO_CONFIG_SECRET_KEY", k)
+func SetupConfigSecretKey() {
+	k, err := user.GetConfigSecretKey()
+	if err != nil {
+		logger.Fatal("Error getting config secret: %v", err)
 	}
+	os.Setenv("MICRO_CONFIG_SECRET_KEY", k)
 }
