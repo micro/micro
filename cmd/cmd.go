@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"os"
 	"sort"
-	"strings"
 	"sync"
 	"time"
 	"unicode"
@@ -21,12 +20,10 @@ import (
 	"micro.dev/v4/service/config"
 	storeConf "micro.dev/v4/service/config/store"
 	"micro.dev/v4/service/errors"
-	"micro.dev/v4/service/events"
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/network"
 	"micro.dev/v4/service/profile"
 	"micro.dev/v4/service/registry"
-	"micro.dev/v4/service/runtime"
 	"micro.dev/v4/service/server"
 	"micro.dev/v4/service/store"
 	uconf "micro.dev/v4/util/config"
@@ -34,17 +31,7 @@ import (
 	"micro.dev/v4/util/namespace"
 	"micro.dev/v4/util/user"
 	"micro.dev/v4/util/wrapper"
-
-	muruntime "micro.dev/v4/service/runtime"
-
-	authSrv "micro.dev/v4/client/auth"
-	brokerSrv "micro.dev/v4/client/broker"
-	eventsSrv "micro.dev/v4/client/events"
-	registrySrv "micro.dev/v4/client/registry"
-	runtimeSrv "micro.dev/v4/client/runtime"
-	storeSrv "micro.dev/v4/client/store"
-	grpcCli "micro.dev/v4/service/client/grpc"
-	grpcSvr "micro.dev/v4/service/server/grpc"
+	"micro.dev/v4/service/runtime"
 )
 
 type Cmd interface {
@@ -138,24 +125,7 @@ func init() {
 	rand.Seed(time.Now().Unix())
 
 	// configure defaults for all packages
-	setupDefaults()
-}
-
-// setupDefaults sets the default auth, broker etc implementations incase they arent configured by
-// a profile. The default implementations are always the RPC implementations.
-func setupDefaults() {
-	client.DefaultClient = grpcCli.NewClient()
-	server.DefaultServer = grpcSvr.NewServer()
-
-	// setup rpc implementations after the client is configured
-	auth.DefaultAuth = authSrv.NewAuth()
-	broker.DefaultBroker = brokerSrv.NewBroker()
-	events.DefaultStream = eventsSrv.NewStream()
-	events.DefaultStore = eventsSrv.NewStore()
-	registry.DefaultRegistry = registrySrv.NewRegistry()
-	store.DefaultStore = storeSrv.NewStore()
-	store.DefaultBlobStore = storeSrv.NewBlobStore()
-	runtime.DefaultRuntime = runtimeSrv.NewRuntime()
+	profile.SetupDefaults()
 }
 
 func formatErr(err error) string {
@@ -212,7 +182,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	tok, err = auth.Token(
 		auth.WithToken(tok.RefreshToken),
 		auth.WithTokenIssuer(ns),
-		auth.WithExpiry(time.Minute*10),
+		auth.WithExpiry(time.Hour * 24),
 	)
 	if err != nil {
 		return nil
@@ -256,7 +226,7 @@ func setupAuthForService() error {
 	// generate the first token
 	token, err := auth.Token(
 		auth.WithCredentials(accID, accSecret),
-		auth.WithExpiry(time.Minute*10),
+		auth.WithExpiry(time.Hour),
 	)
 	if err != nil {
 		return err
@@ -447,22 +417,15 @@ func (c *command) Before(ctx *cli.Context) error {
 	onceBefore.Do(func() {
 		// wrap the client
 		client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
-		client.DefaultClient = wrapper.LogClient(client.DefaultClient)
 
 		// wrap the server
-		server.DefaultServer.Init(
-			server.WrapHandler(wrapper.AuthHandler()),
-			server.WrapHandler(wrapper.LogHandler()),
-		)
+		server.DefaultServer.Init(server.WrapHandler(wrapper.AuthHandler()))
 	})
 
 	// setup auth
 	authOpts := []auth.Option{}
 	if len(ctx.String("namespace")) > 0 {
 		authOpts = append(authOpts, auth.Issuer(ctx.String("namespace")))
-	}
-	if len(ctx.String("auth_address")) > 0 {
-		authOpts = append(authOpts, auth.Addrs(ctx.String("auth_address")))
 	}
 	if len(ctx.String("auth_id")) > 0 || len(ctx.String("auth_secret")) > 0 {
 		authOpts = append(authOpts, auth.Credentials(
@@ -497,6 +460,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	if err != nil {
 		logger.Fatalf("Error setting up auth: %v", err)
 	}
+	// refresh the auth token
 	go refreshAuthToken()
 
 	// initialize the server with the namespace so it knows which domain to register in
@@ -505,19 +469,12 @@ func (c *command) Before(ctx *cli.Context) error {
 	// setup registry
 	registryOpts := []registry.Option{}
 
-	if len(ctx.String("registry_address")) > 0 {
-		addresses := strings.Split(ctx.String("registry_address"), ",")
-		registryOpts = append(registryOpts, registry.Addrs(addresses...))
-	}
 	if err := registry.DefaultRegistry.Init(registryOpts...); err != nil {
 		logger.Fatalf("Error configuring registry: %v", err)
 	}
 
 	// Setup broker options.
 	brokerOpts := []broker.Option{}
-	if len(ctx.String("broker_address")) > 0 {
-		brokerOpts = append(brokerOpts, broker.Addrs(ctx.String("broker_address")))
-	}
 
 	if err := broker.DefaultBroker.Init(brokerOpts...); err != nil {
 		logger.Fatalf("Error configuring broker: %v", err)
@@ -528,16 +485,12 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// Setup runtime. This is a temporary fix to trigger the runtime to recreate
 	// its client now the client has been replaced with a wrapped one.
-	if err := muruntime.DefaultRuntime.Init(); err != nil {
+	if err := runtime.DefaultRuntime.Init(); err != nil {
 		logger.Fatalf("Error configuring runtime: %v", err)
 	}
 
 	// Setup store options
 	storeOpts := []store.StoreOption{}
-
-	if len(ctx.String("store_address")) > 0 {
-		storeOpts = append(storeOpts, store.Nodes(strings.Split(ctx.String("store_address"), ",")...))
-	}
 
 	if len(ctx.String("namespace")) > 0 {
 		storeOpts = append(storeOpts, store.Database(ctx.String("namespace")))
