@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/service"
+	"micro.dev/v4/service/client"
 	bmem "micro.dev/v4/service/broker/memory"
 	log "micro.dev/v4/service/logger"
 	"micro.dev/v4/service/registry/noop"
@@ -13,11 +13,9 @@ import (
 )
 
 func runProxy(ctx *cli.Context, wait chan bool) error {
-	service := service.New()
-
 	// set the context
 	popts := []proxy.Option{
-		proxy.WithClient(service.Client()),
+		proxy.WithClient(client.DefaultClient),
 	}
 
 	serverOpts := []server.Option{

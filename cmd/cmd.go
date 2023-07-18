@@ -5,11 +5,9 @@ import (
 	"math/rand"
 	"os"
 	"sort"
-	"sync"
 	"time"
 	"unicode"
 
-	"github.com/google/uuid"
 	"github.com/urfave/cli/v2"
 	clitoken "micro.dev/v4/cmd/cli/token"
 	"micro.dev/v4/cmd/cli/util"
@@ -30,7 +28,6 @@ import (
 	uconf "micro.dev/v4/util/config"
 	"micro.dev/v4/util/helper"
 	"micro.dev/v4/util/namespace"
-	"micro.dev/v4/util/wrapper"
 )
 
 type Cmd interface {
@@ -56,8 +53,6 @@ type command struct {
 
 var (
 	DefaultCmd Cmd = New()
-
-	onceBefore sync.Once
 
 	// name of the binary
 	name = "micro"
@@ -140,12 +135,12 @@ func upcaseInitial(str string) string {
 	return ""
 }
 
-// setupAuthForCLI handles exchanging refresh tokens to access tokens
+// setupAuth handles exchanging refresh tokens to access tokens
 // The structure of the local micro userconfig file is the following:
 // micro.auth.[envName].token: temporary access token
 // micro.auth.[envName].refresh-token: long lived refresh token
 // micro.auth.[envName].expiry: expiration time of the access token, seconds since Unix epoch.
-func setupAuthForCLI(ctx *cli.Context) error {
+func setupAuth(ctx *cli.Context) error {
 	env, err := util.GetEnv(ctx)
 	if err != nil {
 		return err
@@ -189,51 +184,8 @@ func setupAuthForCLI(ctx *cli.Context) error {
 		auth.ClientToken(tok),
 		auth.Issuer(ns),
 	)
+
 	return clitoken.Save(ctx, tok)
-}
-
-// setupAuthForService generates auth credentials for the service
-func setupAuthForService() error {
-	opts := auth.DefaultAuth.Options()
-
-	// extract the account creds from options, these can be set by flags
-	accID := opts.ID
-	accSecret := opts.Secret
-
-	// if no credentials were provided, self generate an account
-	if len(accID) == 0 || len(accSecret) == 0 {
-		opts := []auth.GenerateOption{
-			auth.WithType("service"),
-			auth.WithScopes("service"),
-		}
-
-		acc, err := auth.Generate(uuid.New().String(), opts...)
-		if err != nil {
-			return err
-		}
-		if logger.V(logger.DebugLevel, logger.DefaultLogger) {
-			logger.Debugf("Auth [%v] Generated an auth account", auth.DefaultAuth.String())
-		}
-
-		accID = acc.ID
-		accSecret = acc.Secret
-	}
-
-	// generate the first token
-	token, err := auth.Token(
-		auth.WithCredentials(accID, accSecret),
-		auth.WithExpiry(time.Hour),
-	)
-	if err != nil {
-		return err
-	}
-
-	// set the credentials and token in auth options
-	auth.DefaultAuth.Init(
-		auth.ClientToken(token),
-		auth.Credentials(accID, accSecret),
-	)
-	return nil
 }
 
 // refreshAuthToken if it is close to expiring
@@ -243,7 +195,7 @@ func refreshAuthToken() {
 		return
 	}
 
-	t := time.NewTicker(time.Second * 15)
+	t := time.NewTicker(time.Minute)
 	defer t.Stop()
 
 	for {
@@ -251,7 +203,7 @@ func refreshAuthToken() {
 		case <-t.C:
 			// don't refresh the token if it's not close to expiring
 			tok := auth.DefaultAuth.Options().Token
-			if tok.Expiry.Unix() > time.Now().Add(time.Minute).Unix() {
+			if tok.Expiry.Unix() > time.Now().Add(time.Hour).Unix() {
 				continue
 			}
 
@@ -268,7 +220,7 @@ func refreshAuthToken() {
 						auth.DefaultAuth.Options().ID,
 						auth.DefaultAuth.Options().Secret,
 					),
-					auth.WithExpiry(time.Minute*10),
+					auth.WithExpiry(time.Hour * 24),
 				)
 			} else if err != nil {
 				logger.Warnf("[Auth] Error refreshing token: %v", err)
@@ -406,14 +358,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		client.Lookup(network.Lookup),
 	)
 
-	onceBefore.Do(func() {
-		// wrap the client
-		client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
-
-		// wrap the server
-		server.DefaultServer.Init(server.WrapHandler(wrapper.AuthHandler()))
-	})
-
 	// setup auth
 	authOpts := []auth.Option{}
 	if len(ctx.String("namespace")) > 0 {
@@ -438,34 +382,22 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// setup auth credentials, use local credentials for the CLI and injected creds
 	// for the service.
-	var err error
-	if c.service {
-		err = setupAuthForService()
-	} else {
-		err = setupAuthForCLI(ctx)
+	if !c.service {
+		if err := setupAuth(ctx); err != nil {
+			logger.Fatalf("Error setting up auth: %v", err)
+		}
 	}
-	if err != nil {
-		logger.Fatalf("Error setting up auth: %v", err)
-	}
+
 	// refresh the auth token
 	go refreshAuthToken()
 
 	// initialize the server with the namespace so it knows which domain to register in
 	server.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
 
-	// setup registry
-	registryOpts := []registry.Option{}
-
-	if err := registry.DefaultRegistry.Init(registryOpts...); err != nil {
+	if err := registry.DefaultRegistry.Init(); err != nil {
 		logger.Fatalf("Error configuring registry: %v", err)
 	}
 
-	// Setup broker options.
-	brokerOpts := []broker.Option{}
-
-	if err := broker.DefaultBroker.Init(brokerOpts...); err != nil {
-		logger.Fatalf("Error configuring broker: %v", err)
-	}
 	if err := broker.DefaultBroker.Connect(); err != nil {
 		logger.Fatalf("Error connecting to broker: %v", err)
 	}

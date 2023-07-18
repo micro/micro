@@ -8,13 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	osexec "os/exec"
 	"sort"
 	"strings"
 	"text/tabwriter"
 	"time"
 
-	"github.com/chzyer/readline"
 	"github.com/serenize/snaker"
 	"github.com/urfave/cli/v2"
 	"micro.dev/v4/cmd"
@@ -36,26 +34,8 @@ import (
 	_ "micro.dev/v4/cmd/cli/user"
 )
 
-var (
-	prompt = "micro> "
-
-	// TODO: only run fixed set of commands for security purposes
-	commands = map[string]*command{}
-)
-
-type command struct {
-	name  string
-	usage string
-	exec  util.Exec
-}
-
 func init() {
 	cmd.Register(
-		&cli.Command{
-			Name:   "cli",
-			Usage:  "Run the interactive CLI",
-			Action: Run,
-		},
 		&cli.Command{
 			Name:   "call",
 			Usage:  `Call a service e.g micro call greeter Say.Hello '{"name": "John"}'`,
@@ -147,26 +127,6 @@ func init() {
 
 func quit(c *cli.Context, args []string) ([]byte, error) {
 	os.Exit(0)
-	return nil, nil
-}
-
-func help(c *cli.Context, args []string) ([]byte, error) {
-	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
-
-	fmt.Fprintln(os.Stdout, "Commands:")
-
-	var keys []string
-	for k := range commands {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	for _, k := range keys {
-		cmd := commands[k]
-		fmt.Fprintln(w, "\t", cmd.name, "\t\t", cmd.usage)
-	}
-
-	w.Flush()
 	return nil, nil
 }
 
@@ -562,43 +522,3 @@ func publish(c *cli.Context, args []string) ([]byte, error) {
 	return []byte(`ok`), nil
 }
 
-func Run(c *cli.Context) error {
-	// take the first arg as the binary
-	binary := os.Args[0]
-
-	r, err := readline.New(prompt)
-	if err != nil {
-		return err
-	}
-	defer r.Close()
-
-	for {
-		args, err := r.Readline()
-		if err != nil {
-			fmt.Fprint(os.Stdout, err)
-			return err
-		}
-
-		args = strings.TrimSpace(args)
-
-		// skip no args
-		if len(args) == 0 {
-			continue
-		}
-
-		parts := strings.Split(args, " ")
-		if len(parts) == 0 {
-			continue
-		}
-
-		cmd := osexec.Command(binary, parts...)
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			fmt.Println(string(err.(*osexec.ExitError).Stderr))
-		}
-	}
-
-	return nil
-}

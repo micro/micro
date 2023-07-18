@@ -7,7 +7,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
+	"sync"
 
+	"github.com/google/uuid"
 	"github.com/urfave/cli/v2"
 	"micro.dev/v4/service/auth"
 	"micro.dev/v4/service/auth/jwt"
@@ -30,6 +33,7 @@ import (
 	"micro.dev/v4/service/runtime/local"
 	"micro.dev/v4/service/server"
 	"micro.dev/v4/service/store"
+	"micro.dev/v4/util/wrapper"
 	"micro.dev/v4/service/store/file"
 	inAuth "micro.dev/v4/util/auth"
 	"micro.dev/v4/util/user"
@@ -43,6 +47,10 @@ import (
 	runtimeSrv "micro.dev/v4/service/runtime/client"
 	grpcSvr "micro.dev/v4/service/server/grpc"
 	storeSrv "micro.dev/v4/service/store/client"
+)
+
+var (
+	once sync.Once
 )
 
 // profiles which when called will configure micro to run in that environment
@@ -102,13 +110,35 @@ var Server = &Profile{
 		}
 
 		// set auth
-		auth.DefaultAuth = jwt.NewAuth(
+		auth.DefaultAuth = jwt.NewAuth()
+
+		auth.DefaultAuth.Init(
 			auth.PublicKey(string(pubKey)),
 			auth.PrivateKey(string(privKey)),
 		)
 
-		// set broker
-		SetupBroker(memBroker.NewBroker())
+		// set jwt
+		SetupRules()
+
+		if ctx.Args().Get(1) == "registry" {
+			SetupRegistry(memory.NewRegistry())
+		} else {
+			// set the registry address
+			registry.DefaultRegistry.Init(
+				registry.Addrs("localhost:8000"),
+			)
+
+			SetupRegistry(registry.DefaultRegistry)
+		}
+
+		if ctx.Args().Get(1) == "broker" {
+			SetupBroker(memBroker.NewBroker())
+		} else {
+			broker.DefaultBroker.Init(
+				broker.Addrs("localhost:8003"),
+			)
+			SetupBroker(broker.DefaultBroker)
+		}
 
 		// set store
 		store.DefaultStore = file.NewStore(file.WithDir(filepath.Join(user.Dir, "server", "store")))
@@ -129,9 +159,6 @@ var Server = &Profile{
 		// set the store in the model
 		model.DefaultModel = sql.NewModel()
 
-		// set registry
-		SetupRegistry(memory.NewRegistry())
-
 		// use the local runtime, note: the local runtime is designed to run source code directly so
 		// the runtime builder should NOT be set when using this implementation
 		runtime.DefaultRuntime = local.NewRuntime()
@@ -142,28 +169,74 @@ var Server = &Profile{
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
 
-		// set jwt
-		SetupRules()
 
 		return nil
 	},
 }
 
-func SetupDefaults() {
-	client.DefaultClient = grpcCli.NewClient()
-	server.DefaultServer = grpcSvr.NewServer()
+func SetupAuth() {
+        opts := auth.DefaultAuth.Options()
 
-	// setup rpc implementations after the client is configured
-	auth.DefaultAuth = authSrv.NewAuth()
-	broker.DefaultBroker = brokerSrv.NewBroker()
-	config.DefaultConfig = configSrv.NewConfig()
-	events.DefaultStream = eventsSrv.NewStream()
-	events.DefaultStore = eventsSrv.NewStore()
-	registry.DefaultRegistry = registrySrv.NewRegistry()
-	store.DefaultStore = storeSrv.NewStore()
-	store.DefaultBlobStore = storeSrv.NewBlobStore()
-	runtime.DefaultRuntime = runtimeSrv.NewRuntime()
-	model.DefaultModel = sql.NewModel()
+        // extract the account creds from options, these can be set by flags
+        accID := opts.ID
+        accSecret := opts.Secret
+
+        // if no credentials were provided, self generate an account
+        if len(accID) == 0 || len(accSecret) == 0 {
+                opts := []auth.GenerateOption{
+                        auth.WithType("service"),
+                        auth.WithScopes("service"),
+                }
+
+                acc, err := auth.Generate(uuid.New().String(), opts...)
+                if err != nil {
+                        logger.Fatal(err)
+                }
+                logger.Infof("Auth [%v] Generated an auth account", auth.DefaultAuth.String())
+
+                accID = acc.ID
+                accSecret = acc.Secret
+        }
+
+        // generate the first token
+        token, err := auth.Token(
+                auth.WithCredentials(accID, accSecret),
+                auth.WithExpiry(time.Hour),
+        )
+        if err != nil {
+                logger.Fatal(err)
+        }
+
+        logger.Infof("Generated %v for acc %s %s", token, accID, accSecret)
+
+        // set the credentials and token in auth options
+        auth.DefaultAuth.Init(
+                auth.ClientToken(token),
+                auth.Credentials(accID, accSecret),
+        )
+}
+
+func SetupDefaults() {
+        once.Do(func() {
+		client.DefaultClient = grpcCli.NewClient()
+		server.DefaultServer = grpcSvr.NewServer()
+                // wrap the client
+                client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
+
+                // wrap the server
+                server.DefaultServer.Init(server.WrapHandler(wrapper.AuthHandler()))
+		// setup rpc implementations after the client is configured
+		auth.DefaultAuth = authSrv.NewAuth()
+		broker.DefaultBroker = brokerSrv.NewBroker()
+		config.DefaultConfig = configSrv.NewConfig()
+		events.DefaultStream = eventsSrv.NewStream()
+		events.DefaultStore = eventsSrv.NewStore()
+		registry.DefaultRegistry = registrySrv.NewRegistry()
+		store.DefaultStore = storeSrv.NewStore()
+		store.DefaultBlobStore = storeSrv.NewBlobStore()
+		runtime.DefaultRuntime = runtimeSrv.NewRuntime()
+		model.DefaultModel = sql.NewModel()
+        })
 }
 
 // SetupRegistry configures the registry

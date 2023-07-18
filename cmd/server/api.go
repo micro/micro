@@ -6,7 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/service"
+	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/api"
 	"micro.dev/v4/service/api/handler"
 	"micro.dev/v4/service/api/handler/rpc"
@@ -18,8 +18,6 @@ import (
 )
 
 func runAPI(ctx *cli.Context, wait chan bool) error {
-	srv := service.New()
-
 	// Init API
 	var opts []api.Option
 
@@ -44,7 +42,7 @@ func runAPI(ctx *cli.Context, wait chan bool) error {
 	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {})
 	rt := regRouter.NewRouter(router.WithRegistry(registry.DefaultRegistry))
 	r.PathPrefix("/").Handler(rpc.NewHandler(
-		handler.WithClient(srv.Client()),
+		handler.WithClient(client.DefaultClient),
 		handler.WithRouter(rt),
 	))
 

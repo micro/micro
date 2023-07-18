@@ -13,6 +13,8 @@ var (
 	name = "registry"
 	// address of the registry
 	address = ":8000"
+	// topic to publish registry events to
+	topic = "registry.events"
 )
 
 func Run(ctx *cli.Context) error {
@@ -22,7 +24,9 @@ func Run(ctx *cli.Context) error {
 		service.Address(address),
 	)
 	// register the handler
-	pb.RegisterRegistryHandler(srv.Server(), &handler.Registry{})
+	pb.RegisterRegistryHandler(srv.Server(), &handler.Registry{
+		Event: service.NewEvent(topic),
+	})
 
 	// run the service
 	if err := srv.Run(); err != nil {

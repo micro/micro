@@ -101,20 +101,11 @@ func Run(context *cli.Context) error {
 		// all things run by the server are `micro service [name]`
 		cmdArgs := []string{"service"}
 
-		profile := context.String("profile")
+		profile := "server"
 
 		env := envvars
 		env = append(env, "MICRO_SERVICE_NAME="+service)
 		env = append(env, "MICRO_SERVICE_PROFILE="+profile)
-
-		// set the proxy address, default to the network running locally
-		if service != "network" {
-			netAddress := context.String("network")
-			if len(netAddress) == 0 {
-				netAddress = "127.0.0.1:8443"
-			}
-			env = append(env, "MICRO_SERVICE_NETWORK="+netAddress)
-		}
 
 		// we want to pass through the global args so go up one level in the context lineage
 		if len(context.Lineage()) > 1 {

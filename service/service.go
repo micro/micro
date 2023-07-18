@@ -12,6 +12,7 @@ import (
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/model"
 	"micro.dev/v4/service/server"
+	"micro.dev/v4/service/profile"
 )
 
 var (
@@ -30,6 +31,9 @@ func New(opts ...Option) *Service {
 	// setup micro, this triggers the Before
 	// function which parses CLI flags.
 	cmd.New(cmd.Service()).Run()
+
+	// setup auth
+	profile.SetupAuth()
 
 	// return a new service
 	return &Service{opts: newOptions(opts...)}
