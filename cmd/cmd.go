@@ -136,59 +136,6 @@ func upcaseInitial(str string) string {
 	return ""
 }
 
-// setupAuth handles exchanging refresh tokens to access tokens
-// The structure of the local micro userconfig file is the following:
-// micro.auth.[envName].token: temporary access token
-// micro.auth.[envName].refresh-token: long lived refresh token
-// micro.auth.[envName].expiry: expiration time of the access token, seconds since Unix epoch.
-func setupAuth(ctx *cli.Context) error {
-	env, err := util.GetEnv(ctx)
-	if err != nil {
-		return err
-	}
-	ns, err := namespace.Get(env.Name)
-	if err != nil {
-		return err
-	}
-
-	tok, err := clitoken.Get(ctx)
-	if err != nil {
-		return err
-	}
-
-	// If there is no refresh token, do not try to refresh it
-	if len(tok.RefreshToken) == 0 {
-		return nil
-	}
-
-	// Check if token is valid
-	if time.Now().Before(tok.Expiry.Add(time.Minute * -1)) {
-		auth.DefaultAuth.Init(
-			auth.ClientToken(tok),
-			auth.Issuer(ns),
-		)
-		return nil
-	}
-
-	// Get new access token from refresh token if it's close to expiry
-	tok, err = auth.Token(
-		auth.WithToken(tok.RefreshToken),
-		auth.WithTokenIssuer(ns),
-		auth.WithExpiry(time.Hour*24),
-	)
-	if err != nil {
-		return nil
-	}
-
-	// Save the token to user config file
-	auth.DefaultAuth.Init(
-		auth.ClientToken(tok),
-		auth.Issuer(ns),
-	)
-
-	return clitoken.Save(ctx, tok)
-}
-
 func action(c *cli.Context) error {
 	if c.Args().Len() == 0 {
 		return helper.MissingCommand(c)
@@ -246,6 +193,63 @@ func New(opts ...Option) *command {
 	}
 
 	return cmd
+}
+
+// setupAuth handles exchanging refresh tokens to access tokens
+// The structure of the local micro userconfig file is the following:
+// micro.auth.[envName].token: temporary access token
+// micro.auth.[envName].refresh-token: long lived refresh token
+// micro.auth.[envName].expiry: expiration time of the access token, seconds since Unix epoch.
+func (c *command) setupAuth(ctx *cli.Context) error {
+	if c.service {
+		return nil
+	}
+
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
+	if err != nil {
+		return err
+	}
+
+	tok, err := clitoken.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	// If there is no refresh token, do not try to refresh it
+	if len(tok.RefreshToken) == 0 {
+		return nil
+	}
+
+	// Check if token is valid
+	if time.Now().Before(tok.Expiry.Add(time.Minute * -1)) {
+		auth.DefaultAuth.Init(
+			auth.ClientToken(tok),
+			auth.Issuer(ns),
+		)
+		return nil
+	}
+
+	// Get new access token from refresh token if it's close to expiry
+	tok, err = auth.Token(
+		auth.WithToken(tok.RefreshToken),
+		auth.WithTokenIssuer(ns),
+		auth.WithExpiry(time.Hour*24),
+	)
+	if err != nil {
+		return nil
+	}
+
+	// Save the token to user config file
+	auth.DefaultAuth.Init(
+		auth.ClientToken(tok),
+		auth.Issuer(ns),
+	)
+
+	return clitoken.Save(ctx, tok)
 }
 
 func (c *command) App() *cli.App {
@@ -335,12 +339,8 @@ func (c *command) Before(ctx *cli.Context) error {
 	// setup auth
 	auth.DefaultAuth.Init(authOpts...)
 
-	// setup auth credentials, use local credentials for the CLI and injected creds
-	// for the service.
-	if !c.service {
-		if err := setupAuth(ctx); err != nil {
-			logger.Fatalf("Error setting up auth: %v", err)
-		}
+	if err := c.setupAuth(ctx); err != nil {
+		logger.Fatalf("Error setting up auth: %v", err)
 	}
 
 	// refresh the auth token
