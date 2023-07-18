@@ -34,15 +34,15 @@ import (
 	inAuth "micro.dev/v4/util/auth"
 	"micro.dev/v4/util/user"
 
-	authSrv "micro.dev/v4/client/auth"
-	brokerSrv "micro.dev/v4/client/broker"
-	configSrv "micro.dev/v4/client/config"
-	eventsSrv "micro.dev/v4/client/events"
-	registrySrv "micro.dev/v4/client/registry"
-	runtimeSrv "micro.dev/v4/client/runtime"
-	storeSrv "micro.dev/v4/client/store"
+	authSrv "micro.dev/v4/service/auth/client"
+	brokerSrv "micro.dev/v4/service/broker/client"
 	grpcCli "micro.dev/v4/service/client/grpc"
+	configSrv "micro.dev/v4/service/config/client"
+	eventsSrv "micro.dev/v4/service/events/client"
+	registrySrv "micro.dev/v4/service/registry/client"
+	runtimeSrv "micro.dev/v4/service/runtime/client"
 	grpcSvr "micro.dev/v4/service/server/grpc"
+	storeSrv "micro.dev/v4/service/store/client"
 )
 
 // profiles which when called will configure micro to run in that environment
