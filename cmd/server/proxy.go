@@ -2,8 +2,8 @@ package server
 
 import (
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/service/client"
 	bmem "micro.dev/v4/service/broker/memory"
+	"micro.dev/v4/service/client"
 	log "micro.dev/v4/service/logger"
 	"micro.dev/v4/service/registry/noop"
 	"micro.dev/v4/service/server"

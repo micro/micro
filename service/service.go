@@ -11,8 +11,8 @@ import (
 	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/model"
-	"micro.dev/v4/service/server"
 	"micro.dev/v4/service/profile"
+	"micro.dev/v4/service/server"
 )
 
 var (

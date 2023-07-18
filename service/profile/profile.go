@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/urfave/cli/v2"
@@ -33,10 +33,10 @@ import (
 	"micro.dev/v4/service/runtime/local"
 	"micro.dev/v4/service/server"
 	"micro.dev/v4/service/store"
-	"micro.dev/v4/util/wrapper"
 	"micro.dev/v4/service/store/file"
 	inAuth "micro.dev/v4/util/auth"
 	"micro.dev/v4/util/user"
+	"micro.dev/v4/util/wrapper"
 
 	authSrv "micro.dev/v4/service/auth/client"
 	brokerSrv "micro.dev/v4/service/broker/client"
@@ -56,8 +56,8 @@ var (
 // profiles which when called will configure micro to run in that environment
 var profiles = map[string]*Profile{
 	// built in profiles
-	"client":  Client,
-	"server":  Server,
+	"client": Client,
+	"server": Server,
 }
 
 // Profile configures an environment
@@ -169,62 +169,61 @@ var Server = &Profile{
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
 
-
 		return nil
 	},
 }
 
 func SetupAuth() {
-        opts := auth.DefaultAuth.Options()
+	opts := auth.DefaultAuth.Options()
 
-        // extract the account creds from options, these can be set by flags
-        accID := opts.ID
-        accSecret := opts.Secret
+	// extract the account creds from options, these can be set by flags
+	accID := opts.ID
+	accSecret := opts.Secret
 
-        // if no credentials were provided, self generate an account
-        if len(accID) == 0 || len(accSecret) == 0 {
-                opts := []auth.GenerateOption{
-                        auth.WithType("service"),
-                        auth.WithScopes("service"),
-                }
+	// if no credentials were provided, self generate an account
+	if len(accID) == 0 || len(accSecret) == 0 {
+		opts := []auth.GenerateOption{
+			auth.WithType("service"),
+			auth.WithScopes("service"),
+		}
 
-                acc, err := auth.Generate(uuid.New().String(), opts...)
-                if err != nil {
-                        logger.Fatal(err)
-                }
-                logger.Infof("Auth [%v] Generated an auth account", auth.DefaultAuth.String())
+		acc, err := auth.Generate(uuid.New().String(), opts...)
+		if err != nil {
+			logger.Fatal(err)
+		}
+		logger.Infof("Auth [%v] Generated an auth account", auth.DefaultAuth.String())
 
-                accID = acc.ID
-                accSecret = acc.Secret
-        }
+		accID = acc.ID
+		accSecret = acc.Secret
+	}
 
-        // generate the first token
-        token, err := auth.Token(
-                auth.WithCredentials(accID, accSecret),
-                auth.WithExpiry(time.Hour),
-        )
-        if err != nil {
-                logger.Fatal(err)
-        }
+	// generate the first token
+	token, err := auth.Token(
+		auth.WithCredentials(accID, accSecret),
+		auth.WithExpiry(time.Hour),
+	)
+	if err != nil {
+		logger.Fatal(err)
+	}
 
-        logger.Infof("Generated %v for acc %s %s", token, accID, accSecret)
+	logger.Infof("Generated %v for acc %s %s", token, accID, accSecret)
 
-        // set the credentials and token in auth options
-        auth.DefaultAuth.Init(
-                auth.ClientToken(token),
-                auth.Credentials(accID, accSecret),
-        )
+	// set the credentials and token in auth options
+	auth.DefaultAuth.Init(
+		auth.ClientToken(token),
+		auth.Credentials(accID, accSecret),
+	)
 }
 
 func SetupDefaults() {
-        once.Do(func() {
+	once.Do(func() {
 		client.DefaultClient = grpcCli.NewClient()
 		server.DefaultServer = grpcSvr.NewServer()
-                // wrap the client
-                client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
+		// wrap the client
+		client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
 
-                // wrap the server
-                server.DefaultServer.Init(server.WrapHandler(wrapper.AuthHandler()))
+		// wrap the server
+		server.DefaultServer.Init(server.WrapHandler(wrapper.AuthHandler()))
 		// setup rpc implementations after the client is configured
 		auth.DefaultAuth = authSrv.NewAuth()
 		broker.DefaultBroker = brokerSrv.NewBroker()
@@ -236,7 +235,7 @@ func SetupDefaults() {
 		store.DefaultBlobStore = storeSrv.NewBlobStore()
 		runtime.DefaultRuntime = runtimeSrv.NewRuntime()
 		model.DefaultModel = sql.NewModel()
-        })
+	})
 }
 
 // SetupRegistry configures the registry

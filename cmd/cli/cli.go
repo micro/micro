@@ -521,4 +521,3 @@ func publish(c *cli.Context, args []string) ([]byte, error) {
 	}
 	return []byte(`ok`), nil
 }
-

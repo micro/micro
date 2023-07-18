@@ -6,13 +6,13 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/api"
 	"micro.dev/v4/service/api/handler"
 	"micro.dev/v4/service/api/handler/rpc"
 	"micro.dev/v4/service/api/router"
 	regRouter "micro.dev/v4/service/api/router/registry"
 	httpapi "micro.dev/v4/service/api/server/http"
+	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/registry"
 )
