@@ -49,7 +49,6 @@ import (
 var profiles = map[string]*Profile{
 	// built in profiles
 	"client":  Client,
-	"service": Service,
 	"server":  Server,
 }
 
@@ -146,15 +145,6 @@ var Server = &Profile{
 		// set jwt
 		SetupRules()
 
-		return nil
-	},
-}
-
-// Service is the default for any services run
-var Service = &Profile{
-	Name: "service",
-	Setup: func(ctx *cli.Context) error {
-		SetupDefaults()
 		return nil
 	},
 }

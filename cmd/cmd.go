@@ -370,11 +370,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		case "service", "server":
 			prof = "server"
 		default:
-			if c.service {
-				prof = "service"
-			} else {
-				prof = "client"
-			}
+			prof = "client"
 		}
 	}
 

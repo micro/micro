@@ -403,7 +403,6 @@ func (m *manager) runtimeEnv(srv *runtime.Service, options *runtime.CreateOption
 	// overwrite any values
 	env := map[string]string{
 		"MICRO_SERVICE_NAME":    srv.Name,
-		"MICRO_SERVICE_PROFILE": "service",
 		"MICRO_SERVICE_NETWORK": "127.0.0.1:8443",
 	}
 
