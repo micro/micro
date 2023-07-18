@@ -37,8 +37,8 @@ type Options struct {
 	Database string
 	// Table sets the default table
 	Table string
-	// Namespace to scope to
-	Namespace string
+	// Address to scope to
+	Address string
 }
 
 type Option func(*Options)
@@ -57,9 +57,9 @@ func WithTable(t string) Option {
 	}
 }
 
-// WithNamespace sets the namespace to scope to
-func WithNamespace(ns string) Option {
+// WithAddress sets the database address
+func WithAddress(ns string) Option {
 	return func(o *Options) {
-		o.Namespace = ns
+		o.Address = ns
 	}
 }

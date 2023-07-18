@@ -45,8 +45,6 @@ type Auth struct {
 
 	namespaces map[string]bool
 	sync.Mutex
-	// Prevent the generation of default accounts
-	DisableAdmin bool
 }
 
 // Init the auth
@@ -63,9 +61,6 @@ func (a *Auth) Init(opts ...auth.Option) {
 
 func (a *Auth) setupDefaultAccount(ns string) error {
 	if ns != namespace.DefaultNamespace {
-		return nil
-	}
-	if a.DisableAdmin {
 		return nil
 	}
 	a.Lock()

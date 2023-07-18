@@ -29,7 +29,6 @@ import (
 	uconf "micro.dev/v4/util/config"
 	"micro.dev/v4/util/helper"
 	"micro.dev/v4/util/namespace"
-	"micro.dev/v4/util/user"
 	"micro.dev/v4/util/wrapper"
 	"micro.dev/v4/service/runtime"
 )
@@ -63,7 +62,7 @@ var (
 	// name of the binary
 	name = "micro"
 	// description of the binary
-	description = "API first development platform\n\n	 Use `micro [command] --help` to see command specific help."
+	description = "API first development platform"
 	// defaultFlags which are used on all commands
 	defaultFlags = []cli.Flag{
 		&cli.StringFlag{
@@ -84,29 +83,29 @@ var (
 			Value:   "micro",
 		},
 		&cli.StringFlag{
-			Name:    "auth_address",
-			EnvVars: []string{"MICRO_AUTH_ADDRESS"},
-			Usage:   "Comma-separated list of auth addresses",
-		},
-		&cli.StringFlag{
-			Name:    "auth_id",
-			EnvVars: []string{"MICRO_AUTH_ID"},
+			Name:    "client_id",
+			EnvVars: []string{"MICRO_CLIENT_ID"},
 			Usage:   "Account ID used for client authentication",
 		},
 		&cli.StringFlag{
-			Name:    "auth_secret",
-			EnvVars: []string{"MICRO_AUTH_SECRET"},
+			Name:    "client_secret",
+			EnvVars: []string{"MICRO_CLIENT_SECRET"},
 			Usage:   "Account secret used for client authentication",
 		},
 		&cli.StringFlag{
-			Name:    "auth_public_key",
-			EnvVars: []string{"MICRO_AUTH_PUBLIC_KEY"},
+			Name:    "public_key",
+			EnvVars: []string{"MICRO_PUBLIC_KEY"},
 			Usage:   "Public key for JWT auth (base64 encoded PEM)",
 		},
 		&cli.StringFlag{
-			Name:    "auth_private_key",
-			EnvVars: []string{"MICRO_AUTH_PRIVATE_KEY"},
+			Name:    "private_key",
+			EnvVars: []string{"MICRO_PRIVATE_KEY"},
 			Usage:   "Private key for JWT auth (base64 encoded PEM)",
+		},
+		&cli.StringFlag{
+			Name:    "name",
+			Usage:   "Set the service name",
+			EnvVars: []string{"MICRO_SERVICE_NAME"},
 		},
 		&cli.StringFlag{
 			Name:    "profile",
@@ -123,9 +122,6 @@ var (
 
 func init() {
 	rand.Seed(time.Now().Unix())
-
-	// configure defaults for all packages
-	profile.SetupDefaults()
 }
 
 func formatErr(err error) string {
@@ -427,26 +423,21 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(ctx.String("namespace")) > 0 {
 		authOpts = append(authOpts, auth.Issuer(ctx.String("namespace")))
 	}
-	if len(ctx.String("auth_id")) > 0 || len(ctx.String("auth_secret")) > 0 {
+	if len(ctx.String("client_id")) > 0 || len(ctx.String("client_secret")) > 0 {
 		authOpts = append(authOpts, auth.Credentials(
-			ctx.String("auth_id"), ctx.String("auth_secret"),
+			ctx.String("client_id"), ctx.String("client_secret"),
 		))
 	}
 
 	// load the jwt private and public keys, in the case of the server we want to generate them if not
 	// present. The server will inject these creds into the core services, if the services generated
 	// the credentials themselves then they wouldn't match
-	if len(ctx.String("auth_public_key")) > 0 || len(ctx.String("auth_private_key")) > 0 {
-		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
-		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
-	} else if prof == "server" {
-		privKey, pubKey, err := user.GetJWTCerts()
-		if err != nil {
-			logger.Fatalf("Error getting keys: %v", err)
-		}
-		authOpts = append(authOpts, auth.PublicKey(string(pubKey)), auth.PrivateKey(string(privKey)))
+	if len(ctx.String("public_key")) > 0 || len(ctx.String("private_key")) > 0 {
+		authOpts = append(authOpts, auth.PublicKey(ctx.String("public_key")))
+		authOpts = append(authOpts, auth.PrivateKey(ctx.String("private_key")))
 	}
 
+	// setup auth
 	auth.DefaultAuth.Init(authOpts...)
 
 	// setup auth credentials, use local credentials for the CLI and injected creds
@@ -496,8 +487,8 @@ func (c *command) Before(ctx *cli.Context) error {
 		storeOpts = append(storeOpts, store.Database(ctx.String("namespace")))
 	}
 
-	if len(ctx.String("service_name")) > 0 {
-		storeOpts = append(storeOpts, store.Table(ctx.String("service_name")))
+	if len(ctx.String("name")) > 0 {
+		storeOpts = append(storeOpts, store.Table(ctx.String("name")))
 	}
 
 	if err := store.DefaultStore.Init(storeOpts...); err != nil {
@@ -518,7 +509,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	// from the service immediately. We only do this if the action is nil, indicating
 	// a service is being run
 	if c.service && config.DefaultConfig == nil {
-		config.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
+		config.DefaultConfig = configCli.NewConfig()
 	} else if config.DefaultConfig == nil {
 		config.DefaultConfig, _ = storeConf.NewConfig(store.DefaultStore, ctx.String("namespace"))
 	}

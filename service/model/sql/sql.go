@@ -11,8 +11,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
-	"micro.dev/v4/service/config"
-	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/model"
 	"micro.dev/v4/util/user"
 )
@@ -57,24 +55,16 @@ func NewModel(opts ...model.Option) model.Model {
 	}
 
 	// create a new database handle
-	db, _ := NewDB(options.Database)
+	db, _ := NewDB(options.Database, options.Address)
 
 	return db
 }
 
 // NewDB provides a new database connection. If [name].db.address is found
 // in the config then it's used as the address, otherwise we use sqlite.
-func NewDB(name string) (*DB, error) {
-	dbAddress := "sqlite://" + name + ".db"
-
-	// Connect to the database
-	cfg, err := config.Get(name + ".db.address")
-	if err != nil {
-		logger.Fatalf("Error loading config: %v", err)
-	}
-	addr := cfg.String(dbAddress)
-
+func NewDB(name, addr string) (*DB, error) {
 	var db *gorm.DB
+	var err error
 
 	if strings.HasPrefix(addr, "postgres") {
 		db, err = gorm.Open(postgres.Open(addr), &gorm.Config{

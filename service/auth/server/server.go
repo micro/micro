@@ -13,32 +13,20 @@ import (
 	"micro.dev/v4/util/auth/token/jwt"
 )
 
-// Flags specific to the router
-var Flags = []cli.Flag{
-	&cli.BoolFlag{
-		Name:    "disable_admin",
-		EnvVars: []string{"MICRO_AUTH_DISABLE_ADMIN"},
-		Usage:   "Prevent generation of default accounts in namespaces",
-	},
-}
-
 const (
-	name    = "auth"
 	address = ":8010"
 )
 
 // Run the auth service
 func Run(ctx *cli.Context) error {
 	srv := service.New(
-		service.Name(name),
+		service.Name("auth"),
 		service.Address(address),
 	)
 
 	// setup the handlers
 	ruleH := &handler.Rules{}
-	authH := &handler.Auth{
-		DisableAdmin: ctx.Bool("disable_admin"),
-	}
+	authH := &handler.Auth{}
 
 	// setup the auth handler to use JWTs
 	authH.TokenProvider = jwt.NewTokenProvider(

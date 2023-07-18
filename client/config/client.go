@@ -13,7 +13,6 @@ import (
 
 var (
 	defaultNamespace = "micro"
-	name             = "config"
 )
 
 type srv struct {
@@ -75,15 +74,10 @@ func (m *srv) String() string {
 	return "service"
 }
 
-func NewConfig(namespace string) *srv {
-	addr := name
-	if len(namespace) == 0 {
-		namespace = defaultNamespace
-	}
-
+func NewConfig() *srv {
 	s := &srv{
-		namespace: namespace,
-		client:    proto.NewConfigService(addr, client.DefaultClient),
+		namespace: defaultNamespace,
+		client:    proto.NewConfigService("config", client.DefaultClient),
 	}
 
 	return s

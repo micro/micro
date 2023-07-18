@@ -23,7 +23,6 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
-	"strings"
 	"syscall"
 
 	"micro.dev/v4/service/runtime/local/process"
@@ -43,11 +42,6 @@ func (p *Process) Fork(exe *process.Binary) (*process.PID, error) {
 	cmd.Dir = exe.Dir
 	// set env vars
 	for _, e := range os.Environ() {
-		// HACK - MICRO_AUTH_* env vars will cause weird behaviour with jwt auth so make sure we don't
-		// pass these through to services that we run
-		if strings.HasPrefix(e, "MICRO_AUTH_") {
-			continue
-		}
 		cmd.Env = append(cmd.Env, e)
 	}
 	cmd.Env = append(cmd.Env, exe.Env...)

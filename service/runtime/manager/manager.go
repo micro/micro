@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"micro.dev/v4/service/auth"
-	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/runtime"
 	"micro.dev/v4/service/runtime/build"
@@ -325,8 +324,8 @@ func (m *manager) createServiceInRuntime(srv *service) error {
 
 	// inject the credentials into the service if present
 	if len(acc.ID) > 0 && len(acc.Secret) > 0 {
-		options = append(options, runtime.WithSecret("MICRO_AUTH_ID", acc.ID))
-		options = append(options, runtime.WithSecret("MICRO_AUTH_SECRET", acc.Secret))
+		options = append(options, runtime.WithSecret("MICRO_CLIENT_ID", acc.ID))
+		options = append(options, runtime.WithSecret("MICRO_CLIENT_SECRET", acc.Secret))
 	}
 
 	// create the service
@@ -403,9 +402,9 @@ func (m *manager) runtimeEnv(srv *runtime.Service, options *runtime.CreateOption
 
 	// overwrite any values
 	env := map[string]string{
-		// set the proxy for the service to use (e.g. micro network)
-		// using the proxy which has been configured for the runtime
-		"MICRO_SERVICE_NETWORK": client.DefaultClient.Options().Network,
+		"MICRO_SERVICE_NAME": srv.Name,
+		"MICRO_SERVICE_PROFILE": "service",
+		"MICRO_SERVICE_NETWORK": "127.0.0.1:8443",
 	}
 
 	// set the env vars provided

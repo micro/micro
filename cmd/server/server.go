@@ -72,10 +72,6 @@ func Run(context *cli.Context) error {
 		os.Exit(1)
 	}
 
-	// TODO: reimplement peering of servers e.g --peer=node1,node2,node3
-	// peers are configured as network nodes to cluster between
-	log.Info("Starting server")
-
 	// parse the env vars
 	var envvars []string
 	for _, val := range os.Environ() {
@@ -102,8 +98,6 @@ func Run(context *cli.Context) error {
 
 	// start the services
 	for _, service := range services {
-		log.Infof("Registering %s", service)
-
 		// all things run by the server are `micro service [name]`
 		cmdArgs := []string{"service"}
 
@@ -115,7 +109,7 @@ func Run(context *cli.Context) error {
 
 		// set the proxy address, default to the network running locally
 		if service != "network" {
-			netAddress := context.String("service_network")
+			netAddress := context.String("network")
 			if len(netAddress) == 0 {
 				netAddress = "127.0.0.1:8443"
 			}
@@ -148,8 +142,6 @@ func Run(context *cli.Context) error {
 		}
 	}
 
-	log.Info("Starting server runtime")
-
 	// start the runtime
 	if err := runtimeServer.Start(); err != nil {
 		log.Fatal(err)
@@ -176,8 +168,6 @@ func Run(context *cli.Context) error {
 
 	// stop the runtime
 	runtimeServer.Stop()
-
-	log.Info("Stopped server")
 
 	// just wait 1 sec
 	<-time.After(time.Second)

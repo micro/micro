@@ -25,7 +25,6 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "auth",
 		Command: auth.Run,
-		Flags:   auth.Flags,
 	},
 	{
 		Name:    "broker",

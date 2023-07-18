@@ -9,12 +9,14 @@ import (
 	"path/filepath"
 
 	"github.com/urfave/cli/v2"
+	"micro.dev/v4/service/auth"
 	"micro.dev/v4/service/auth/jwt"
 	"micro.dev/v4/service/broker"
 	memBroker "micro.dev/v4/service/broker/memory"
 	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/config"
 	storeConfig "micro.dev/v4/service/config/store"
+	"micro.dev/v4/service/events"
 	evStore "micro.dev/v4/service/events/store"
 	memStream "micro.dev/v4/service/events/stream/memory"
 	"micro.dev/v4/service/logger"
@@ -24,16 +26,23 @@ import (
 	"micro.dev/v4/service/registry/memory"
 	"micro.dev/v4/service/router"
 	regRouter "micro.dev/v4/service/router/registry"
+	"micro.dev/v4/service/runtime"
 	"micro.dev/v4/service/runtime/local"
 	"micro.dev/v4/service/server"
+	"micro.dev/v4/service/store"
 	"micro.dev/v4/service/store/file"
-
-	microAuth "micro.dev/v4/service/auth"
-	microEvents "micro.dev/v4/service/events"
-	microRuntime "micro.dev/v4/service/runtime"
-	microStore "micro.dev/v4/service/store"
 	inAuth "micro.dev/v4/util/auth"
 	"micro.dev/v4/util/user"
+
+	authSrv "micro.dev/v4/client/auth"
+	brokerSrv "micro.dev/v4/client/broker"
+	configSrv "micro.dev/v4/client/config"
+	eventsSrv "micro.dev/v4/client/events"
+	registrySrv "micro.dev/v4/client/registry"
+	runtimeSrv "micro.dev/v4/client/runtime"
+	storeSrv "micro.dev/v4/client/store"
+	grpcCli "micro.dev/v4/service/client/grpc"
+	grpcSvr "micro.dev/v4/service/server/grpc"
 )
 
 // profiles which when called will configure micro to run in that environment
@@ -74,63 +83,68 @@ func Load(name string) (*Profile, error) {
 
 // Client profile is for any entrypoint that behaves as a client
 var Client = &Profile{
-	Name:  "client",
-	Setup: func(ctx *cli.Context) error { return nil },
+	Name: "client",
+	Setup: func(ctx *cli.Context) error {
+		SetupDefaults()
+		return nil
+	},
 }
 
 var Server = &Profile{
 	Name: "server",
 	Setup: func(ctx *cli.Context) error {
-		microAuth.DefaultAuth = jwt.NewAuth()
-		microStore.DefaultStore = file.NewStore(file.WithDir(filepath.Join(user.Dir, "server", "store")))
+		// catch all
+		SetupDefaults()
+
+		// get public/private key
+                privKey, pubKey, err := user.GetJWTCerts()
+                if err != nil {
+                        logger.Fatalf("Error getting keys: %v", err)
+                }
+
+		// set auth
+		auth.DefaultAuth = jwt.NewAuth(
+			auth.PublicKey(string(pubKey)),
+			auth.PrivateKey(string(privKey)),
+		)
+
+		// set broker
+		SetupBroker(memBroker.NewBroker())
+
+		// set store
+		store.DefaultStore = file.NewStore(file.WithDir(filepath.Join(user.Dir, "server", "store")))
+
+		// set config
 		SetupConfigSecretKey()
-		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
-		SetupJWT()
+		config.DefaultConfig, _ = storeConfig.NewConfig(store.DefaultStore, "")
 
-		// the registry service uses the memory registry, the other core services will use the default
-		// rpc client and call the registry service
-		if ctx.Args().Get(1) == "registry" {
-			SetupRegistry(memory.NewRegistry())
-		} else {
-			// set the registry address
-			registry.DefaultRegistry.Init(
-				registry.Addrs("localhost:8000"),
-			)
-
-			SetupRegistry(registry.DefaultRegistry)
+		// setup events
+		events.DefaultStream, err = memStream.NewStream()
+		if err != nil {
+			logger.Fatalf("Error configuring stream: %v", err)
 		}
-
-		// the broker service uses the memory broker, the other core services will use the default
-		// rpc client and call the broker service
-		if ctx.Args().Get(1) == "broker" {
-			SetupBroker(memBroker.NewBroker())
-		} else {
-			broker.DefaultBroker.Init(
-				broker.Addrs("localhost:8003"),
-			)
-			SetupBroker(broker.DefaultBroker)
-		}
+		events.DefaultStore = evStore.NewStore(
+			evStore.WithStore(store.DefaultStore),
+		)
 
 		// set the store in the model
 		model.DefaultModel = sql.NewModel()
 
+		// set registry
+		SetupRegistry(memory.NewRegistry())
+
 		// use the local runtime, note: the local runtime is designed to run source code directly so
 		// the runtime builder should NOT be set when using this implementation
-		microRuntime.DefaultRuntime = local.NewRuntime()
+		runtime.DefaultRuntime = local.NewRuntime()
 
-		var err error
-		microEvents.DefaultStream, err = memStream.NewStream()
-		if err != nil {
-			logger.Fatalf("Error configuring stream: %v", err)
-		}
-		microEvents.DefaultStore = evStore.NewStore(
-			evStore.WithStore(microStore.DefaultStore),
-		)
-
-		microStore.DefaultBlobStore, err = file.NewBlobStore()
+		// set blob store
+		store.DefaultBlobStore, err = file.NewBlobStore()
 		if err != nil {
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
+
+		// set jwt
+		SetupRules()
 
 		return nil
 	},
@@ -139,7 +153,27 @@ var Server = &Profile{
 // Service is the default for any services run
 var Service = &Profile{
 	Name:  "service",
-	Setup: func(ctx *cli.Context) error { return nil },
+	Setup: func(ctx *cli.Context) error {
+		SetupDefaults()
+		return nil
+	},
+}
+
+func SetupDefaults() {
+	client.DefaultClient = grpcCli.NewClient()
+	server.DefaultServer = grpcSvr.NewServer()
+
+	// setup rpc implementations after the client is configured
+	auth.DefaultAuth = authSrv.NewAuth()
+	broker.DefaultBroker = brokerSrv.NewBroker()
+	config.DefaultConfig = configSrv.NewConfig()
+	events.DefaultStream = eventsSrv.NewStream()
+	events.DefaultStore = eventsSrv.NewStore()
+	registry.DefaultRegistry = registrySrv.NewRegistry()
+	store.DefaultStore = storeSrv.NewStore()
+	store.DefaultBlobStore = storeSrv.NewBlobStore()
+	runtime.DefaultRuntime = runtimeSrv.NewRuntime()
+	model.DefaultModel = sql.NewModel()
 }
 
 // SetupRegistry configures the registry
@@ -157,10 +191,10 @@ func SetupBroker(b broker.Broker) {
 	server.DefaultServer.Init(server.Broker(b))
 }
 
-// SetupJWT configures the default internal system rules
-func SetupJWT() {
+// SetupRules configures the default internal system rules
+func SetupRules() {
 	for _, rule := range inAuth.SystemRules {
-		if err := microAuth.DefaultAuth.Grant(rule); err != nil {
+		if err := auth.DefaultAuth.Grant(rule); err != nil {
 			logger.Fatal("Error creating default rule: %v", err)
 		}
 	}
