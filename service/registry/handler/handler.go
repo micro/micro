@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	pb "micro.dev/v4/proto/registry"
 	"micro.dev/v4/service"
 	"micro.dev/v4/service/errors"
@@ -35,7 +36,7 @@ func (r *Registry) publishEvent(action string, service *pb.Service) error {
 	// TODO: timestamp should be read from received event
 	// Right now registry.Result does not contain timestamp
 	event := &pb.Event{
-		Id:        r.ID,
+		Id:        uuid.New().String(),
 		Type:      pb.EventType(ActionToEventType(action)),
 		Timestamp: time.Now().UnixNano(),
 		Service:   service,

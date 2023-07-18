@@ -16,8 +16,6 @@ import (
 )
 
 var (
-	// name of the network service
-	name = "network"
 	// name of the micro network
 	network = "micro"
 	// address is the network address
@@ -47,9 +45,6 @@ var (
 
 // Run runs the micro server
 func Run(ctx *cli.Context) error {
-	if len(ctx.String("server_name")) > 0 {
-		name = ctx.String("server_name")
-	}
 	if len(ctx.String("address")) > 0 {
 		address = ctx.String("address")
 	}
@@ -59,7 +54,7 @@ func Run(ctx *cli.Context) error {
 
 	// Initialise the local service
 	service := service.New(
-		service.Name(name),
+		service.Name("network"),
 		service.Address(address),
 	)
 
@@ -89,11 +84,11 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// local mux
-	localMux := muxer.New(name, localProxy)
+	localMux := muxer.New("network", localProxy)
 
 	// set the handler
 	srv := grpc.NewServer(
-		server.Name(name),
+		server.Name("network"),
 		server.Address(netAddress),
 		server.WithRouter(localMux),
 	)

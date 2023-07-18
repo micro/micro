@@ -24,13 +24,13 @@ import (
 	"micro.dev/v4/service/network"
 	"micro.dev/v4/service/profile"
 	"micro.dev/v4/service/registry"
+	"micro.dev/v4/service/runtime"
 	"micro.dev/v4/service/server"
 	"micro.dev/v4/service/store"
 	uconf "micro.dev/v4/util/config"
 	"micro.dev/v4/util/helper"
 	"micro.dev/v4/util/namespace"
 	"micro.dev/v4/util/wrapper"
-	"micro.dev/v4/service/runtime"
 )
 
 type Cmd interface {
@@ -178,7 +178,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	tok, err = auth.Token(
 		auth.WithToken(tok.RefreshToken),
 		auth.WithTokenIssuer(ns),
-		auth.WithExpiry(time.Hour * 24),
+		auth.WithExpiry(time.Hour*24),
 	)
 	if err != nil {
 		return nil

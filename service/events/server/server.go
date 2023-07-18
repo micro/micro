@@ -13,6 +13,7 @@ func Run(ctx *cli.Context) error {
 	// new service
 	srv := service.New(
 		service.Name("events"),
+		service.Address(":8005"),
 	)
 
 	// register the handlers

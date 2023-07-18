@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	name    = "config"
 	address = ":8001"
 )
 
@@ -18,9 +17,8 @@ var (
 	// Flags specific to the config service
 	Flags = []cli.Flag{
 		&cli.StringFlag{
-			Name:    "watch_topic",
+			Name:    "config_secret",
 			EnvVars: []string{"MICRO_CONFIG_SECRET_KEY"},
-			Usage:   "watch the change event.",
 		},
 	}
 )
@@ -28,16 +26,14 @@ var (
 // Run micro config
 func Run(c *cli.Context) error {
 	srv := service.New(
-		service.Name(name),
+		service.Name("config"),
 		service.Address(address),
 	)
 
 	store.DefaultStore.Init(store.Table("config"))
 
 	// register the handler
-	pb.RegisterConfigHandler(srv.Server(), handler.NewConfig(c.String("config_secret_key")))
-	// register the subscriber
-	//srv.Subscribe(watchTopic, new(watcher))
+	pb.RegisterConfigHandler(srv.Server(), handler.NewConfig(c.String("config_secret")))
 
 	if err := srv.Run(); err != nil {
 		logger.Fatal(err)

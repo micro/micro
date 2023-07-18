@@ -51,7 +51,6 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "runtime",
 		Command: runtime.Run,
-		Flags:   runtime.Flags,
 	},
 	{
 		Name:    "store",

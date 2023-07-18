@@ -24,7 +24,7 @@ var (
 		"runtime",  // :8088
 		"config",   // :8001
 		"store",    // :8002
-		"events",   // :unset
+		"events",   // :8005
 		"auth",     // :8010
 	}
 )

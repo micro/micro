@@ -97,10 +97,10 @@ var Server = &Profile{
 		SetupDefaults()
 
 		// get public/private key
-                privKey, pubKey, err := user.GetJWTCerts()
-                if err != nil {
-                        logger.Fatalf("Error getting keys: %v", err)
-                }
+		privKey, pubKey, err := user.GetJWTCerts()
+		if err != nil {
+			logger.Fatalf("Error getting keys: %v", err)
+		}
 
 		// set auth
 		auth.DefaultAuth = jwt.NewAuth(
@@ -152,7 +152,7 @@ var Server = &Profile{
 
 // Service is the default for any services run
 var Service = &Profile{
-	Name:  "service",
+	Name: "service",
 	Setup: func(ctx *cli.Context) error {
 		SetupDefaults()
 		return nil

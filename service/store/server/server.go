@@ -9,24 +9,15 @@ import (
 )
 
 var (
-	// name of the store service
-	name = "store"
 	// address is the store address
 	address = ":8002"
 )
 
 // Run micro store
 func Run(ctx *cli.Context) error {
-	if len(ctx.String("server_name")) > 0 {
-		name = ctx.String("server_name")
-	}
-	if len(ctx.String("address")) > 0 {
-		address = ctx.String("address")
-	}
-
 	// Initialise service
 	service := service.New(
-		service.Name(name),
+		service.Name("store"),
 		service.Address(address),
 	)
 
@@ -42,5 +33,6 @@ func Run(ctx *cli.Context) error {
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
+
 	return nil
 }
