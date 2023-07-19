@@ -33,7 +33,7 @@ func New(opts ...Option) *Service {
 	cmd.New(cmd.Service()).Run()
 
 	// setup auth
-	profile.SetupAuth()
+	profile.SetupAccount(nil)
 
 	// return a new service
 	return &Service{opts: newOptions(opts...)}

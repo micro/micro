@@ -19,7 +19,6 @@ import (
 	storeConf "micro.dev/v4/service/config/store"
 	"micro.dev/v4/service/errors"
 	"micro.dev/v4/service/logger"
-	"micro.dev/v4/service/network"
 	"micro.dev/v4/service/profile"
 	"micro.dev/v4/service/registry"
 	"micro.dev/v4/service/runtime"
@@ -234,7 +233,7 @@ func (c *command) setupAuth(ctx *cli.Context) error {
 	}
 
 	// Get new access token from refresh token if it's close to expiry
-	tok, err = auth.Token(
+	tok, err = auth.DefaultAuth.Token(
 		auth.WithToken(tok.RefreshToken),
 		auth.WithTokenIssuer(ns),
 		auth.WithExpiry(time.Hour*24),
@@ -267,8 +266,10 @@ func (c *command) Before(ctx *cli.Context) error {
 		uconf.SetConfig(cf)
 	}
 
+	command := ctx.Args().First()
+
 	// certain commands don't require loading
-	if ctx.Args().First() == "env" {
+	if command == "env" {
 		return nil
 	}
 
@@ -276,13 +277,10 @@ func (c *command) Before(ctx *cli.Context) error {
 	prof := ctx.String("profile")
 
 	// if no profile is set then set one
-	if len(prof) == 0 {
-		switch ctx.Args().First() {
-		case "service", "server":
-			prof = "server"
-		default:
-			prof = "client"
-		}
+	if command == "server" {
+		prof = "server"
+	} else if len(prof) == 0 {
+		prof = "client"
 	}
 
 	// apply the profile
@@ -299,9 +297,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		// use the proxy address passed as a flag, this is normally
 		// the micro network
 		netAddress = ctx.String("network")
-	} else {
-		// for CLI, use the external proxy which is loaded from the
-		// local config
+	} else if command != "server" {
 		var err error
 		netAddress, err = util.CLIProxyAddress(ctx)
 		if err != nil {
@@ -312,12 +308,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		client.DefaultClient.Init(client.Network(netAddress))
 	}
 
-	// use the internal network lookup
-	client.DefaultClient.Init(
-		client.Lookup(network.Lookup),
-	)
-
-	// setup auth
 	authOpts := []auth.Option{}
 	if len(ctx.String("namespace")) > 0 {
 		authOpts = append(authOpts, auth.Issuer(ctx.String("namespace")))
@@ -328,12 +318,11 @@ func (c *command) Before(ctx *cli.Context) error {
 		))
 	}
 
-	// load the jwt private and public keys, in the case of the server we want to generate them if not
-	// present. The server will inject these creds into the core services, if the services generated
-	// the credentials themselves then they wouldn't match
 	if len(ctx.String("public_key")) > 0 || len(ctx.String("private_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("public_key")))
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("private_key")))
+	} else if !c.service {
+		profile.SetupJWT()
 	}
 
 	// setup auth

@@ -62,18 +62,10 @@ func IsBuiltInService(command string) bool {
 
 // CLIProxyAddress returns the proxy address which should be set for the client
 func CLIProxyAddress(ctx *cli.Context) (string, error) {
-	switch ctx.Args().First() {
-	case "new", "server", "help", "env":
-		return "", nil
-	}
+	command := ctx.Args().First()
 
-	// fix for "micro service [command]", e.g "micro service auth"
-	if ctx.Args().First() == "service" && IsBuiltInService(ctx.Args().Get(1)) {
-		return "", nil
-	}
-
-	// don't set the proxy address on the proxy
-	if ctx.Args().First() == "proxy" {
+	switch command {
+	case "new", "server", "help", "env", "proxy", "service":
 		return "", nil
 	}
 
@@ -81,10 +73,12 @@ func CLIProxyAddress(ctx *cli.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	addr := env.ProxyAddress
 	if !strings.Contains(addr, ":") {
 		return fmt.Sprintf("%v:443", addr), nil
 	}
+
 	return addr, nil
 }
 

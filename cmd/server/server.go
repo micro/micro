@@ -13,6 +13,7 @@ import (
 	"micro.dev/v4/service/client"
 	log "micro.dev/v4/service/logger"
 	"micro.dev/v4/service/runtime"
+	"micro.dev/v4/service/runtime/local"
 )
 
 var (
@@ -59,7 +60,6 @@ func init() {
 }
 
 func setNetwork() {
-	// set out client network to the local one
 	client.DefaultClient.Init(
 		client.Network("127.0.0.1:8443"),
 	)
@@ -71,6 +71,8 @@ func Run(context *cli.Context) error {
 		cli.ShowSubcommandHelp(context)
 		os.Exit(1)
 	}
+
+	log.Info("Starting server")
 
 	// parse the env vars
 	var envvars []string
@@ -94,7 +96,7 @@ func Run(context *cli.Context) error {
 	}
 
 	// save the runtime
-	runtimeServer := runtime.DefaultRuntime
+	runtimeServer := local.NewRuntime()
 
 	// start the services
 	for _, service := range services {
@@ -125,6 +127,8 @@ func Run(context *cli.Context) error {
 			runtime.WithRetries(10),
 		}
 
+		log.Infof("Registering %s", service)
+
 		// NOTE: we use Version right now to check for the latest release
 		muService := &runtime.Service{Name: service, Version: "latest"}
 		if err := runtimeServer.Create(muService, args...); err != nil {
@@ -132,6 +136,8 @@ func Run(context *cli.Context) error {
 			return err
 		}
 	}
+
+	log.Info("Starting runtime")
 
 	// start the runtime
 	if err := runtimeServer.Start(); err != nil {
@@ -153,6 +159,8 @@ func Run(context *cli.Context) error {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL)
 	<-ch
+
+	log.Info("Stopping server")
 
 	// close wait chan
 	close(wait)

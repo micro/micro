@@ -25,6 +25,7 @@ import (
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/model"
 	"micro.dev/v4/service/model/sql"
+	"micro.dev/v4/service/network"
 	"micro.dev/v4/service/registry"
 	"micro.dev/v4/service/registry/memory"
 	"micro.dev/v4/service/router"
@@ -103,22 +104,14 @@ var Server = &Profile{
 		// catch all
 		SetupDefaults()
 
-		// get public/private key
-		privKey, pubKey, err := user.GetJWTCerts()
-		if err != nil {
-			logger.Fatalf("Error getting keys: %v", err)
+		// set auth
+		if ctx.Args().First() != "server" {
+			auth.DefaultAuth = jwt.NewAuth(auth.Issuer(ctx.String("namespace")))
+			SetupRules()
 		}
 
-		// set auth
-		auth.DefaultAuth = jwt.NewAuth()
-
-		auth.DefaultAuth.Init(
-			auth.PublicKey(string(pubKey)),
-			auth.PrivateKey(string(privKey)),
-		)
-
-		// set jwt
-		SetupRules()
+		// setup jwt
+		SetupJWT()
 
 		if ctx.Args().Get(1) == "registry" {
 			SetupRegistry(memory.NewRegistry())
@@ -148,6 +141,7 @@ var Server = &Profile{
 		config.DefaultConfig, _ = storeConfig.NewConfig(store.DefaultStore, "")
 
 		// setup events
+		var err error
 		events.DefaultStream, err = memStream.NewStream()
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)
@@ -169,11 +163,27 @@ var Server = &Profile{
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
 
+		// set user
+		SetupAccount(ctx)
+
 		return nil
 	},
 }
 
-func SetupAuth() {
+func SetupJWT() {
+	// get public/private key
+	privKey, pubKey, err := user.GetJWTCerts()
+	if err != nil {
+		logger.Fatalf("Error getting keys: %v", err)
+	}
+
+	auth.DefaultAuth.Init(
+		auth.PublicKey(string(pubKey)),
+		auth.PrivateKey(string(privKey)),
+	)
+}
+
+func SetupAccount(ctx *cli.Context) {
 	opts := auth.DefaultAuth.Options()
 
 	// extract the account creds from options, these can be set by flags
@@ -191,7 +201,7 @@ func SetupAuth() {
 		if err != nil {
 			logger.Fatal(err)
 		}
-		logger.Infof("Auth [%v] Generated an auth account", auth.DefaultAuth.String())
+		logger.Debugf("Auth [%v] Generated an auth account", auth.DefaultAuth.String())
 
 		accID = acc.ID
 		accSecret = acc.Secret
@@ -206,7 +216,7 @@ func SetupAuth() {
 		logger.Fatal(err)
 	}
 
-	logger.Infof("Generated %v for acc %s %s", token, accID, accSecret)
+	logger.Debugf("Generated %v for acc %s %s", token, accID, accSecret)
 
 	// set the credentials and token in auth options
 	auth.DefaultAuth.Init(
@@ -235,6 +245,11 @@ func SetupDefaults() {
 		store.DefaultBlobStore = storeSrv.NewBlobStore()
 		runtime.DefaultRuntime = runtimeSrv.NewRuntime()
 		model.DefaultModel = sql.NewModel()
+
+		// use the internal network lookup
+		client.DefaultClient.Init(
+			client.Lookup(network.Lookup),
+		)
 	})
 }
 
