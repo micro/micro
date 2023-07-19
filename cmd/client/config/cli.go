@@ -7,7 +7,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"micro.dev/v4/cmd"
-	"micro.dev/v4/cmd/cli/util"
+	"micro.dev/v4/cmd/client/util"
 	proto "micro.dev/v4/proto/config"
 	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/context"

@@ -12,7 +12,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/cmd/cli/util"
+	"micro.dev/v4/cmd/client/util"
 	"micro.dev/v4/service/store"
 	"micro.dev/v4/util/namespace"
 )

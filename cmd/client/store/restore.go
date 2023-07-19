@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
-	snap "micro.dev/v4/cmd/cli/store/snapshot"
+	snap "micro.dev/v4/cmd/client/store/snapshot"
 	"micro.dev/v4/service/logger"
 )
 

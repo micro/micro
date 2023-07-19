@@ -9,8 +9,8 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/ssh/terminal"
-	"micro.dev/v4/cmd/cli/token"
-	"micro.dev/v4/cmd/cli/util"
+	"micro.dev/v4/cmd/client/token"
+	"micro.dev/v4/cmd/client/util"
 	"micro.dev/v4/service/auth"
 	"micro.dev/v4/util/namespace"
 )

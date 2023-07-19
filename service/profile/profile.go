@@ -229,18 +229,21 @@ func SetupDefaults() {
 	once.Do(func() {
 		client.DefaultClient = grpcCli.NewClient()
 		server.DefaultServer = grpcSvr.NewServer()
+
 		// wrap the client
 		client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
-
 		// wrap the server
 		server.DefaultServer.Init(server.WrapHandler(wrapper.AuthHandler()))
+
+		// setup broker/registry
+		SetupBroker(brokerSrv.NewBroker())
+		SetupRegistry(registrySrv.NewRegistry())
+
 		// setup rpc implementations after the client is configured
-		auth.DefaultAuth = authSrv.NewAuth()
-		broker.DefaultBroker = brokerSrv.NewBroker()
 		config.DefaultConfig = configSrv.NewConfig()
+		auth.DefaultAuth = authSrv.NewAuth()
 		events.DefaultStream = eventsSrv.NewStream()
 		events.DefaultStore = eventsSrv.NewStore()
-		registry.DefaultRegistry = registrySrv.NewRegistry()
 		store.DefaultStore = storeSrv.NewStore()
 		store.DefaultBlobStore = storeSrv.NewBlobStore()
 		runtime.DefaultRuntime = runtimeSrv.NewRuntime()
@@ -250,6 +253,17 @@ func SetupDefaults() {
 		client.DefaultClient.Init(
 			client.Lookup(network.Lookup),
 		)
+
+
+	// set the registry and broker in the client and server
+	client.DefaultClient.Init(
+		client.Broker(broker.DefaultBroker),
+		client.Registry(registry.DefaultRegistry),
+	)
+	server.DefaultServer.Init(
+		server.Broker(broker.DefaultBroker),
+		server.Registry(registry.DefaultRegistry),
+	)
 	})
 }
 

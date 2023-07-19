@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/cmd/cli/util"
+	"micro.dev/v4/cmd/client/util"
 	pb "micro.dev/v4/proto/store"
 	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/context"

@@ -19,7 +19,7 @@ import (
 	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"micro.dev/v4/cmd/cli/util"
+	"micro.dev/v4/cmd/client/util"
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/runtime"
 	"micro.dev/v4/service/runtime/source/git"

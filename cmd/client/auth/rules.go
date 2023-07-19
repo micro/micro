@@ -8,7 +8,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/cmd/cli/util"
+	"micro.dev/v4/cmd/client/util"
 	pb "micro.dev/v4/proto/auth"
 	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/context"

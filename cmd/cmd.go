@@ -9,8 +9,8 @@ import (
 	"unicode"
 
 	"github.com/urfave/cli/v2"
-	clitoken "micro.dev/v4/cmd/cli/token"
-	"micro.dev/v4/cmd/cli/util"
+	clitoken "micro.dev/v4/cmd/client/token"
+	"micro.dev/v4/cmd/client/util"
 	"micro.dev/v4/service/auth"
 	"micro.dev/v4/service/broker"
 	"micro.dev/v4/service/client"
@@ -366,16 +366,6 @@ func (c *command) Before(ctx *cli.Context) error {
 	if err := store.DefaultStore.Init(storeOpts...); err != nil {
 		logger.Fatalf("Error configuring store: %v", err)
 	}
-
-	// set the registry and broker in the client and server
-	client.DefaultClient.Init(
-		client.Broker(broker.DefaultBroker),
-		client.Registry(registry.DefaultRegistry),
-	)
-	server.DefaultServer.Init(
-		server.Broker(broker.DefaultBroker),
-		server.Registry(registry.DefaultRegistry),
-	)
 
 	// Setup config. Do this after auth is configured since it'll load the config
 	// from the service immediately. We only do this if the action is nil, indicating
