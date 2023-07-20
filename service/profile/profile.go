@@ -94,6 +94,12 @@ var Client = &Profile{
 	Name: "client",
 	Setup: func(ctx *cli.Context) error {
 		SetupDefaults()
+
+		// set the network
+		client.DefaultClient.Init(
+			client.Network(network.Address),
+		)
+
 		return nil
 	},
 }
@@ -254,16 +260,15 @@ func SetupDefaults() {
 			client.Lookup(network.Lookup),
 		)
 
-
-	// set the registry and broker in the client and server
-	client.DefaultClient.Init(
-		client.Broker(broker.DefaultBroker),
-		client.Registry(registry.DefaultRegistry),
-	)
-	server.DefaultServer.Init(
-		server.Broker(broker.DefaultBroker),
-		server.Registry(registry.DefaultRegistry),
-	)
+		// set the registry and broker in the client and server
+		client.DefaultClient.Init(
+			client.Broker(broker.DefaultBroker),
+			client.Registry(registry.DefaultRegistry),
+		)
+		server.DefaultServer.Init(
+			server.Broker(broker.DefaultBroker),
+			server.Registry(registry.DefaultRegistry),
+		)
 	})
 }
 
