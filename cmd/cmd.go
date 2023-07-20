@@ -200,7 +200,7 @@ func New(opts ...Option) *command {
 // micro.auth.[envName].refresh-token: long lived refresh token
 // micro.auth.[envName].expiry: expiration time of the access token, seconds since Unix epoch.
 func (c *command) setupAuth(ctx *cli.Context) error {
-	if c.service {
+	if c.service || ctx.Args().First() == "server" {
 		return nil
 	}
 
@@ -222,6 +222,9 @@ func (c *command) setupAuth(ctx *cli.Context) error {
 	if len(tok.RefreshToken) == 0 {
 		return nil
 	}
+
+	// setup auth token
+	profile.SetupJWT()
 
 	// Check if token is valid
 	if time.Now().Before(tok.Expiry.Add(time.Minute * -1)) {
@@ -321,8 +324,6 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(ctx.String("public_key")) > 0 || len(ctx.String("private_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("public_key")))
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("private_key")))
-	} else if !c.service {
-		profile.SetupJWT()
 	}
 
 	// setup auth

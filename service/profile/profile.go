@@ -111,11 +111,9 @@ var Server = &Profile{
 		SetupDefaults()
 
 		// set auth
-		if ctx.Args().First() != "server" {
-			auth.DefaultAuth = jwt.NewAuth(auth.Issuer(ctx.String("namespace")))
-			SetupRules()
-		}
+		auth.DefaultAuth = jwt.NewAuth(auth.Issuer(ctx.String("namespace")))
 
+		SetupRules()
 		// setup jwt
 		SetupJWT()
 
@@ -195,12 +193,18 @@ func SetupAccount(ctx *cli.Context) {
 	// extract the account creds from options, these can be set by flags
 	accID := opts.ID
 	accSecret := opts.Secret
+	issuer := ""
+
+	if ctx != nil {
+		issuer = ctx.String("namespace")
+	}
 
 	// if no credentials were provided, self generate an account
 	if len(accID) == 0 || len(accSecret) == 0 {
 		opts := []auth.GenerateOption{
 			auth.WithType("service"),
 			auth.WithScopes("service"),
+			auth.WithIssuer(issuer),
 		}
 
 		acc, err := auth.Generate(uuid.New().String(), opts...)
