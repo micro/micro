@@ -112,7 +112,7 @@ func VerifyAccess(rules []*auth.Rule, acc *auth.Account, res *auth.Resource, opt
 // not case sensitive.
 func include(slice []string, val string) bool {
 	for _, s := range slice {
-		if strings.ToLower(s) == strings.ToLower(val) {
+		if strings.EqualFold(s, val) {
 			return true
 		}
 	}
