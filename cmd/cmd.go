@@ -224,7 +224,7 @@ func (c *command) setupAuth(ctx *cli.Context) error {
 	}
 
 	// setup auth token
-	profile.SetupJWT()
+	// profile.SetupJWT()
 
 	// Check if token is valid
 	if time.Now().Before(tok.Expiry.Add(time.Minute * -1)) {
