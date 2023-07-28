@@ -368,6 +368,4 @@ For more see the [getting started](https://micro.dev/getting-started) guide.
 
 ## Dev Env
 
-[1 click deploy](https://marketplace.digitalocean.com/apps/micro) a Micro Dev environment on a DigitalOcean Droplet
-
-Use our [refcode](https://marketplace.digitalocean.com/apps/micro?refcode=1eb1b2aca272&action=deploy) so we get $25 credit too!
+[1 click deploy](https://marketplace.digitalocean.com/apps/micro?refcode=1eb1b2aca272&action=deploy) a Micro Dev environment on a DigitalOcean Droplet
