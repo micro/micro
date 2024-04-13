@@ -25,7 +25,7 @@ func protoComments(goDir, alias string) []string {
 		"\ncompile the proto file " + alias + ".proto:\n",
 		"cd " + alias,
 		"make init",
-		"go mod vendor",
+		"go mod tidy",
 		"make proto\n",
 	}
 }
@@ -35,6 +35,8 @@ type config struct {
 	Alias string
 	// github.com/micro/foo
 	Dir string
+	// UseGoVersion
+	GoVersion string
 	// $GOPATH/src/github.com/micro/foo
 	GoDir string
 	// $GOPATH
@@ -171,10 +173,16 @@ func Run(ctx *cli.Context) error {
 	}
 	goDir = filepath.Join(goPath, "src", path.Clean(dir))
 
+	goVersion := runtime.Version()
+	if strings.HasPrefix(goVersion, "go") {
+		goVersion = strings.TrimPrefix(goVersion, "go")
+	}
+
 	c := config{
 		Alias:     dir,
 		Comments:  protoComments(goDir, dir),
 		Dir:       dir,
+		GoVersion: goVersion,
 		GoDir:     goDir,
 		GoPath:    goPath,
 		UseGoPath: false,
