@@ -98,6 +98,7 @@ func getTokens() (map[string]token, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 	dat, err := ioutil.ReadAll(f)
 	if err != nil {
 		return nil, err
