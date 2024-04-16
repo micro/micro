@@ -1,25 +1,36 @@
 package template
 
 var (
-	Makefile = `
-GOPATH:=$(shell go env GOPATH)
-.PHONY: init
-init:
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	go install micro.dev/v4/cmd/protoc-gen-micro@latest
-	go install micro.dev/v4/cmd/protoc-gen-openapi@latest
+	Makefile = `GOOS := $(shell go env GOOS)
+GOARCH := $(shell go env GOARCH)
+GOBIN := $(shell go env GOPATH)/bin
+NAME := $(shell  basename $(CURDIR))
+ifeq ($(GOOS),windows)
+	TARGET := $(NAME).exe
+else
+	TARGET := $(NAME)
+endif
+PROTO_FILES := $(wildcard proto/*.proto)
+PROTO_GO := $(PROTO_FILES:%.proto=%.pb.go)
+PROTO_GO_MICRO := $(PROTO_FILES:%.proto=%.pb.micro.go)
 
-.PHONY: api
-api:
-	protoc --openapi_out=. --proto_path=. proto/{{.Alias}}.proto
+.DEFAULT_GOAL := $(TARGET)
+
+# Build binary
+$(TARGET): proto/$(NAME).pb.micro.go
+	go build -o $(TARGET) *.go
+
+.PHONY: clean
+clean:
+	rm -f $(TARGET) $(PROTO_GO) $(PROTO_GO_MICRO)
+
+include dep-install.mk
 
 .PHONY: proto
-proto:
-	protoc --proto_path=. --micro_out=. --go_out=:. proto/{{.Alias}}.proto
-	
-.PHONY: build
-build:
-	go build -o {{.Alias}} *.go
+proto: proto/$(NAME).pb.micro.go
+
+%.pb.go %.pb.micro.go:
+	protoc --proto_path=. --go_out=:. --micro_out=. $(*).proto
 
 .PHONY: test
 test:
@@ -27,6 +38,6 @@ test:
 
 .PHONY: docker
 docker:
-	docker build . -t {{.Alias}}:latest
+	docker build . -t $(NAME):latest
 `
 )
