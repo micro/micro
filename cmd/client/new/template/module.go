@@ -5,10 +5,6 @@ var (
 
 go {{.GoVersion}}
 
-require (
-	micro.dev/v4 latest
-	google.golang.org/protobuf latest
-	google.golang.org/grpc latest
-)
+require micro.dev/v4 latest
 `
 )

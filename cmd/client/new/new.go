@@ -20,13 +20,10 @@ import (
 
 func protoComments(goDir, alias string) []string {
 	return []string{
-		"\ndownload protoc zip packages (protoc-$VERSION-$PLATFORM.zip) and install:\n",
-		"visit https://github.com/protocolbuffers/protobuf/releases",
-		"\ncompile the proto file " + alias + ".proto:\n",
 		"cd " + alias,
-		"make init",
 		"go mod tidy",
-		"make proto\n",
+		"make proto",
+		"micro run .\n",
 	}
 }
 
@@ -190,6 +187,7 @@ func Run(ctx *cli.Context) error {
 			{"main.go", tmpl.MainSRV},
 			{"handler/" + dir + ".go", tmpl.HandlerSRV},
 			{"proto/" + dir + ".proto", tmpl.ProtoSRV},
+			{"dep-install.mk", tmpl.DepInstall},
 			{"Makefile", tmpl.Makefile},
 			{"README.md", tmpl.Readme},
 			{".gitignore", tmpl.GitIgnore},
