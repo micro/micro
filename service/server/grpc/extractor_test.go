@@ -35,20 +35,20 @@ func (t *TestHandler) Test(ctx context.Context, req *TestRequest, rsp *TestRespo
 }
 
 type TestRequest2 struct {
-	int64Arg        int64                         `json:"int64Arg,omitempty"`
-	stringArg       string                        `json:"stringArg,omitempty"`
-	stringSliceArg  []string                      `json:"stringSliceArg,omitempty"`
-	pointerSliceArg []*TestRequest                `json:"pointerSliceArg,omitempty"`
-	mapArg          map[string]bool               `json:"mapArg,omitempty"`
-	mapPointerArg   map[*TestRequest]TestResponse `json:"mapPointerArg,omitempty"`
+	Int64Arg        int64                         `json:"Int64Arg,omitempty"`
+	StringArg       string                        `json:"StringArg,omitempty"`
+	StringSliceArg  []string                      `json:"StringSliceArg,omitempty"`
+	PointerSliceArg []*TestRequest                `json:"PointerSliceArg,omitempty"`
+	MapArg          map[string]bool               `json:"MapArg,omitempty"`
+	MapPointerArg   map[*TestRequest]TestResponse `json:"MapPointerArg,omitempty"`
 }
 type TestResponse2 struct {
-	int64Arg        int64                         `json:"int64Arg,omitempty"`
-	stringArg       string                        `json:"stringArg,omitempty"`
-	stringSliceArg  []string                      `json:"stringSliceArg,omitempty"`
-	pointerSliceArg []*TestRequest                `json:"pointerSliceArg,omitempty"`
-	mapArg          map[string]bool               `json:"mapArg,omitempty"`
-	mapPointerArg   map[*TestRequest]TestResponse `json:"mapPointerArg,omitempty"`
+	Int64Arg        int64                         `json:"Int64Arg,omitempty"`
+	StringArg       string                        `json:"StringArg,omitempty"`
+	StringSliceArg  []string                      `json:"StringSliceArg,omitempty"`
+	PointerSliceArg []*TestRequest                `json:"PointerSliceArg,omitempty"`
+	MapArg          map[string]bool               `json:"MapArg,omitempty"`
+	MapPointerArg   map[*TestRequest]TestResponse `json:"MapPointerArg,omitempty"`
 }
 
 func (t *TestHandler) Test2(ctx context.Context, req *TestRequest2, rsp *TestResponse2) error {
@@ -87,53 +87,53 @@ func TestExtractEndpoint(t *testing.T) {
 			rspType: "TestResponse2",
 			reqArgs: []param{
 				{
-					name:  "int64Arg",
+					name:  "Int64Arg",
 					value: "int64",
 				},
 				{
-					name:  "stringArg",
+					name:  "StringArg",
 					value: "string",
 				},
 				{
-					name:  "stringSliceArg",
+					name:  "StringSliceArg",
 					value: "[]string",
 				},
 				{
-					name:  "pointerSliceArg",
+					name:  "PointerSliceArg",
 					value: "[]TestRequest",
 				},
 				{
-					name:  "mapArg",
+					name:  "MapArg",
 					value: "map[string]bool",
 				},
 				{
-					name:  "mapPointerArg",
+					name:  "MapPointerArg",
 					value: "map[TestRequest]TestResponse",
 				},
 			},
 			rspArgs: []param{
 				{
-					name:  "int64Arg",
+					name:  "Int64Arg",
 					value: "int64",
 				},
 				{
-					name:  "stringArg",
+					name:  "StringArg",
 					value: "string",
 				},
 				{
-					name:  "stringSliceArg",
+					name:  "StringSliceArg",
 					value: "[]string",
 				},
 				{
-					name:  "pointerSliceArg",
+					name:  "PointerSliceArg",
 					value: "[]TestRequest",
 				},
 				{
-					name:  "mapArg",
+					name:  "MapArg",
 					value: "map[string]bool",
 				},
 				{
-					name:  "mapPointerArg",
+					name:  "MapPointerArg",
 					value: "map[TestRequest]TestResponse",
 				},
 			},
