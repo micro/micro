@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package events;
-option go_package = "github.com/micro/micro/proto/event;events";
+option go_package = "./proto/events;events";
 
 service Stream {
   rpc Publish(PublishRequest) returns (PublishResponse);
@@ -38,7 +38,7 @@ message Event {
   map<string, string> metadata = 3;
   bytes payload = 4;
   int64 timestamp = 5;
-} 
+}
 
 message ReadRequest {
   string topic = 1;

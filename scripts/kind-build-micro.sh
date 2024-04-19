@@ -15,7 +15,7 @@ pushd $tmp/micro-kind
 go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
 go install
 micro init --package=github.com/m3o/platform/profile/platform --output=profile.go
-GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
+GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build
 docker build -t micro -f test/Dockerfile-kind .
 docker tag micro localhost:5000/micro
 docker push localhost:5000/micro

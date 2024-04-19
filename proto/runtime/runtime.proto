@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package runtime;
 
-option go_package = "github.com/micro/micro/proto/runtime;runtime";
+option go_package = "./proto/runtime;runtime";
 
 service Runtime {
 	rpc Create(CreateRequest) returns (CreateResponse) {};
@@ -57,7 +57,7 @@ service Source {
 	rpc Upload(stream UploadRequest) returns (UploadResponse) {};
 }
 
-// Build service is used by containers to download prebuilt binaries. The client will pass the 
+// Build service is used by containers to download prebuilt binaries. The client will pass the
 // service (name and version are required attributed) and the server will then stream the latest
 // binary to the client.
 service Build {
@@ -204,7 +204,7 @@ message LogRecord {
 
 message UploadRequest {
 	Service service = 1;
-	bytes data = 2;	
+	bytes data = 2;
 }
 
 message UploadResponse {
@@ -212,5 +212,5 @@ message UploadResponse {
 }
 
 message BuildReadResponse {
-	bytes data = 1;	
+	bytes data = 1;
 }
