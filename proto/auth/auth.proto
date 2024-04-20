@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "github.com/micro/micro/proto/auth;auth";
+option go_package = "./proto/auth;auth";
 
 service Auth {
 	rpc Generate(GenerateRequest) returns (GenerateResponse) {};
-	rpc Inspect(InspectRequest) returns (InspectResponse) {};		
+	rpc Inspect(InspectRequest) returns (InspectResponse) {};
 	rpc Token(TokenRequest) returns (TokenResponse) {};
 }
 

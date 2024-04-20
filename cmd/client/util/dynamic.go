@@ -385,7 +385,6 @@ func FlagsToRequest(flags map[string][]string, req *registry.Value) (map[string]
 		default:
 			return value, nil
 		}
-		return nil, nil
 	}
 
 	result := objx.MustFromJSON("{}")

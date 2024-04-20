@@ -184,11 +184,11 @@ func readTests(s store.Store, t *testing.T) {
 		t.Error(err)
 	}
 
-	if results, err := s.Read("foo", store.ReadPrefix(), store.ReadSuffix()); err != nil {
+	if results, err := s.Read("barbar", store.ReadPrefix(), store.ReadSuffix()); err != nil {
 		t.Error(err)
 	} else {
 		if len(results) != 1 {
-			t.Errorf("Expected 1 results, got %d: %# v", len(results), spew.Sdump(results))
+			t.Errorf("ReadTests: Expected 1 results, got %d: %#v", len(results), spew.Sdump(results))
 		}
 	}
 

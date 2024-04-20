@@ -160,6 +160,7 @@ func (p *Proxy) serveRequest(ctx context.Context, link client.Client, service, e
 	// create new stream
 	stream, err := link.Stream(ctx, creq, opts...)
 	if err != nil {
+		cancel()
 		return err
 	}
 	defer stream.Close()
@@ -177,8 +178,10 @@ func (p *Proxy) serveRequest(ctx context.Context, link client.Client, service, e
 	// write the raw request
 	err = stream.Request().Codec().Write(msg, nil)
 	if err == io.EOF {
+		cancel()
 		return nil
 	} else if err != nil {
+		cancel()
 		return err
 	}
 

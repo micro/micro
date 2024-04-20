@@ -29,8 +29,8 @@ include dep-install.mk
 .PHONY: proto
 proto: proto/$(NAME).pb.micro.go
 
-%.pb.go %.pb.micro.go:
-	protoc --proto_path=. --go_out=:. --micro_out=. $(*).proto
+%.pb.go %.pb.micro.go: %.proto
+	protoc --proto_path=. --go_out=:. --micro_out=. $<
 
 .PHONY: test
 test:
