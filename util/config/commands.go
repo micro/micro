@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/urfave/cli/v2"
@@ -54,7 +55,7 @@ func del(ctx *cli.Context) error {
 	key := args.Get(0)
 
 	if len(key) == 0 {
-		return fmt.Errorf("key cannot be blank")
+		return errors.New("key cannot be blank")
 	}
 
 	// TODO: actually delete the key also
