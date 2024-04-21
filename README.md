@@ -43,12 +43,12 @@ Micro comes with a built in Go framework for service based development.
 The framework lets you write services without piecing together endless lines of boilerplate code. 
 Configured and initialised by default, import it and get started.
 
-### Command Line
+### CLI
 
 The command line interface includes dynamic command mapping for all services running on the platform. It turns any service instantly into a CLI command along with flag parsing 
 for inputs. Includes support for environments, namespaces, creating and running services, status info and logs.
 
-### Remote Environments
+### Environments
 
 Micro bakes in the concept of `Environments`. Run your server locally for development and in the cloud for production, 
 seamlessly switch between them using the CLI command `micro env set [environment]`.
