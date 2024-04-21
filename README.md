@@ -37,7 +37,7 @@ The API automatically maps HTTP Paths and POST requests to internal RPC service 
 Additionally there's a gRPC proxy (on port 8081) which used to make requests via the CLI or externally. 
 The proxy is identity aware which means it can be used to gatekeep remote access to Micro running anywhere.
 
-### Framework
+### Go SDK
 
 Micro comes with a built in Go framework for service based development. 
 The framework lets you write services without piecing together endless lines of boilerplate code. 
