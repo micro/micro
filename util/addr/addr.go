@@ -15,7 +15,7 @@
 package addr
 
 import (
-	"fmt"
+	"errors"
 	"net"
 )
 
@@ -155,7 +155,7 @@ func Extract(addr string) (string, error) {
 		return loopbackAddrs[0], nil
 	}
 
-	return "", fmt.Errorf("No IP address found, and explicit IP not provided")
+	return "", errors.New("No IP address found, and explicit IP not provided")
 }
 
 // IPs returns all known ips

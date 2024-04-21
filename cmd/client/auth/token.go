@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -29,10 +30,10 @@ func createToken(ctx *cli.Context) error {
 	expiry := ctx.Int("expiry")
 
 	if len(id) == 0 {
-		return fmt.Errorf("Missing account ID")
+		return errors.New("Missing account ID")
 	}
 	if len(secret) == 0 {
-		return fmt.Errorf("Missing account secret")
+		return errors.New("Missing account secret")
 	}
 
 	options := []auth.TokenOption{auth.WithTokenIssuer(ns)}

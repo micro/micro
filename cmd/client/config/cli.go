@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -30,7 +31,7 @@ func setConfig(ctx *cli.Context) error {
 	pb := proto.NewConfigService("config", client.DefaultClient)
 
 	if len(key) == 0 || len(val) == 0 {
-		return fmt.Errorf("missing path or value")
+		return errors.New("missing path or value")
 	}
 
 	env, err := util.GetEnv(ctx)
@@ -114,7 +115,7 @@ func getConfig(ctx *cli.Context) error {
 	}
 
 	if v := rsp.Value.Data; len(v) == 0 || strings.TrimSpace(string(v)) == "null" {
-		return fmt.Errorf("not found")
+		return errors.New("not found")
 	}
 
 	if strings.HasPrefix(rsp.Value.Data, "\"") && strings.HasSuffix(rsp.Value.Data, "\"") {

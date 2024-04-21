@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -61,7 +62,7 @@ func listAccounts(ctx *cli.Context) error {
 
 func createAccount(ctx *cli.Context) error {
 	if ctx.Args().Len() == 0 {
-		return fmt.Errorf("Missing argument: ID")
+		return errors.New("Missing argument: ID")
 	}
 
 	env, err := util.GetEnv(ctx)
@@ -98,7 +99,7 @@ func createAccount(ctx *cli.Context) error {
 
 func deleteAccount(ctx *cli.Context) error {
 	if ctx.Args().Len() == 0 {
-		return fmt.Errorf("Missing argument: ID")
+		return errors.New("Missing argument: ID")
 	}
 	cli := pb.NewAccountsService("auth", client.DefaultClient)
 
@@ -124,7 +125,7 @@ func deleteAccount(ctx *cli.Context) error {
 
 func updateAccount(ctx *cli.Context) error {
 	if ctx.Args().Len() == 0 {
-		return fmt.Errorf("Missing argument: ID")
+		return errors.New("Missing argument: ID")
 	}
 
 	env, err := util.GetEnv(ctx)

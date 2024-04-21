@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"archive/zip"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -137,11 +138,11 @@ func testBuilder(t *testing.T, buf io.Reader, opts ...build.Option) error {
 		return fmt.Errorf("Error executing binary: %v", err)
 	}
 	if !strings.Contains(string(outp), "HelloWorld") {
-		return fmt.Errorf("Output does not contain HelloWorld")
+		return errors.New("Output does not contain HelloWorld")
 	}
 	// when an archive is used we also check for the second file to be loaded
 	if len(opts) > 0 && !strings.Contains(string(outp), "Init") {
-		return fmt.Errorf("Output does not contain Init")
+		return errors.New("Output does not contain Init")
 	}
 
 	return nil

@@ -22,6 +22,7 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -38,7 +39,7 @@ import (
 	"golang.org/x/net/netutil"
 	"micro.dev/v4/service/broker"
 	meta "micro.dev/v4/service/context"
-	"micro.dev/v4/service/errors"
+	mer "micro.dev/v4/service/errors"
 	"micro.dev/v4/service/logger"
 	"micro.dev/v4/service/registry"
 	"micro.dev/v4/service/server"
@@ -229,7 +230,7 @@ func (g *grpcServer) handler(srv interface{}, stream grpc.ServerStream) (err err
 				logger.Error("panic recovered: ", r)
 				logger.Error(string(debug.Stack()))
 			}
-			err = errors.InternalServerError(g.opts.Name, "panic recovered: %v", r)
+			err = mer.InternalServerError(g.opts.Name, "panic recovered: %v", r)
 		} else if err != nil {
 			if logger.V(logger.InfoLevel, logger.DefaultLogger) {
 				logger.Errorf("grpc handler got error: %s", err)
@@ -302,7 +303,7 @@ func (g *grpcServer) handler(srv interface{}, stream grpc.ServerStream) (err err
 	if g.opts.Router != nil {
 		cc, err := g.newGRPCCodec(ct)
 		if err != nil {
-			return errors.InternalServerError(g.opts.Name, err.Error())
+			return mer.InternalServerError(g.opts.Name, err.Error())
 		}
 		codec := &grpcCodec{
 			ServerStream: stream,
@@ -460,7 +461,7 @@ func (g *grpcServer) processRequest(stream grpc.ServerStream, service *service, 
 
 		cc, err := g.newGRPCCodec(ct)
 		if err != nil {
-			return errors.InternalServerError(g.opts.Name, err.Error())
+			return mer.InternalServerError(g.opts.Name, err.Error())
 		}
 		b, err := cc.Marshal(argv.Interface())
 		if err != nil {
@@ -500,7 +501,7 @@ func (g *grpcServer) processRequest(stream grpc.ServerStream, service *service, 
 		if appErr := fn(ctx, r, replyv.Interface()); appErr != nil {
 			var errStatus *status.Status
 			switch verr := appErr.(type) {
-			case *errors.Error:
+			case *mer.Error:
 				perr := &pberr.Error{
 					Id:     verr.Id,
 					Code:   verr.Code,
@@ -581,7 +582,7 @@ func (g *grpcServer) processStream(stream grpc.ServerStream, service *service, m
 		var err error
 		var errStatus *status.Status
 		switch verr := appErr.(type) {
-		case *errors.Error:
+		case *mer.Error:
 			perr := &pberr.Error{
 				Id:     verr.Id,
 				Code:   verr.Code,
@@ -665,10 +666,10 @@ func (g *grpcServer) NewSubscriber(topic string, sb interface{}, opts ...server.
 func (g *grpcServer) Subscribe(sb server.Subscriber) error {
 	sub, ok := sb.(*subscriber)
 	if !ok {
-		return fmt.Errorf("invalid subscriber: expected *subscriber")
+		return errors.New("invalid subscriber: expected *subscriber")
 	}
 	if len(sub.handlers) == 0 {
-		return fmt.Errorf("invalid subscriber: no handler functions")
+		return errors.New("invalid subscriber: no handler functions")
 	}
 
 	if err := validateSubscriber(sb); err != nil {

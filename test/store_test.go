@@ -186,7 +186,7 @@ func testStoreImpl(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "Listening on") {
-			return outp, fmt.Errorf("Service not ready")
+			return outp, errors.New("Service not ready")
 		}
 		return nil, nil
 	}, 60*time.Second); err != nil {
@@ -251,7 +251,7 @@ func testBlobStore(t *T) {
 			return nil, err
 		}
 		if !strings.Contains(string(outp), "Read from blob store: world") {
-			return outp, fmt.Errorf("Didn't read from the blob store")
+			return outp, errors.New("Didn't read from the blob store")
 		}
 		return nil, nil
 	}, 60*time.Second); err != nil {

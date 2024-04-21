@@ -142,7 +142,7 @@ func (m *mem) Consume(topic string, opts ...events.ConsumeOption) (<-chan events
 
 	if !options.AutoAck {
 		if options.AckWait == 0 {
-			return nil, fmt.Errorf("invalid AckWait passed, should be positive integer")
+			return nil, errors.New("invalid AckWait passed, should be positive integer")
 		}
 		sub.autoAck = options.AutoAck
 		sub.ackWait = options.AckWait
