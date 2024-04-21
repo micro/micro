@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -262,7 +263,7 @@ func constructEndpoint(args []string) (string, error) {
 	case 3:
 		epComps = args[1:3]
 	default:
-		return "", fmt.Errorf("Incorrect number of arguments")
+		return "", errors.New("Incorrect number of arguments")
 	}
 
 	// transform the endpoint components, e.g ["helloworld", "call"] to the

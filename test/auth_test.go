@@ -174,7 +174,7 @@ func ServerAuth(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "admin") {
-			return outp, fmt.Errorf("Output should contain default admin account")
+			return outp, errors.New("Output should contain default admin account")
 		}
 		return outp, nil
 	}, 15*time.Second); err != nil {
@@ -187,7 +187,7 @@ func ServerAuth(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "default") {
-			return outp, fmt.Errorf("Output should contain default rule")
+			return outp, errors.New("Output should contain default rule")
 		}
 		return outp, nil
 	}, 8*time.Second); err != nil {
@@ -206,16 +206,16 @@ func ServerAuth(t *T) {
 			return outp, errors.New("Can't find token")
 		}
 		if _, ok = token["access_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
+			return outp, errors.New("Can't find access token")
 		}
 		if _, ok = token["refresh_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
+			return outp, errors.New("Can't find access token")
 		}
 		if _, ok = token["refresh_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find refresh token")
+			return outp, errors.New("Can't find refresh token")
 		}
 		if _, ok = token["expiry"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
+			return outp, errors.New("Can't find access token")
 		}
 		return outp, nil
 	}, 8*time.Second); err != nil {
@@ -475,7 +475,7 @@ func testUsernameLogin(t *T) {
 			return outp, fmt.Errorf("Error getting status %s", err)
 		}
 		if !strings.Contains(string(outp), "owner=someUsername") {
-			return outp, fmt.Errorf("Can't find owner")
+			return outp, errors.New("Can't find owner")
 		}
 		return nil, nil
 	}, 30*time.Second)

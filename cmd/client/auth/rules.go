@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -12,7 +13,7 @@ import (
 	pb "micro.dev/v4/proto/auth"
 	"micro.dev/v4/service/client"
 	"micro.dev/v4/service/context"
-	"micro.dev/v4/service/errors"
+	mer "micro.dev/v4/service/errors"
 	"micro.dev/v4/util/namespace"
 )
 
@@ -80,7 +81,7 @@ func createRule(ctx *cli.Context) error {
 	_, err = cli.Create(context.DefaultContext, &pb.CreateRequest{
 		Rule: rule, Options: &pb.Options{Namespace: ns},
 	}, client.WithAuthToken())
-	if verr := errors.FromError(err); verr != nil {
+	if verr := mer.FromError(err); verr != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err
@@ -92,7 +93,7 @@ func createRule(ctx *cli.Context) error {
 
 func deleteRule(ctx *cli.Context) error {
 	if ctx.Args().Len() != 1 {
-		return fmt.Errorf("Expected one argument: ID")
+		return errors.New("Expected one argument: ID")
 	}
 
 	env, err := util.GetEnv(ctx)
@@ -108,7 +109,7 @@ func deleteRule(ctx *cli.Context) error {
 	_, err = cli.Delete(context.DefaultContext, &pb.DeleteRequest{
 		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
 	}, client.WithAuthToken())
-	if verr := errors.FromError(err); err != nil {
+	if verr := mer.FromError(err); err != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err
@@ -120,7 +121,7 @@ func deleteRule(ctx *cli.Context) error {
 
 func constructRule(ctx *cli.Context) (*pb.Rule, error) {
 	if ctx.Args().Len() != 1 {
-		return nil, fmt.Errorf("Too many arguments, expected one argument: ID")
+		return nil, errors.New("Too many arguments, expected one argument: ID")
 	}
 
 	var access pb.Access
@@ -135,7 +136,7 @@ func constructRule(ctx *cli.Context) (*pb.Rule, error) {
 
 	resComps := strings.Split(ctx.String("resource"), ":")
 	if len(resComps) != 3 {
-		return nil, fmt.Errorf("Invalid resource, must be in the format type:name:endpoint")
+		return nil, errors.New("Invalid resource, must be in the format type:name:endpoint")
 	}
 
 	return &pb.Rule{

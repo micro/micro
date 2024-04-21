@@ -18,6 +18,7 @@ package grpc_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -26,7 +27,7 @@ import (
 	bmemory "micro.dev/v4/service/broker/memory"
 	"micro.dev/v4/service/client"
 	gcli "micro.dev/v4/service/client/grpc"
-	"micro.dev/v4/service/errors"
+	er "micro.dev/v4/service/errors"
 	rmemory "micro.dev/v4/service/registry/memory"
 	"micro.dev/v4/service/router"
 	rtreg "micro.dev/v4/service/router/registry"
@@ -46,13 +47,13 @@ func (s *testServer) Handle(ctx context.Context, msg *pb.Request) error {
 	return nil
 }
 func (s *testServer) HandleError(ctx context.Context, msg *pb.Request) error {
-	return fmt.Errorf("fake")
+	return errors.New("fake")
 }
 
 // TestHello implements helloworld.GreeterServer
 func (s *testServer) CallPcre(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	if req.Name == "Error" {
-		return &errors.Error{Id: "1", Code: 99, Detail: "detail"}
+		return &er.Error{Id: "1", Code: 99, Detail: "detail"}
 	}
 
 	rsp.Msg = "Hello " + req.Name
@@ -62,7 +63,7 @@ func (s *testServer) CallPcre(ctx context.Context, req *pb.Request, rsp *pb.Resp
 // TestHello implements helloworld.GreeterServer
 func (s *testServer) CallPcreInvalid(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	if req.Name == "Error" {
-		return &errors.Error{Id: "1", Code: 99, Detail: "detail"}
+		return &er.Error{Id: "1", Code: 99, Detail: "detail"}
 	}
 
 	rsp.Msg = "Hello " + req.Name
@@ -72,7 +73,7 @@ func (s *testServer) CallPcreInvalid(ctx context.Context, req *pb.Request, rsp *
 // TestHello implements helloworld.GreeterServer
 func (s *testServer) Call(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	if req.Name == "Error" {
-		return &errors.Error{Id: "1", Code: 99, Detail: "detail"}
+		return &er.Error{Id: "1", Code: 99, Detail: "detail"}
 	}
 
 	if req.Name == "Panic" {

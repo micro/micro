@@ -3,6 +3,7 @@ package runtime
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -353,7 +354,7 @@ func runService(ctx *cli.Context) error {
 			}
 			if split[0] == "source" {
 				// reserved
-				return fmt.Errorf("invalid metadata string, 'source' is a reserved key")
+				return errors.New("invalid metadata string, 'source' is a reserved key")
 			}
 
 			srv.Metadata[split[0]] = split[1]
