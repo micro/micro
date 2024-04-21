@@ -339,7 +339,7 @@ Run it
 go run main.go
 ```
 
-### Call via JS
+### Call via JavaScript 
 
 ```js
 const micro = require('micro-js-client');
