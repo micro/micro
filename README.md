@@ -27,17 +27,6 @@ Below are the core components that make up Micro
 Micro is built as a microkernel architecture. It abstracts away the complexity of the underlying infrastructure by providing
 a set of building block services composed as a single logical server for the end user to consume.
 
-The server consists of the following services
-
-- **Auth** - Authentication and authorization out of the box using JWT tokens and rule based access control.
-- **Broker** - Ephemeral pubsub messaging for asynchronous communication and distributing notifications
-- **Config** - Dynamic configuration and secrets management for service level config without reload
-- **Events** - Event streaming with ordered messaging, replay from offsets and persistent storage
-- **Network** - service-to-service networking and control plane for all internal request traffic
-- **Runtime** - Service lifecycle and process management with support for source to running auto build
-- **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
-- **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
-
 ### API
 
 The server embeds a HTTP API (on port 8080) which can be used to make requests as simple JSON. 
