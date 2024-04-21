@@ -161,7 +161,7 @@ go mod vendor
 make proto
 ```
 
-### Making changes
+### Edit the code
 
 Edit the protobuf definition in `proto/helloworld.proto` and run `make proto` to recompile
 
