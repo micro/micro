@@ -357,4 +357,4 @@ See the [getting started](https://micro.dev/getting-started) guide to learn more
 
 ## Cloud Environment 
 
-[1 click deploy](https://marketplace.digitalocean.com/apps/micro?refcode=1eb1b2aca272&action=deploy) a Micro Dev environment on a DigitalOcean Droplet
+[1 click deploy](https://marketplace.digitalocean.com/apps/micro?refcode=1eb1b2aca272&action=deploy) Micro on DigitalOcean
