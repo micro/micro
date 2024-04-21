@@ -226,9 +226,9 @@ $ micro helloworld call --name=Jane
 curl "http://localhost:8080/helloworld/Call?name=John"
 ```
 
-### Call via RPC
+### Call via SDK
 
-An RPC client is used within a service and must be run by micro
+A proto SDK client is used within a service and must be run by micro
 
 ```go
 package main
