@@ -21,7 +21,7 @@ tidy:
 	go mod tidy
 
 $(NAME):
-	CGO_ENABLED=1 go build -ldflags "-s -w ${LDFLAGS}" -o $(NAME) cmd/micro/main.go
+	CGO_ENABLED=0 go build -ldflags "-s -w ${LDFLAGS}" -o $(NAME) cmd/micro/main.go
 
 .PHONY: docker
 docker:
