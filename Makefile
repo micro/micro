@@ -45,3 +45,12 @@ test: vet
 clean:
 	rm -f $(NAME) $(PROTO_GO_MICRO)
 
+.PHONY: gorelease-dry-run
+gorelease-dry-run:
+	docker run \
+		--rm \
+		-e CGO_ENABLED=1 \
+		-v $(CURDIR):/$(NAME) \
+		-w /$(NAME) \
+		ghcr.io/goreleaser/goreleaser-cross:v1.20.6 \
+		--clean --skip-validate --skip-publish

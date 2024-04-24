@@ -3,40 +3,155 @@ release:
   github:
     owner: micro
     name: micro
-  name_template: 'Release {{.Tag}}'
-before:
-  hooks:
-    - go mod download
+  name_template: 'Release {{ .Tag }}'
+env:
+  - CGO_ENABLED=1
 builds:
-- binary: micro
-  main: ./cmd/micro
-  env:
-    - CGO_ENABLED=0
-    - GO111MODULE=on
-  ldflags: -s -w -X micro.dev/v4/cmd.GitCommit={{ .ShortCommit }} -X micro.dev/v4/cmd.GitTag={{ .Tag }} -X micro.dev/v4/cmd.BuildDate={{ .Timestamp }}
-  goos:
-  - linux
-  - darwin
-  - windows
-  goarch:
-  - 386
-  - amd64
-  - arm
-  - arm64
-  goarm:
-  - 7
-  ignore:
-  - goos: windows
-    goarch: arm64
+  - id: micro-darwin-amd64
+    binary: micro
+    main: ./cmd/micro
+    goarch:
+      - amd64
+    goos:
+      - darwin
+    env:
+      - CC=o64-clang
+      - CXX=o64-clang++
+    flags:
+      - -trimpath
+
+  - id: micro-darwin-arm64
+    binary: micro
+    main: ./cmd/micro
+    goarch:
+      - arm64
+    goos:
+      - darwin
+    env:
+      - CC=oa64-clang
+      - CXX=oa64-clang++
+    flags:
+      - -trimpath
+
+  - id: micro-linux-amd64
+    binary: micro
+    main: ./cmd/micro
+    goarch:
+      - amd64
+    goos:
+      - linux
+    env:
+      - CC=x86_64-linux-gnu-gcc
+      - CXX=x86_64-linux-gnu-g++
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X micro.dev/v4/cmd.GitCommit={{ .ShortCommit }}
+      - -X micro.dev/v4/cmd.GitTag={{ .Tag }}
+      - -X micro.dev/v4/cmd.BuildDate={{ .Timestamp }}
+
+  - id: micro-linux-arm64
+    binary: micro
+    main: ./cmd/micro
+    goarch:
+      - arm64
+    goos:
+      - linux
+    env:
+      - CC=aarch64-linux-gnu-gcc
+      - CXX=aarch64-linux-gnu-g++
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X micro.dev/v4/cmd.GitCommit={{ .ShortCommit }}
+      - -X micro.dev/v4/cmd.GitTag={{ .Tag }}
+      - -X micro.dev/v4/cmd.BuildDate={{ .Timestamp }}
+
+  - id: micro-linux-armhf
+    binary: micro
+    main: ./cmd/micro
+    goarch:
+      - arm
+    goarm:
+      - 7
+    goos:
+      - linux
+    env:
+      - CC=arm-linux-gnueabihf-gcc
+      - CXX=arm-linux-gnueabihf-g++
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X micro.dev/v4/cmd.GitCommit={{ .ShortCommit }}
+      - -X micro.dev/v4/cmd.GitTag={{ .Tag }}
+      - -X micro.dev/v4/cmd.BuildDate={{ .Timestamp }}
+
+  - id: micro-windows-amd64
+    binary: micro
+    main: ./cmd/micro
+    goarch:
+      - amd64
+    goos:
+      - windows
+    env:
+      - CC=x86_64-w64-mingw32-gcc
+      - CXX=x86_64-w64-mingw32-g++
+    flags:
+      - -trimpath
+      - -buildmode=exe
+
+  - id: micro-windows-386
+    binary: micro
+    main: ./cmd/micro
+    goarch:
+      - 386
+    goos:
+      - windows
+    env:
+      - CC=/llvm-mingw/bin/i686-w64-mingw32-gcc
+      - CXX=/llvm-mingw/bin/i686-w64-mingw32-g++
+    flags:
+      - -trimpath
+      - -buildmode=exe
+
+
+  - id: micro-windows-arm64
+    binary: micro
+    main: ./cmd/micro
+    goarch:
+      - arm64
+    goos:
+      - windows
+    env:
+      - CC=/llvm-mingw/bin/aarch64-w64-mingw32-gcc
+      - CXX=/llvm-mingw/bin/aarch64-w64-mingw32-g++
+    flags:
+      - -trimpath
+      - -buildmode=exe
+
 archives:
-- name_template: '{{.ProjectName}}-{{.Tag}}-{{.Os}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}'
-  format: tar.gz
-  format_overrides:
-  - goos: windows
-    format: zip
-  files:
-    - LICENSE
-    - README.md
+  - id: release/version
+    builds:
+      - micro-darwin-amd64
+      - micro-darwin-arm64
+      - micro-linux-amd64
+      - micro-linux-arm64
+      - micro-linux-armhf
+      - micro-windows-amd64
+      - micro-windows-386
+      - micro-windows-arm64
+    name_template: '{{ .ProjectName }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}{{ .Arm }}'
+    wrap_in_directory: false
+    format: tar.gz
+    format_overrides:
+    - goos: windows
+      format: zip
+    files:
+      - LICENSE
+      - README.md
 checksum:
   name_template: 'checksums.txt'
   algorithm: sha256
@@ -46,5 +161,4 @@ changelog:
   sort: asc
   filters:
     exclude:
-    - '^docs:'
     - '^test:'

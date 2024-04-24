@@ -29,13 +29,15 @@ coverage.txt
 coverage.out
 
 # ignore locally built binaries
+micro.exe
 micro
 !micro/
-dist
+dist/
 
 *.bak
 
 test/services
 
 .air.toml
-tmp
+.DS_Store
+.release-env

@@ -6,6 +6,8 @@ on:
       - '**'
     tags:
       - 'v*.*.*'
+env:
+  GORELEASER_VERSION: v1.20.6
 
 jobs:
   release:
@@ -13,19 +15,23 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
       -
         name: Fetch tags
         run: git fetch --prune --unshallow --tags -f
       -
-        name: Set up Go
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.20
+        name: Setup release environment
+        run: |-
+          echo 'GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}' > .release-env
       -
-        name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
-        with:
-          args: release --rm-dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: GoReleaser publish
+        run: |-
+          docker run \
+            --rm \
+            -e CGO_ENABLED=1 \
+            --env-file .release-env \
+            -v `pwd`:/micro \
+            -w /micro \
+            ghcr.io/goreleaser/goreleaser-cross:${{ env.GORELEASER_VERSION }} \
+            release --clean
+
