@@ -51,11 +51,9 @@ runtime
 store
 ```
 
-## Overview
+## Architecture
 
 <img src="https://micro.dev/images/micro.png?v=1" />
-
-## Architecture
 
 Below are the core components that make up Micro
 
