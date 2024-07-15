@@ -468,7 +468,7 @@ func IsLocal(workDir, source string, pathExistsFunc ...func(path string) (bool, 
 }
 
 // CheckoutSource checks out a git repo (source) into a local temp directory. It will return the
-// source of the local repo an an error if one occured. Secrets can optionally be passed if the repo
+// source of the local repo an error if one occured. Secrets can optionally be passed if the repo
 // is private.
 func CheckoutSource(source *Source, secrets map[string]string) (string, error) {
 	gitter := NewGitter(secrets)

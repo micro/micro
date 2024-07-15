@@ -12,13 +12,48 @@
     src="https://img.shields.io/badge/license-apache-blue.svg"></a>        
 </p>
 
-Micro is a Go service development platform. It addresses the core requirements for building services in the cloud by providing a set of APIs which act as the building blocks of any platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions for developers to build on. 
+Micro is an API first development platform. It addresses the core requirements for building services in the cloud by providing a set of APIs which act as the building blocks of any platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
-## Overview
+## Features
 
-<img src="https://micro.dev/images/micro.png?v=1" />
+- **Microkernel Architecture**: Built as separate services combined into a single logical server
+- **HTTP and gRPC APIs**: Facilitate easy service requests and interactions
+- **Go SDK and CLI**: Streamlined service creation and management
+- **Environment Support**: Seamless transitions between local and cloud setups
+
+## Quick Start
+
+```bash
+# Install Micro CLI
+go install micro.dev/v4/cmd/micro@master
+
+# Start the server
+micro server
+
+# In a new tab set env to local
+micro env set local
+
+# Login with username/password: `admin/micro`
+micro login
+Enter username: admin
+Enter password:
+Successfully logged in.
+
+# List services
+micro services
+auth
+broker
+config
+events
+network
+registry
+runtime
+store
+```
 
 ## Architecture
+
+<img src="https://micro.dev/images/micro.png?v=1" />
 
 Below are the core components that make up Micro
 
