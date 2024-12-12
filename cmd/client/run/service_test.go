@@ -3,7 +3,7 @@ package runtime
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 	"time"
@@ -68,13 +68,13 @@ func TestSourceExists(t *testing.T) {
 				if request.URL.String() != tc.expectedURL {
 					return &http.Response{
 						StatusCode: 404,
-						Body:       ioutil.NopCloser(new(bytes.Buffer)),
+						Body:       io.NopCloser(new(bytes.Buffer)),
 						Header:     make(http.Header),
 					}, nil
 				}
 				return &http.Response{
 					StatusCode: 200,
-					Body:       ioutil.NopCloser(new(bytes.Buffer)),
+					Body:       io.NopCloser(new(bytes.Buffer)),
 					Header:     make(http.Header),
 				}, nil
 			}

@@ -55,7 +55,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 
 	"github.com/golang/protobuf/proto"
@@ -69,7 +69,7 @@ func main() {
 	// report failure.
 	g := generator.New()
 
-	data, err := ioutil.ReadAll(os.Stdin)
+	data, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		g.Error(err, "reading input")
 	}

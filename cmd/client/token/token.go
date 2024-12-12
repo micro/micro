@@ -11,7 +11,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -99,7 +99,7 @@ func getTokens() (map[string]token, error) {
 		return nil, err
 	}
 	defer f.Close()
-	dat, err := ioutil.ReadAll(f)
+	dat, err := io.ReadAll(f)
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +190,7 @@ func saveTokens(tokens map[string]token) error {
 			return err
 		}
 	}
-	return ioutil.WriteFile(tokensFilePath(), buf.Bytes(), 0700)
+	return os.WriteFile(tokensFilePath(), buf.Bytes(), 0700)
 }
 
 func saveToFile(ctx *cli.Context, authToken *auth.AccountToken) error {
