@@ -94,26 +94,6 @@ seamlessly switch between them using the CLI command `micro env set [environment
 make build
 ```
 
-### Prebuilt Binaries
-
-#### Windows
-
-```sh
-powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
-
-```
-#### Linux
-
-```sh
-wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh -O - | /bin/bash
-```
-
-#### MacOS
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
-```
-
 ### Run the server 
 
 The server starts with a single command ready to use
