@@ -9,15 +9,15 @@ import (
 	"strings"
 	"time"
 
-	"micro.dev/v4/service/auth"
-	"micro.dev/v4/service/logger"
-	"micro.dev/v4/service/runtime"
-	"micro.dev/v4/service/runtime/build"
-	"micro.dev/v4/service/runtime/build/util/tar"
-	"micro.dev/v4/service/runtime/source/git"
-	"micro.dev/v4/service/store"
-	"micro.dev/v4/util/namespace"
-	"micro.dev/v4/util/user"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/runtime"
+	"github.com/micro/micro/v5/service/runtime/build"
+	"github.com/micro/micro/v5/service/runtime/build/util/tar"
+	"github.com/micro/micro/v5/service/runtime/source/git"
+	"github.com/micro/micro/v5/service/store"
+	"github.com/micro/micro/v5/util/namespace"
+	"github.com/micro/micro/v5/util/user"
 )
 
 const (

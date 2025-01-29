@@ -3,13 +3,13 @@ package handler
 import (
 	"context"
 
-	pb "micro.dev/v4/proto/broker"
-	"micro.dev/v4/service/auth"
-	"micro.dev/v4/service/broker"
-	metadata "micro.dev/v4/service/context"
-	"micro.dev/v4/service/errors"
-	"micro.dev/v4/service/logger"
-	authns "micro.dev/v4/util/auth/namespace"
+	pb "github.com/micro/micro/v5/proto/broker"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/service/broker"
+	metadata "github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/logger"
+	authns "github.com/micro/micro/v5/util/auth/namespace"
 )
 
 type Broker struct{}

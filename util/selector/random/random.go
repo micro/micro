@@ -17,7 +17,7 @@ package random
 import (
 	"math/rand"
 
-	"micro.dev/v4/util/selector"
+	"github.com/micro/micro/v5/util/selector"
 )
 
 type random struct{}

@@ -3,8 +3,8 @@ package client
 import (
 	"context"
 
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/registry"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/registry"
 )
 
 type clientKey struct{}

@@ -22,9 +22,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/micro/micro/v5/service/store"
+	"github.com/micro/micro/v5/util/user"
 	bolt "go.etcd.io/bbolt"
-	"micro.dev/v4/service/store"
-	"micro.dev/v4/util/user"
 )
 
 var (

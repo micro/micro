@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	metadata "micro.dev/v4/service/context"
+	metadata "github.com/micro/micro/v5/service/context"
 )
 
 func TestCache(t *testing.T) {

@@ -6,15 +6,15 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/micro/micro/v5/cmd"
+	"github.com/micro/micro/v5/cmd/client/util"
+	proto "github.com/micro/micro/v5/proto/config"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/context"
+	log "github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/util/helper"
+	"github.com/micro/micro/v5/util/namespace"
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/cmd"
-	"micro.dev/v4/cmd/client/util"
-	proto "micro.dev/v4/proto/config"
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context"
-	log "micro.dev/v4/service/logger"
-	"micro.dev/v4/util/helper"
-	"micro.dev/v4/util/namespace"
 )
 
 func setConfig(ctx *cli.Context) error {

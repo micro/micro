@@ -21,14 +21,14 @@ import (
 	"net"
 	"testing"
 
+	"github.com/micro/micro/v5/service/client"
+	pb "github.com/micro/micro/v5/service/client/grpc/proto"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/service/registry/memory"
+	"github.com/micro/micro/v5/service/router"
+	regRouter "github.com/micro/micro/v5/service/router/registry"
 	pgrpc "google.golang.org/grpc"
-	"micro.dev/v4/service/client"
-	pb "micro.dev/v4/service/client/grpc/proto"
-	"micro.dev/v4/service/errors"
-	"micro.dev/v4/service/registry"
-	"micro.dev/v4/service/registry/memory"
-	"micro.dev/v4/service/router"
-	regRouter "micro.dev/v4/service/router/registry"
 )
 
 // server is used to implement helloworld.GreeterServer.

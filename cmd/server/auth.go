@@ -5,16 +5,16 @@ import (
 	"net/http"
 	"strings"
 
-	"micro.dev/v4/service/api"
-	"micro.dev/v4/service/api/router/registry"
-	"micro.dev/v4/service/auth"
-	metadata "micro.dev/v4/service/context"
-	"micro.dev/v4/service/errors"
-	"micro.dev/v4/service/logger"
-	"micro.dev/v4/service/server"
-	inauth "micro.dev/v4/util/auth"
-	"micro.dev/v4/util/ctx"
-	"micro.dev/v4/util/namespace"
+	"github.com/micro/micro/v5/service/api"
+	"github.com/micro/micro/v5/service/api/router/registry"
+	"github.com/micro/micro/v5/service/auth"
+	metadata "github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/server"
+	inauth "github.com/micro/micro/v5/util/auth"
+	"github.com/micro/micro/v5/util/ctx"
+	"github.com/micro/micro/v5/util/namespace"
 )
 
 // authHandler wraps a server handler to perform auth

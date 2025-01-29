@@ -22,9 +22,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/micro/micro/v5/service/store"
 	"github.com/patrickmn/go-cache"
 	"github.com/pkg/errors"
-	"micro.dev/v4/service/store"
 )
 
 // NewStore returns a memory store

@@ -18,14 +18,14 @@ import (
 	"io"
 	"testing"
 
-	"micro.dev/v4/util/codec"
-	"micro.dev/v4/util/codec/bytes"
-	"micro.dev/v4/util/codec/grpc"
-	"micro.dev/v4/util/codec/json"
-	"micro.dev/v4/util/codec/jsonrpc"
-	"micro.dev/v4/util/codec/proto"
-	"micro.dev/v4/util/codec/protorpc"
-	"micro.dev/v4/util/codec/text"
+	"github.com/micro/micro/v5/util/codec"
+	"github.com/micro/micro/v5/util/codec/bytes"
+	"github.com/micro/micro/v5/util/codec/grpc"
+	"github.com/micro/micro/v5/util/codec/json"
+	"github.com/micro/micro/v5/util/codec/jsonrpc"
+	"github.com/micro/micro/v5/util/codec/proto"
+	"github.com/micro/micro/v5/util/codec/protorpc"
+	"github.com/micro/micro/v5/util/codec/text"
 )
 
 type testRWC struct{}

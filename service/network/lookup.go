@@ -3,8 +3,8 @@ package network
 import (
 	"context"
 
-	"micro.dev/v4/service/client"
-	metadata "micro.dev/v4/service/context"
+	"github.com/micro/micro/v5/service/client"
+	metadata "github.com/micro/micro/v5/service/context"
 )
 
 // Lookup provides a lookup function that checks for namespace as the Micro-Namespace header

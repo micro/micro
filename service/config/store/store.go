@@ -18,8 +18,8 @@ import (
 	"encoding/json"
 	"strings"
 
-	"micro.dev/v4/service/config"
-	"micro.dev/v4/service/store"
+	"github.com/micro/micro/v5/service/config"
+	"github.com/micro/micro/v5/service/store"
 )
 
 // NewConfig returns new config

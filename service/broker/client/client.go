@@ -3,11 +3,11 @@ package client
 import (
 	"time"
 
-	pb "micro.dev/v4/proto/broker"
-	"micro.dev/v4/service/broker"
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context"
-	"micro.dev/v4/service/logger"
+	pb "github.com/micro/micro/v5/proto/broker"
+	"github.com/micro/micro/v5/service/broker"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/logger"
 )
 
 var (

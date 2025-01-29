@@ -1,11 +1,11 @@
 package server
 
 import (
+	pb "github.com/micro/micro/v5/proto/registry"
+	"github.com/micro/micro/v5/service"
+	log "github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/registry/handler"
 	"github.com/urfave/cli/v2"
-	pb "micro.dev/v4/proto/registry"
-	"micro.dev/v4/service"
-	log "micro.dev/v4/service/logger"
-	"micro.dev/v4/service/registry/handler"
 )
 
 var (

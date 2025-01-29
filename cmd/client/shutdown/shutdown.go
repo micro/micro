@@ -4,8 +4,8 @@ package shutdown
 import (
 	"os/exec"
 
+	"github.com/micro/micro/v5/cmd"
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/cmd"
 )
 
 func init() {

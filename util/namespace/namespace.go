@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	md "micro.dev/v4/service/context"
-	"micro.dev/v4/service/registry"
-	"micro.dev/v4/util/config"
+	md "github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/util/config"
 )
 
 const (

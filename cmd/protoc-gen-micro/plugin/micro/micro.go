@@ -7,15 +7,15 @@ import (
 	"strings"
 
 	pb "github.com/golang/protobuf/protoc-gen-go/descriptor"
-	"micro.dev/v4/cmd/protoc-gen-micro/generator"
+	"github.com/micro/micro/v5/cmd/protoc-gen-micro/generator"
 )
 
 // Paths for packages used by code generated in this file,
 // relative to the import_prefix of the generator.Generator.
 const (
 	contextPkgPath = "context"
-	clientPkgPath  = "micro.dev/v4/service/client"
-	serverPkgPath  = "micro.dev/v4/service/server"
+	clientPkgPath  = "github.com/micro/micro/v5/service/client"
+	serverPkgPath  = "github.com/micro/micro/v5/service/server"
 )
 
 func init() {

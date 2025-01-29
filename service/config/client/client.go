@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	proto "micro.dev/v4/proto/config"
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/config"
-	"micro.dev/v4/service/context"
-	"micro.dev/v4/service/errors"
+	proto "github.com/micro/micro/v5/proto/config"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/config"
+	"github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/errors"
 )
 
 var (

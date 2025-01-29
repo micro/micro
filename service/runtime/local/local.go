@@ -25,9 +25,9 @@ import (
 	"sync"
 
 	"github.com/hpcloud/tail"
-	"micro.dev/v4/service/logger"
-	"micro.dev/v4/service/runtime"
-	"micro.dev/v4/util/user"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/runtime"
+	"github.com/micro/micro/v5/util/user"
 )
 
 // defaultNamespace to use if not provided as an option

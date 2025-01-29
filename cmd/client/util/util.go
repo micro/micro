@@ -8,10 +8,10 @@ import (
 	"regexp"
 	"strings"
 
-	merrors "micro.dev/v4/service/errors"
+	merrors "github.com/micro/micro/v5/service/errors"
 
+	"github.com/micro/micro/v5/util/config"
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/util/config"
 )
 
 const (

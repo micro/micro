@@ -19,8 +19,8 @@ package grpc
 import (
 	"context"
 
+	"github.com/micro/micro/v5/service/server"
 	"google.golang.org/grpc"
-	"micro.dev/v4/service/server"
 )
 
 // rpcStream implements a server side Stream.

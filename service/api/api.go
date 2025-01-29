@@ -26,15 +26,15 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch/v5"
 
+	metadata "github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/service/server"
+	"github.com/micro/micro/v5/util/codec"
+	"github.com/micro/micro/v5/util/codec/bytes"
+	"github.com/micro/micro/v5/util/codec/jsonrpc"
+	"github.com/micro/micro/v5/util/codec/protorpc"
+	"github.com/micro/micro/v5/util/qson"
 	"github.com/oxtoacart/bpool"
-	metadata "micro.dev/v4/service/context"
-	"micro.dev/v4/service/registry"
-	"micro.dev/v4/service/server"
-	"micro.dev/v4/util/codec"
-	"micro.dev/v4/util/codec/bytes"
-	"micro.dev/v4/util/codec/jsonrpc"
-	"micro.dev/v4/util/codec/protorpc"
-	"micro.dev/v4/util/qson"
 )
 
 var (

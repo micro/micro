@@ -8,13 +8,13 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/micro/micro/v5/cmd/client/util"
+	pb "github.com/micro/micro/v5/proto/auth"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/context"
+	mer "github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/util/namespace"
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/cmd/client/util"
-	pb "micro.dev/v4/proto/auth"
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context"
-	mer "micro.dev/v4/service/errors"
-	"micro.dev/v4/util/namespace"
 )
 
 func listRules(ctx *cli.Context) error {

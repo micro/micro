@@ -27,11 +27,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"micro.dev/v4/service/broker"
-	"micro.dev/v4/service/client"
-	metadata "micro.dev/v4/service/context"
-	"micro.dev/v4/service/errors"
-	raw "micro.dev/v4/util/codec/bytes"
+	"github.com/micro/micro/v5/service/broker"
+	"github.com/micro/micro/v5/service/client"
+	metadata "github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/errors"
+	raw "github.com/micro/micro/v5/util/codec/bytes"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

@@ -10,14 +10,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: micro.dev/v4/router/registry/table_test.go
+// Original source: github.com/micro/micro/v5/router/registry/table_test.go
 
 package registry
 
 import (
 	"testing"
 
-	"micro.dev/v4/service/router"
+	"github.com/micro/micro/v5/service/router"
 )
 
 func testSetup() (*table, router.Route) {

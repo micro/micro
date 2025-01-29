@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"micro.dev/v4/service/runtime/source"
+	"github.com/micro/micro/v5/service/runtime/source"
 )
 
 type Source struct {

@@ -21,8 +21,8 @@ import (
 	"testing"
 	"time"
 
-	"micro.dev/v4/service/events"
-	"micro.dev/v4/service/events/stream/memory"
+	"github.com/micro/micro/v5/service/events"
+	"github.com/micro/micro/v5/service/events/stream/memory"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

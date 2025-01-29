@@ -16,16 +16,16 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/micro/micro/v5/cmd/client/util"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/runtime"
+	"github.com/micro/micro/v5/service/runtime/source/git"
+	"github.com/micro/micro/v5/util/config"
+	"github.com/micro/micro/v5/util/namespace"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"micro.dev/v4/cmd/client/util"
-	"micro.dev/v4/service/logger"
-	"micro.dev/v4/service/runtime"
-	"micro.dev/v4/service/runtime/source/git"
-	"micro.dev/v4/util/config"
-	"micro.dev/v4/util/namespace"
 )
 
 const (

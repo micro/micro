@@ -19,8 +19,8 @@ package grpc
 import (
 	"reflect"
 
-	"micro.dev/v4/service/registry"
-	"micro.dev/v4/service/server"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/service/server"
 )
 
 type rpcHandler struct {

@@ -17,7 +17,7 @@ package store
 import (
 	"time"
 
-	"micro.dev/v4/service/store"
+	"github.com/micro/micro/v5/service/store"
 )
 
 type Options struct {

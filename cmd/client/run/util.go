@@ -8,13 +8,13 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	pb "github.com/micro/micro/v5/proto/runtime"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/runtime"
+	"github.com/micro/micro/v5/service/runtime/build/util/tar"
+	"github.com/micro/micro/v5/service/runtime/source/git"
 	"github.com/urfave/cli/v2"
-	pb "micro.dev/v4/proto/runtime"
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context"
-	"micro.dev/v4/service/runtime"
-	"micro.dev/v4/service/runtime/build/util/tar"
-	"micro.dev/v4/service/runtime/source/git"
 )
 
 const bufferSize = 1024

@@ -21,9 +21,9 @@ import (
 	"context"
 	"crypto/tls"
 
+	"github.com/micro/micro/v5/service/client"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
-	"micro.dev/v4/service/client"
 )
 
 var (

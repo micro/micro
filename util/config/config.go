@@ -11,9 +11,9 @@ import (
 	"strings"
 	"sync"
 
+	conf "github.com/micro/micro/v5/service/config"
+	"github.com/micro/micro/v5/util/user"
 	"github.com/nightlyone/lockfile"
-	conf "micro.dev/v4/service/config"
-	"micro.dev/v4/util/user"
 )
 
 var (

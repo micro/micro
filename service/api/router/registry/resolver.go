@@ -3,7 +3,7 @@ package registry
 import (
 	"net/http"
 
-	"micro.dev/v4/service/registry"
+	"github.com/micro/micro/v5/service/registry"
 )
 
 // default resolver for legacy purposes

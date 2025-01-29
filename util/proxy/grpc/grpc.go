@@ -22,15 +22,15 @@ import (
 	"io"
 	"strings"
 
+	"github.com/micro/micro/v5/service/client"
+	grpcc "github.com/micro/micro/v5/service/client/grpc"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/server"
+	"github.com/micro/micro/v5/util/codec"
+	"github.com/micro/micro/v5/util/codec/bytes"
+	"github.com/micro/micro/v5/util/proxy"
 	"google.golang.org/grpc"
-	"micro.dev/v4/service/client"
-	grpcc "micro.dev/v4/service/client/grpc"
-	"micro.dev/v4/service/errors"
-	"micro.dev/v4/service/logger"
-	"micro.dev/v4/service/server"
-	"micro.dev/v4/util/codec"
-	"micro.dev/v4/util/codec/bytes"
-	"micro.dev/v4/util/proxy"
 )
 
 // Proxy will transparently proxy requests to an endpoint.

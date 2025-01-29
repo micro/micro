@@ -6,7 +6,7 @@ var (
 import (
 	"context"
 
-	log "micro.dev/v4/service/logger"
+	log "github.com/micro/micro/v5/service/logger"
 
 	pb "{{.Dir}}/proto"
 )
@@ -60,7 +60,7 @@ func (e *{{title .Alias}}) PingPong(ctx context.Context, stream pb.{{title .Alia
 
 import (
 	"context"
-	log "micro.dev/v4/service/logger"
+	log "github.com/micro/micro/v5/service/logger"
 
 	pb "{{.Dir}}/proto"
 )

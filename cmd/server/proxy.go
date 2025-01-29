@@ -1,15 +1,15 @@
 package server
 
 import (
+	bmem "github.com/micro/micro/v5/service/broker/memory"
+	"github.com/micro/micro/v5/service/client"
+	log "github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/registry/noop"
+	"github.com/micro/micro/v5/service/server"
+	sgrpc "github.com/micro/micro/v5/service/server/grpc"
+	"github.com/micro/micro/v5/util/proxy"
+	"github.com/micro/micro/v5/util/proxy/grpc"
 	"github.com/urfave/cli/v2"
-	bmem "micro.dev/v4/service/broker/memory"
-	"micro.dev/v4/service/client"
-	log "micro.dev/v4/service/logger"
-	"micro.dev/v4/service/registry/noop"
-	"micro.dev/v4/service/server"
-	sgrpc "micro.dev/v4/service/server/grpc"
-	"micro.dev/v4/util/proxy"
-	"micro.dev/v4/util/proxy/grpc"
 )
 
 func runProxy(ctx *cli.Context, wait chan bool) error {

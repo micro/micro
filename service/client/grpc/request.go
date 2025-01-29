@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"strings"
 
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/util/codec"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/util/codec"
 )
 
 type grpcRequest struct {

@@ -17,7 +17,7 @@ package memory
 import (
 	"time"
 
-	"micro.dev/v4/service/registry"
+	"github.com/micro/micro/v5/service/registry"
 )
 
 func serviceToRecord(s *registry.Service, ttl time.Duration) *record {

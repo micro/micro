@@ -56,6 +56,6 @@ $(PROTOC_GEN_GO):
 
 # Install protoc-gen-micro
 $(PROTOC_GEN_MICRO):
-	go install micro.dev/v4/cmd/protoc-gen-micro@master
+	go install github.com/micro/micro/v5/cmd/protoc-gen-micro@master
 `
 )

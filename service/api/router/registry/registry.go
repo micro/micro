@@ -9,14 +9,14 @@ import (
 	"sync"
 	"time"
 
-	"micro.dev/v4/service/api"
-	"micro.dev/v4/service/api/router"
-	"micro.dev/v4/service/context"
-	"micro.dev/v4/service/logger"
-	"micro.dev/v4/service/registry"
-	"micro.dev/v4/service/registry/cache"
-	"micro.dev/v4/util/namespace"
-	util "micro.dev/v4/util/router"
+	"github.com/micro/micro/v5/service/api"
+	"github.com/micro/micro/v5/service/api/router"
+	"github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/service/registry/cache"
+	"github.com/micro/micro/v5/util/namespace"
+	util "github.com/micro/micro/v5/util/router"
 )
 
 var (

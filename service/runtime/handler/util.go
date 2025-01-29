@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 
-	pb "micro.dev/v4/proto/runtime"
-	"micro.dev/v4/service/runtime"
+	pb "github.com/micro/micro/v5/proto/runtime"
+	"github.com/micro/micro/v5/service/runtime"
 )
 
 func toProto(s *runtime.Service) *pb.Service {

@@ -3,8 +3,8 @@ package service
 import (
 	"time"
 
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/server"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/server"
 )
 
 // Options for micro service

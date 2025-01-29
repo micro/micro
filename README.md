@@ -4,7 +4,7 @@
     <a href="https://goreportcard.com/report/github.com/micro/micro">
     <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/micro/micro">
     </a>
-	<a href="https://pkg.go.dev/micro.dev/v4?tab=doc"><img
+	<a href="https://pkg.go.dev/github.com/micro/micro/v5?tab=doc"><img
     alt="Go.Dev reference"
     src="https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white"></a>
     <a href="https://opensource.org/licenses/Apache-2.0"><img
@@ -25,7 +25,7 @@ Micro is an API first development platform. It addresses the core requirements f
 
 ```bash
 # Install Micro CLI
-go install micro.dev/v4/cmd/micro@master
+go install github.com/micro/micro/v5/cmd/micro@master
 
 # Start the server
 micro server
@@ -251,7 +251,7 @@ import (
 	"fmt"
 	"time"
 
-	"micro.dev/v4/service"
+	"github.com/micro/micro/v5/service"
 	pb "github.com/micro/services/helloworld/proto"
 )
 

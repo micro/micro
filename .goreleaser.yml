@@ -47,9 +47,9 @@ builds:
       - -trimpath
     ldflags:
       - -s -w
-      - -X micro.dev/v4/cmd.GitCommit={{ .ShortCommit }}
-      - -X micro.dev/v4/cmd.GitTag={{ .Tag }}
-      - -X micro.dev/v4/cmd.BuildDate={{ .Timestamp }}
+      - -X github.com/micro/micro/v5/cmd.GitCommit={{ .ShortCommit }}
+      - -X github.com/micro/micro/v5/cmd.GitTag={{ .Tag }}
+      - -X github.com/micro/micro/v5/cmd.BuildDate={{ .Timestamp }}
 
   - id: micro-linux-arm64
     binary: micro
@@ -65,9 +65,9 @@ builds:
       - -trimpath
     ldflags:
       - -s -w
-      - -X micro.dev/v4/cmd.GitCommit={{ .ShortCommit }}
-      - -X micro.dev/v4/cmd.GitTag={{ .Tag }}
-      - -X micro.dev/v4/cmd.BuildDate={{ .Timestamp }}
+      - -X github.com/micro/micro/v5/cmd.GitCommit={{ .ShortCommit }}
+      - -X github.com/micro/micro/v5/cmd.GitTag={{ .Tag }}
+      - -X github.com/micro/micro/v5/cmd.BuildDate={{ .Timestamp }}
 
   - id: micro-linux-armhf
     binary: micro
@@ -85,9 +85,9 @@ builds:
       - -trimpath
     ldflags:
       - -s -w
-      - -X micro.dev/v4/cmd.GitCommit={{ .ShortCommit }}
-      - -X micro.dev/v4/cmd.GitTag={{ .Tag }}
-      - -X micro.dev/v4/cmd.BuildDate={{ .Timestamp }}
+      - -X github.com/micro/micro/v5/cmd.GitCommit={{ .ShortCommit }}
+      - -X github.com/micro/micro/v5/cmd.GitTag={{ .Tag }}
+      - -X github.com/micro/micro/v5/cmd.BuildDate={{ .Timestamp }}
 
   - id: micro-windows-amd64
     binary: micro

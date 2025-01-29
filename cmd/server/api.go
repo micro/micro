@@ -5,16 +5,16 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/micro/micro/v5/service/api"
+	"github.com/micro/micro/v5/service/api/handler"
+	"github.com/micro/micro/v5/service/api/handler/rpc"
+	"github.com/micro/micro/v5/service/api/router"
+	regRouter "github.com/micro/micro/v5/service/api/router/registry"
+	httpapi "github.com/micro/micro/v5/service/api/server/http"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/registry"
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/service/api"
-	"micro.dev/v4/service/api/handler"
-	"micro.dev/v4/service/api/handler/rpc"
-	"micro.dev/v4/service/api/router"
-	regRouter "micro.dev/v4/service/api/router/registry"
-	httpapi "micro.dev/v4/service/api/server/http"
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/logger"
-	"micro.dev/v4/service/registry"
 )
 
 func runAPI(ctx *cli.Context, wait chan bool) error {

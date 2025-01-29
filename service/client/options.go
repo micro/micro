@@ -20,14 +20,14 @@ import (
 	"context"
 	"time"
 
-	"micro.dev/v4/service/broker"
-	"micro.dev/v4/service/broker/memory"
-	"micro.dev/v4/service/registry"
-	"micro.dev/v4/service/router"
-	regRouter "micro.dev/v4/service/router/registry"
-	"micro.dev/v4/util/codec"
-	"micro.dev/v4/util/selector"
-	"micro.dev/v4/util/selector/roundrobin"
+	"github.com/micro/micro/v5/service/broker"
+	"github.com/micro/micro/v5/service/broker/memory"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/service/router"
+	regRouter "github.com/micro/micro/v5/service/router/registry"
+	"github.com/micro/micro/v5/util/codec"
+	"github.com/micro/micro/v5/util/selector"
+	"github.com/micro/micro/v5/util/selector/roundrobin"
 )
 
 type Options struct {

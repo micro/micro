@@ -1,11 +1,11 @@
 package server
 
 import (
+	pb "github.com/micro/micro/v5/proto/events"
+	"github.com/micro/micro/v5/service"
+	"github.com/micro/micro/v5/service/events/handler"
+	"github.com/micro/micro/v5/service/logger"
 	"github.com/urfave/cli/v2"
-	pb "micro.dev/v4/proto/events"
-	"micro.dev/v4/service"
-	"micro.dev/v4/service/events/handler"
-	"micro.dev/v4/service/logger"
 )
 
 // Run the micro broker

@@ -3,8 +3,8 @@ package auth
 import (
 	"time"
 
-	"micro.dev/v4/service/auth"
-	"micro.dev/v4/service/logger"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/service/logger"
 )
 
 const (

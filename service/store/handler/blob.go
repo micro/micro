@@ -5,11 +5,11 @@ import (
 	"context"
 	"io"
 
-	pb "micro.dev/v4/proto/store"
-	"micro.dev/v4/service/errors"
-	"micro.dev/v4/service/store"
-	authns "micro.dev/v4/util/auth/namespace"
-	"micro.dev/v4/util/namespace"
+	pb "github.com/micro/micro/v5/proto/store"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/store"
+	authns "github.com/micro/micro/v5/util/auth/namespace"
+	"github.com/micro/micro/v5/util/namespace"
 )
 
 const bufferSize = 1024

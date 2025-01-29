@@ -1,12 +1,12 @@
 package server
 
 import (
+	pb "github.com/micro/micro/v5/proto/config"
+	"github.com/micro/micro/v5/service"
+	"github.com/micro/micro/v5/service/config/handler"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/store"
 	"github.com/urfave/cli/v2"
-	pb "micro.dev/v4/proto/config"
-	"micro.dev/v4/service"
-	"micro.dev/v4/service/config/handler"
-	"micro.dev/v4/service/logger"
-	"micro.dev/v4/service/store"
 )
 
 const (

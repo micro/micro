@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	pb "micro.dev/v4/proto/registry"
-	"micro.dev/v4/service"
-	"micro.dev/v4/service/errors"
-	log "micro.dev/v4/service/logger"
-	"micro.dev/v4/service/registry"
-	"micro.dev/v4/service/registry/util"
-	"micro.dev/v4/util/auth/namespace"
+	pb "github.com/micro/micro/v5/proto/registry"
+	"github.com/micro/micro/v5/service"
+	"github.com/micro/micro/v5/service/errors"
+	log "github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/service/registry/util"
+	"github.com/micro/micro/v5/util/auth/namespace"
 )
 
 type Registry struct {

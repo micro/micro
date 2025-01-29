@@ -8,12 +8,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/micro/micro/v5/cmd"
+	"github.com/micro/micro/v5/service/client"
+	log "github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/runtime"
+	"github.com/micro/micro/v5/service/runtime/local"
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/cmd"
-	"micro.dev/v4/service/client"
-	log "micro.dev/v4/service/logger"
-	"micro.dev/v4/service/runtime"
-	"micro.dev/v4/service/runtime/local"
 )
 
 var (

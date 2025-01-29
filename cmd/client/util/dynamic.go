@@ -11,12 +11,12 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/util/namespace"
 	"github.com/stretchr/objx"
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context"
-	"micro.dev/v4/service/registry"
-	"micro.dev/v4/util/namespace"
 )
 
 // LookupService queries the service for a service with the given alias. If

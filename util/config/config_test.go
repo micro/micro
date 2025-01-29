@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/micro/micro/v5/util/user"
 	"github.com/nightlyone/lockfile"
-	"micro.dev/v4/util/user"
 )
 
 func Test(t *testing.T) {

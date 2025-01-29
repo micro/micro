@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/micro/micro/v5/service/registry"
 	"github.com/stretchr/testify/assert"
-	"micro.dev/v4/service/registry"
 )
 
 func TestNamespace(t *testing.T) {

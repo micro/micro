@@ -10,15 +10,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: micro.dev/v4/router/registry/registry_test.go
+// Original source: github.com/micro/micro/v5/router/registry/registry_test.go
 package registry
 
 import (
 	"os"
 	"testing"
 
-	"micro.dev/v4/service/registry/memory"
-	"micro.dev/v4/service/router"
+	"github.com/micro/micro/v5/service/registry/memory"
+	"github.com/micro/micro/v5/service/router"
 )
 
 func routerTestSetup() router.Router {

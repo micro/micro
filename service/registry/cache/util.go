@@ -15,7 +15,7 @@
 package cache
 
 import (
-	"micro.dev/v4/service/registry"
+	"github.com/micro/micro/v5/service/registry"
 )
 
 func addNodes(old, neu []*registry.Node) []*registry.Node {

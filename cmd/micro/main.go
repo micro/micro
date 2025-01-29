@@ -1,14 +1,14 @@
-package main // import micro.dev/v4/cmd/micro
+package main // import github.com/micro/micro/v5/cmd/micro
 
 //go:generate ./scripts/generate.sh
 
 import (
-	"micro.dev/v4/cmd"
+	"github.com/micro/micro/v5/cmd"
 
 	// load packages so they can register commands
-	_ "micro.dev/v4/cmd/client"
-	_ "micro.dev/v4/cmd/server"
-	_ "micro.dev/v4/cmd/web"
+	_ "github.com/micro/micro/v5/cmd/client"
+	_ "github.com/micro/micro/v5/cmd/server"
+	_ "github.com/micro/micro/v5/cmd/web"
 )
 
 func main() {

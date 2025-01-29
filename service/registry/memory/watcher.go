@@ -17,7 +17,7 @@ package memory
 import (
 	"errors"
 
-	"micro.dev/v4/service/registry"
+	"github.com/micro/micro/v5/service/registry"
 )
 
 type Watcher struct {

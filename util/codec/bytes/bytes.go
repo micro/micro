@@ -20,7 +20,7 @@ import (
 	"io"
 	"io/ioutil"
 
-	"micro.dev/v4/util/codec"
+	"github.com/micro/micro/v5/util/codec"
 )
 
 type Codec struct {

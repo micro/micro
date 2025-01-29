@@ -25,9 +25,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"micro.dev/v4/service/broker"
-	maddr "micro.dev/v4/util/addr"
-	mnet "micro.dev/v4/util/net"
+	"github.com/micro/micro/v5/service/broker"
+	maddr "github.com/micro/micro/v5/util/addr"
+	mnet "github.com/micro/micro/v5/util/net"
 )
 
 type memoryBroker struct {

@@ -26,9 +26,9 @@ import (
 	"net/url"
 	"path"
 
-	"micro.dev/v4/service/errors"
-	"micro.dev/v4/service/server"
-	"micro.dev/v4/util/proxy"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/server"
+	"github.com/micro/micro/v5/util/proxy"
 )
 
 // Proxy will proxy rpc requests as http POST requests. It is a server.Proxy

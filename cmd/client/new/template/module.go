@@ -5,6 +5,6 @@ var (
 
 go {{.GoVersion}}
 
-require micro.dev/v4 latest
+require github.com/micro/micro/v5 latest
 `
 )

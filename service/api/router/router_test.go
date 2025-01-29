@@ -22,14 +22,14 @@ import (
 	"net/http"
 	"testing"
 
-	"micro.dev/v4/service/client"
-	gcli "micro.dev/v4/service/client/grpc"
-	rmemory "micro.dev/v4/service/registry/memory"
-	rt "micro.dev/v4/service/router"
-	regRouter "micro.dev/v4/service/router/registry"
-	"micro.dev/v4/service/server"
-	gsrv "micro.dev/v4/service/server/grpc"
-	pb "micro.dev/v4/service/server/grpc/proto"
+	"github.com/micro/micro/v5/service/client"
+	gcli "github.com/micro/micro/v5/service/client/grpc"
+	rmemory "github.com/micro/micro/v5/service/registry/memory"
+	rt "github.com/micro/micro/v5/service/router"
+	regRouter "github.com/micro/micro/v5/service/router/registry"
+	"github.com/micro/micro/v5/service/server"
+	gsrv "github.com/micro/micro/v5/service/server/grpc"
+	pb "github.com/micro/micro/v5/service/server/grpc/proto"
 )
 
 // server is used to implement helloworld.GreeterServer.

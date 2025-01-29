@@ -10,16 +10,16 @@ import (
 
 	"github.com/google/uuid"
 
+	pb "github.com/micro/micro/v5/proto/auth"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/store"
+	authns "github.com/micro/micro/v5/util/auth/namespace"
+	"github.com/micro/micro/v5/util/auth/token"
+	"github.com/micro/micro/v5/util/auth/token/basic"
+	"github.com/micro/micro/v5/util/namespace"
 	"golang.org/x/crypto/bcrypt"
-	pb "micro.dev/v4/proto/auth"
-	"micro.dev/v4/service/auth"
-	"micro.dev/v4/service/errors"
-	"micro.dev/v4/service/logger"
-	"micro.dev/v4/service/store"
-	authns "micro.dev/v4/util/auth/namespace"
-	"micro.dev/v4/util/auth/token"
-	"micro.dev/v4/util/auth/token/basic"
-	"micro.dev/v4/util/namespace"
 )
 
 const (

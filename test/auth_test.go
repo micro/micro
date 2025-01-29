@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"micro.dev/v4/util/config"
-	"micro.dev/v4/util/namespace"
+	"github.com/micro/micro/v5/util/config"
+	"github.com/micro/micro/v5/util/namespace"
 )
 
 // Test no default account generation in non-default namespaces

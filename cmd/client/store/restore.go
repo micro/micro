@@ -3,10 +3,10 @@ package cli
 import (
 	"net/url"
 
+	snap "github.com/micro/micro/v5/cmd/client/store/snapshot"
+	"github.com/micro/micro/v5/service/logger"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
-	snap "micro.dev/v4/cmd/client/store/snapshot"
-	"micro.dev/v4/service/logger"
 )
 
 // restore is the entrypoint for micro store restore

@@ -8,8 +8,8 @@ import (
 	dep "dep-test-service/proto/dep"
 	dependency "dependency"
 
-	"micro.dev/v4/service"
-	log "micro.dev/v4/service/logger"
+	"github.com/micro/micro/v5/service"
+	log "github.com/micro/micro/v5/service/logger"
 )
 
 func main() {

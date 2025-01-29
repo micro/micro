@@ -3,12 +3,12 @@ package handler
 import (
 	"context"
 
-	pb "micro.dev/v4/proto/events"
-	"micro.dev/v4/service/errors"
-	"micro.dev/v4/service/events"
-	goevents "micro.dev/v4/service/events"
-	"micro.dev/v4/service/events/util"
-	"micro.dev/v4/util/auth/namespace"
+	pb "github.com/micro/micro/v5/proto/events"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/events"
+	goevents "github.com/micro/micro/v5/service/events"
+	"github.com/micro/micro/v5/service/events/util"
+	"github.com/micro/micro/v5/util/auth/namespace"
 )
 
 type Store struct{}

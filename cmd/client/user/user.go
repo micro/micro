@@ -7,16 +7,16 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/micro/micro/v5/cmd"
+	"github.com/micro/micro/v5/cmd/client/token"
+	"github.com/micro/micro/v5/cmd/client/util"
+	pb "github.com/micro/micro/v5/proto/auth"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/util/config"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/ssh/terminal"
-	"micro.dev/v4/cmd"
-	"micro.dev/v4/cmd/client/token"
-	"micro.dev/v4/cmd/client/util"
-	pb "micro.dev/v4/proto/auth"
-	"micro.dev/v4/service/auth"
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context"
-	"micro.dev/v4/util/config"
 )
 
 func init() {

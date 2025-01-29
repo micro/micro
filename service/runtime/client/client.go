@@ -4,10 +4,10 @@ import (
 	"io"
 	"sync"
 
-	pb "micro.dev/v4/proto/runtime"
-	"micro.dev/v4/service/client"
-	"micro.dev/v4/service/context"
-	"micro.dev/v4/service/runtime"
+	pb "github.com/micro/micro/v5/proto/runtime"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/runtime"
 )
 
 type svc struct {

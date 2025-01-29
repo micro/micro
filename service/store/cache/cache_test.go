@@ -19,9 +19,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/micro/micro/v5/service/store"
+	"github.com/micro/micro/v5/service/store/file"
 	"github.com/stretchr/testify/assert"
-	"micro.dev/v4/service/store"
-	"micro.dev/v4/service/store/file"
 )
 
 func cleanup(db string, s store.Store) {

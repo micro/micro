@@ -4,13 +4,13 @@ import (
 	"context"
 	"time"
 
-	pb "micro.dev/v4/proto/runtime"
-	"micro.dev/v4/service/auth"
-	"micro.dev/v4/service/errors"
-	"micro.dev/v4/service/events"
-	log "micro.dev/v4/service/logger"
-	"micro.dev/v4/service/runtime"
-	"micro.dev/v4/util/auth/namespace"
+	pb "github.com/micro/micro/v5/proto/runtime"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/events"
+	log "github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/runtime"
+	"github.com/micro/micro/v5/util/auth/namespace"
 )
 
 type Runtime struct {

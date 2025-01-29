@@ -17,7 +17,7 @@
 package router
 
 import (
-	"micro.dev/v4/service/registry"
+	"github.com/micro/micro/v5/service/registry"
 )
 
 type Options struct {

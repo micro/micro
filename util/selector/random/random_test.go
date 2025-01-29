@@ -17,7 +17,7 @@ package random
 import (
 	"testing"
 
-	"micro.dev/v4/util/selector"
+	"github.com/micro/micro/v5/util/selector"
 )
 
 func TestRandom(t *testing.T) {

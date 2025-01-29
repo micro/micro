@@ -3,16 +3,16 @@ package server
 import (
 	"os"
 
+	"github.com/micro/micro/v5/service"
+	"github.com/micro/micro/v5/service/client"
+	log "github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/router"
+	"github.com/micro/micro/v5/service/server"
+	"github.com/micro/micro/v5/service/server/grpc"
+	"github.com/micro/micro/v5/util/muxer"
+	"github.com/micro/micro/v5/util/proxy"
+	grpcProxy "github.com/micro/micro/v5/util/proxy/grpc"
 	"github.com/urfave/cli/v2"
-	"micro.dev/v4/service"
-	"micro.dev/v4/service/client"
-	log "micro.dev/v4/service/logger"
-	"micro.dev/v4/service/router"
-	"micro.dev/v4/service/server"
-	"micro.dev/v4/service/server/grpc"
-	"micro.dev/v4/util/muxer"
-	"micro.dev/v4/util/proxy"
-	grpcProxy "micro.dev/v4/util/proxy/grpc"
 )
 
 var (

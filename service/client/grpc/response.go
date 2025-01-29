@@ -20,12 +20,12 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/util/codec"
+	"github.com/micro/micro/v5/util/codec/bytes"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/status"
-	"micro.dev/v4/service/errors"
-	"micro.dev/v4/util/codec"
-	"micro.dev/v4/util/codec/bytes"
 )
 
 type response struct {

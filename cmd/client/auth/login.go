@@ -7,12 +7,12 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/micro/micro/v5/cmd/client/token"
+	"github.com/micro/micro/v5/cmd/client/util"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/util/namespace"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/ssh/terminal"
-	"micro.dev/v4/cmd/client/token"
-	"micro.dev/v4/cmd/client/util"
-	"micro.dev/v4/service/auth"
-	"micro.dev/v4/util/namespace"
 )
 
 // login flow.

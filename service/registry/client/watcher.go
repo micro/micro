@@ -3,9 +3,9 @@ package client
 import (
 	"time"
 
-	pb "micro.dev/v4/proto/registry"
-	"micro.dev/v4/service/registry"
-	"micro.dev/v4/service/registry/util"
+	pb "github.com/micro/micro/v5/proto/registry"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/service/registry/util"
 )
 
 type serviceWatcher struct {
