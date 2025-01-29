@@ -12,7 +12,7 @@
     src="https://img.shields.io/badge/license-apache-blue.svg"></a>        
 </p>
 
-[Micro](https://micro.dev/) is an API first development platform. It addresses the core requirements for building services in the cloud by providing a set of APIs which act as the building blocks of any platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
+Micro is an API first development platform. It addresses the core requirements for building services in the cloud by providing a set of APIs which act as the building blocks of any platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
 ## Features
 
@@ -76,7 +76,7 @@ Micro comes with a built in Go framework for service based development.
 The framework lets you write services without piecing together endless lines of boilerplate code. 
 Configured and initialised by default, import it and get started.
 
-### CLI
+### Command Line
 
 The command line interface includes dynamic command mapping for all services running on the platform. It turns any service instantly into a CLI command along with flag parsing 
 for inputs. Includes support for environments, namespaces, creating and running services, status info and logs.
