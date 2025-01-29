@@ -53,8 +53,6 @@ store
 
 ## Architecture
 
-<img src="https://micro.dev/images/micro.png?v=1" />
-
 Below are the core components that make up Micro
 
 ### Server
@@ -385,11 +383,3 @@ new micro.Client({ token: process.env.TOKEN })
     console.log(response);
   });
 ```
-
-## Learn More
-
-See the [getting started](https://micro.dev/getting-started) guide to learn more.
-
-## Cloud Environment 
-
-[1 click deploy](https://marketplace.digitalocean.com/apps/micro?refcode=1eb1b2aca272&action=deploy) Micro on DigitalOcean
