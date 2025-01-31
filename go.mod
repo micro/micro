@@ -29,7 +29,7 @@ require (
 	github.com/xlab/treeprint v1.2.0
 	go.etcd.io/bbolt v1.3.9
 	golang.org/x/crypto v0.31.0
-	golang.org/x/net v0.24.0
+	golang.org/x/net v0.33.0
 	google.golang.org/grpc v1.63.2
 	google.golang.org/protobuf v1.33.0
 	gorm.io/driver/postgres v1.5.7
