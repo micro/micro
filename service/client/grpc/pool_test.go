@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	pb "github.com/micro/micro/v3/service/client/grpc/proto"
+	pb "github.com/micro/micro/v5/service/client/grpc/proto"
 	"google.golang.org/grpc"
 	pgrpc "google.golang.org/grpc"
 )

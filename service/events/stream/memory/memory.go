@@ -21,10 +21,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/micro/v3/service/events"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/store"
-	"github.com/micro/micro/v3/service/store/memory"
+	"github.com/micro/micro/v5/service/events"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/store"
+	"github.com/micro/micro/v5/service/store/memory"
 	"github.com/pkg/errors"
 )
 
@@ -142,7 +142,7 @@ func (m *mem) Consume(topic string, opts ...events.ConsumeOption) (<-chan events
 
 	if !options.AutoAck {
 		if options.AckWait == 0 {
-			return nil, fmt.Errorf("invalid AckWait passed, should be positive integer")
+			return nil, errors.New("invalid AckWait passed, should be positive integer")
 		}
 		sub.autoAck = options.AutoAck
 		sub.ackWait = options.AckWait
@@ -187,7 +187,7 @@ func (m *mem) lookupPreviousEvents(sub *subscriber, startTime time.Time) {
 	}
 }
 
-// handleEvents sends the event to any registered subscribers.
+// handleEvent sends the event to any registered subscribers.
 func (m *mem) handleEvent(ev *events.Event) {
 	m.RLock()
 	subs := m.subs

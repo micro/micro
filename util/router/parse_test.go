@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v5/service/logger"
 )
 
 func TestTokenize(t *testing.T) {

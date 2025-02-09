@@ -18,13 +18,7 @@
 package handler
 
 import (
-	"context"
 	"net/http"
-
-	"github.com/micro/micro/v3/proto/api"
-	"github.com/micro/micro/v3/service/api/auth"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/util/auth/namespace"
 )
 
 // Handler represents a HTTP handler that manages a request
@@ -33,48 +27,4 @@ type Handler interface {
 	ServeHTTP(w http.ResponseWriter, r *http.Request)
 	// name of handler
 	String() string
-}
-
-type APIHandler struct{}
-
-func (a *APIHandler) ReadBlockList(ctx context.Context, request *api.ReadBlockListRequest, response *api.ReadBlockListResponse) error {
-	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "api.API.AddToBlockList"); err != nil {
-		return err
-	}
-	blocked, err := auth.DefaultBlockList.List(ctx)
-	if err != nil {
-		return err
-	}
-	response.Ids = blocked
-	return nil
-}
-
-func (a *APIHandler) AddToBlockList(ctx context.Context, request *api.AddToBlockListRequest, response *api.AddToBlockListResponse) error {
-	// authorize the request
-	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "api.API.AddToBlockList"); err != nil {
-		return err
-	}
-
-	if len(request.Id) == 0 {
-		return errors.BadRequest("api.AddToBlockList", "Missing ID field")
-	}
-	if len(request.Namespace) == 0 {
-		return errors.BadRequest("api.AddToBlockList", "Missing Namespace field")
-	}
-
-	return auth.DefaultBlockList.Add(ctx, request.Id, request.Namespace)
-}
-
-func (a *APIHandler) RemoveFromBlockList(ctx context.Context, request *api.RemoveFromBlockListRequest, response *api.RemoveFromBlockListResponse) error {
-	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "api.API.AddToBlockList"); err != nil {
-		return err
-	}
-	if len(request.Id) == 0 {
-		return errors.BadRequest("api.RemoveFromBlockList", "Missing ID field")
-	}
-	if len(request.Namespace) == 0 {
-		return errors.BadRequest("api.RemoveFromBlockList", "Missing Namespace field")
-	}
-
-	return auth.DefaultBlockList.Remove(ctx, request.Id, request.Namespace)
 }

@@ -26,16 +26,14 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch/v5"
 
-	"github.com/micro/micro/v3/service/api/resolver"
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/server"
-	"github.com/micro/micro/v3/util/acme"
-	"github.com/micro/micro/v3/util/codec"
-	"github.com/micro/micro/v3/util/codec/bytes"
-	"github.com/micro/micro/v3/util/codec/jsonrpc"
-	"github.com/micro/micro/v3/util/codec/protorpc"
-	"github.com/micro/micro/v3/util/qson"
+	metadata "github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/service/server"
+	"github.com/micro/micro/v5/util/codec"
+	"github.com/micro/micro/v5/util/codec/bytes"
+	"github.com/micro/micro/v5/util/codec/jsonrpc"
+	"github.com/micro/micro/v5/util/codec/protorpc"
+	"github.com/micro/micro/v5/util/qson"
 	"github.com/oxtoacart/bpool"
 )
 
@@ -51,19 +49,6 @@ func (b *buffer) Write(_ []byte) (int, error) {
 	return 0, nil
 }
 
-type API interface {
-	// Initialise options
-	Init(...Option) error
-	// Get the options
-	Options() Options
-	// Register a http handler
-	Register(*Endpoint) error
-	// Register a route
-	Deregister(*Endpoint) error
-	// Implementation of api
-	String() string
-}
-
 // Server serves api requests
 type Server interface {
 	Address() string
@@ -74,14 +59,12 @@ type Server interface {
 }
 
 type Options struct {
-	EnableACME   bool
-	EnableCORS   bool
-	ACMEProvider acme.Provider
-	EnableTLS    bool
-	ACMEHosts    []string
-	TLSConfig    *tls.Config
-	Resolver     resolver.Resolver
-	Wrappers     []Wrapper
+	EnableACME bool
+	EnableCORS bool
+	EnableTLS  bool
+	ACMEHosts  []string
+	TLSConfig  *tls.Config
+	Wrappers   []Wrapper
 }
 
 type Option func(*Options)
@@ -100,24 +83,6 @@ func EnableCORS(b bool) Option {
 	}
 }
 
-func EnableACME(b bool) Option {
-	return func(o *Options) {
-		o.EnableACME = b
-	}
-}
-
-func ACMEHosts(hosts ...string) Option {
-	return func(o *Options) {
-		o.ACMEHosts = hosts
-	}
-}
-
-func ACMEProvider(p acme.Provider) Option {
-	return func(o *Options) {
-		o.ACMEProvider = p
-	}
-}
-
 func EnableTLS(b bool) Option {
 	return func(o *Options) {
 		o.EnableTLS = b
@@ -130,16 +95,12 @@ func TLSConfig(t *tls.Config) Option {
 	}
 }
 
-func Resolver(r resolver.Resolver) Option {
-	return func(o *Options) {
-		o.Resolver = r
-	}
-}
-
 // Endpoint is a mapping between an RPC method and HTTP endpoint
 type Endpoint struct {
 	// RPC Method e.g. Greeter.Hello
 	Name string
+	// Domain
+	Domain string
 	// Description e.g what's this endpoint for
 	Description string
 	// API Handler e.g rpc, proxy
@@ -149,7 +110,7 @@ type Endpoint struct {
 	// HTTP Methods e.g GET, POST
 	Method []string
 	// HTTP Path e.g /greeter. Expect POSIX regex
-	Path []string
+	Path string
 	// Body destination
 	// "*" or "" - top level message value
 	// "string" - inner message value
@@ -162,6 +123,8 @@ type Endpoint struct {
 type Service struct {
 	// Name of service
 	Name string
+	// Domain of the service
+	Domain string
 	// The endpoint for this service
 	Endpoint *Endpoint
 	// Versions of this service
@@ -189,7 +152,7 @@ func Encode(e *Endpoint) map[string]string {
 	set("description", e.Description)
 	set("handler", e.Handler)
 	set("method", strings.Join(e.Method, ","))
-	set("path", strings.Join(e.Path, ","))
+	set("path", e.Path)
 	set("host", strings.Join(e.Host, ","))
 
 	return ep
@@ -205,7 +168,7 @@ func Decode(e map[string]string) *Endpoint {
 		Name:        e["endpoint"],
 		Description: e["description"],
 		Method:      slice(e["method"]),
-		Path:        slice(e["path"]),
+		Path:        e["path"],
 		Host:        slice(e["host"]),
 		Handler:     e["handler"],
 	}
@@ -221,22 +184,10 @@ func Validate(e *Endpoint) error {
 		return errors.New("name required")
 	}
 
-	for _, p := range e.Path {
-		ps := p[0]
-		pe := p[len(p)-1]
-
-		if ps == '^' && pe == '$' {
-			_, err := regexp.CompilePOSIX(p)
-			if err != nil {
-				return err
-			}
-		} else if ps == '^' && pe != '$' {
-			return errors.New("invalid path")
-		} else if ps != '^' && pe == '$' {
-			return errors.New("invalid path")
-		}
+	_, err := regexp.CompilePOSIX(e.Path)
+	if err != nil {
+		return err
 	}
-
 	if len(e.Handler) == 0 {
 		return errors.New("invalid handler")
 	}

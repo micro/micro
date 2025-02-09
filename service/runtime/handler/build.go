@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 
-	pb "github.com/micro/micro/v3/proto/runtime"
-	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/store"
+	pb "github.com/micro/micro/v5/proto/runtime"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/store"
 )
 
 const bufferSize = 1024

@@ -22,7 +22,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v5/service/store"
+	"github.com/micro/micro/v5/util/user"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -33,7 +34,7 @@ var (
 	// DefaultTable when none is specified
 	DefaultTable = "micro"
 	// DefaultDir is the default directory for bbolt files
-	DefaultDir = filepath.Join(os.TempDir(), "micro", "store")
+	DefaultDir = filepath.Join(user.Dir, "store")
 
 	// bucket used for data storage
 	dataBucket = "data"

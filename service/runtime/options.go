@@ -18,7 +18,7 @@ import (
 	"context"
 	"io"
 
-	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v5/service/client"
 )
 
 type Option func(o *Options)
@@ -377,7 +377,7 @@ type LogsOptions struct {
 	Context context.Context
 }
 
-// LogsExistingCount confiures how many existing lines to show
+// LogsCount configures how many existing lines to show
 func LogsCount(count int64) LogsOption {
 	return func(l *LogsOptions) {
 		l.Count = count

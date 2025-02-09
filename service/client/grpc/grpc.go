@@ -27,11 +27,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/micro/micro/v3/service/broker"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/micro/v3/service/errors"
-	raw "github.com/micro/micro/v3/util/codec/bytes"
+	"github.com/micro/micro/v5/service/broker"
+	"github.com/micro/micro/v5/service/client"
+	metadata "github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/errors"
+	raw "github.com/micro/micro/v5/util/codec/bytes"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -419,10 +419,10 @@ func (g *grpcClient) Call(ctx context.Context, req client.Request, rsp interface
 		callOpts.Selector = g.opts.Selector
 	}
 
-	// inject proxy address if no address is specified
+	// inject network address if no address is specified
 	// TODO: don't even bother using Lookup/Select in this case
-	if len(g.opts.Proxy) > 0 {
-		callOpts.Address = append(callOpts.Address, g.opts.Proxy)
+	if len(g.opts.Network) > 0 {
+		callOpts.Address = append(callOpts.Address, g.opts.Network)
 	}
 
 	// lookup the route to send the reques to
@@ -534,10 +534,10 @@ func (g *grpcClient) Stream(ctx context.Context, req client.Request, opts ...cli
 		callOpts.Selector = g.opts.Selector
 	}
 
-	// inject proxy address
+	// inject network address
 	// TODO: don't even bother using Lookup/Select in this case
-	if len(g.opts.Proxy) > 0 {
-		callOpts.Address = []string{g.opts.Proxy}
+	if len(g.opts.Network) > 0 {
+		callOpts.Address = []string{g.opts.Network}
 	}
 
 	// lookup the route to send the reques to

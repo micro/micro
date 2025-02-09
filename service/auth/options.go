@@ -20,7 +20,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v5/service/store"
 )
 
 func NewOptions(opts ...Option) Options {

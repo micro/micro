@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/micro/v3/router/registry/registry.go
+// Original source: github.com/micro/micro/v5/router/registry/registry.go
 
 package registry
 
@@ -20,9 +20,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/router"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/service/router"
 )
 
 var (
@@ -180,7 +180,7 @@ func (r *registryRouter) createRoutes(service *registry.Service, network string)
 	return routes
 }
 
-// manageServiceRoutes applies action to all routes of the service.
+// manageRoutes applies action to all routes of the service.
 // It returns error of the action fails with error.
 func (r *registryRouter) manageRoutes(service *registry.Service, action, network string) error {
 	// action is the routing table action
@@ -322,14 +322,32 @@ func (r *registryRouter) Close() error {
 func (r *registryRouter) Lookup(service string, opts ...router.LookupOption) ([]router.Route, error) {
 	q := router.NewLookup(opts...)
 
-	// if we find the routes filter and return them
+	// lookup a route in the table by service name
 	routes, err := r.table.Read(router.ReadService(service))
+
+	// assuming successful lookup
 	if err == nil {
+		// filter the routes based on user input
 		routes = router.Filter(routes, q)
 		if len(routes) == 0 {
+			// return error if there's no route
 			return nil, router.ErrRouteNotFound
 		}
+		// otherwise return route
 		return routes, nil
+	}
+
+	// could not find a route, check if we have a default
+	if len(r.options.Gateway) > 0 {
+		q := router.NewLookup(router.LookupGateway(r.options.Gateway))
+
+		// read all the routes
+		if routes, err := r.table.Read(router.ReadService("*")); err == nil {
+			// filter all the routes based on our gateway
+			if routes = router.Filter(routes, q); len(routes) > 0 {
+				return routes, nil
+			}
+		}
 	}
 
 	// lookup the route
@@ -362,6 +380,7 @@ func (r *registryRouter) Lookup(service string, opts ...router.LookupOption) ([]
 	if len(routes) == 0 {
 		return nil, router.ErrRouteNotFound
 	}
+
 	return routes, nil
 }
 

@@ -20,7 +20,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/micro/micro/v3/service/config"
+	"github.com/micro/micro/v5/service/config"
 )
 
 type envConfig struct{}

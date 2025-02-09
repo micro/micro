@@ -19,7 +19,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v5/service/store"
 	"github.com/stretchr/testify/assert"
 )
 

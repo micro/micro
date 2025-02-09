@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"strings"
 
-	pb "github.com/micro/micro/v3/proto/auth"
-	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/store"
-	"github.com/micro/micro/v3/util/auth/namespace"
+	pb "github.com/micro/micro/v5/proto/auth"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/store"
+	"github.com/micro/micro/v5/util/auth/namespace"
 )
 
 // List returns all auth accounts

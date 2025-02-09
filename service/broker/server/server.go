@@ -1,37 +1,25 @@
 package server
 
 import (
-	"time"
-
-	pb "github.com/micro/micro/v3/proto/broker"
-	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/broker"
-	"github.com/micro/micro/v3/service/broker/handler"
-	"github.com/micro/micro/v3/service/logger"
+	pb "github.com/micro/micro/v5/proto/broker"
+	"github.com/micro/micro/v5/service"
+	"github.com/micro/micro/v5/service/broker"
+	"github.com/micro/micro/v5/service/broker/handler"
+	"github.com/micro/micro/v5/service/logger"
 	"github.com/urfave/cli/v2"
 )
 
 var (
-	name    = "broker"
 	address = ":8003"
 )
 
 // Run the micro broker
 func Run(ctx *cli.Context) error {
-	srvOpts := []service.Option{
-		service.Name(name),
-		service.Address(address),
-	}
-
-	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
-		srvOpts = append(srvOpts, service.RegisterTTL(i*time.Second))
-	}
-	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
-		srvOpts = append(srvOpts, service.RegisterInterval(i*time.Second))
-	}
-
 	// new service
-	srv := service.New(srvOpts...)
+	srv := service.New(
+		service.Name("broker"),
+		service.Address(address),
+	)
 
 	// connect to the broker
 	broker.DefaultBroker.Connect()
@@ -43,5 +31,6 @@ func Run(ctx *cli.Context) error {
 	if err := srv.Run(); err != nil {
 		logger.Fatal(err)
 	}
+
 	return nil
 }

@@ -19,7 +19,7 @@ package grpc
 import (
 	"net/http"
 
-	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v5/service/errors"
 	"google.golang.org/grpc/codes"
 )
 

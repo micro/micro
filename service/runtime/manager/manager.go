@@ -5,21 +5,19 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/build"
-	"github.com/micro/micro/v3/service/build/util/tar"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/runtime"
-	kclient "github.com/micro/micro/v3/service/runtime/kubernetes/client"
-	"github.com/micro/micro/v3/service/runtime/source/git"
-	"github.com/micro/micro/v3/service/store"
-	"github.com/micro/micro/v3/util/namespace"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/runtime"
+	"github.com/micro/micro/v5/service/runtime/build"
+	"github.com/micro/micro/v5/service/runtime/build/util/tar"
+	"github.com/micro/micro/v5/service/runtime/source/git"
+	"github.com/micro/micro/v5/service/store"
+	"github.com/micro/micro/v5/util/namespace"
+	"github.com/micro/micro/v5/util/user"
 )
 
 const (
@@ -326,8 +324,8 @@ func (m *manager) createServiceInRuntime(srv *service) error {
 
 	// inject the credentials into the service if present
 	if len(acc.ID) > 0 && len(acc.Secret) > 0 {
-		options = append(options, runtime.WithSecret("MICRO_AUTH_ID", acc.ID))
-		options = append(options, runtime.WithSecret("MICRO_AUTH_SECRET", acc.Secret))
+		options = append(options, runtime.WithSecret("MICRO_CLIENT_ID", acc.ID))
+		options = append(options, runtime.WithSecret("MICRO_CLIENT_SECRET", acc.Secret))
 	}
 
 	// create the service
@@ -355,7 +353,7 @@ func (m *manager) checkoutBlobSource(srv *service) (string, error) {
 		return "", err
 	}
 
-	dir, err := ioutil.TempDir(os.TempDir(), "blob-*")
+	dir, err := ioutil.TempDir(user.Dir, "blob-*")
 	if err != nil {
 		return "", err
 	}
@@ -404,20 +402,8 @@ func (m *manager) runtimeEnv(srv *runtime.Service, options *runtime.CreateOption
 
 	// overwrite any values
 	env := map[string]string{
-		// ensure a profile for the services isn't set, they
-		// should use the default RPC clients
-		"MICRO_PROFILE": "service",
-		// pass the service's name and version
 		"MICRO_SERVICE_NAME":    srv.Name,
-		"MICRO_SERVICE_VERSION": srv.Version,
-		// set the proxy for the service to use (e.g. micro network)
-		// using the proxy which has been configured for the runtime
-		"MICRO_PROXY": client.DefaultClient.Options().Proxy,
-	}
-
-	// bind to port 8080, this is what the k8s tcp readiness check will use
-	if runtime.DefaultRuntime.String() == "kubernetes" {
-		env["MICRO_SERVICE_ADDRESS"] = ":8080"
+		"MICRO_SERVICE_NETWORK": "127.0.0.1:8443",
 	}
 
 	// set the env vars provided
@@ -658,7 +644,7 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		}
 
 		// the service might still be building and not have been created in the underlying runtime yet
-		rs, ok := rSrvMap[kclient.Format(s.Service.Name)+":"+kclient.Format(s.Service.Version)]
+		rs, ok := rSrvMap[s.Service.Name+":"+s.Service.Version]
 		if !ok {
 			continue
 		}
@@ -925,7 +911,7 @@ func (m *manager) Start() error {
 	m.running = true
 
 	// start the runtime we're going to manage
-	if err := runtime.DefaultRuntime.Start(); err != nil {
+	if err := m.Runtime.Start(); err != nil {
 		return err
 	}
 
@@ -981,7 +967,7 @@ func (m *manager) Stop() error {
 	default:
 	}
 
-	return runtime.DefaultRuntime.Stop()
+	return m.Runtime.Stop()
 }
 
 // String describes runtime
@@ -1001,6 +987,6 @@ type manager struct {
 func New() runtime.Runtime {
 	return &manager{
 		exit:    make(chan bool, 1),
-		Runtime: NewCache(runtime.DefaultRuntime),
+		Runtime: runtime.DefaultRuntime,
 	}
 }

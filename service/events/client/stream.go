@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"time"
 
-	pb "github.com/micro/micro/v3/proto/events"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context"
-	"github.com/micro/micro/v3/service/events"
-	"github.com/micro/micro/v3/service/events/util"
-	log "github.com/micro/micro/v3/service/logger"
+	pb "github.com/micro/micro/v5/proto/events"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/events"
+	"github.com/micro/micro/v5/service/events/util"
+	log "github.com/micro/micro/v5/service/logger"
 )
 
 // NewStream returns an initialized stream service

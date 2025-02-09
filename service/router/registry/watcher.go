@@ -10,14 +10,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/micro/v3/router/dns/registry/watcher.go
+// Original source: github.com/micro/micro/v5/router/dns/registry/watcher.go
 
 package registry
 
 import (
 	"sync"
 
-	"github.com/micro/micro/v3/service/router"
+	"github.com/micro/micro/v5/service/router"
 )
 
 // tableWatcher implements routing table Watcher

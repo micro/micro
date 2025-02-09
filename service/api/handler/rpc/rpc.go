@@ -25,13 +25,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/micro/micro/v3/service/api"
-	"github.com/micro/micro/v3/service/api/handler"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/util/codec/bytes"
-	"github.com/micro/micro/v3/util/ctx"
+	"github.com/micro/micro/v5/service/api"
+	"github.com/micro/micro/v5/service/api/handler"
+	"github.com/micro/micro/v5/service/client"
+	metadata "github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/util/codec/bytes"
+	"github.com/micro/micro/v5/util/ctx"
 )
 
 const (
@@ -88,27 +89,14 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, bsize)
 
 	defer r.Body.Close()
-	var service *api.Service
-	var c client.Client
 
-	if v, ok := r.Context().(handler.Context); ok {
-		// we were given the service
-		service = v.Service()
-		c = v.Client()
-	} else if h.opts.Router != nil {
-		// try get service from router
-		s, err := h.opts.Router.Route(r)
-		if err != nil {
-			writeError(w, r, errors.InternalServerError("go.micro.api", err.Error()))
-			return
-		}
-		service = s
-		c = h.opts.Client
-	} else {
-		// we have no way of routing the request
-		writeError(w, r, errors.InternalServerError("go.micro.api", "no route found"))
+	// try get service from router
+	service, err := h.opts.Router.Route(r)
+	if err != nil {
+		writeError(w, r, errors.InternalServerError("go.micro.api", err.Error()))
 		return
 	}
+	c := h.opts.Client
 
 	ct := r.Header.Get("Content-Type")
 
@@ -117,8 +105,16 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ct = ct[:idx]
 	}
 
+	// delete some headers
+
 	// create context
 	cx := ctx.FromRequest(r)
+
+	// strip headers grpc doesn't like
+	md, _ := metadata.FromContext(cx)
+	// delete websocket info
+	delete(md, "Connection")
+	cx = metadata.NewContext(cx, md)
 
 	// set merged context to request
 	*r = *r.Clone(cx)

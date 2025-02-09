@@ -21,11 +21,10 @@ import (
 	"crypto/tls"
 	"net"
 
-	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"github.com/micro/micro/v3/service/broker/memory"
-	memReg "github.com/micro/micro/v3/service/registry/memory"
-	"github.com/micro/micro/v3/service/server"
-	"github.com/micro/micro/v3/util/codec"
+	"github.com/micro/micro/v5/service/broker/memory"
+	memReg "github.com/micro/micro/v5/service/registry/memory"
+	"github.com/micro/micro/v5/service/server"
+	"github.com/micro/micro/v5/util/codec"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
 )
@@ -76,17 +75,6 @@ func Options(opts ...grpc.ServerOption) server.Option {
 	return setServerOption(grpcOptions{}, opts)
 }
 
-// GRPCWebOptions to be used to start a gRPC Web server
-func GRPCWebOptions(opts ...grpcweb.Option) server.Option {
-	return setServerOption(grpcWebOptions{}, opts)
-}
-
-// GRPCWebPort to be used to start a gRPC Web server
-func GRPCWebPort(addr string) server.Option {
-	return setServerOption(grpcWebPort{}, addr)
-}
-
-//
 // Deprecated: use MaxRecvMsgSize or MaxSendMsgSize instead
 // MaxMsgSize set the maximum message in bytes the server can receive and
 // send.  Default maximum message size is 4 MB.
@@ -94,9 +82,7 @@ func MaxMsgSize(s int) server.Option {
 	return setServerOption(maxMsgSizeKey{}, s)
 }
 
-//
 // MaxRecvMsgSize set the maximum size of message that server can receive.
-//
 func MaxRecvMsgSize(s int) server.Option {
 	return func(o *server.Options) {
 		if o.Context == nil {
@@ -106,9 +92,7 @@ func MaxRecvMsgSize(s int) server.Option {
 	}
 }
 
-//
 // MaxSendMsgSize set the maximum size of message that server can send.
-//
 func MaxSendMsgSize(s int) server.Option {
 	return func(o *server.Options) {
 		if o.Context == nil {

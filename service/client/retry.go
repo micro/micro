@@ -20,7 +20,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v5/service/errors"
 )
 
 // note that returning either false or a non-nil error will result in the call not being retried

@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/micro/micro/v3/util/codec"
+	"github.com/micro/micro/v5/util/codec"
 )
 
 type serverCodec struct {

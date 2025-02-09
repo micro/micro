@@ -5,19 +5,15 @@ import (
 	"encoding/base64"
 	"reflect"
 	"strings"
-	"time"
 
-	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/micro/v3/service/debug"
-	"github.com/micro/micro/v3/service/debug/trace"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/metrics"
-	"github.com/micro/micro/v3/service/server"
-	inauth "github.com/micro/micro/v3/util/auth"
-	"github.com/micro/micro/v3/util/cache"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/service/client"
+	metadata "github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/server"
+	inauth "github.com/micro/micro/v5/util/auth"
+	"github.com/micro/micro/v5/util/cache"
 )
 
 type authWrapper struct {
@@ -157,76 +153,6 @@ func LogHandler() server.HandlerWrapper {
 	}
 }
 
-// HandlerStats wraps a server handler to generate request/error stats
-func HandlerStats() server.HandlerWrapper {
-	// return a handler wrapper
-	return func(h server.HandlerFunc) server.HandlerFunc {
-		// return a function that returns a function
-		return func(ctx context.Context, req server.Request, rsp interface{}) error {
-			// execute the handler
-			err := h(ctx, req, rsp)
-			// record the stats
-			debug.DefaultStats.Record(err)
-			// return the error
-			return err
-		}
-	}
-}
-
-type traceWrapper struct {
-	client.Client
-}
-
-func (c *traceWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
-	newCtx, s := debug.DefaultTracer.Start(ctx, req.Service()+"."+req.Endpoint())
-
-	s.Type = trace.SpanTypeRequestOutbound
-	err := c.Client.Call(newCtx, req, rsp, opts...)
-	if err != nil {
-		s.Metadata["error"] = err.Error()
-	}
-
-	// finish the trace
-	debug.DefaultTracer.Finish(s)
-
-	return err
-}
-
-// TraceCall is a call tracing wrapper
-func TraceCall(c client.Client) client.Client {
-	return &traceWrapper{
-		Client: c,
-	}
-}
-
-// TraceHandler wraps a server handler to perform tracing
-func TraceHandler() server.HandlerWrapper {
-	// return a handler wrapper
-	return func(h server.HandlerFunc) server.HandlerFunc {
-		// return a function that returns a function
-		return func(ctx context.Context, req server.Request, rsp interface{}) error {
-			// don't store traces for debug
-			if strings.HasPrefix(req.Endpoint(), "Debug.") {
-				return h(ctx, req, rsp)
-			}
-
-			// get the span
-			newCtx, s := debug.DefaultTracer.Start(ctx, req.Service()+"."+req.Endpoint())
-			s.Type = trace.SpanTypeRequestInbound
-
-			err := h(newCtx, req, rsp)
-			if err != nil {
-				s.Metadata["error"] = err.Error()
-			}
-
-			// finish
-			debug.DefaultTracer.Finish(s)
-
-			return err
-		}
-	}
-}
-
 type cacheWrapper struct {
 	Cache *cache.Cache
 	client.Client
@@ -278,43 +204,5 @@ func CacheClient(c client.Client) client.Client {
 	return &cacheWrapper{
 		Cache:  cache.New(),
 		Client: c,
-	}
-}
-
-// MetricsHandler wraps a server handler to instrument calls
-func MetricsHandler() server.HandlerWrapper {
-	// return a handler wrapper
-	return func(h server.HandlerFunc) server.HandlerFunc {
-		// return a function that returns a function
-		return func(ctx context.Context, req server.Request, rsp interface{}) error {
-
-			// Don't instrument debug calls:
-			if strings.HasPrefix(req.Endpoint(), "Debug.") {
-				return h(ctx, req, rsp)
-			}
-
-			// Build some tags to describe the call:
-			tags := metrics.Tags{
-				"method": req.Method(),
-			}
-
-			// Start the clock:
-			callTime := time.Now()
-
-			// Run the handlerFunction:
-			err := h(ctx, req, rsp)
-
-			// Add a result tag:
-			if err != nil {
-				tags["result"] = "failure"
-			} else {
-				tags["result"] = "success"
-			}
-
-			// Instrument the result (if the DefaultClient has been configured):
-			metrics.Timing("service.handler", time.Since(callTime), tags)
-
-			return err
-		}
 	}
 }

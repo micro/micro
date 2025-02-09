@@ -1,14 +1,13 @@
 package client
 
 import (
-	pb "github.com/micro/micro/v3/proto/broker"
-	"github.com/micro/micro/v3/service/broker"
-	"github.com/micro/micro/v3/service/logger"
+	pb "github.com/micro/micro/v5/proto/broker"
+	"github.com/micro/micro/v5/service/broker"
+	"github.com/micro/micro/v5/service/logger"
 )
 
 type serviceSub struct {
 	topic   string
-	queue   string
 	handler broker.Handler
 	stream  pb.Broker_SubscribeService
 	closed  chan bool

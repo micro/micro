@@ -11,9 +11,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
-	"github.com/micro/micro/v3/service/config"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/util/user"
+	"github.com/micro/micro/v5/service/model"
+	"github.com/micro/micro/v5/util/user"
 )
 
 // The sql DB
@@ -21,19 +20,51 @@ type DB struct {
 	*gorm.DB
 }
 
-// NewDB provides a new database connection. If [name].db.address is found 
-// in the config then it's used as the address, otherwise we use sqlite. 
-func NewDB(name string) (*DB, error) {
-	dbAddress := "sqlite://" + name + ".db"
+func (d *DB) Register(v interface{}) error {
+	return d.DB.AutoMigrate(v)
+}
 
-	// Connect to the database
-	cfg, err := config.Get(name + ".db.address")
-	if err != nil {
-		logger.Fatalf("Error loading config: %v", err)
+func (d *DB) Create(v interface{}) error {
+	return d.DB.Create(v).Error
+}
+
+func (d *DB) Update(v interface{}) error {
+	return d.DB.Save(v).Error
+}
+
+func (d *DB) Delete(v interface{}) error {
+	return d.DB.Delete(v).Error
+}
+
+func (d *DB) Read(v interface{}) error {
+	return d.DB.First(v).Error
+}
+
+func (d *DB) Query(res interface{}, where ...interface{}) error {
+	return d.DB.Find(res, where...).Error
+}
+
+func NewModel(opts ...model.Option) model.Model {
+	var options model.Options
+	for _, o := range opts {
+		o(&options)
 	}
-	addr := cfg.String(dbAddress)
 
+	if len(options.Database) == 0 {
+		options.Database = "micro"
+	}
+
+	// create a new database handle
+	db, _ := NewDB(options.Database, options.Address)
+
+	return db
+}
+
+// NewDB provides a new database connection. If [name].db.address is found
+// in the config then it's used as the address, otherwise we use sqlite.
+func NewDB(name, addr string) (*DB, error) {
 	var db *gorm.DB
+	var err error
 
 	if strings.HasPrefix(addr, "postgres") {
 		db, err = gorm.Open(postgres.Open(addr), &gorm.Config{

@@ -1,20 +1,3 @@
-// Copyright 2020 Asim Aslam
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// Original source: github.com/micro/go-micro/v3/api/router/registry/registry.go
-
-// Package registry provides a dynamic api service router
 package registry
 
 import (
@@ -26,14 +9,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/service/api"
-	"github.com/micro/micro/v3/service/api/router"
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/registry/cache"
-	"github.com/micro/micro/v3/util/namespace"
-	util "github.com/micro/micro/v3/util/router"
+	"github.com/micro/micro/v5/service/api"
+	"github.com/micro/micro/v5/service/api/router"
+	"github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/registry"
+	"github.com/micro/micro/v5/service/registry/cache"
+	"github.com/micro/micro/v5/util/namespace"
+	util "github.com/micro/micro/v5/util/router"
 )
 
 var (
@@ -66,6 +49,7 @@ type registryRouter struct {
 
 	// refresh channel
 	refreshChan chan string
+	resolver    *apiResolver
 
 	sync.RWMutex
 	namespaces map[string]*namespaceEntry
@@ -296,37 +280,36 @@ func (r *registryRouter) store(namespace string, services []*registry.Service) {
 			cep.hostregs = append(cep.hostregs, hostreg)
 		}
 
-		for _, p := range ep.Endpoint.Path {
-			var pcreok bool
+		p := ep.Endpoint.Path
+		var pcreok bool
 
-			if p[0] == '^' && p[len(p)-1] == '$' {
-				pcrereg, err := regexp.CompilePOSIX(p)
-				if err == nil {
-					cep.pcreregs = append(cep.pcreregs, pcrereg)
-					pcreok = true
-				}
+		if p[0] == '^' && p[len(p)-1] == '$' {
+			pcrereg, err := regexp.CompilePOSIX(p)
+			if err == nil {
+				cep.pcreregs = append(cep.pcreregs, pcrereg)
+				pcreok = true
 			}
-
-			rule, err := util.Parse(p)
-			if err != nil && !pcreok {
-				if logger.V(logger.TraceLevel, logger.DefaultLogger) {
-					logger.Tracef("endpoint have invalid path pattern: %v", err)
-				}
-				continue
-			} else if err != nil && pcreok {
-				continue
-			}
-
-			tpl := rule.Compile()
-			pathreg, err := util.NewPattern(tpl.Version, tpl.OpCodes, tpl.Pool, "")
-			if err != nil {
-				if logger.V(logger.TraceLevel, logger.DefaultLogger) {
-					logger.Tracef("endpoint have invalid path pattern: %v", err)
-				}
-				continue
-			}
-			cep.pathregs = append(cep.pathregs, pathreg)
 		}
+
+		rule, err := util.Parse(p)
+		if err != nil && !pcreok {
+			if logger.V(logger.TraceLevel, logger.DefaultLogger) {
+				logger.Tracef("endpoint have invalid path pattern: %v", err)
+			}
+			continue
+		} else if err != nil && pcreok {
+			continue
+		}
+
+		tpl := rule.Compile()
+		pathreg, err := util.NewPattern(tpl.Version, tpl.OpCodes, tpl.Pool, "")
+		if err != nil {
+			if logger.V(logger.TraceLevel, logger.DefaultLogger) {
+				logger.Tracef("endpoint have invalid path pattern: %v", err)
+			}
+			continue
+		}
+		cep.pathregs = append(cep.pathregs, pathreg)
 
 		nse.ceps[name] = cep
 	}
@@ -416,10 +399,7 @@ func (r *registryRouter) Endpoint(req *http.Request) (*api.Service, error) {
 	path := strings.Split(req.URL.Path[idx:], "/")
 
 	// resolve so we can get the namespace
-	rp, err := r.opts.Resolver.Resolve(req)
-	if err != nil {
-		return nil, err
-	}
+	rp := r.resolver.Resolve(req)
 	var ret *api.Service
 	r.RLock()
 	nse, ok := r.namespaces[rp.Domain]
@@ -492,15 +472,15 @@ endpointLoop:
 				logger.Debugf("api gpath match %s = %v", path, pathreg)
 			}
 			ctx := req.Context()
-			md, ok := metadata.FromContext(ctx)
+			md, ok := context.FromContext(ctx)
 			if !ok {
-				md = make(metadata.Metadata)
+				md = make(context.Metadata)
 			}
 			for k, v := range matches {
 				md[fmt.Sprintf("x-api-field-%s", k)] = v
 			}
 			md["x-api-body"] = ep.Body
-			*req = *req.Clone(metadata.NewContext(ctx, md))
+			*req = *req.Clone(context.NewContext(ctx, md))
 			ret = e
 			break endpointLoop
 		}
@@ -546,10 +526,7 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 	// TODO: don't ignore that shit
 
 	// get the service name
-	rp, err := r.opts.Resolver.Resolve(req)
-	if err != nil {
-		return nil, err
-	}
+	rp := r.resolver.Resolve(req)
 	// service name
 	name := rp.Name
 
@@ -565,43 +542,15 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 		return nil, err
 	}
 
-	// only use endpoint matching when the meta handler is set aka api.Default
-	switch r.opts.Handler {
-	// rpc handlers
-	case "meta", "api", "rpc":
-		handler := r.opts.Handler
-
-		// set default handler to api
-		if r.opts.Handler == "meta" {
-			handler = "rpc"
-		}
-
-		// construct api service
-		return &api.Service{
-			Name: name,
-			Endpoint: &api.Endpoint{
-				Name:    rp.Method,
-				Handler: handler,
-			},
-			Services: services,
-		}, nil
-	// http handler
-	case "http", "proxy", "web":
-		// construct api service
-		return &api.Service{
-			Name: name,
-			Endpoint: &api.Endpoint{
-				Name:    req.URL.String(),
-				Handler: r.opts.Handler,
-				Host:    []string{req.Host},
-				Method:  []string{req.Method},
-				Path:    []string{req.URL.Path},
-			},
-			Services: services,
-		}, nil
-	}
-
-	return nil, errors.New("unknown handler")
+	// construct api service
+	return &api.Service{
+		Name: name,
+		Endpoint: &api.Endpoint{
+			Name:    rp.Method,
+			Handler: "rpc",
+		},
+		Services: services,
+	}, nil
 }
 
 func newRouter(opts ...router.Option) *registryRouter {
@@ -611,6 +560,7 @@ func newRouter(opts ...router.Option) *registryRouter {
 		refreshChan: make(chan string),
 		opts:        options,
 		rc:          cache.New(options.Registry),
+		resolver:    new(apiResolver),
 		namespaces: map[string]*namespaceEntry{
 			namespace.DefaultNamespace: &namespaceEntry{
 				eps:  make(map[string]*api.Service),

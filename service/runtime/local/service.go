@@ -22,10 +22,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/local/process"
-	proc "github.com/micro/micro/v3/service/runtime/local/process/os"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/runtime"
+	"github.com/micro/micro/v5/service/runtime/local/process"
+	proc "github.com/micro/micro/v5/service/runtime/local/process/os"
 )
 
 type service struct {

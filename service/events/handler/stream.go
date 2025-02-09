@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	pb "github.com/micro/micro/v3/proto/events"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/events"
-	"github.com/micro/micro/v3/service/events/util"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/util/auth/namespace"
+	pb "github.com/micro/micro/v5/proto/events"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/events"
+	"github.com/micro/micro/v5/service/events/util"
+	"github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/util/auth/namespace"
 )
 
 type Stream struct{}
@@ -58,6 +58,8 @@ func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Pu
 }
 
 func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Stream_ConsumeStream) error {
+	logger.Infof("New consumer for %s\n", req.Topic)
+
 	// authorize the request
 	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "events.Stream.Consume"); err != nil {
 		return err

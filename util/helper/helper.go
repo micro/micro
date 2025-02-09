@@ -10,19 +10,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/micro/micro/v3/service/context/metadata"
+	metadata "github.com/micro/micro/v5/service/context"
 	"github.com/urfave/cli/v2"
 )
-
-func ACMEHosts(ctx *cli.Context) []string {
-	var hosts []string
-	for _, host := range strings.Split(ctx.String("acme_hosts"), ",") {
-		if len(host) > 0 {
-			hosts = append(hosts, host)
-		}
-	}
-	return hosts
-}
 
 func RequestToContext(r *http.Request) context.Context {
 	ctx := context.Background()

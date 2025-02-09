@@ -15,8 +15,8 @@
 package cache
 
 import (
-	"github.com/micro/micro/v3/service/store"
-	"github.com/micro/micro/v3/service/store/memory"
+	"github.com/micro/micro/v5/service/store"
+	"github.com/micro/micro/v5/service/store/memory"
 )
 
 // cache store is a store with caching to reduce IO where applicable.

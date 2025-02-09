@@ -1,11 +1,11 @@
 package client
 
 import (
-	pb "github.com/micro/micro/v3/proto/events"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context"
-	"github.com/micro/micro/v3/service/events"
-	"github.com/micro/micro/v3/service/events/util"
+	pb "github.com/micro/micro/v5/proto/events"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/events"
+	"github.com/micro/micro/v5/service/events/util"
 )
 
 // NewStore returns an initialized store handler

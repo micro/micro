@@ -1,95 +1,66 @@
-module github.com/micro/micro/v3
+module github.com/micro/micro/v5
 
-go 1.17
+go 1.20
 
 require (
-	github.com/bitly/go-simplejson v0.5.0
-	github.com/caddyserver/certmagic v0.10.6
-	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
+	github.com/bitly/go-simplejson v0.5.1
 	github.com/davecgh/go-spew v1.1.1
-	github.com/dustin/go-humanize v1.0.0
-	github.com/evanphx/json-patch/v5 v5.0.0
-	github.com/fsnotify/fsnotify v1.4.9
-	github.com/getkin/kin-openapi v0.26.0
-	github.com/go-acme/lego/v3 v3.4.0
-	github.com/gofrs/uuid v4.0.0+incompatible
-	github.com/golang-jwt/jwt v0.0.0-20210529014511-0f726ea0e725
-	github.com/golang/protobuf v1.5.2
-	github.com/google/uuid v1.1.2
-	github.com/gorilla/handlers v1.4.2
-	github.com/gorilla/mux v1.7.3
-	github.com/gorilla/websocket v1.4.2
-	github.com/hashicorp/go-version v1.2.1
+	github.com/dustin/go-humanize v1.0.1
+	github.com/evanphx/json-patch/v5 v5.9.0
+	github.com/fsnotify/fsnotify v1.7.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/golang/protobuf v1.5.4
+	github.com/google/uuid v1.6.0
+	github.com/gorilla/handlers v1.5.2
+	github.com/gorilla/mux v1.8.1
+	github.com/gorilla/websocket v1.5.1
 	github.com/hpcloud/tail v1.0.0
-	github.com/improbable-eng/grpc-web v0.13.0
-	github.com/kr/pretty v0.2.0
-	github.com/miekg/dns v1.1.27
+	github.com/kr/pretty v0.3.0
 	github.com/nightlyone/lockfile v1.0.0
-	github.com/olekukonko/tablewriter v0.0.4
-	github.com/onsi/gomega v1.15.0
-	github.com/opentracing/opentracing-go v1.2.0
+	github.com/onsi/gomega v1.10.0
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
-	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
-	github.com/stoewer/go-strcase v1.2.0
-	github.com/stretchr/objx v0.4.0
-	github.com/stretchr/testify v1.8.0
-	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf
-	github.com/uber/jaeger-client-go v2.29.1+incompatible
-	github.com/urfave/cli/v2 v2.3.0
-	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
-	go.etcd.io/bbolt v1.3.5
-	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
-	google.golang.org/genproto v0.0.0-20200806141610-86f49bd18e98
-	google.golang.org/grpc v1.40.0
-	google.golang.org/protobuf v1.27.1
-	gorm.io/driver/postgres v1.4.5
-	gorm.io/driver/sqlite v1.4.3
-	gorm.io/gorm v1.24.1-0.20221019064659-5dd2bb482755
+	github.com/serenize/snaker v0.0.0-20201027110005-a7ad2135616e
+	github.com/stretchr/objx v0.5.2
+	github.com/stretchr/testify v1.9.0
+	github.com/teris-io/shortid v0.0.0-20220617161101-71ec9f2aa569
+	github.com/urfave/cli/v2 v2.27.1
+	github.com/xlab/treeprint v1.2.0
+	go.etcd.io/bbolt v1.3.9
+	golang.org/x/crypto v0.31.0
+	golang.org/x/net v0.24.0
+	google.golang.org/grpc v1.63.2
+	google.golang.org/protobuf v1.33.0
+	gorm.io/driver/postgres v1.5.7
+	gorm.io/driver/sqlite v1.5.5
+	gorm.io/gorm v1.25.9
 )
 
 require (
-	github.com/HdrHistogram/hdrhistogram-go v1.1.0 // indirect
-	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
-	github.com/cenkalti/backoff/v4 v4.0.0 // indirect
-	github.com/chzyer/logex v1.1.10 // indirect
-	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
-	github.com/cloudflare/cloudflare-go v0.10.9 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
-	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
-	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/google/go-cmp v0.5.6 // indirect
-	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
-	github.com/jackc/pgconn v1.13.0 // indirect
-	github.com/jackc/pgio v1.0.0 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
+	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgproto3/v2 v2.3.1 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
-	github.com/jackc/pgtype v1.12.0 // indirect
-	github.com/jackc/pgx/v4 v4.17.2 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
+	github.com/jackc/pgx/v5 v5.5.5 // indirect
+	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/klauspost/cpuid v1.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/mattn/go-runewidth v0.0.7 // indirect
-	github.com/mattn/go-sqlite3 v1.14.15 // indirect
-	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
+	github.com/mattn/go-sqlite3 v1.14.22 // indirect
+	github.com/onsi/ginkgo v1.7.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rs/cors v1.7.0 // indirect
-	github.com/russross/blackfriday/v2 v2.0.1 // indirect
-	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
-	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
-	go.uber.org/atomic v1.6.0 // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
-	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
-	golang.org/x/text v0.3.8 // indirect
-	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
-	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
+	github.com/rogpeppe/go-internal v1.6.1 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/xrash/smetrics v0.0.0-20240312152122-5f08fbb34913 // indirect
+	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240415180920-8c6c420018be // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
-	gopkg.in/square/go-jose.v2 v2.4.1 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

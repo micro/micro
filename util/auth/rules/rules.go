@@ -21,7 +21,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v5/service/auth"
 )
 
 // VerifyAccess an account has access to a resource using the rules provided. If the account does not have
@@ -112,7 +112,7 @@ func VerifyAccess(rules []*auth.Rule, acc *auth.Account, res *auth.Resource, opt
 // not case sensitive.
 func include(slice []string, val string) bool {
 	for _, s := range slice {
-		if strings.ToLower(s) == strings.ToLower(val) {
+		if strings.EqualFold(s, val) {
 			return true
 		}
 	}

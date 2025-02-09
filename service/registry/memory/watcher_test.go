@@ -17,7 +17,7 @@ package memory
 import (
 	"testing"
 
-	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v5/service/registry"
 )
 
 func TestWatcher(t *testing.T) {

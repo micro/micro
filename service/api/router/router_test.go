@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     https://www.apache.org/licenses/LICENSE-2.0
+//	https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,23 +19,17 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"testing"
-	"time"
 
-	"github.com/micro/micro/v3/service/api/handler"
-	"github.com/micro/micro/v3/service/api/handler/rpc"
-	"github.com/micro/micro/v3/service/api/router"
-	rregistry "github.com/micro/micro/v3/service/api/router/registry"
-	"github.com/micro/micro/v3/service/client"
-	gcli "github.com/micro/micro/v3/service/client/grpc"
-	rmemory "github.com/micro/micro/v3/service/registry/memory"
-	rt "github.com/micro/micro/v3/service/router"
-	regRouter "github.com/micro/micro/v3/service/router/registry"
-	"github.com/micro/micro/v3/service/server"
-	gsrv "github.com/micro/micro/v3/service/server/grpc"
-	pb "github.com/micro/micro/v3/service/server/grpc/proto"
+	"github.com/micro/micro/v5/service/client"
+	gcli "github.com/micro/micro/v5/service/client/grpc"
+	rmemory "github.com/micro/micro/v5/service/registry/memory"
+	rt "github.com/micro/micro/v5/service/router"
+	regRouter "github.com/micro/micro/v5/service/router/registry"
+	"github.com/micro/micro/v5/service/server"
+	gsrv "github.com/micro/micro/v5/service/server/grpc"
+	pb "github.com/micro/micro/v5/service/server/grpc/proto"
 )
 
 // server is used to implement helloworld.GreeterServer.
@@ -45,18 +39,6 @@ type testServer struct {
 
 // TestHello implements helloworld.GreeterServer
 func (s *testServer) Call(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
-	rsp.Msg = "Hello " + req.Uuid
-	return nil
-}
-
-// TestHello implements helloworld.GreeterServer
-func (s *testServer) CallPcre(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
-	rsp.Msg = "Hello " + req.Uuid
-	return nil
-}
-
-// TestHello implements helloworld.GreeterServer
-func (s *testServer) CallPcreInvalid(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	rsp.Msg = "Hello " + req.Uuid
 	return nil
 }
@@ -110,34 +92,4 @@ func check(t *testing.T, addr string, path string, expected string) {
 	if string(buf) != jsonMsg {
 		t.Fatalf("invalid message received, parsing error %s != %s", buf, jsonMsg)
 	}
-}
-
-func TestRouterRegistryPcre(t *testing.T) {
-	s, c := initial(t)
-	defer s.Stop()
-
-	router := rregistry.NewRouter(
-		router.WithHandler(rpc.Handler),
-		router.WithRegistry(s.Options().Registry),
-	)
-	hrpc := rpc.NewHandler(
-		handler.WithClient(c),
-		handler.WithRouter(router),
-	)
-	hsrv := &http.Server{
-		Handler:        hrpc,
-		Addr:           "127.0.0.1:6543",
-		WriteTimeout:   15 * time.Second,
-		ReadTimeout:    15 * time.Second,
-		IdleTimeout:    20 * time.Second,
-		MaxHeaderBytes: 1024 * 1024 * 1, // 1Mb
-	}
-
-	go func() {
-		log.Println(hsrv.ListenAndServe())
-	}()
-
-	defer hsrv.Close()
-	time.Sleep(1 * time.Second)
-	check(t, hsrv.Addr, "http://%s/api/v0/test/call/TEST", `{"msg":"Hello TEST"}`)
 }

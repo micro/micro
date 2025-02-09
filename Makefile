@@ -1,43 +1,56 @@
-NAME=micro
-IMAGE_NAME=micro/$(NAME)
-GIT_COMMIT=$(shell git rev-parse --short HEAD)
-GIT_TAG=$(shell git describe --abbrev=0 --tags --always --match "v*")
-GIT_IMPORT=github.com/micro/micro/v3/cmd
-CGO_ENABLED=0
-BUILD_DATE=$(shell date +%s)
-LDFLAGS=-X $(GIT_IMPORT).BuildDate=$(BUILD_DATE) -X $(GIT_IMPORT).GitCommit=$(GIT_COMMIT) -X $(GIT_IMPORT).GitTag=$(GIT_TAG)
-IMAGE_TAG=$(GIT_TAG)-$(GIT_COMMIT)
-PROTO_FLAGS=--go_opt=paths=source_relative --micro_opt=paths=source_relative
-PROTO_PATH=$(GOPATH)/src:.
-SRC_DIR=$(GOPATH)/src
+NAME = micro
+GIT_COMMIT = $(shell git rev-parse --short HEAD)
+GIT_TAG = $(shell git describe --abbrev=0 --tags --always --match "v*")
+GIT_IMPORT = github.com/micro/micro/v5/cmd
+BUILD_DATE = $(shell date +%s)
+LDFLAGS = -X $(GIT_IMPORT).BuildDate=$(BUILD_DATE) -X $(GIT_IMPORT).GitCommit=$(GIT_COMMIT) -X $(GIT_IMPORT).GitTag=$(GIT_TAG)
 
-all: build
+DOCKER_BUILD = docker buildx build
+DOCKER_BUILD_ARGS = --platform linux/amd64 --platform linux/arm64
+DOCKER_IMAGE_NAME = micro/$(NAME)
+DOCKER_IMAGE_TAG = --tag $(DOCKER_IMAGE_NAME):$(GIT_TAG)-$(GIT_COMMIT) --tag $(DOCKER_IMAGE_NAME):latest
 
-.PHONY: api
-api:
-	find proto/ -name '*.proto' -exec protoc --proto_path=$(PROTO_PATH) --openapi_out=${SRC_DIR} {} \;
+PROTO_FILES = $(wildcard proto/**/*.proto)
+PROTO_GO_MICRO = $(PROTO_FILES:.proto=.pb.go) $(PROTO_FILES:.proto=.pb.micro.go)
 
-vendor:
-	go mod vendor
 
-build:
-	go build -a -installsuffix cgo -ldflags "-s -w ${LDFLAGS}" -o $(NAME)
+.DEFAULT_GOAL := $(NAME)
 
+.PHONY: tidy
+tidy:
+	go mod tidy
+
+$(NAME):
+	CGO_ENABLED=0 go build -ldflags "-s -w ${LDFLAGS}" -o $(NAME) cmd/micro/main.go
+
+.PHONY: docker
 docker:
-	docker buildx build --platform linux/amd64 --platform linux/arm64 --tag $(IMAGE_NAME):$(IMAGE_TAG) --tag $(IMAGE_NAME):latest --push .
+	$(DOCKER_BUILD) $(DOCKER_BUILD_ARGS) $(DOCKER_IMAGE_TAGS) --push .
 
 .PHONY: proto
-proto:
-	find proto/ -name '*.proto' -exec protoc --proto_path=$(PROTO_PATH) $(PROTO_FLAGS) --micro_out=$(SRC_DIR) --go_out=plugins=grpc:$(SRC_DIR) {} \;
+proto: $(PROTO_GO_MICRO)
 
+%.pb.micro.go %.pb.go: %.proto clean
+	protoc --proto_path=. --micro_out=. --go_out=. $<
 
+.PHONY: test
 vet:
 	go vet ./...
 
+.PHONY: vet
 test: vet
-	go test -v ./...
+	go test -v -race ./...
 
+.PHONY: clean
 clean:
-	rm -rf ./micro
+	rm -f $(NAME) $(PROTO_GO_MICRO)
 
-.PHONY: build clean vet test docker
+.PHONY: gorelease-dry-run
+gorelease-dry-run:
+	docker run \
+		--rm \
+		-e CGO_ENABLED=1 \
+		-v $(CURDIR):/$(NAME) \
+		-w /$(NAME) \
+		ghcr.io/goreleaser/goreleaser-cross:v1.20.6 \
+		--clean --skip-validate --skip-publish

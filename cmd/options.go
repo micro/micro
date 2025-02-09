@@ -69,7 +69,7 @@ func Action(a func(*cli.Context) error) Option {
 }
 
 type beforeKey struct{}
-type setupOnlyKey struct{}
+type serviceKey struct{}
 
 // Before sets a function to be called before micro is setup
 func Before(f cli.BeforeFunc) Option {
@@ -100,21 +100,21 @@ func beforeFromContext(ctx context.Context, def cli.BeforeFunc) cli.BeforeFunc {
 	}
 }
 
-// SetupOnly for to execute
-func SetupOnly() Option {
+// Service for to execute
+func Service() Option {
 	return func(o *Options) {
 		if o.Context == nil {
 			o.Context = context.Background()
 		}
-		o.Context = context.WithValue(o.Context, setupOnlyKey{}, true)
+		o.Context = context.WithValue(o.Context, serviceKey{}, true)
 	}
 }
 
-func setupOnlyFromContext(ctx context.Context) bool {
+func serviceFromContext(ctx context.Context) bool {
 	if ctx == nil {
 		return false
 	}
 
-	a, _ := ctx.Value(setupOnlyKey{}).(bool)
+	a, _ := ctx.Value(serviceKey{}).(bool)
 	return a
 }

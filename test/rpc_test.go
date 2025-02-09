@@ -5,7 +5,6 @@ package test
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -81,7 +80,7 @@ func testroutes(t *T) {
 			return nil, err
 		}
 		if !strings.Contains(string(outp), "Client completed ok") {
-			return outp, fmt.Errorf("Client did not complete ok")
+			return outp, errors.New("Client did not complete ok")
 		}
 		return nil, nil
 	}, 120*time.Second); err != nil {

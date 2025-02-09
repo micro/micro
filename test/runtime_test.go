@@ -659,7 +659,7 @@ func testRunParentFolder(t *T) {
 		t.Fatal(string(outp))
 	}
 
-	gomod := exec.Command("go", "mod", "edit", "-replace", "github.com/micro/micro/v3=github.com/micro/micro/v3@v3.0.0")
+	gomod := exec.Command("go", "mod", "edit", "-replace", "github.com/micro/micro/v5=github.com/micro/micro/v5@v3.0.0")
 	gomod.Dir = "../test-top-level"
 	if outp, err := gomod.CombinedOutput(); err != nil {
 		t.Fatal(string(outp))
@@ -746,7 +746,7 @@ func testRunNewWithGit(t *T) {
 		t.Fatal(string(outp))
 		return
 	}
-	if _, err := f.WriteString("\nreplace github.com/micro/micro/v3 => github.com/micro/micro/v3 master"); err != nil {
+	if _, err := f.WriteString("\nreplace github.com/micro/micro/v5 => github.com/micro/micro/v5 master"); err != nil {
 		t.Fatal(string(outp))
 		return
 	}

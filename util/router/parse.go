@@ -3,10 +3,11 @@ package router
 // download from https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/master/protoc-gen-grpc-gateway/httprule/parse.go
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v5/service/logger"
 )
 
 // InvalidTemplateError indicates that the path template is not valid.
@@ -270,11 +271,12 @@ func (p *parser) accept(term termType) (string, error) {
 // expectPChars determines if "t" consists of only pchars defined in RFC3986.
 //
 // https://www.ietf.org/rfc/rfc3986.txt, P.49
-//   pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
-//   unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
-//   sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
-//                 / "*" / "+" / "," / ";" / "="
-//   pct-encoded   = "%" HEXDIG HEXDIG
+//
+//	pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+//	unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
+//	sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
+//	              / "*" / "+" / "," / ";" / "="
+//	pct-encoded   = "%" HEXDIG HEXDIG
 func expectPChars(t string) error {
 	const (
 		init = iota
@@ -328,7 +330,7 @@ func expectPChars(t string) error {
 // expectIdent determines if "ident" is a valid identifier in .proto schema ([[:alpha:]_][[:alphanum:]_]*).
 func expectIdent(ident string) error {
 	if ident == "" {
-		return fmt.Errorf("empty identifier")
+		return errors.New("empty identifier")
 	}
 	for pos, r := range ident {
 		switch {

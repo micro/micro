@@ -3,13 +3,13 @@ package handler
 import (
 	"context"
 
-	pb "github.com/micro/micro/v3/proto/broker"
-	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/broker"
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
-	authns "github.com/micro/micro/v3/util/auth/namespace"
+	pb "github.com/micro/micro/v5/proto/broker"
+	"github.com/micro/micro/v5/service/auth"
+	"github.com/micro/micro/v5/service/broker"
+	metadata "github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/logger"
+	authns "github.com/micro/micro/v5/util/auth/namespace"
 )
 
 type Broker struct{}
@@ -83,9 +83,6 @@ func (h *Broker) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream
 
 	logger.Debugf("Subscribing to %s topic in namespace %v", req.Topic, ns)
 	opts := []broker.SubscribeOption{}
-	if len(req.Queue) > 0 {
-		opts = append(opts, broker.Queue(req.Queue))
-	}
 	sub, err := broker.DefaultBroker.Subscribe(ns+"."+req.Topic, Broker, opts...)
 	if err != nil {
 		return errors.InternalServerError("broker.Broker.Subscribe", err.Error())

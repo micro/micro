@@ -19,7 +19,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v5/service/server"
 	"google.golang.org/grpc"
 )
 

@@ -19,7 +19,7 @@ package mock
 import (
 	"testing"
 
-	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v5/service/server"
 )
 
 func TestMockServer(t *testing.T) {

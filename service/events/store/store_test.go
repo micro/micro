@@ -18,7 +18,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/micro/micro/v3/service/events"
+	"github.com/micro/micro/v5/service/events"
 	"github.com/stretchr/testify/assert"
 )
 

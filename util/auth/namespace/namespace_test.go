@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v5/service/auth"
 
 	"github.com/stretchr/testify/assert"
 )

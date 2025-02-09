@@ -1,45 +1,27 @@
 package server
 
 import (
-	"errors"
-	"fmt"
 	"os"
-	"strings"
-	"time"
 
-	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/client"
-	log "github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/network"
-	"github.com/micro/micro/v3/service/network/handler"
-	"github.com/micro/micro/v3/service/network/transport"
-	"github.com/micro/micro/v3/service/network/transport/grpc"
-	"github.com/micro/micro/v3/service/network/tunnel"
-	tmucp "github.com/micro/micro/v3/service/network/tunnel/mucp"
-	"github.com/micro/micro/v3/service/proxy"
-	grpcProxy "github.com/micro/micro/v3/service/proxy/grpc"
-	mucpProxy "github.com/micro/micro/v3/service/proxy/mucp"
-	"github.com/micro/micro/v3/service/router"
-	"github.com/micro/micro/v3/service/server"
-	mucpServer "github.com/micro/micro/v3/service/server/mucp"
-	"github.com/micro/micro/v3/util/helper"
-	"github.com/micro/micro/v3/util/muxer"
+	"github.com/micro/micro/v5/service"
+	"github.com/micro/micro/v5/service/client"
+	log "github.com/micro/micro/v5/service/logger"
+	"github.com/micro/micro/v5/service/router"
+	"github.com/micro/micro/v5/service/server"
+	"github.com/micro/micro/v5/service/server/grpc"
+	"github.com/micro/micro/v5/util/muxer"
+	"github.com/micro/micro/v5/util/proxy"
+	grpcProxy "github.com/micro/micro/v5/util/proxy/grpc"
 	"github.com/urfave/cli/v2"
 )
 
 var (
-	// name of the network service
-	name = "network"
 	// name of the micro network
-	networkName = "micro"
+	network = "micro"
 	// address is the network address
-	address = ":8443"
-	// peerAddress is the address the network peers on
-	peerAddress = ":8085"
-	// set the advertise address
-	advertise = ""
-	// the tunnel token
-	token = "micro"
+	address = ":8085"
+	// netAddress is the rpc address
+	netAddress = ":8443"
 
 	// Flags specific to the network
 	Flags = []cli.Flag{
@@ -49,11 +31,6 @@ var (
 			EnvVars: []string{"MICRO_NETWORK_ADDRESS"},
 		},
 		&cli.StringFlag{
-			Name:    "advertise",
-			Usage:   "Set the micro network address to advertise",
-			EnvVars: []string{"MICRO_NETWORK_ADVERTISE"},
-		},
-		&cli.StringFlag{
 			Name:    "gateway",
 			Usage:   "Set the default gateway",
 			EnvVars: []string{"MICRO_NETWORK_GATEWAY"},
@@ -61,74 +38,27 @@ var (
 		&cli.StringFlag{
 			Name:    "network",
 			Usage:   "Set the micro network name: micro",
-			EnvVars: []string{"MICRO_NETWORK"},
-		},
-		&cli.StringFlag{
-			Name:    "nodes",
-			Usage:   "Set the micro network nodes to connect to. This can be a comma separated list.",
-			EnvVars: []string{"MICRO_NETWORK_NODES"},
-		},
-		&cli.StringFlag{
-			Name:    "token",
-			Usage:   "Set the micro network token for authentication",
-			EnvVars: []string{"MICRO_NETWORK_TOKEN"},
+			EnvVars: []string{"MICRO_NETWORK_NAME"},
 		},
 	}
 )
 
 // Run runs the micro server
 func Run(ctx *cli.Context) error {
-	if len(ctx.String("server_name")) > 0 {
-		name = ctx.String("server_name")
-	}
 	if len(ctx.String("address")) > 0 {
 		address = ctx.String("address")
 	}
-	if len(ctx.String("peer_address")) > 0 {
-		peerAddress = ctx.String("peer_address")
-	}
-	if len(ctx.String("advertise")) > 0 {
-		advertise = ctx.String("advertise")
-	}
 	if len(ctx.String("network")) > 0 {
-		networkName = ctx.String("network")
-	}
-	if len(ctx.String("token")) > 0 {
-		token = ctx.String("token")
-	}
-
-	var nodes []string
-	if len(ctx.String("nodes")) > 0 {
-		nodes = strings.Split(ctx.String("nodes"), ",")
+		network = ctx.String("network")
 	}
 
 	// Initialise the local service
 	service := service.New(
-		service.Name(name),
+		service.Name("network"),
 		service.Address(address),
 	)
 
-	// create a tunnel
-	tunOpts := []tunnel.Option{
-		tunnel.Address(peerAddress),
-		tunnel.Token(token),
-	}
-
-	if ctx.Bool("enable_tls") {
-		config, err := helper.TLSConfig(ctx)
-		if err != nil {
-			fmt.Println(err.Error())
-			return err
-		}
-		config.InsecureSkipVerify = true
-
-		tunOpts = append(tunOpts, tunnel.Transport(
-			grpc.NewTransport(transport.TLSConfig(config)),
-		))
-	}
-
 	gateway := ctx.String("gateway")
-	tun := tmucp.NewTunnel(tunOpts...)
 	id := service.Server().Options().Id
 
 	// increase the client retries
@@ -140,24 +70,11 @@ func Run(ctx *cli.Context) error {
 	rtr := router.DefaultRouter
 
 	rtr.Init(
-		router.Network(networkName),
+		router.Network(network),
 		router.Id(id),
 		router.Gateway(gateway),
 		router.Cache(),
 	)
-
-	// initialise network vals
-	network.DefaultNetwork.Init(
-		network.Id(id),
-		network.Name(networkName),
-		network.Address(peerAddress),
-		network.Advertise(advertise),
-		network.Nodes(nodes...),
-		network.Tunnel(tun),
-		network.Router(rtr),
-	)
-
-	netService := network.DefaultNetwork
 
 	// local proxy using grpc
 	// TODO: reenable after PR
@@ -166,71 +83,28 @@ func Run(ctx *cli.Context) error {
 		proxy.WithClient(service.Client()),
 	)
 
-	// network proxy
-	// used by the network nodes to cluster
-	// and share routes or route through
-	// each other
-	networkProxy := mucpProxy.NewProxy(
-		proxy.WithRouter(rtr),
-		proxy.WithClient(service.Client()),
-		proxy.WithLink("network", netService.Client()),
-	)
-
-	// create a handler
-	h := mucpServer.DefaultRouter.NewHandler(
-		&handler.Network{Network: netService},
-	)
-
-	// register the handler
-	mucpServer.DefaultRouter.Handle(h)
-
 	// local mux
-	localMux := muxer.New(name, localProxy)
+	localMux := muxer.New("network", localProxy)
 
-	// network mux
-	networkMux := muxer.New(name, networkProxy)
-
-	// init the local grpc server
-	service.Server().Init(
+	// set the handler
+	srv := grpc.NewServer(
+		server.Name("network"),
+		server.Address(netAddress),
 		server.WithRouter(localMux),
 	)
 
-	// set network server to proxy
-	netService.Server().Init(
-		server.WithRouter(networkMux),
-	)
-
-	// connect network
-	if err := netService.Connect(); err != nil {
-		log.Fatalf("Network failed to connect: %v", err)
+	// start the grpc server
+	if err := srv.Start(); err != nil {
+		log.Fatal("Error starting network: %v", err)
 	}
 
-	// netClose hard exits if we have problems
-	netClose := func(net network.Network) error {
-		errChan := make(chan error, 1)
-
-		go func() {
-			errChan <- net.Close()
-		}()
-
-		select {
-		case err := <-errChan:
-			return err
-		case <-time.After(time.Second):
-			return errors.New("Network timeout closing")
-		}
-	}
-
-	log.Infof("Network [%s] listening on %s", networkName, peerAddress)
+	log.Infof("Network [%s] listening on %s", network, netAddress)
 
 	if err := service.Run(); err != nil {
-		log.Errorf("Network %s failed: %v", networkName, err)
-		netClose(netService)
+		log.Errorf("Network %s failed: %v", network, err)
 		os.Exit(1)
 	}
 
-	// close the network
-	netClose(netService)
-
-	return nil
+	// stop the grpc server
+	return srv.Stop()
 }

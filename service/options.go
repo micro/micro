@@ -3,16 +3,12 @@ package service
 import (
 	"time"
 
-	// TODO: replace with micro/v3/service/cli
-	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v5/service/client"
+	"github.com/micro/micro/v5/service/server"
 )
 
 // Options for micro service
 type Options struct {
-	Cmd cmd.Cmd
-
 	Name    string
 	Version string
 
@@ -27,7 +23,6 @@ type Options struct {
 
 func newOptions(opts ...Option) Options {
 	opt := Options{
-		Cmd:    cmd.DefaultCmd,
 		Signal: true,
 	}
 

@@ -1,10 +1,10 @@
 package server
 
 import (
-	pb "github.com/micro/micro/v3/proto/events"
-	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/events/handler"
-	"github.com/micro/micro/v3/service/logger"
+	pb "github.com/micro/micro/v5/proto/events"
+	"github.com/micro/micro/v5/service"
+	"github.com/micro/micro/v5/service/events/handler"
+	"github.com/micro/micro/v5/service/logger"
 	"github.com/urfave/cli/v2"
 )
 
@@ -13,6 +13,7 @@ func Run(ctx *cli.Context) error {
 	// new service
 	srv := service.New(
 		service.Name("events"),
+		service.Address(":8005"),
 	)
 
 	// register the handlers

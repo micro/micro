@@ -16,8 +16,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v3/client/cli/namespace"
-	"github.com/micro/micro/v3/util/user"
+	"github.com/micro/micro/v5/util/namespace"
+	"github.com/micro/micro/v5/util/user"
 )
 
 const (
@@ -71,8 +71,8 @@ func (c *Command) args(a ...string) []string {
 
 	// disable jwt creds which are injected so the server can run
 	// but shouldn't be passed to the CLI
-	arguments = append(arguments, "-auth_public_key", "")
-	arguments = append(arguments, "-auth_private_key", "")
+	arguments = append(arguments, "-public_key", "")
+	arguments = append(arguments, "-private_key", "")
 
 	// add config flag
 	arguments = append(arguments, "-c", c.Config)
@@ -293,8 +293,6 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 	cmd := exec.Command("docker", "run", "--name", fname,
 		fmt.Sprintf("-p=%v:8081", proxyPortnum),
 		fmt.Sprintf("-p=%v:8080", apiPortNum),
-		// "-e", "MICRO_PROFILE=ci",
-		"-e", fmt.Sprintf("MICRO_AUTH_DISABLE_ADMIN=%v", options.DisableAdmin),
 		"micro", "server")
 	configFile := configFile(fname)
 	return &ServerDefault{ServerBase{

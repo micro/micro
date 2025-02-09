@@ -17,7 +17,7 @@
 package grpc
 
 import (
-	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v5/service/client"
 )
 
 type grpcEvent struct {

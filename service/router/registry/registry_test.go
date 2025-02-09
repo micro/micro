@@ -2,7 +2,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     https://www.apache.org/licenses/LICENSE-2.0
+//	https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -10,15 +10,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/micro/v3/router/registry/registry_test.go
+// Original source: github.com/micro/micro/v5/router/registry/registry_test.go
 package registry
 
 import (
 	"os"
 	"testing"
 
-	"github.com/micro/micro/v3/service/registry/memory"
-	"github.com/micro/micro/v3/service/router"
+	"github.com/micro/micro/v5/service/registry/memory"
+	"github.com/micro/micro/v5/service/router"
 )
 
 func routerTestSetup() router.Router {

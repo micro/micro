@@ -19,7 +19,7 @@ package token
 import (
 	"time"
 
-	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v5/service/store"
 )
 
 type Options struct {

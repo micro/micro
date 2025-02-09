@@ -28,13 +28,13 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	pbapi "github.com/micro/micro/v3/proto/api"
-	"github.com/micro/micro/v3/service/api"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
-	raw "github.com/micro/micro/v3/util/codec/bytes"
-	"github.com/micro/micro/v3/util/router"
+	"github.com/micro/micro/v5/service/api"
+	"github.com/micro/micro/v5/service/client"
+	metadata "github.com/micro/micro/v5/service/context"
+	"github.com/micro/micro/v5/service/errors"
+	"github.com/micro/micro/v5/service/logger"
+	raw "github.com/micro/micro/v5/util/codec/bytes"
+	"github.com/micro/micro/v5/util/router"
 )
 
 const (
@@ -99,11 +99,18 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 	if ct == "" {
 		ct = "application/json"
 	}
+	// grpc hack
+	streamCt := ct
+
+	if c.String() == "grpc" {
+		streamCt = "application/grpc+json"
+	}
+
 	req := c.NewRequest(
 		service.Name,
 		service.Endpoint.Name,
 		request,
-		client.WithContentType(ct),
+		client.WithContentType(streamCt),
 		client.StreamingRequest(),
 	)
 
@@ -182,20 +189,7 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 				}
 				return
 			}
-			var bufOut string
-			var apiRsp pbapi.Response
-			if err := json.Unmarshal(buf, &apiRsp); err == nil && apiRsp.StatusCode > 0 {
-				// bit of a hack. If the response is actually an api response we want to set the headers and status code
-				for _, v := range apiRsp.Header {
-					for _, s := range v.Values {
-						w.Header().Add(v.Key, s)
-					}
-				}
-				w.WriteHeader(int(apiRsp.StatusCode))
-				bufOut = apiRsp.Body
-			} else {
-				bufOut = string(buf)
-			}
+			bufOut := string(buf)
 
 			// send the buffer
 			_, err = fmt.Fprint(w, bufOut)
@@ -239,6 +233,8 @@ func (s *stream) processWSReadsAndWrites() {
 	go s.bufToClientLoop(cancel, &wg, stopCtx, msgs)
 	go s.clientToServerLoop(cancel, &wg, stopCtx)
 	wg.Wait()
+
+	fmt.Println("EXITING")
 }
 
 func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGroup, stopCtx context.Context) {
@@ -268,18 +264,11 @@ func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGrou
 			return
 		}
 
-		var request interface{}
-		switch s.messageType {
-		case websocket.TextMessage:
-			m := json.RawMessage(msg)
-			request = &m
-		default:
-			request = &raw.Frame{Data: msg}
-		}
-
-		if err := s.stream.Send(request); err != nil {
+		// write the raw request
+		err = s.stream.Send(&raw.Frame{Data: msg})
+		if err != nil {
 			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-				logger.Error(err)
+				logger.Error("Error sending request ", err)
 			}
 			return
 		}
@@ -292,15 +281,19 @@ func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, sto
 		cancel()
 		wg.Done()
 	}()
-	rsp := s.stream.Response()
+
 	for {
 		select {
 		case <-stopCtx.Done():
 			return
 		default:
 		}
-		bytes, err := rsp.Read()
-		if err != nil {
+
+		fmt.Println("Trying to read")
+
+		var frame raw.Frame
+		if err := s.stream.Recv(&frame); err != nil {
+			fmt.Println("Error reading from stream", err)
 			if err == io.EOF {
 				// clean exit
 				return
@@ -311,12 +304,12 @@ func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, sto
 			s.conn.WriteMessage(websocket.CloseAbnormalClosure, []byte{})
 			return
 		}
+
 		select {
 		case <-stopCtx.Done():
 			return
-		case msgs <- bytes:
+		case msgs <- frame.Data:
 		}
-
 	}
 
 }
@@ -364,6 +357,8 @@ func (s *stream) bufToClientLoop(cancel context.CancelFunc, wg *sync.WaitGroup, 
 
 // serveWebsocket will stream rpc back over websockets assuming json
 func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request, service *api.Service, c client.Client) {
+	logger.Info("Serving websocket ", service.Name, service.Endpoint.Name)
+
 	var rspHdr http.Header
 	// we use Sec-Websocket-Protocol to pass auth headers so just accept anything here
 	if prots := r.Header.Values("Sec-WebSocket-Protocol"); len(prots) > 0 {
@@ -376,7 +371,7 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 	conn, err := upgrader.Upgrade(w, r, rspHdr)
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-			logger.Error(err)
+			logger.Error("Upgrade failed", err)
 		}
 		return
 	}
@@ -391,8 +386,37 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 		ct = "application/json"
 	}
 
+	// grpc hack
+	if c.String() == "grpc" {
+		ct = "application/grpc+json"
+	}
+
+	logger.Infof("Connecting websocket stream to backend %s %s %s", service.Name, service.Endpoint.Name, ct)
+
+	_, msg, err := conn.ReadMessage()
+	if err != nil {
+		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+				logger.Error(err)
+			}
+		}
+		return
+	}
+
+	md, _ := metadata.FromContext(ctx)
+	// reset content type
+	md["Content-Type"] = ct
+	// delete websocket info
+	delete(md, "Connection")
+	delete(md, "Upgrade")
+	delete(md, "Sec-Websocket-Extensions")
+	delete(md, "Sec-Websocket-Version")
+	delete(md, "Sec-Websocket-Key")
+
+	ctx = metadata.NewContext(ctx, md)
+
 	// create stream
-	req := c.NewRequest(service.Name, service.Endpoint.Name, nil, client.WithContentType(ct), client.StreamingRequest())
+	req := c.NewRequest(service.Name, service.Endpoint.Name, &raw.Frame{Data: msg}, client.WithContentType(ct))
 	str, err := c.Stream(ctx, req, client.WithRouter(router.New(service.Services)))
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -401,9 +425,18 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 		return
 	}
 
+	// write the raw request
+	err = str.Send(&raw.Frame{Data: msg})
+	if err != nil {
+		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+			logger.Error("Error sending request ", err)
+		}
+		return
+	}
+
 	// determine the message type
 	msgType := websocket.BinaryMessage
-	if ct == "application/json" {
+	if strings.Contains(ct, "json") {
 		msgType = websocket.TextMessage
 	}
 
