@@ -186,7 +186,7 @@ func (s *service) GetStatus() runtime.ServiceStatus {
 	return status
 }
 
-// Status updates the status of the service. Assumes it's called under a lock as it mutates state
+// SetStatus updates the status of the service. Assumes it's called under a lock as it mutates state
 func (s *service) SetStatus(status runtime.ServiceStatus, err error) {
 	s.stx.Lock()
 	defer s.stx.Unlock()

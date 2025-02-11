@@ -37,7 +37,7 @@ type route struct {
 	updated time.Time
 }
 
-// newtable creates a new routing table and returns it
+// newTable creates a new routing table and returns it
 func newTable() *table {
 	return &table{
 		routes:   make(map[string]map[uint64]*route),
