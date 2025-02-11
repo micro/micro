@@ -270,7 +270,7 @@ func TestGRPCServerWithPanicWrapper(t *testing.T) {
 	}
 }
 
-// TestGRPCServerWithPanicWrapper test grpc server with panic handler
+// TestGRPCServerWithPanicHandler test grpc server with panic handler
 // gRPC server should not crash when handler crashed
 func TestGRPCServerWithPanicHandler(t *testing.T) {
 	r := rmemory.NewRegistry()
