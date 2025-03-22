@@ -12,7 +12,7 @@
     src="https://img.shields.io/badge/license-apache-blue.svg"></a>        
 </p>
 
-Micro is an API first development platform. It addresses the core requirements for building services in the cloud by providing a set of APIs which act as the building blocks of any platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
+Micro is a microservices platform. It addresses the core requirements for building services in the cloud by providing a set of APIs which act as the building blocks of any platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
 ## Features
 
