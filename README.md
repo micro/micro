@@ -57,7 +57,7 @@ Below are the core components that make up Micro
 
 ### Server
 
-Micro is built as a microkernel architecture. It abstracts away the complexity of the underlying infrastructure by providing
+Micro is built as a microservice architecture. It abstracts away the complexity of the underlying infrastructure by providing
 a set of building block services composed as a single logical server for the end user to consume via an api, cli or sdks.
 
 ### API
