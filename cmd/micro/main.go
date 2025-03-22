@@ -6,9 +6,8 @@ import (
 	"github.com/micro/micro/v5/cmd"
 
 	// load packages so they can register commands
-	_ "github.com/micro/micro/v5/cmd/client"
+	_ "github.com/micro/micro/v5/cmd/cli"
 	_ "github.com/micro/micro/v5/cmd/server"
-	_ "github.com/micro/micro/v5/cmd/web"
 )
 
 func main() {

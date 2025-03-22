@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v5/cmd"
-	"github.com/micro/micro/v5/cmd/client/util"
+	"github.com/micro/micro/v5/cmd/cli/util"
 	"github.com/micro/micro/v5/service/client"
 	metadata "github.com/micro/micro/v5/service/context"
 	"github.com/micro/micro/v5/service/registry"
@@ -23,15 +23,15 @@ import (
 	"github.com/serenize/snaker"
 	"github.com/urfave/cli/v2"
 
-	_ "github.com/micro/micro/v5/cmd/client/auth"
-	_ "github.com/micro/micro/v5/cmd/client/config"
-	_ "github.com/micro/micro/v5/cmd/client/gen"
-	_ "github.com/micro/micro/v5/cmd/client/init"
-	_ "github.com/micro/micro/v5/cmd/client/new"
-	_ "github.com/micro/micro/v5/cmd/client/run"
-	_ "github.com/micro/micro/v5/cmd/client/shutdown"
-	_ "github.com/micro/micro/v5/cmd/client/store"
-	_ "github.com/micro/micro/v5/cmd/client/user"
+	_ "github.com/micro/micro/v5/cmd/cli/auth"
+	_ "github.com/micro/micro/v5/cmd/cli/config"
+	_ "github.com/micro/micro/v5/cmd/cli/gen"
+	_ "github.com/micro/micro/v5/cmd/cli/init"
+	_ "github.com/micro/micro/v5/cmd/cli/new"
+	_ "github.com/micro/micro/v5/cmd/cli/run"
+	_ "github.com/micro/micro/v5/cmd/cli/shutdown"
+	_ "github.com/micro/micro/v5/cmd/cli/store"
+	_ "github.com/micro/micro/v5/cmd/cli/user"
 )
 
 func init() {

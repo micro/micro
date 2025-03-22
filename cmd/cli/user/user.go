@@ -8,8 +8,8 @@ import (
 	"syscall"
 
 	"github.com/micro/micro/v5/cmd"
-	"github.com/micro/micro/v5/cmd/client/token"
-	"github.com/micro/micro/v5/cmd/client/util"
+	"github.com/micro/micro/v5/cmd/cli/token"
+	"github.com/micro/micro/v5/cmd/cli/util"
 	pb "github.com/micro/micro/v5/proto/auth"
 	"github.com/micro/micro/v5/service/auth"
 	"github.com/micro/micro/v5/service/client"

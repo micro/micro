@@ -10,7 +10,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/dustin/go-humanize"
-	"github.com/micro/micro/v5/cmd/client/util"
+	"github.com/micro/micro/v5/cmd/cli/util"
 	"github.com/micro/micro/v5/service/store"
 	"github.com/micro/micro/v5/util/namespace"
 	"github.com/pkg/errors"

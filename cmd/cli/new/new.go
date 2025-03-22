@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v5/cmd"
-	tmpl "github.com/micro/micro/v5/cmd/client/new/template"
+	tmpl "github.com/micro/micro/v5/cmd/cli/new/template"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
 )

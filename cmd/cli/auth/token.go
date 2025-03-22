@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/micro/micro/v5/cmd/client/util"
+	"github.com/micro/micro/v5/cmd/cli/util"
 	"github.com/micro/micro/v5/service/auth"
 	"github.com/micro/micro/v5/util/namespace"
 	"github.com/urfave/cli/v2"

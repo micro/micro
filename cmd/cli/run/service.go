@@ -16,7 +16,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/micro/micro/v5/cmd/client/util"
+	"github.com/micro/micro/v5/cmd/cli/util"
 	"github.com/micro/micro/v5/service/logger"
 	"github.com/micro/micro/v5/service/runtime"
 	"github.com/micro/micro/v5/service/runtime/source/git"

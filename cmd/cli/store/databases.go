@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/micro/micro/v5/cmd/client/util"
+	"github.com/micro/micro/v5/cmd/cli/util"
 	pb "github.com/micro/micro/v5/proto/store"
 	"github.com/micro/micro/v5/service/client"
 	"github.com/micro/micro/v5/service/context"

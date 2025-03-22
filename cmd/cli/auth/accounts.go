@@ -8,7 +8,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/micro/micro/v5/cmd/client/util"
+	"github.com/micro/micro/v5/cmd/cli/util"
 	pb "github.com/micro/micro/v5/proto/auth"
 	"github.com/micro/micro/v5/service/auth"
 	"github.com/micro/micro/v5/service/client"
