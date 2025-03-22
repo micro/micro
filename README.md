@@ -16,7 +16,7 @@ Micro is a microservices platform. It addresses the core requirements for buildi
 
 ## Features
 
-- **Microkernel Architecture**: Built as separate services combined into a single logical server
+- **Microservice Architecture**: Built as separate services combined into a single logical server
 - **HTTP and gRPC APIs**: Facilitate easy service requests and interactions
 - **Go SDK and CLI**: Streamlined service creation and management
 - **Environment Support**: Seamless transitions between local and cloud setups
