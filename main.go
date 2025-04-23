@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -14,10 +15,11 @@ import (
 	"go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/errors"
 	"go-micro.dev/v5/registry"
+	"tailscale.com/tsnet"
 )
 
-func api() error {
-	return http.ListenAndServe(":8080", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func api(c *cli.Context) error {
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// assuming we're just going to parse headers
 		if r.URL.Path == "/" {
 			service := r.Header.Get("Micro-Service")
@@ -83,16 +85,45 @@ func api() error {
 		// write the response
 		w.Write(rsp.Data)
 		return
-	}))
+	})
+
+	var network string
+	var key string
+
+	if c.IsSet("network") {
+		network = c.Value("network").(string)
+	}
+
+	if network == "tailscale" {
+		// check for TS_AUTHKEY
+		key = os.Getenv("TS_AUTHKEY")
+		if len(key) == 0 {
+			return fmt.Errorf("missing TS_AUTHKEY")
+		}
+
+		srv := new(tsnet.Server)
+		srv.AuthKey = key
+		srv.Hostname = "micro"
+
+		ln, err := srv.Listen("tcp", ":8080")
+		if err != nil {
+			return err
+		}
+
+		return http.Serve(ln, h)
+	}
+
+	return http.ListenAndServe(":8080", h)
 }
 
 func main() {
 	cmd.App().Commands = []*cli.Command{{
 		Name:  "api",
 		Usage: "Run the API",
-		Action: func(ctx *cli.Context) error {
-			return api()
+		Flags: []cli.Flag{
+			&cli.StringFlag{Name: "network", Value: "", Usage: "Set the network e.g --network=tailscale requires TS_AUTHKEY"},
 		},
+		Action: api,
 	},
 		{
 			Name:  "services",

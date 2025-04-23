@@ -117,6 +117,16 @@ Or with headers
 curl -H 'Micro-Service: helloworld' -H 'Micro-Endpoint: Say.Hello' http://localhost:8080/ -d '{"name": "John"}'
 ```
 
+## Network
+
+To enable tailscale via the api
+
+```
+micro api --network=tailscale
+```
+
+Ensure to export your `TS_AUTHKEY`
+
 ## Plugins
 
 Plugins can be found in [micro/plugins](https://github.com/micro/plugins) which enable various underlying interface implementations.
