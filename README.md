@@ -26,6 +26,8 @@ micro version v5.0.0
 
 ## Usage
 
+Create your service using [Go Micro](https://go-micro.dev)
+
 List your services
 
 ```
@@ -35,10 +37,6 @@ micro services
 Call a service
 
 ```
-micro call [service] [endpoint] [request]
-
-e.g
-
 micro call helloworld Say.Hello '{"name": "Asim"}'
 ```
 
