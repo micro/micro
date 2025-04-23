@@ -61,7 +61,7 @@ func main() {
 	},
 	{
 		Name: "describe",
-		Usage: "List available services",
+		Usage: "Describe a service",
 		Action: func(ctx *cli.Context) error {
 			args := ctx.Args()
 
