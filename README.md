@@ -101,4 +101,4 @@ Output
 
 Plugins can be found in [micro/plugins](https://github.com/micro/plugins) which enable various underlying interface implementations.
 
-Note: This requires a rebuild of the binary to include those plugins. There is no clean approach to this yet beyond that.
+Note: This requires a rebuild of the binary to include those plugins. There is no clean approach to this yet.
