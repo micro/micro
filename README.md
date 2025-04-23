@@ -103,7 +103,7 @@ Run the API
 
 ```
 micro api
-``
+```
 
 If you have [helloworld](https://github.com/micro/helloworld) running
 
