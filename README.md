@@ -29,7 +29,7 @@ micro version v5.0.0
 List your services
 
 ```
-micro list services
+micro services
 ```
 
 Call a service
@@ -42,3 +42,59 @@ e.g
 micro call helloworld Say.Hello '{"name": "Asim"}'
 ```
 
+Describe a service
+
+```
+micro describe helloworld
+```
+
+Output
+
+```
+{
+    "name": "helloworld",
+    "version": "latest",
+    "metadata": null,
+    "endpoints": [
+        {
+            "request": {
+                "name": "Request",
+                "type": "Request",
+                "values": [
+                    {
+                        "name": "string",
+                        "type": "string",
+                        "values": null
+                    }
+                ]
+            },
+            "response": {
+                "name": "Response",
+                "type": "Response",
+                "values": [
+                    {
+                        "name": "string",
+                        "type": "string",
+                        "values": null
+                    }
+                ]
+            },
+            "metadata": {},
+            "name": "Say.Hello"
+        }
+    ],
+    "nodes": [
+        {
+            "metadata": {
+                "broker": "http",
+                "protocol": "mucp",
+                "registry": "mdns",
+                "server": "mucp",
+                "transport": "http"
+            },
+            "id": "helloworld-9988def2-2ee4-45f1-9cf7-faa62535538f",
+            "address": "172.17.0.1:40397"
+        }
+    ]
+}
+```
