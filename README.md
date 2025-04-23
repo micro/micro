@@ -97,6 +97,26 @@ Output
 }
 ```
 
+## API
+
+Run the API
+
+```
+micro api
+``
+
+If you have [helloworld](https://github.com/micro/helloworld) running
+
+```
+curl http://localhost:8080/helloworld/Say/Hello -d '{"name": "John"}'
+```
+
+Or with headers
+
+```
+curl -H 'Micro-Service: helloworld' -H 'Micro-Endpoint: Say.Hello' http://localhost:8080/ -d '{"name": "John"}'
+```
+
 ## Plugins
 
 Plugins can be found in [micro/plugins](https://github.com/micro/plugins) which enable various underlying interface implementations.
