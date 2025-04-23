@@ -1,297 +1,44 @@
 # Micro
 
-<p>
-    <a href="https://goreportcard.com/report/github.com/micro/micro">
-    <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/micro/micro">
-    </a>
-	<a href="https://pkg.go.dev/github.com/micro/micro/v5?tab=doc"><img
-    alt="Go.Dev reference"
-    src="https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white"></a>
-    <a href="https://opensource.org/licenses/Apache-2.0"><img
-    alt="Apache License"
-    src="https://img.shields.io/badge/license-apache-blue.svg"></a>        
-</p>
+A microservices platform
 
-Micro is a microservices platform. It addresses the core requirements for building services in the cloud by providing a set of APIs which act as the building blocks of any platform. Micro deals with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
+## Overview
 
-## Features
-
-- **Microservice Architecture**: Built as separate services combined into a single logical server
-- **HTTP and gRPC APIs**: Facilitate easy service requests and interactions
-- **Go SDK and CLI**: Streamlined service creation and management
-- **Environment Support**: Seamless transitions between local and cloud setups
-
-## Quick Start
-
-```bash
-# Install Micro CLI
-go install github.com/micro/micro/v5/cmd/micro@master
-
-# Start the server
-micro server
-
-# In a new tab set env to local
-micro env set local
-
-# Login with username/password: `admin/micro`
-micro login
-Enter username: admin
-Enter password:
-Successfully logged in.
-
-# List services
-micro services
-auth
-broker
-config
-events
-network
-registry
-runtime
-store
-```
-
-## Architecture
-
-Below are the core components that make up Micro
-
-### Server
-
-Micro is built as a microservice architecture. It abstracts away the complexity of the underlying infrastructure by providing
-a set of building block services composed as a single logical server for the end user to consume via an api, cli or sdks.
-
-### API
-
-The server embeds a HTTP API (on port 8080) which can be used to make requests as simple JSON. 
-The API automatically maps HTTP Paths and POST requests to internal RPC service names and endpoints.
-
-### Proxy
-
-Additionally there's a gRPC proxy (on port 8081) which used to make requests via the CLI or externally. 
-The proxy is identity aware which means it can be used to gatekeep remote access to Micro running anywhere.
-
-### Go SDK
-
-Micro comes with a built in Go framework for service based development. 
-The framework lets you write services without piecing together endless lines of boilerplate code. 
-Configured and initialised by default, import it and get started.
-
-### Command Line
-
-The command line interface includes dynamic command mapping for all services running on the platform. It turns any service instantly into a CLI command along with flag parsing 
-for inputs. Includes support for environments, namespaces, creating and running services, status info and logs.
-
-### Environments
-
-Micro bakes in the concept of `Environments`. Run your server locally for development and in the cloud for production, 
-seamlessly switch between them using the CLI command `micro env set [environment]`.
+Micro is a platform for microservices development. It provides the core tools required for building services in the cloud. 
+The core of Micro is the [Go Micro](https://go-micro.dev) framework, which developers import and use in their code to 
+write services. Surrounding this we introduce a number of tools like a CLI and API to make it easy to serve and consume 
+services. 
 
 ## Install
 
-### From Source
+Micro is a single binary
 
 ```
-make build
+go get github.com/micro/micro/v5@latest
 ```
 
-### Run the server 
+Check the version
 
-The server starts with a single command ready to use
-
-```sh
-micro server
 ```
-
-Now go to [localhost:8080](http://localhost:8080) and make sure the output is something like `{"version": "v3.10.1"}`.
+micro --version
+micro version v5.0.0
+```
 
 ## Usage
 
-Set the environment e.g local
+List your services
 
 ```
-micro env set local
+micro list services
 ```
 
-### Login to Micro
-
-Default username/password: `admin/micro`
-
-```sh
-$ micro login
-Enter username: admin
-Enter password:
-Successfully logged in.
-```
-
-See what's running:
-
-```sh
-$ micro services
-auth
-broker
-config
-events
-network
-registry
-runtime
-store
-```
-
-### Create a Service
-
-Generate a service using the template
+Call a service
 
 ```
-micro new helloworld
+micro call [service] [endpoint] [request]
+
+e.g
+
+micro call helloworld Say.Hello '{"name": "Asim"}'
 ```
 
-Output
-
-```
-Creating service helloworld
-
-.
-├── main.go
-├── handler
-│   └── helloworld.go
-├── proto
-│   └── helloworld.proto
-├── Makefile
-├── README.md
-├── .gitignore
-└── go.mod
-
-
-download protoc zip packages (protoc-$VERSION-$PLATFORM.zip) and install:
-
-visit https://github.com/protocolbuffers/protobuf/releases
-
-compile the proto file helloworld.proto:
-
-cd helloworld
-make init
-go mod vendor
-make proto
-```
-
-### Edit the code
-
-Edit the protobuf definition in `proto/helloworld.proto` and run `make proto` to recompile
-
-Go to `handler/helloworld.go` to make changes to the response handler
-
-```go
-type Helloworld struct{}
-
-func New() *Helloworld {
-        return &Helloworld{}
-}
-
-func (h *Helloworld) Call(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
-        rsp.Msg = "Hello " + req.Name
-        return nil
-}
-```
-
-### Run the service
-
-Run from local dir
-
-```
-micro run .
-```
-
-Or from a git url
-
-```sh
-micro run github.com/micro/services/helloworld
-```
-
-### Check service status
-
-```sh
-$ micro status
-NAME		VERSION	SOURCE					STATUS	BUILD	UPDATED	METADATA
-helloworld	latest	github.com/micro/services/helloworld	running	n/a	4s ago	owner=admin, group=micro
-```
-
-### View service logs
-
-```sh
-$ micro logs helloworld
-2020-10-06 17:52:21  file=service/service.go:195 level=info Starting [service] helloworld
-2020-10-06 17:52:21  file=grpc/grpc.go:902 level=info Server [grpc] Listening on [::]:33975
-2020-10-06 17:52:21  file=grpc/grpc.go:732 level=info Registry [service] Registering node: helloworld-67627b23-3336-4b92-a032-09d8d13ecf95
-```
-
-### Call via CLI
-
-```sh
-$ micro helloworld call --name=Jane
-{
-	"msg": "Hello Jane"
-}
-```
-
-### Call via API
-
-```
-curl "http://localhost:8080/helloworld/Call?name=John"
-```
-
-### Call via SDK
-
-A proto SDK client is used within a service and must be run by micro
-
-```go
-package main
-
-import (
-	"context"
-	"fmt"
-	"time"
-
-	"github.com/micro/micro/v5/service"
-	pb "github.com/micro/services/helloworld/proto"
-)
-
-func callService(hw pb.HelloworldService) {
-	for {
-		// call an endpoint on the service
-		rsp, err := hw.Call(context.Background(), &pb.CallRequest{
-			Name: "John",
-		})
-		if err != nil {
-			fmt.Println("Error calling helloworld: ", err)
-			return
-		}
-
-		// print the response
-		fmt.Println("Response: ", rsp.Message)
-
-		time.Sleep(time.Second)
-	}
-}
-
-func main() {
-	// create and initialise a new service
-	srv := service.New(
-		service.Name("caller"),
-	)
-
-	// new helloworld client
-	hw := pb.NewHelloworldService("helloworld", srv.Client())
-	
-	// run the client caller
-	go callService(hw)
-	
-	// run the service
-	service.Run()
-}
-```
-
-Run it
-
-```
-micro run .
-```
