@@ -4,7 +4,7 @@ A Go microservices platform
 
 ## Overview
 
-Micro is a platform for microservices development. It provides the core tools required for building services in the cloud. 
+Micro is a platform for Go microservices development. It provides the core tools required for building services in the cloud. 
 The core of Micro is the [Go Micro](https://go-micro.dev) framework, which developers import and use in their code to 
 write services. Surrounding this we introduce a number of tools like a CLI and API to make it easy to serve and consume 
 services. 
