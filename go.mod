@@ -3,6 +3,7 @@ module github.com/micro/micro/v5
 go 1.24.1
 
 require (
+	github.com/mark3labs/mcp-go v0.23.1
 	github.com/urfave/cli/v2 v2.25.7
 	go-micro.dev/v5 v5.3.0
 	tailscale.com v1.82.5
@@ -44,7 +45,7 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/nftables v0.2.1-0.20240414091927-5e242ec57806 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/csrf v1.7.3-0.20250123201450-9dd6af1f6d30 // indirect
+	github.com/gorilla/csrf v1.7.3 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/hdevalence/ed25519consensus v0.2.0 // indirect
 	github.com/illarion/gonotify/v3 v3.0.2 // indirect
@@ -54,7 +55,6 @@ require (
 	github.com/jsimonetti/rtnetlink v1.4.0 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/kortschak/wol v0.0.0-20200729010619-da482cc4850a // indirect
-	github.com/mark3labs/mcp-go v0.23.1 // indirect
 	github.com/mdlayher/genetlink v1.3.2 // indirect
 	github.com/mdlayher/netlink v1.7.3-0.20250113171957-fbb4dce95f42 // indirect
 	github.com/mdlayher/sdnotify v1.0.0 // indirect
