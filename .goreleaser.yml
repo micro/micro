@@ -4,12 +4,9 @@ release:
     owner: micro
     name: micro
   name_template: 'Release {{ .Tag }}'
-env:
-  - CGO_ENABLED=1
 builds:
   - id: micro-darwin-amd64
     binary: micro
-    main: ./cmd/micro
     goarch:
       - amd64
     goos:
@@ -22,7 +19,6 @@ builds:
 
   - id: micro-darwin-arm64
     binary: micro
-    main: ./cmd/micro
     goarch:
       - arm64
     goos:
@@ -32,10 +28,8 @@ builds:
       - CXX=oa64-clang++
     flags:
       - -trimpath
-
   - id: micro-linux-amd64
     binary: micro
-    main: ./cmd/micro
     goarch:
       - amd64
     goos:
@@ -45,15 +39,8 @@ builds:
       - CXX=x86_64-linux-gnu-g++
     flags:
       - -trimpath
-    ldflags:
-      - -s -w
-      - -X github.com/micro/micro/v5/cmd.GitCommit={{ .ShortCommit }}
-      - -X github.com/micro/micro/v5/cmd.GitTag={{ .Tag }}
-      - -X github.com/micro/micro/v5/cmd.BuildDate={{ .Timestamp }}
-
   - id: micro-linux-arm64
     binary: micro
-    main: ./cmd/micro
     goarch:
       - arm64
     goos:
@@ -63,15 +50,8 @@ builds:
       - CXX=aarch64-linux-gnu-g++
     flags:
       - -trimpath
-    ldflags:
-      - -s -w
-      - -X github.com/micro/micro/v5/cmd.GitCommit={{ .ShortCommit }}
-      - -X github.com/micro/micro/v5/cmd.GitTag={{ .Tag }}
-      - -X github.com/micro/micro/v5/cmd.BuildDate={{ .Timestamp }}
-
   - id: micro-linux-armhf
     binary: micro
-    main: ./cmd/micro
     goarch:
       - arm
     goarm:
@@ -83,15 +63,8 @@ builds:
       - CXX=arm-linux-gnueabihf-g++
     flags:
       - -trimpath
-    ldflags:
-      - -s -w
-      - -X github.com/micro/micro/v5/cmd.GitCommit={{ .ShortCommit }}
-      - -X github.com/micro/micro/v5/cmd.GitTag={{ .Tag }}
-      - -X github.com/micro/micro/v5/cmd.BuildDate={{ .Timestamp }}
-
   - id: micro-windows-amd64
     binary: micro
-    main: ./cmd/micro
     goarch:
       - amd64
     goos:
@@ -102,10 +75,8 @@ builds:
     flags:
       - -trimpath
       - -buildmode=exe
-
   - id: micro-windows-386
     binary: micro
-    main: ./cmd/micro
     goarch:
       - 386
     goos:
@@ -116,11 +87,8 @@ builds:
     flags:
       - -trimpath
       - -buildmode=exe
-
-
   - id: micro-windows-arm64
     binary: micro
-    main: ./cmd/micro
     goarch:
       - arm64
     goos:
