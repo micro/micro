@@ -1,6 +1,6 @@
 # Micro
 
-A microservices platform
+A Go Micro services platform
 
 ## Overview
 
