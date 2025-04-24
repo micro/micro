@@ -6,5 +6,5 @@ for build in ${builds[@]}; do
   IFS=',' read -r -a array <<< "$build"
   echo "building ${array[0]} ${array[1]}"
   # TODO: CGO_ENABLED=1 prevent building windows amd64
-  GOOS=${array[0]} GOARCH=${array[1]} CGO_ENABLED=0 go build cmd/micro/main.go
+  GOOS=${array[0]} GOARCH=${array[1]} CGO_ENABLED=0 go build .
 done
