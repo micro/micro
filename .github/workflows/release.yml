@@ -7,7 +7,7 @@ on:
     tags:
       - 'v*.*.*'
 env:
-  GORELEASER_VERSION: v2.8.2
+  GORELEASER_VERSION: v1.24.1
 
 jobs:
   release:
