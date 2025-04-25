@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/mark3labs/mcp-go/mcp"
@@ -225,6 +226,17 @@ func mcpHandler(c *cli.Context) error {
 	return server.ServeStdio(s)
 }
 
+func runHandler(c *cli.Context) error {
+	dir := c.Args().Get(0)
+	if len(dir) == 0 {
+		dir = "."
+	}
+	cmd := exec.Command("go", "run", dir)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
 func main() {
 	cmd.App().Commands = []*cli.Command{{
 		Name:  "api",
@@ -238,6 +250,11 @@ func main() {
 			Name:   "mcp",
 			Usage:  "Run the MCP server",
 			Action: mcpHandler,
+		},
+		{
+			Name:   "run",
+			Usage:  "Run a service",
+			Action: runHandler,
 		},
 		{
 			Name:  "services",

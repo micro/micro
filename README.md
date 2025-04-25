@@ -28,6 +28,12 @@ micro version v5.0.0
 
 Create your service using [Go Micro](https://go-micro.dev)
 
+Run your service
+
+```
+micro run
+```
+
 List your services
 
 ```
