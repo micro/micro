@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Set up Go 1.24
-      uses: actions/setup-go@v1
+      uses: actions/setup-go@v5
       with:
-        go-version: 1.24
+        go-version: stable
       id: go
 
     - name: Check out code into the Go module directory

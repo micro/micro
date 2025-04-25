@@ -4,24 +4,24 @@ A Go microservices platform
 
 ## Overview
 
-Micro is a platform for Go microservices development. It provides the tools required for building services in the cloud. 
+Micro is an ecosystem for Go microservices development. It provides the tools required for building services in the cloud. 
 The core of Micro is the [Go Micro](https://go-micro.dev) framework, which developers import and use in their code to 
-write services. Surrounding this we introduce a number of tools like a CLI and API to make it easy to serve and consume 
+write services. Surrounding this we introduce a number of tools like a CLI and API proxy to make it easy to serve and consume 
 services. 
 
-## Install
+## Install the development tool
 
-Micro is a single binary
+`mu` is a single binary
 
 ```
-go get github.com/micro/micro/v5@latest
+go install github.com/micro/micro/v5/mu@latest
 ```
 
 Check the version
 
 ```
-micro --version
-micro version v5.0.0
+mu --version
+mu version v5.0.0
 ```
 
 ## Usage
@@ -65,25 +65,25 @@ func main() {
 Run your service
 
 ```
-micro run
+mu run
 ```
 
 List your services
 
 ```
-micro services
+mu services
 ```
 
 Call a service
 
 ```
-micro call helloworld Say.Hello '{"name": "Asim"}'
+mu call helloworld Say.Hello '{"name": "Asim"}'
 ```
 
 Describe a service
 
 ```
-micro describe helloworld
+mu describe helloworld
 ```
 
 Output
@@ -139,10 +139,10 @@ Output
 
 ## API
 
-Run the API
+Run the API proxy
 
 ```
-micro api
+mu api
 ```
 
 If you have [helloworld](https://github.com/micro/helloworld) running
@@ -162,7 +162,7 @@ curl -H 'Micro-Service: helloworld' -H 'Micro-Endpoint: Say.Hello' http://localh
 Experimental support for [MCP](https://github.com/modelcontextprotocol)
 
 ```
-micro mcp
+mu mcp
 ```
 
 Supports the tools `services`, `call`, `describe`.
@@ -172,7 +172,7 @@ Supports the tools `services`, `call`, `describe`.
 To enable tailscale via the api
 
 ```
-micro api --network=tailscale
+mu api --network=tailscale
 ```
 
 Ensure to export your `TS_AUTHKEY`

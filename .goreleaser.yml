@@ -1,132 +1,96 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema-pro.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 2
 project_name: micro
-release:
-  github:
-    owner: micro
-    name: micro
-  name_template: 'Release {{ .Tag }}'
+before:
+  hooks:
+    - go mod tidy
+
 builds:
-  - id: micro-darwin-amd64
-    binary: micro
-    goarch:
-      - amd64
+  - env:
+      - CGO_ENABLED=0
     goos:
+      - linux
       - darwin
-    env:
-      - CC=o64-clang
-      - CXX=o64-clang++
-    flags:
-      - -trimpath
-
-  - id: micro-darwin-arm64
-    binary: micro
-    goarch:
-      - arm64
-    goos:
-      - darwin
-    env:
-      - CC=oa64-clang
-      - CXX=oa64-clang++
-    flags:
-      - -trimpath
-  - id: micro-linux-amd64
-    binary: micro
-    goarch:
-      - amd64
-    goos:
-      - linux
-    env:
-      - CC=x86_64-linux-gnu-gcc
-      - CXX=x86_64-linux-gnu-g++
-    flags:
-      - -trimpath
-  - id: micro-linux-arm64
-    binary: micro
-    goarch:
-      - arm64
-    goos:
-      - linux
-    env:
-      - CC=aarch64-linux-gnu-gcc
-      - CXX=aarch64-linux-gnu-g++
-    flags:
-      - -trimpath
-  - id: micro-linux-armhf
-    binary: micro
-    goarch:
-      - arm
-    goarm:
-      - 7
-    goos:
-      - linux
-    env:
-      - CC=arm-linux-gnueabihf-gcc
-      - CXX=arm-linux-gnueabihf-g++
-    flags:
-      - -trimpath
-  - id: micro-windows-amd64
-    binary: micro
-    goarch:
-      - amd64
-    goos:
       - windows
-    env:
-      - CC=x86_64-w64-mingw32-gcc
-      - CXX=x86_64-w64-mingw32-g++
-    flags:
-      - -trimpath
-      - -buildmode=exe
-  - id: micro-windows-386
-    binary: micro
     goarch:
+      - amd64
+      - arm64
       - 386
-    goos:
-      - windows
-    env:
-      - CC=/llvm-mingw/bin/i686-w64-mingw32-gcc
-      - CXX=/llvm-mingw/bin/i686-w64-mingw32-g++
-    flags:
-      - -trimpath
-      - -buildmode=exe
-  - id: micro-windows-arm64
-    binary: micro
-    goarch:
-      - arm64
-    goos:
-      - windows
-    env:
-      - CC=/llvm-mingw/bin/aarch64-w64-mingw32-gcc
-      - CXX=/llvm-mingw/bin/aarch64-w64-mingw32-g++
-    flags:
-      - -trimpath
-      - -buildmode=exe
-
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: linux
+        goarch: arm
+        goarm: 7
+    binary: mu
+    id: mu
+    main: ./mu
+    # Default: '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser'.
+    # Templates: allowed.
+    ldflags:
+      - -s -w -X main.version={{.Version}}
 archives:
-  - id: release/version
-    builds:
-      - micro-darwin-amd64
-      - micro-darwin-arm64
-      - micro-linux-amd64
-      - micro-linux-arm64
-      - micro-linux-armhf
-      - micro-windows-amd64
-      - micro-windows-386
-      - micro-windows-arm64
-    name_template: '{{ .ProjectName }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}{{ .Arm }}'
-    wrap_in_directory: false
-    format: tar.gz
+  - formats: [ 'tar.gz' ]
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
     format_overrides:
-    - goos: windows
-      format: zip
+      - goos: windows
+        formats: [ 'zip' ]
     files:
       - LICENSE
       - README.md
-checksum:
-  name_template: 'checksums.txt'
-  algorithm: sha256
-snapshot:
-  name_template: "{{ .Tag }}-next"
+
 changelog:
   sort: asc
+  use: github
+  format: "{{ .SHA }}: {{ .Message }}{{ with .AuthorUsername }} (@{{ . }}){{ end }}"
   filters:
     exclude:
-    - '^test:'
+      - "^test:"
+      - "^test\\("
+      - "^chore: update$"
+      - "^chore: docs$"
+      - "^docs: update$"
+      - "^chore: typo$"
+      - "^chore: auto-update generated files$"
+      - "^chore\\(deps\\): "
+      - "^(build|ci): "
+      - "merge conflict"
+      - "merge conflict"
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+      - go mod tidy
+  groups:
+    - title: "New Features"
+      regexp: '^.*?feat(\(.+\))??!?:.+$'
+      order: 100
+    - title: "Security updates"
+      regexp: '^.*?sec(\(.+\))??!?:.+$'
+      order: 150
+    - title: "Bug fixes"
+      regexp: '^.*?(fix|refactor)(\(.+\))??!?:.+$'
+      order: 200
+    - title: "Documentation updates"
+      regexp: ^.*?docs?(\(.+\))??!?:.+$
+      order: 400
+    - title: Other work
+      order: 9999
+
+release:
+  footer: >-
+
+    ---
+
+    Web: https://go-micro.dev
+    GitHub: https://github.com/micro/micro
+
