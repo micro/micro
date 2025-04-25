@@ -1,6 +1,6 @@
 # Micro
 
-A Go microservices platform
+A Go microservices toolkit
 
 ## Overview
 
