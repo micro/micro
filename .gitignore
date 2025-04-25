@@ -41,3 +41,7 @@ test/services
 .air.toml
 .DS_Store
 .release-env
+
+# local builds
+/bin
+/dist

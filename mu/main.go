@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -21,13 +21,19 @@ import (
 	"tailscale.com/tsnet"
 )
 
+var (
+	// version is set by the release action
+	// this is the default for local builds
+	version = "5.0.0-dev"
+)
+
 func apiHandler(c *cli.Context) error {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// assuming we're just going to parse headers
 		if r.URL.Path == "/" {
 			service := r.Header.Get("Micro-Service")
 			endpoint := r.Header.Get("Micro-Endpoint")
-			request, _ := ioutil.ReadAll(r.Body)
+			request, _ := io.ReadAll(r.Body)
 			if len(request) == 0 {
 				request = []byte(`{}`)
 			}
@@ -71,7 +77,7 @@ func apiHandler(c *cli.Context) error {
 			endpoint = service + "." + endpoint
 		}
 
-		request, _ := ioutil.ReadAll(r.Body)
+		request, _ := io.ReadAll(r.Body)
 		if len(request) == 0 {
 			request = []byte(`{}`)
 		}
@@ -87,7 +93,7 @@ func apiHandler(c *cli.Context) error {
 
 		// write the response
 		w.Write(rsp.Data)
-		return
+
 	})
 
 	var network string
@@ -325,7 +331,7 @@ func main() {
 		}}
 
 	cmd.Init(
-		cmd.Name("micro"),
-		cmd.Version("5.0.0"),
+		cmd.Name("mu"),
+		cmd.Version(version),
 	)
 }
