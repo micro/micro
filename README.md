@@ -9,7 +9,7 @@ The core of Micro is the [Go Micro](https://go-micro.dev) framework, which devel
 write services. Surrounding this we introduce a number of tools like a CLI and API proxy to make it easy to serve and consume 
 services. 
 
-## Install the development tool
+## Install the CLI
 
 `mu` is a single binary
 
