@@ -17,6 +17,8 @@ services.
 go install github.com/micro/micro/v5/mu@latest
 ```
 
+For releases see the [latest](https://github.com/micro/micro/releases/latest)
+
 Check the version
 
 ```
