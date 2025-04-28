@@ -232,6 +232,13 @@ func mcpHandler(c *cli.Context) error {
 	return server.ServeStdio(s)
 }
 
+func genProtoHandler(c *cli.Context) error {
+	cmd := exec.Command("find", ".", "-name", "*.proto", "-exec", "protoc", "--proto_path=.", "--micro_out=.", "--go_out=.", `{}`, `;`)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
 func runHandler(c *cli.Context) error {
 	dir := c.Args().Get(0)
 	if len(dir) == 0 {
@@ -244,14 +251,15 @@ func runHandler(c *cli.Context) error {
 }
 
 func main() {
-	cmd.App().Commands = []*cli.Command{{
-		Name:  "api",
-		Usage: "Run the API server",
-		Flags: []cli.Flag{
-			&cli.StringFlag{Name: "network", Value: "", Usage: "Set the network e.g --network=tailscale requires TS_AUTHKEY"},
+	cmd.App().Commands = []*cli.Command{
+		{
+			Name:  "api",
+			Usage: "Run the API server",
+			Flags: []cli.Flag{
+				&cli.StringFlag{Name: "network", Value: "", Usage: "Set the network e.g --network=tailscale requires TS_AUTHKEY"},
+			},
+			Action: apiHandler,
 		},
-		Action: apiHandler,
-	},
 		{
 			Name:   "mcp",
 			Usage:  "Run the MCP server",
@@ -261,6 +269,17 @@ func main() {
 			Name:   "run",
 			Usage:  "Run a service",
 			Action: runHandler,
+		},
+		{
+			Name:  "gen",
+			Usage: "Generate various things",
+			Subcommands: []*cli.Command{
+				{
+					Name:   "proto",
+					Usage:  "Generate proto requires protoc and protoc-gen-micro",
+					Action: genProtoHandler,
+				},
+			},
 		},
 		{
 			Name:  "services",
@@ -328,7 +347,8 @@ func main() {
 				fmt.Println(string(b))
 				return nil
 			},
-		}}
+		},
+	}
 
 	cmd.Init(
 		cmd.Name("mu"),
