@@ -187,7 +187,15 @@ Note: This requires a rebuild of the binary to include those plugins. There is n
 
 ## Protobuf
 
-In the event you are using `protoc-gen-micro` there is a handy command to generate protos in sub folders
+For protobuf code generation which generates a typed Go client
+
+Install `protoc-gen-micro`
+
+```
+go get github.com/micro/micro/v5/cmd/protoc-gen-micro@latest
+```
+
+Generate the proto where the `.proto` file is
 
 ```
 mu gen proto
