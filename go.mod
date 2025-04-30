@@ -5,7 +5,7 @@ go 1.24.1
 require (
 	github.com/mark3labs/mcp-go v0.23.1
 	github.com/urfave/cli/v2 v2.25.7
-	go-micro.dev/v5 v5.3.0
+	go-micro.dev/v5 v5.5.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250428153025-10db94c68c34
 	google.golang.org/protobuf v1.36.6
 	tailscale.com v1.82.5
