@@ -159,16 +159,6 @@ Or with headers
 curl -H 'Micro-Service: helloworld' -H 'Micro-Endpoint: Say.Hello' http://localhost:8080/ -d '{"name": "John"}'
 ```
 
-## MCP
-
-Experimental support for [MCP](https://github.com/modelcontextprotocol)
-
-```
-mu mcp
-```
-
-Supports the tools `services`, `call`, `describe`.
-
 ## Network
 
 To enable tailscale via the api
