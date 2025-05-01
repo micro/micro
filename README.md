@@ -11,10 +11,10 @@ services.
 
 ## Install the CLI
 
-`mu` is a single binary
+Install `mu` via `go get`
 
 ```
-go install github.com/micro/micro/v5/mu@latest
+go get github.com/micro/micro/v5/mu@latest
 ```
 
 For releases see the [latest](https://github.com/micro/micro/releases/latest) tag
