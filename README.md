@@ -144,7 +144,7 @@ Output
 Install the api
 
 ```
-go get github.com/micro/micro-api@latest```
+go get github.com/micro/micro-api@latest
 ```
 
 Run the API
