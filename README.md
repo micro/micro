@@ -141,7 +141,7 @@ Output
 
 ## Micro API
 
-If you'd like to call services via http use the micro-api
+If you'd like to call services via http use the [micro-api](https://github.com/micro/micro-api)
 
 Install the API 
 
