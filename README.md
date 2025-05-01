@@ -139,9 +139,11 @@ Output
 }
 ```
 
-## Run the API
+## Micro API
 
-Install the api
+If you'd like to call services via http use the micro-api
+
+Install the API 
 
 ```
 go get github.com/micro/micro-api@latest
