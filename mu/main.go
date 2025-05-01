@@ -10,8 +10,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/client"
 	"go-micro.dev/v5/cmd"
