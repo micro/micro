@@ -180,7 +180,7 @@ func main() {
 
 ## Micro API
 
-If you'd like to call services via http use the [micro-api](https://github.com/micro/micro-api)
+Call services via http using the [micro-api](https://github.com/micro/micro-api)
 
 Install the API 
 
@@ -204,26 +204,4 @@ Or with headers
 
 ```
 curl -H 'Micro-Service: helloworld' -H 'Micro-Endpoint: Say.Hello' http://localhost:8080/ -d '{"name": "John"}'
-```
-
-## Plugins
-
-Plugins can be found in [micro/plugins](https://github.com/micro/plugins) which enable various underlying interface implementations.
-
-Note: This requires a rebuild of the binary to include those plugins. There is no clean approach to this yet.
-
-## Protobuf
-
-For protobuf code generation which generates a typed Go client
-
-Install `protoc-gen-micro`
-
-```
-go get github.com/micro/micro/v5/cmd/protoc-gen-micro@latest
-```
-
-Generate the proto where the `.proto` file is
-
-```
-mu gen proto
 ```
