@@ -139,7 +139,7 @@ Output
 }
 ```
 
-## API
+## Run the API
 
 Run the API proxy
 
@@ -159,7 +159,7 @@ Or with headers
 curl -H 'Micro-Service: helloworld' -H 'Micro-Endpoint: Say.Hello' http://localhost:8080/ -d '{"name": "John"}'
 ```
 
-## Network
+## Tailscale Network
 
 To enable tailscale via the api
 
