@@ -139,6 +139,45 @@ Output
 }
 ```
 
+## Create a client
+
+Create a client to call the service
+
+```
+package main
+
+import (
+        "context"
+        "fmt"
+
+        "go-micro.dev/v5"
+)
+
+type Request struct {
+        Name string
+}
+
+type Response struct {
+        Message string
+}
+
+func main() {
+        client := micro.New("helloworld").Client()
+
+        req := client.NewRequest("helloworld", "Say.Hello", &Request{Name: "John"})
+
+        var rsp Response
+
+        err := client.Call(context.TODO(), req, &rsp)
+        if err != nil {
+                fmt.Println(err)
+                return
+        }
+
+        fmt.Println(rsp.Message)
+}
+```
+
 ## Micro API
 
 If you'd like to call services via http use the [micro-api](https://github.com/micro/micro-api)
