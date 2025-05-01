@@ -180,12 +180,12 @@ func main() {
 
 ## Micro API
 
-Call services via http using the [micro-api](https://github.com/micro/micro-api)
+Call services via http using the [micro-api](https://github.com/micro/micro/tree/master/cmd/micro-api)
 
 Install the API 
 
 ```
-go get github.com/micro/micro-api@latest
+go get github.com/micro/micro/cmd/micro-api@latest
 ```
 
 Run the API
