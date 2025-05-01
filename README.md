@@ -26,7 +26,7 @@ mu --version
 mu version v5.0.0
 ```
 
-## Usage
+## Create a service
 
 Create your service using [Go Micro](https://go-micro.dev)
 
