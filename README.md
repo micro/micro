@@ -141,10 +141,16 @@ Output
 
 ## Run the API
 
-Run the API proxy
+Install the api
 
 ```
-mu api
+go get github.com/micro/micro-api@latest```
+```
+
+Run the API
+
+```
+micro-api
 ```
 
 If you have [helloworld](https://github.com/micro/helloworld) running
@@ -158,16 +164,6 @@ Or with headers
 ```
 curl -H 'Micro-Service: helloworld' -H 'Micro-Endpoint: Say.Hello' http://localhost:8080/ -d '{"name": "John"}'
 ```
-
-## Tailscale Network
-
-To enable tailscale via the api
-
-```
-mu api --network=tailscale
-```
-
-Ensure to export your `TS_AUTHKEY`
 
 ## Plugins
 
