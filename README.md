@@ -143,7 +143,7 @@ Output
 
 Create a client to call the service
 
-```
+```go
 package main
 
 import (
