@@ -18,13 +18,6 @@ go get github.com/micro/micro/v5/mu@latest
 
 For releases see the [latest](https://github.com/micro/micro/releases/latest) tag
 
-Check the version
-
-```
-mu --version
-mu version v5.0.0
-```
-
 ## Create a service
 
 Create your service using [Go Micro](https://go-micro.dev)
