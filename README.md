@@ -186,7 +186,7 @@ Run the API
 micro-api
 ```
 
-If you have [service](https://github.com/micro/service) running
+If you have the service running
 
 ```
 curl http://localhost:8080/helloworld/Say/Hello -d '{"name": "John"}'
