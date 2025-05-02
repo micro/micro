@@ -10,10 +10,10 @@ write services. Surrounding this we introduce a number of tools to make it easy 
 
 ## Install the CLI
 
-Install `mu` via `go get`
+Install `micro` via `go get`
 
 ```
-go get github.com/micro/micro/v5/mu@latest
+go get github.com/micro/micro/v5@latest
 ```
 
 For releases see the [latest](https://github.com/micro/micro/releases/latest) tag
@@ -59,25 +59,25 @@ func main() {
 Run your service
 
 ```
-mu run
+micro run
 ```
 
 List your services
 
 ```
-mu services
+micro services
 ```
 
 Call a service
 
 ```
-mu call helloworld Say.Hello '{"name": "Asim"}'
+micro call helloworld Say.Hello '{"name": "Asim"}'
 ```
 
 Describe a service
 
 ```
-mu describe helloworld
+micro describe helloworld
 ```
 
 Output

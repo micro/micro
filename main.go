@@ -126,7 +126,7 @@ func main() {
 	}
 
 	cmd.Init(
-		cmd.Name("mu"),
+		cmd.Name("micro"),
 		cmd.Version(version),
 	)
 }
