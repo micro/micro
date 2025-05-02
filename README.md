@@ -56,13 +56,13 @@ func main() {
 }
 ```
 
-Run your service
+Run a service
 
 ```
 micro run
 ```
 
-List your services
+List services
 
 ```
 micro services
