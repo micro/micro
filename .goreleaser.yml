@@ -24,9 +24,9 @@ builds:
       - goos: linux
         goarch: arm
         goarm: 7
-    binary: mu
-    id: mu
-    main: ./mu
+    binary: main
+    id: micro
+    main: ./main.go
     # Default: '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser'.
     # Templates: allowed.
     ldflags:

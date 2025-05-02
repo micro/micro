@@ -7,5 +7,5 @@ for build in ${builds[@]}; do
   echo "building ${array[0]} ${array[1]}"
   # TODO: CGO_ENABLED=1 prevent building windows amd64
   mkdir -p ./bin/${array[0]}/${array[1]}
-  GOOS=${array[0]} GOARCH=${array[1]} CGO_ENABLED=0 go build -o ./bin/${array[0]}/${array[1]}/mu ./mu
+  GOOS=${array[0]} GOARCH=${array[1]} CGO_ENABLED=0 go build -o ./bin/${array[0]}/${array[1]}/micro ./main.go
 done
