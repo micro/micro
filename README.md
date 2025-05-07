@@ -5,7 +5,7 @@ A Go microservices toolkit
 ## Overview
 
 Micro is an ecosystem for Go microservices development. It provides the tools required for building services in the cloud. 
-The core of Micro is the [Go Micro](https://go-micro.dev) framework, which developers import and use in their code to 
+The core of Micro is the [Go Micro](https://gthub.com/micro/go-micro) framework, which developers import and use in their code to 
 write services. Surrounding this we introduce a number of tools to make it easy to serve and consume services. 
 
 ## Install the CLI
@@ -20,7 +20,7 @@ For releases see the [latest](https://github.com/micro/micro/releases/latest) ta
 
 ## Create a service
 
-Create your service using [Go Micro](https://go-micro.dev)
+Create your service using [Go Micro](https://github.com/micro/go-micro)
 
 ```go
 package main
