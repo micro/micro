@@ -170,7 +170,7 @@ func main() {
 }
 ```
 
-## Micro API
+## Make a HTTP call
 
 Call services via http using the [micro-api](https://github.com/micro/micro/tree/master/cmd/micro-api)
 
