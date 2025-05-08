@@ -135,7 +135,7 @@ func process(c *cli.Context) error {
 		}
 
 		if command == "help" || command == "?" {
-			fmt.Println("Commands:\n")
+			fmt.Println("Commands:")
 			fmt.Println(strings.Join(helpUsage, "\n"))
 		}
 	}
