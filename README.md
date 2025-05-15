@@ -16,6 +16,12 @@ Install `micro` via `go get`
 go get github.com/micro/micro/v5@latest
 ```
 
+Or via install script
+
+```
+wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh -O - | /bin/bash
+```
+
 For releases see the [latest](https://github.com/micro/micro/releases/latest) tag
 
 ## Create a service
