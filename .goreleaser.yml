@@ -24,7 +24,7 @@ builds:
       - goos: linux
         goarch: arm
         goarm: 7
-    binary: main
+    binary: micro
     id: micro
     main: ./main.go
     # Default: '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser'.
