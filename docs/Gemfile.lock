@@ -11,7 +11,7 @@ GEM
     eventmachine (1.2.7)
     ffi (1.17.2)
     forwardable-extended (2.6.0)
-    google-protobuf (3.21.12-x86_64-linux)
+    google-protobuf (3.25.5-x86_64-linux)
     http_parser.rb (0.8.0)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
