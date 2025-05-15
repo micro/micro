@@ -1,4 +1,4 @@
-module github.com/micro/micro/cmd/micro-api
+module github.com/micro/micro/cmd/micro-web
 
 go 1.24.1
 
