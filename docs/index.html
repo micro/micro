@@ -5,43 +5,70 @@
     <meta name="viewport" content="width=device-width" />
     <title>Micro</title>
     <style>
-      body {
+      html, body {
         font-family: Arial;
         font-size: 16px;
-        margin: 25px;
+	margin: 0;
+	padding: 0;
       }
       .container {
-         max-width: 300px;
+         max-width: 1400px;
          margin: 0 auto;
-         padding-top: 50px;
          text-align: center;
-      };
+      }
       a {
         color: black;
+	text-decoration: none;
+	font-weight: bold;
+	padding: 10px;
+      }
+      #head {
+        margin: 25px;
+      }
+      #head a {
+        color: black;
+	text-decoration: none;
+      }
+      #head img, h1 {
+        display: inline-block;
+	vertical-align: middle;
+	margin: 0;
+      }
+      #nav {
+        float: right;
+	padding: 20px;
+      }
+      #title {
+	max-width: 600px;
+        font-size: 3em;
+	margin: 25px;
       }
     </style>
   </head>
 
   <body>
-     <h1>Micro</h1>
-     <div class="container">
-        <a href="https://github.com/micro/micro">
-          <img src="https://avatars.githubusercontent.com/u/5161210" style="height: 200px; width: auto;" />
+     <div id="head">
+        <a href="/">
+          <img src="https://avatars.githubusercontent.com/u/5161210" style="height: 50px; width: auto;" />
+     	  <h1>Micro</h1>
         </a>
-        <h3>Micro is a toolkit for Go microservices development</h3>
-        <p>
+        <div id="nav">
           <a href="https://github.com/micro/micro">GitHub</a>
           <a href="https://discord.gg/UmFkPbu32m">Discord</a>
-        </p>
+        </div>
+     </div>
+     <div class="container">
+        <h1 id="title">Micro is a toolkit for Go microservices development</h1>
 	<br>
-	<h4>Our Tools</h4>
+	<h2>Our Tools</h2>
         <a href="https://github.com/micro/go-micro">
           <img src="https://raw.githubusercontent.com/micro/go-micro/master/logo.png" style="height: 200px; width: auto;" />
         </a>
-        <h3>A Go microservices framework</h3>
+        <p>A Go microservices framework</p>
         <p>
-          <a href="https://github.com/micro/go-micro">GitHub</a>
+          <a href="https://github.com/micro/go-micro">Get Started</a>
         </p>
+	<pre>go get go-micro.dev/v5</pre>
      </div>
   </body>
 </html>
