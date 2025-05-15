@@ -1,19 +1,24 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"os"
+	"strings"
 
-	"tailscale.com/tsnet"
 	"github.com/urfave/cli/v2"
-	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/client"
-	"go-micro.dev/v5/errors"
+	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/codec/bytes"
+	"go-micro.dev/v5/errors"
+	"tailscale.com/tsnet"
 )
+
+func normalize(v string) string {
+	return strings.Title(v)
+}
 
 func main() {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -60,14 +65,25 @@ func main() {
 		endpoint := parts[2]
 
 		if len(parts) == 4 {
-			endpoint = endpoint + "." + parts[3]
+			endpoint = normalize(endpoint) + "." + normalize(parts[3])
 		} else {
-			endpoint = service + "." + endpoint
+			endpoint = normalize(service) + "." + normalize(endpoint)
 		}
 
 		request, _ := io.ReadAll(r.Body)
 		if len(request) == 0 {
 			request = []byte(`{}`)
+
+			if r.Method == "GET" {
+				req := map[string]interface{}{}
+				r.ParseForm()
+				for k, v := range r.Form {
+					req[k] = strings.Join(v, ",")
+				}
+				if len(req) > 0 {
+					request, _ = json.Marshal(req)
+				}
+			}
 		}
 
 		req := client.NewRequest(service, endpoint, &bytes.Frame{Data: request})
@@ -83,7 +99,6 @@ func main() {
 		w.Write(rsp.Data)
 
 	})
-
 
 	app := cmd.App()
 
