@@ -197,9 +197,3 @@ If you have the service running
 ```
 curl http://localhost:8080/helloworld/Say/Hello -d '{"name": "John"}'
 ```
-
-Or with headers
-
-```
-curl -H 'Micro-Service: helloworld' -H 'Micro-Endpoint: Say.Hello' http://localhost:8080/ -d '{"name": "John"}'
-```
