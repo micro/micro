@@ -216,6 +216,8 @@ func main() {
 				output += fmt.Sprintf(`<div>%s: %s</div>`, k, v)
 			}
 
+			pretty, _ := json.MarshalIndent(response, "", "    ")
+			output += fmt.Sprintf(`<pre>%s</pre>`, string(pretty))
 			render(w, fmt.Sprintf(responseTemplate, output))
 			return
 		}
