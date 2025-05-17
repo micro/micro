@@ -24,7 +24,7 @@ builds:
       - goos: linux
         goarch: arm
         goarm: 7
-    binary: main
+    binary: micro
     id: micro
     main: ./main.go
     # Default: '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser'.
@@ -85,6 +85,6 @@ release:
 
     ---
 
-    Web: https://go-micro.dev
+    Web: https://micro.mu
     GitHub: https://github.com/micro/micro
 

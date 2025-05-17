@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% seo %}
+    <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: site.github.build_revision | relative_url }}">
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      {% if site.title and site.title != page.title %}
+      <h1>
+        <a href="{{ "/blog/" | absolute_url }}" style="color: black;">
+        {% if site.logo %}
+        <img src="{{ site.logo | absolute_url }}" height=auto width=50px style="display: inline; vertical-align: middle;"/> 
+        {% endif %}
+	{{ site.title }}</a>
+      </h1>
+      {% endif %}
+
+      {% if page.title %}
+      <h1 style="border-bottom: 0">{{ page.title }}</h1>
+      {% endif %}
+      <time class="post-date" datetime="{{ post.date | date:"%Y-%m-%d" }}">
+	      <h5>{{ page.date | date_to_string }}</h5>
+      </time> 
+      {{ content }}
+
+      <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
+      {% if site.open_source %}
+        This site is open source. {% github_edit_link "Improve this page" %}.
+      {% endif %}
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+    {% if site.google_analytics %}
+<!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+		gtag('config', '{{ site.google_analytics }}');
+	</script>
+    {% endif %}
+  </body>
+</html>
