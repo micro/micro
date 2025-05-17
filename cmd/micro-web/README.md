@@ -10,7 +10,7 @@ Install the web app
 go get github.com/micro/micro/cmd/micro-web@latest
 ```
 
-Run the api
+Run the web appi
 
 ```
 micro-web
