@@ -26,46 +26,24 @@ For releases see the [latest](https://github.com/micro/micro/releases/latest) ta
 
 ## Create a service
 
-Create your service using [Go Micro](https://github.com/micro/go-micro)
-
-```go
-package main
-
-import (
-        "go-micro.dev/v5"
-)
-
-type Request struct {
-        Name string `json:"name"`
-}
-
-type Response struct {
-        Message string `json:"message"`
-}
-
-type Say struct{}
-
-func (h *Say) Hello(ctx context.Context, req *Request, rsp *Response) error {
-        rsp.Message = "Hello " + req.Name
-        return nil
-}
-
-func main() {
-        // create the service
-        service := micro.New("helloworld")
-
-        // register handler
-        service.Handle(new(Say))
-
-        // run the service
-        service.Run()
-}
-```
-
-Run a service
+Create your service and follow the guide
 
 ```
-micro run
+micro new helloworld
+```
+
+Tidy and make protos
+
+```
+cd helloworld
+go mod tidy
+make proto
+```
+
+Run the service
+
+```
+micro run .
 ```
 
 List services
@@ -100,7 +78,7 @@ Output
                 "type": "Request",
                 "values": [
                     {
-                        "name": "string",
+                        "name": "name",
                         "type": "string",
                         "values": null
                     }
@@ -111,14 +89,30 @@ Output
                 "type": "Response",
                 "values": [
                     {
-                        "name": "string",
+                        "name": "msg",
                         "type": "string",
                         "values": null
                     }
                 ]
             },
             "metadata": {},
-            "name": "Say.Hello"
+            "name": "Helloworld.Call"
+        },
+        {
+            "request": {
+                "name": "Context",
+                "type": "Context",
+                "values": null
+            },
+            "response": {
+                "name": "Stream",
+                "type": "Stream",
+                "values": null
+            },
+            "metadata": {
+                "stream": "true"
+            },
+            "name": "Helloworld.Stream"
         }
     ],
     "nodes": [
@@ -130,8 +124,8 @@ Output
                 "server": "mucp",
                 "transport": "http"
             },
-            "id": "helloworld-9988def2-2ee4-45f1-9cf7-faa62535538f",
-            "address": "172.17.0.1:40397"
+            "id": "helloworld-31e55be7-ac83-4810-89c8-a6192fb3ae83",
+            "address": "127.0.0.1:39963"
         }
     ]
 }
