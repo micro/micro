@@ -12,7 +12,7 @@ import (
 	"text/template"
 	"time"
 
-	tmpl "github.com/micro/micro/v5/pkg/cli/new/template"
+	tmpl "github.com/micro/micro/v5/cmd/micro-cli/new/template"
 	//"go-micro.dev/v5/cmd"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
