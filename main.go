@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/micro/micro/v5/pkg/cli/new"
+	"github.com/micro/micro/v5/micro-cli/new"
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/client"
 	"go-micro.dev/v5/cmd"
