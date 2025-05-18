@@ -55,7 +55,7 @@ micro services
 Call a service
 
 ```
-micro call helloworld Say.Hello '{"name": "Asim"}'
+micro call helloworld Helloworld.Call '{"name": "Asim"}'
 ```
 
 Describe a service
@@ -156,7 +156,7 @@ type Response struct {
 func main() {
         client := micro.New("helloworld").Client()
 
-        req := client.NewRequest("helloworld", "Say.Hello", &Request{Name: "John"})
+        req := client.NewRequest("helloworld", "Helloworld.Call", &Request{Name: "John"})
 
         var rsp Response
 
@@ -189,7 +189,7 @@ micro-api
 If you have the service running
 
 ```
-curl http://localhost:8080/helloworld/Say/Hello -d '{"name": "John"}'
+curl http://localhost:8080/helloworld/Helloworld/Call -d '{"name": "John"}'
 ```
 
 ## Micro Web
