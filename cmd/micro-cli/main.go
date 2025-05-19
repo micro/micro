@@ -126,12 +126,71 @@ func process(c *cli.Context) error {
 			return nil
 		}
 
+		// Dynamic service command handling
 		if v, ok := commandMap[command]; ok {
 			err := v.Action(c, args[1:])
 			if err != nil {
 				fmt.Println(err)
 			}
 			continue
+		}
+
+		// Check if command matches a service name
+		services, err := registry.ListServices()
+		if err == nil {
+			serviceNames := map[string]struct{}{}
+			for _, svc := range services {
+				serviceNames[svc.Name] = struct{}{}
+			}
+			if _, found := serviceNames[command]; found {
+				// If --help, print dynamic help
+				if len(args) > 1 && (args[1] == "--help" || args[1] == "-h") {
+					svcs, err := registry.GetService(command)
+					if err != nil || len(svcs) == 0 {
+						fmt.Println("Service not found")
+						continue
+					}
+					fmt.Printf("Usage: %s [endpoint] [args]\n", command)
+					fmt.Println("Endpoints:")
+					for _, ep := range svcs[0].Endpoints {
+						fmt.Printf("  %s\n", ep.Name)
+						if ep.Request != nil && len(ep.Request.Values) > 0 {
+							fmt.Println("    Args:")
+							for _, v := range ep.Request.Values {
+								fmt.Printf("      --%s\n", v.Name)
+							}
+						}
+					}
+					continue
+				}
+
+				// Otherwise, treat as dynamic call: micro [service] [endpoint] [--arg=value ...]
+				if len(args) < 2 {
+					fmt.Println("Usage: [service] [endpoint] [--arg=value ...]")
+					continue
+				}
+				endpoint := args[1]
+				// Parse --arg=value pairs into a map
+				params := map[string]interface{}{}
+				for _, a := range args[2:] {
+					if strings.HasPrefix(a, "--") {
+						parts := strings.SplitN(a[2:], "=", 2)
+						if len(parts) == 2 {
+							params[parts[0]] = parts[1]
+						}
+					}
+				}
+				b, _ := json.Marshal(params)
+				req := client.NewRequest(command, endpoint, &bytes.Frame{Data: b})
+				var rsp bytes.Frame
+				err := client.Call(context.TODO(), req, &rsp)
+				if err != nil {
+					fmt.Println("Error:", err)
+					continue
+				}
+				fmt.Println(string(rsp.Data))
+				continue
+			}
 		}
 
 		if command == "help" || command == "?" {
