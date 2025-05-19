@@ -4,7 +4,7 @@ go 1.24.1
 
 require (
 	github.com/urfave/cli/v2 v2.25.7
-	go-micro.dev/v5 v5.6.1-0.20250518084549-44ff301d2d1f
+	go-micro.dev/v5 v5.7.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250428153025-10db94c68c34
 	google.golang.org/protobuf v1.36.6
 )
