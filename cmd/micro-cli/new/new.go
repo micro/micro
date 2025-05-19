@@ -24,8 +24,7 @@ func protoComments(goDir, alias string) []string {
 		"visit https://github.com/protocolbuffers/protobuf/releases",
 		"\ncompile the proto file " + alias + ".proto:\n",
 		"cd " + alias,
-		"make init",
-		"go mod vendor",
+		"go mod tidy",
 		"make proto\n",
 	}
 }

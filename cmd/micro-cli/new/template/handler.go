@@ -40,27 +40,13 @@ func (e *{{title .Alias}}) Stream(ctx context.Context, req *pb.StreamingRequest,
 
 	return nil
 }
-
-// PingPong is a bidirectional stream handler called via client.Stream or the generated client code
-func (e *{{title .Alias}}) PingPong(ctx context.Context, stream pb.{{title .Alias}}_PingPongStream) error {
-	for {
-		req, err := stream.Recv()
-		if err != nil {
-			return err
-		}
-		log.Infof("Got ping %v", req.Stroke)
-		if err := stream.Send(&pb.Pong{Stroke: req.Stroke}); err != nil {
-			return err
-		}
-	}
-}
 `
 
 	SubscriberSRV = `package subscriber
 
 import (
 	"context"
-	log "github.com/micro/micro/v3/service/logger"
+	log "go-micro.dev/v5/logger"
 
 	pb "{{.Dir}}/proto"
 )
