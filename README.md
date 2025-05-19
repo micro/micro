@@ -170,20 +170,12 @@ func main() {
 }
 ```
 
-## Micro API
-
-Call services via http using the [micro-api](https://github.com/micro/micro/tree/master/cmd/micro-api)
-
-Install the API 
-
-```
-go get github.com/micro/micro/cmd/micro-api@latest
-```
+## Call via API
 
 Run the API
 
 ```
-micro-api
+micro api
 ```
 
 If you have the service running
@@ -192,22 +184,14 @@ If you have the service running
 curl http://localhost:8080/helloworld/Helloworld/Call -d '{"name": "John"}'
 ```
 
-## Micro Web
+## Call via Web
 
 Access services via the web
-
-## Usage
-
-Install the web app
-
-```
-go get github.com/micro/micro/cmd/micro-web@latest
-```
 
 Run the web app
 
 ```
-micro-web
+micro web
 ```
 
 Go to [localhost:8082](http://localhost:8082)

@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ func normalize(v string) string {
 	return strings.Title(v)
 }
 
-func main() {
+func init() {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// assuming we're just going to parse headers
 		if r.URL.Path == "/" {
@@ -100,42 +100,40 @@ func main() {
 
 	})
 
-	app := cmd.App()
+	cmd.Register(&cli.Command{
+		Name:  "api",
+		Usage: "Run the micro api on port :8080",
+		Flags: []cli.Flag{
+			&cli.StringFlag{Name: "network", Value: "", Usage: "Set the network e.g --network=tailscale requires TS_AUTHKEY"},
+		},
+		Action: func(c *cli.Context) error {
+			var network string
+			var key string
 
-	app.Flags = []cli.Flag{
-		&cli.StringFlag{Name: "network", Value: "", Usage: "Set the network e.g --network=tailscale requires TS_AUTHKEY"},
-	}
-	app.Action = func(c *cli.Context) error {
-		var network string
-		var key string
-
-		if c.IsSet("network") {
-			network = c.Value("network").(string)
-		}
-
-		if network == "tailscale" {
-			// check for TS_AUTHKEY
-			key = os.Getenv("TS_AUTHKEY")
-			if len(key) == 0 {
-				return fmt.Errorf("missing TS_AUTHKEY")
+			if c.IsSet("network") {
+				network = c.Value("network").(string)
 			}
 
-			srv := new(tsnet.Server)
-			srv.AuthKey = key
-			srv.Hostname = "micro"
+			if network == "tailscale" {
+				// check for TS_AUTHKEY
+				key = os.Getenv("TS_AUTHKEY")
+				if len(key) == 0 {
+					return fmt.Errorf("missing TS_AUTHKEY")
+				}
 
-			ln, err := srv.Listen("tcp", ":8080")
-			if err != nil {
-				return err
+				srv := new(tsnet.Server)
+				srv.AuthKey = key
+				srv.Hostname = "micro"
+
+				ln, err := srv.Listen("tcp", ":8080")
+				if err != nil {
+					return err
+				}
+
+				return http.Serve(ln, h)
 			}
 
-			return http.Serve(ln, h)
-		}
-
-		return http.ListenAndServe(":8080", h)
-	}
-
-	cmd.Init(
-		cmd.Name("micro-api"),
-	)
+			return http.ListenAndServe(":8080", h)
+		},
+	})
 }

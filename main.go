@@ -7,12 +7,15 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/micro/micro/v5/cmd/micro-cli/new"
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/client"
 	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/registry"
+
+	_ "github.com/micro/micro/v5/cmd/micro-api"
+	_ "github.com/micro/micro/v5/cmd/micro-cli"
+	_ "github.com/micro/micro/v5/cmd/micro-web"
 )
 
 var (
@@ -40,13 +43,7 @@ func runHandler(c *cli.Context) error {
 }
 
 func main() {
-	cmd.App().Commands = []*cli.Command{
-		{
-			Name:        "new",
-			Usage:       "Create a service template",
-			Description: `'micro new' scaffolds a new service skeleton. Example: 'micro new helloworld && cd helloworld'`,
-			Action:      new.Run,
-		},
+	cmd.Register([]*cli.Command{
 		{
 			Name:   "run",
 			Usage:  "Run a service",
@@ -130,7 +127,7 @@ func main() {
 				return nil
 			},
 		},
-	}
+	}...)
 
 	cmd.Init(
 		cmd.Name("micro"),

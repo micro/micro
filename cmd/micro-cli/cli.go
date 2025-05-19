@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"bufio"
@@ -14,6 +14,8 @@ import (
 	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/registry"
+
+	"github.com/micro/micro/v5/cmd/micro-cli/new"
 )
 
 var (
@@ -94,7 +96,7 @@ var commands = []Command{
 	},
 }
 
-func process(c *cli.Context) error {
+func Run(c *cli.Context) error {
 	reader := bufio.NewReader(os.Stdin)
 
 	commandMap := map[string]Command{}
@@ -200,11 +202,16 @@ func process(c *cli.Context) error {
 	}
 }
 
-func main() {
-	// set process
-	app := cmd.App()
-	app.Action = process
-	app.Name = "micro"
-	app.Version = version
-	app.Run(os.Args)
+func init() {
+	cmd.Register(&cli.Command{
+		Name:   "cli",
+		Usage:  "Launch the interactive CLI",
+		Action: Run,
+	})
+	cmd.Register(&cli.Command{
+		Name:        "new",
+		Usage:       "Create a new service",
+		Description: `'micro new' generates a new service skeleton. Example: 'micro new helloworld && cd helloworld'`,
+		Action:      new.Run,
+	})
 }
