@@ -15,6 +15,7 @@ import (
 
 	_ "github.com/micro/micro/v5/cmd/micro-api"
 	_ "github.com/micro/micro/v5/cmd/micro-cli"
+	_ "github.com/micro/micro/v5/cmd/micro-mcp"
 	_ "github.com/micro/micro/v5/cmd/micro-web"
 )
 
