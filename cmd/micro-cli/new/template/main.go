@@ -14,6 +14,9 @@ func main() {
 	// Create service
 	service := micro.New("{{lower .Alias}}")
 
+	// Initialize service
+	service.Init()
+
 	// Register handler
 	pb.Register{{title .Alias}}Handler(service.Server(), handler.New())
 
