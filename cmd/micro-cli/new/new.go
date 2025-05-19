@@ -192,14 +192,3 @@ func Run(ctx *cli.Context) error {
 	// create the files
 	return create(c)
 }
-
-/*
-func init() {
-	cmd.Register(&cli.Command{
-		Name:        "new",
-		Usage:       "Create a service template",
-		Description: `'micro new' scaffolds a new service skeleton. Example: 'micro new helloworld && cd helloworld'`,
-		Action:      Run,
-	})
-}
-*/
