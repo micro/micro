@@ -40,6 +40,8 @@ go mod tidy
 make proto
 ```
 
+## Run the service
+
 Run the service
 
 ```
@@ -52,7 +54,9 @@ List services
 micro services
 ```
 
-Call a service
+## Call the service
+
+Call a service using the CLI
 
 ```
 micro call helloworld Helloworld.Call '{"name": "Asim"}'
