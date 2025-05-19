@@ -54,6 +54,8 @@ List services to see it's running and registered itself
 micro services
 ```
 
+## Describe the service
+
 Describe the service to see available endpoints
 
 ```
