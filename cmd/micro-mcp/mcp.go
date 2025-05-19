@@ -1,4 +1,4 @@
-package main
+package mcp
 
 import (
 	"context"
@@ -9,7 +9,9 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
+	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/client"
+	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/registry"
 )
@@ -42,7 +44,7 @@ func handler(ctx context.Context, r mcp.CallToolRequest) (*mcp.CallToolResult, e
 	return mcp.NewToolResultText(string(rsp.Data)), nil
 }
 
-func main() {
+func Run(c *cli.Context) error {
 	// Create MCP server
 	s := server.NewMCPServer(
 		"micro",
@@ -123,4 +125,14 @@ func main() {
 	if err := server.ServeStdio(s); err != nil {
 		fmt.Printf("Server error: %v\n", err)
 	}
+
+	return nil
+}
+
+func init() {
+	cmd.Register(&cli.Command{
+		Name:   "mcp",
+		Usage:  "Run MCP server on stdio",
+		Action: Run,
+	})
 }
