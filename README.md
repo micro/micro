@@ -40,25 +40,23 @@ go mod tidy
 make proto
 ```
 
+## Run the service
+
 Run the service
 
 ```
 micro run .
 ```
 
-List services
+List services to see it's running and registered itself
 
 ```
 micro services
 ```
 
-Call a service
+## Describe the service
 
-```
-micro call helloworld Helloworld.Call '{"name": "Asim"}'
-```
-
-Describe a service
+Describe the service to see available endpoints
 
 ```
 micro describe helloworld
@@ -129,6 +127,14 @@ Output
         }
     ]
 }
+```
+
+## Call the service
+
+Call the service using the CLI
+
+```
+micro call helloworld Helloworld.Call '{"name": "Asim"}'
 ```
 
 ## Create a client
