@@ -259,7 +259,14 @@ func FlagsToRequest(flags map[string][]string, req *registry.Value) (map[string]
 			}
 			return strconv.ParseBool(value[0])
 		case "int32":
-			return strconv.Atoi(value[0])
+			i, err := strconv.Atoi(value[0])
+			if err != nil {
+				return nil, err
+			}
+			if i < math.MinInt32 || i > math.MaxInt32 {
+				return nil, fmt.Errorf("value out of range for int32: %d", i)
+			}
+			return int32(i), nil
 		case "int64":
 			return strconv.ParseInt(value[0], 0, 64)
 		case "float64":
@@ -288,6 +295,9 @@ func FlagsToRequest(flags map[string][]string, req *registry.Value) (map[string]
 				i, err := strconv.Atoi(v)
 				if err != nil {
 					return nil, err
+				}
+				if i < math.MinInt32 || i > math.MaxInt32 {
+					return nil, fmt.Errorf("value out of range for int32: %d", i)
 				}
 				ret = append(ret, int32(i))
 			}
