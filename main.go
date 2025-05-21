@@ -17,6 +17,7 @@ import (
 	_ "github.com/micro/micro/v5/cmd/micro-cli"
 	_ "github.com/micro/micro/v5/cmd/micro-mcp"
 	_ "github.com/micro/micro/v5/cmd/micro-web"
+	"github.com/micro/micro/v5/util"
 )
 
 var (
@@ -129,6 +130,37 @@ func main() {
 			},
 		},
 	}...)
+
+	cmd.App().Action = func(c *cli.Context) error {
+		if c.Args().Len() == 0 {
+			return nil
+		}
+
+		// if an executable is available with the name of
+		// the command, execute it with the arguments from
+		// index 1 on.
+		v, err := exec.LookPath("micro-" + c.Args().First())
+		if err == nil {
+			ce := exec.Command(v, c.Args().Slice()[1:]...)
+			ce.Stdout = os.Stdout
+			ce.Stderr = os.Stderr
+			return ce.Run()
+		}
+
+		command := c.Args().Get(0)
+		args := c.Args().Slice()
+
+		if srv, err := util.LookupService(command); err != nil {
+			return util.CliError(err)
+		} else if srv != nil && util.ShouldRenderHelp(args) {
+			return cli.Exit(util.FormatServiceUsage(srv, c), 0)
+		} else if srv != nil {
+			err := util.CallService(srv, args)
+			return util.CliError(err)
+		}
+
+		return nil
+	}
 
 	cmd.Init(
 		cmd.Name("micro"),

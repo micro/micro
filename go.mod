@@ -3,7 +3,9 @@ module github.com/micro/micro/v5
 go 1.24.1
 
 require (
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/mark3labs/mcp-go v0.28.0
+	github.com/stretchr/objx v0.5.2
 	github.com/urfave/cli/v2 v2.25.7
 	github.com/xlab/treeprint v1.2.0
 	go-micro.dev/v5 v5.7.0
