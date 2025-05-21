@@ -25,12 +25,11 @@
     <div class="container-lg px-3 my-5 markdown-body">
       {% if site.title and site.title != page.title %}
       <h1>
-        <a href="{{ "/" | absolute_url }}" class="title" style="color: black; margin-right: 50px;">
+        <a href="{{ "/" }}" class="title" style="color: black; margin-right: 50px;">
         {% if site.logo %}
-        <img src="{{ site.logo | absolute_url }}" height=auto width=100px style="display: inline; vertical-align: middle;"/> 
-        {% else %}
-	{{ site.title }}
+        <img src="{{ site.logo }}" height=auto width=50px style="display: inline; vertical-align: middle;"/> 
         {% endif %}
+	{{ site.title }}
         </a>
 	<div id="menu" onclick="unfold()" style="display: none; float: right; cursor: pointer; vertical-align: middle;">
 	    <div class="menu"></div>
@@ -38,6 +37,7 @@
 	    <div class="menu"></div>
 	</div>
         <ul id="links" class="links" style="float: right; display: none; padding: 5px;">
+	  <li class="link"><a href="{{ site.baseurl }}/about">About</a></li>
 	  <li class="link"><a href="{{ site.baseurl }}/blog">Blog</a></li>
 	  <li class="link"><a href="https://github.com/micro/micro">GitHub</a></li>
 	  <li class="link"><a href="{{ site.discord }}">Discord</a></li>
