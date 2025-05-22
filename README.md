@@ -26,18 +26,21 @@ For releases see the [latest](https://github.com/micro/micro/releases/latest) ta
 
 ## Create a service
 
-Create your service and follow the guide
+Create your service (all setup is now automatic!):
 
 ```
 micro new helloworld
 ```
 
-Tidy and make protos
+This will:
+- Create a new service in the `helloworld` directory
+- Automatically run `go mod tidy` and `make proto` for you
+- Show the updated project tree including generated files
+- Warn you if `protoc` is not installed, with install instructions
 
+If you need OpenAPI support, install `protoc-gen-openapi` separately:
 ```
-cd helloworld
-go mod tidy
-make proto
+go install github.com/google/gnostic/plugins/protoc-gen-openapi@latest
 ```
 
 ## Run the service

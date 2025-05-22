@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/build"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -148,6 +149,13 @@ func Run(ctx *cli.Context) error {
 		return nil
 	}
 
+	// Check for protoc
+	if _, err := exec.LookPath("protoc"); err != nil {
+		fmt.Println("WARNING: protoc is not installed or not in your PATH.")
+		fmt.Println("Please install protoc from https://github.com/protocolbuffers/protobuf/releases")
+		fmt.Println("After installing, re-run 'make proto' in your service directory if needed.")
+	}
+
 	var goPath string
 	var goDir string
 
@@ -169,7 +177,7 @@ func Run(ctx *cli.Context) error {
 
 	c := config{
 		Alias:     dir,
-		Comments:  protoComments(goDir, dir),
+		Comments:  nil, // Remove redundant protoComments
 		Dir:       dir,
 		GoDir:     goDir,
 		GoPath:    goPath,
@@ -190,5 +198,61 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// create the files
-	return create(c)
+	if err := create(c); err != nil {
+		return err
+	}
+
+	// Run go mod tidy and make proto
+	fmt.Println("\nRunning 'go mod tidy' and 'make proto'...")
+	if err := runInDir(dir, "go mod tidy"); err != nil {
+		fmt.Printf("Error running 'go mod tidy': %v\n", err)
+	}
+	if err := runInDir(dir, "make proto"); err != nil {
+		fmt.Printf("Error running 'make proto': %v\n", err)
+	}
+
+	// Print updated tree including generated files
+	fmt.Println("\nProject structure after 'make proto':")
+	printTree(dir)
+
+	fmt.Println("\nService created successfully! Start coding in your new service directory.")
+	return nil
+}
+
+func runInDir(dir, cmd string) error {
+	parts := strings.Fields(cmd)
+	c := exec.Command(parts[0], parts[1:]...)
+	c.Dir = dir
+	c.Stdout = os.Stdout
+	c.Stderr = os.Stderr
+	return c.Run()
+}
+
+func printTree(dir string) {
+	t := treeprint.New()
+	walk := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, _ := filepath.Rel(dir, path)
+		if rel == "." {
+			return nil
+		}
+		parts := strings.Split(rel, string(os.PathSeparator))
+		curr := t
+		for i := 0; i < len(parts)-1; i++ {
+			n := curr.FindByValue(parts[i])
+			if n != nil {
+				curr = n
+			} else {
+				curr = curr.AddBranch(parts[i])
+			}
+		}
+		if !info.IsDir() {
+			curr.AddNode(parts[len(parts)-1])
+		}
+		return nil
+	}
+	filepath.Walk(dir, walk)
+	fmt.Println(t.String())
 }
