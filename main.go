@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"strings"
 	"syscall"
@@ -57,6 +59,10 @@ func runHandler(c *cli.Context) error {
 	if err := os.MkdirAll(runDir, 0755); err != nil {
 		return fmt.Errorf("failed to create run dir: %w", err)
 	}
+	binDir := filepath.Join(homeDir, "micro", "bin")
+	if err := os.MkdirAll(binDir, 0755); err != nil {
+		return fmt.Errorf("failed to create bin dir: %w", err)
+	}
 
 	if all {
 		var mainFiles []string
@@ -79,33 +85,44 @@ func runHandler(c *cli.Context) error {
 			return fmt.Errorf("no main.go files found in %s", dir)
 		}
 		var procs []*exec.Cmd
+		var pidFiles []string
 		for _, mainFile := range mainFiles {
 			serviceDir := filepath.Dir(mainFile)
 			serviceName := filepath.Base(serviceDir)
 			logFilePath := filepath.Join(logsDir, serviceName+".log")
+			binPath := filepath.Join(binDir, serviceName)
+			pidFilePath := filepath.Join(runDir, serviceName+".pid")
 			logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "failed to open log file for %s: %v\n", serviceName, err)
 				continue
 			}
-			// Use 'go run .' in the service directory
-			cmd := exec.Command("go", "run", ".")
+			// Build the binary
+			buildCmd := exec.Command("go", "build", "-o", binPath, ".")
+			buildCmd.Dir = serviceDir
+			buildOut, buildErr := buildCmd.CombinedOutput()
+			if buildErr != nil {
+				logFile.WriteString(string(buildOut))
+				lastLine := lastNonEmptyLine(string(buildOut))
+				os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", serviceDir, lastLine)), 0644)
+				fmt.Fprintf(os.Stderr, "failed to build %s: %v\n", serviceName, buildErr)
+				logFile.Close()
+				continue
+			}
+			// Run the binary
+			cmd := exec.Command(binPath)
 			cmd.Dir = serviceDir
 			if daemon {
 				cmd.Stdout = logFile
 				cmd.Stderr = logFile
 				if err := cmd.Start(); err != nil {
+					lastLine := lastLogLine(logFilePath)
+					os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", serviceDir, lastLine)), 0644)
 					fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
 					logFile.Close()
 					continue
 				}
-				// Write pid file
-				pidFilePath := filepath.Join(runDir, serviceName+".pid")
-				pidFile, err := os.Create(pidFilePath)
-				if err == nil {
-					fmt.Fprintf(pidFile, "%d\n%s\n", cmd.Process.Pid, serviceDir)
-					pidFile.Close()
-				}
+				os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, serviceDir)), 0644)
 				fmt.Printf("Started %s (pid %d), logging to %s\n", serviceName, cmd.Process.Pid, logFilePath)
 				logFile.Close()
 			} else {
@@ -118,26 +135,21 @@ func runHandler(c *cli.Context) error {
 					logFile.Close()
 				}(logFile, pr)
 				if err := cmd.Start(); err != nil {
+					lastLine := lastLogLine(logFilePath)
+					os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", serviceDir, lastLine)), 0644)
 					fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
 					pw.Close()
 					continue
 				}
-				// Write pid file
-				pidFilePath := filepath.Join(runDir, serviceName+".pid")
-				pidFile, err := os.Create(pidFilePath)
-				if err == nil {
-					fmt.Fprintf(pidFile, "%d\n%s\n", cmd.Process.Pid, serviceDir)
-					pidFile.Close()
-				}
+				os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, serviceDir)), 0644)
 				fmt.Printf("Started %s (pid %d), logging to %s\n", serviceName, cmd.Process.Pid, logFilePath)
 				procs = append(procs, cmd)
+				pidFiles = append(pidFiles, pidFilePath)
 			}
 		}
 		if !daemon {
-			// Wait for all attached processes to exit
-			for _, proc := range procs {
-				_ = proc.Wait()
-			}
+			// Handle Ctrl+C cleanup
+			waitAndCleanup(procs, pidFiles)
 		}
 		return nil
 	}
@@ -145,26 +157,34 @@ func runHandler(c *cli.Context) error {
 	// single service mode
 	serviceName := filepath.Base(dir)
 	logFilePath := filepath.Join(logsDir, serviceName+".log")
+	binPath := filepath.Join(binDir, serviceName)
+	pidFilePath := filepath.Join(runDir, serviceName+".pid")
 	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to open log file: %w", err)
 	}
 	defer logFile.Close()
-	cmd := exec.Command("go", "run", dir)
+	// Build the binary
+	buildCmd := exec.Command("go", "build", "-o", binPath, dir)
+	buildCmd.Dir = dir
+	buildOut, buildErr := buildCmd.CombinedOutput()
+	if buildErr != nil {
+		logFile.WriteString(string(buildOut))
+		lastLine := lastNonEmptyLine(string(buildOut))
+		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", dir, lastLine)), 0644)
+		return fmt.Errorf("failed to build %s: %v", serviceName, buildErr)
+	}
+	cmd := exec.Command(binPath)
 	cmd.Dir = dir
 	if daemon {
 		cmd.Stdout = logFile
 		cmd.Stderr = logFile
 		if err := cmd.Start(); err != nil {
+			lastLine := lastLogLine(logFilePath)
+			os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", dir, lastLine)), 0644)
 			return err
 		}
-		// Write pid file
-		pidFilePath := filepath.Join(runDir, serviceName+".pid")
-		pidFile, err := os.Create(pidFilePath)
-		if err == nil {
-			fmt.Fprintf(pidFile, "%d\n%s\n", cmd.Process.Pid, dir)
-			pidFile.Close()
-		}
+		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, dir)), 0644)
 		return nil
 	} else {
 		pr, pw := io.Pipe()
@@ -175,16 +195,65 @@ func runHandler(c *cli.Context) error {
 			io.Copy(tee, pr)
 		}()
 		if err := cmd.Start(); err != nil {
+			lastLine := lastLogLine(logFilePath)
+			os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", dir, lastLine)), 0644)
 			return err
 		}
-		// Write pid file
-		pidFilePath := filepath.Join(runDir, serviceName+".pid")
-		pidFile, err := os.Create(pidFilePath)
-		if err == nil {
-			fmt.Fprintf(pidFile, "%d\n%s\n", cmd.Process.Pid, dir)
-			pidFile.Close()
+		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, dir)), 0644)
+		waitAndCleanup([]*exec.Cmd{cmd}, []string{pidFilePath})
+		return nil
+	}
+}
+
+// lastNonEmptyLine returns the last non-empty line from a string
+func lastNonEmptyLine(s string) string {
+	lines := strings.Split(s, "\n")
+	for i := len(lines) - 1; i >= 0; i-- {
+		if strings.TrimSpace(lines[i]) != "" {
+			return lines[i]
 		}
-		return cmd.Wait()
+	}
+	return ""
+}
+
+// lastLogLine returns the last non-empty line from a file
+func lastLogLine(path string) string {
+	f, err := os.Open(path)
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+	var last string
+	scan := bufio.NewScanner(f)
+	for scan.Scan() {
+		if strings.TrimSpace(scan.Text()) != "" {
+			last = scan.Text()
+		}
+	}
+	return last
+}
+
+// waitAndCleanup waits for all procs and removes pid files on exit or Ctrl+C
+func waitAndCleanup(procs []*exec.Cmd, pidFiles []string) {
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, os.Interrupt)
+	go func() {
+		<-ch
+		for _, proc := range procs {
+			if proc.Process != nil {
+				_ = proc.Process.Kill()
+			}
+		}
+		for _, pf := range pidFiles {
+			_ = os.Remove(pf)
+		}
+		os.Exit(1)
+	}()
+	for i, proc := range procs {
+		_ = proc.Wait()
+		if proc.Process != nil {
+			_ = os.Remove(pidFiles[i])
+		}
 	}
 }
 
@@ -309,8 +378,9 @@ func main() {
 						continue
 					}
 					var pid int
-					var dir string
-					fmt.Fscanf(pidFile, "%d\n%s\n", &pid, &dir)
+					var dir, reason string
+					fmt.Fscanf(pidFile, "%d\n%s\nreason: %[^
+]\n", &pid, &dir, &reason)
 					pidFile.Close()
 					status := "stopped"
 					if pid > 0 {
@@ -323,9 +393,80 @@ func main() {
 							}
 						}
 					}
-					fmt.Printf("%-20s %-8d %-8s %s\n", service, pid, status, dir)
+					if reason != "" && status != "running" {
+						fmt.Printf("%-20s %-8d %-8s %-40s %s\n", service, pid, status, reason, dir)
+					} else {
+						fmt.Printf("%-20s %-8d %-8s %-40s %s\n", service, pid, status, "", dir)
+					}
 				}
 				return nil
+			},
+		},
+		{
+			Name:  "stop",
+			Usage: "Stop a running service",
+			Action: func(ctx *cli.Context) error {
+				if ctx.Args().Len() != 1 {
+					return fmt.Errorf("Usage: micro stop [service]")
+				}
+				service := ctx.Args().Get(0)
+				homeDir, err := os.UserHomeDir()
+				if err != nil {
+					return fmt.Errorf("failed to get home dir: %w", err)
+				}
+				runDir := filepath.Join(homeDir, "micro", "run")
+				pidFilePath := filepath.Join(runDir, service+".pid")
+				pidFile, err := os.Open(pidFilePath)
+				if err != nil {
+					return fmt.Errorf("no pid file for service %s", service)
+				}
+				var pid int
+				var dir, reason string
+				fmt.Fscanf(pidFile, "%d\n%s\nreason: %[^
+]\n", &pid, &dir, &reason)
+				pidFile.Close()
+				if pid <= 0 {
+					_ = os.Remove(pidFilePath)
+					return fmt.Errorf("service %s is not running", service)
+				}
+				proc, err := os.FindProcess(pid)
+				if err != nil {
+					_ = os.Remove(pidFilePath)
+					return fmt.Errorf("could not find process for %s", service)
+				}
+				if err := proc.Signal(syscall.SIGTERM); err != nil {
+					_ = os.Remove(pidFilePath)
+					return fmt.Errorf("failed to stop service %s: %v", service, err)
+				}
+				_ = os.Remove(pidFilePath)
+				fmt.Printf("Stopped service %s (pid %d)\n", service, pid)
+				return nil
+			},
+		},
+		{
+			Name:  "logs",
+			Usage: "Show logs for a service",
+			Action: func(ctx *cli.Context) error {
+				if ctx.Args().Len() != 1 {
+					return fmt.Errorf("Usage: micro logs [service]")
+				}
+				service := ctx.Args().Get(0)
+				homeDir, err := os.UserHomeDir()
+				if err != nil {
+					return fmt.Errorf("failed to get home dir: %w", err)
+				}
+				logsDir := filepath.Join(homeDir, "micro", "logs")
+				logFilePath := filepath.Join(logsDir, service+".log")
+				f, err := os.Open(logFilePath)
+				if err != nil {
+					return fmt.Errorf("could not open log file for service %s: %v", service, err)
+				}
+				defer f.Close()
+				scan := bufio.NewScanner(f)
+				for scan.Scan() {
+					fmt.Println(scan.Text())
+				}
+				return scan.Err()
 			},
 		},
 	}...)
