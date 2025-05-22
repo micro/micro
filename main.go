@@ -260,12 +260,12 @@ func waitAndCleanup(procs []*exec.Cmd, pidFiles []string) {
 func main() {
 	cmd.Register([]*cli.Command{
 		{
-			Name:   "run",
-			Usage:  "Run a service",
+			Name:  "run",
+			Usage: "Run a service",
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
-					Name:    "all",
-					Usage:   "Run all services (find all main.go)",
+					Name:  "all",
+					Usage: "Run all services (find all main.go)",
 				},
 				&cli.BoolFlag{
 					Name:    "daemon",
@@ -379,8 +379,7 @@ func main() {
 					}
 					var pid int
 					var dir, reason string
-					fmt.Fscanf(pidFile, "%d\n%s\nreason: %[^
-]\n", &pid, &dir, &reason)
+					fmt.Fscanf(pidFile, "%d\n%s\nreason: [%s]\n", &pid, &dir, &reason)
 					pidFile.Close()
 					status := "stopped"
 					if pid > 0 {
@@ -422,8 +421,7 @@ func main() {
 				}
 				var pid int
 				var dir, reason string
-				fmt.Fscanf(pidFile, "%d\n%s\nreason: %[^
-]\n", &pid, &dir, &reason)
+				fmt.Fscanf(pidFile, "%d\n%s\nreason: [%s]\n", &pid, &dir, &reason)
 				pidFile.Close()
 				if pid <= 0 {
 					_ = os.Remove(pidFilePath)
