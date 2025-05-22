@@ -78,6 +78,7 @@ func runHandler(c *cli.Context) error {
 		if len(mainFiles) == 0 {
 			return fmt.Errorf("no main.go files found in %s", dir)
 		}
+		var procs []*exec.Cmd
 		for _, mainFile := range mainFiles {
 			serviceDir := filepath.Dir(mainFile)
 			serviceName := filepath.Base(serviceDir)
@@ -87,7 +88,8 @@ func runHandler(c *cli.Context) error {
 				fmt.Fprintf(os.Stderr, "failed to open log file for %s: %v\n", serviceName, err)
 				continue
 			}
-			cmd := exec.Command("go", "run", mainFile)
+			// Use 'go run .' in the service directory
+			cmd := exec.Command("go", "run", ".")
 			cmd.Dir = serviceDir
 			if daemon {
 				cmd.Stdout = logFile
@@ -107,15 +109,14 @@ func runHandler(c *cli.Context) error {
 				fmt.Printf("Started %s (pid %d), logging to %s\n", serviceName, cmd.Process.Pid, logFilePath)
 				logFile.Close()
 			} else {
-				// Attach: output to both stdout and log file
 				pr, pw := io.Pipe()
 				cmd.Stdout = pw
 				cmd.Stderr = pw
-				go func() {
+				go func(logFile *os.File, pr *io.PipeReader) {
 					tee := io.MultiWriter(os.Stdout, logFile)
 					io.Copy(tee, pr)
 					logFile.Close()
-				}()
+				}(logFile, pr)
 				if err := cmd.Start(); err != nil {
 					fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
 					pw.Close()
@@ -129,11 +130,14 @@ func runHandler(c *cli.Context) error {
 					pidFile.Close()
 				}
 				fmt.Printf("Started %s (pid %d), logging to %s\n", serviceName, cmd.Process.Pid, logFilePath)
+				procs = append(procs, cmd)
 			}
 		}
 		if !daemon {
-			// Wait for all attached processes
-			return nil // In --all mode, don't block on children, just start them
+			// Wait for all attached processes to exit
+			for _, proc := range procs {
+				_ = proc.Wait()
+			}
 		}
 		return nil
 	}
