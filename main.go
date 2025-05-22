@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+	"syscall"
 
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/client"
@@ -293,7 +295,7 @@ func main() {
 				}
 				fmt.Printf("%-20s %-8s %-8s %s\n", "SERVICE", "PID", "STATUS", "DIRECTORY")
 				for _, f := range files {
-					if f.IsDir() || !filepath.HasSuffix(f.Name(), ".pid") {
+					if f.IsDir() || !strings.HasSuffix(f.Name(), ".pid") {
 						continue
 					}
 					service := f.Name()[:len(f.Name())-4]
@@ -308,11 +310,11 @@ func main() {
 					pidFile.Close()
 					status := "stopped"
 					if pid > 0 {
-						// Check if process is running
 						proc, err := os.FindProcess(pid)
 						if err == nil {
-							// On unix, sending signal 0 checks if running
-							if err := proc.Signal(os.Signal(0)); err == nil {
+							// On unix, sending syscall.Signal(0) checks if running
+							// import "syscall" at the top
+							if err := proc.Signal(syscall.Signal(0)); err == nil {
 								status = "running"
 							}
 						}
