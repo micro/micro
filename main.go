@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/client"
@@ -34,13 +36,75 @@ func genProtoHandler(c *cli.Context) error {
 }
 
 func runHandler(c *cli.Context) error {
+	all := c.Bool("all")
 	dir := c.Args().Get(0)
 	if len(dir) == 0 {
 		dir = "."
 	}
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("failed to get home dir: %w", err)
+	}
+	logsDir := filepath.Join(homeDir, "micro", "logs")
+	if err := os.MkdirAll(logsDir, 0755); err != nil {
+		return fmt.Errorf("failed to create logs dir: %w", err)
+	}
+
+	if all {
+		var mainFiles []string
+		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() {
+				return nil
+			}
+			if info.Name() == "main.go" {
+				mainFiles = append(mainFiles, path)
+			}
+			return nil
+		})
+		if err != nil {
+			return fmt.Errorf("error walking the path: %w", err)
+		}
+		if len(mainFiles) == 0 {
+			return fmt.Errorf("no main.go files found in %s", dir)
+		}
+		for _, mainFile := range mainFiles {
+			serviceDir := filepath.Dir(mainFile)
+			serviceName := filepath.Base(serviceDir)
+			logFilePath := filepath.Join(logsDir, serviceName+".log")
+			logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "failed to open log file for %s: %v\n", serviceName, err)
+				continue
+			}
+			cmd := exec.Command("go", "run", mainFile)
+			cmd.Stdout = logFile
+			cmd.Stderr = logFile
+			if err := cmd.Start(); err != nil {
+				fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
+				logFile.Close()
+				continue
+			}
+			fmt.Printf("Started %s (pid %d), logging to %s\n", serviceName, cmd.Process.Pid, logFilePath)
+			logFile.Close()
+		}
+		return nil
+	}
+
+	// single service mode
+	serviceName := filepath.Base(dir)
+	logFilePath := filepath.Join(logsDir, serviceName+".log")
+	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to open log file: %w", err)
+	}
+	defer logFile.Close()
 	cmd := exec.Command("go", "run", dir)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = logFile
+	cmd.Stderr = logFile
 	return cmd.Run()
 }
 
@@ -49,6 +113,12 @@ func main() {
 		{
 			Name:   "run",
 			Usage:  "Run a service",
+			Flags: []cli.Flag{
+				&cli.BoolFlag{
+					Name:    "all",
+					Usage:   "Run all services (find all main.go)",
+				},
+			},
 			Action: runHandler,
 		},
 		{
