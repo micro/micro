@@ -47,6 +47,26 @@ func runHandler(c *cli.Context) error {
 		dir = "."
 	}
 
+	// Detect git URL and clone if needed
+	isGitURL := strings.HasPrefix(dir, "github.com/") || strings.HasPrefix(dir, "https://") || strings.HasPrefix(dir, "git@")
+	if isGitURL {
+		tmpDir, err := os.MkdirTemp("", "micro-git-")
+		if err != nil {
+			return fmt.Errorf("failed to create temp dir: %w", err)
+		}
+		gitURL := dir
+		if strings.HasPrefix(dir, "github.com/") {
+			gitURL = "https://" + dir
+		}
+		cmd := exec.Command("git", "clone", gitURL, tmpDir)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("failed to clone repo: %w", err)
+		}
+		dir = tmpDir
+	}
+
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return fmt.Errorf("failed to get home dir: %w", err)
