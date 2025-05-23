@@ -94,21 +94,6 @@ func waitAndCleanup(procs []*exec.Cmd, pidFiles []string) {
 func main() {
 	cmd.Register([]*cli.Command{
 		{
-			Name:  "run",
-			Usage: "Run a service",
-			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:  "all",
-					Usage: "Run all services (find all main.go)",
-				},
-				&cli.BoolFlag{
-					Name:    "daemon",
-					Aliases: []string{"d"},
-					Usage:   "Daemonize (detach and only log to file)",
-				},
-			},
-		},
-		{
 			Name:  "gen",
 			Usage: "Generate various things",
 			Subcommands: []*cli.Command{
