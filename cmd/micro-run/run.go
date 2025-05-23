@@ -7,8 +7,7 @@ import (
 	"os/signal"
 	"fmt"
 	"path/filepath"
-	"strings"
-	"syscall"
+	"bufio"
 
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/cmd"
@@ -30,7 +29,6 @@ func colorFor(idx int) string {
 
 func Run(c *cli.Context) error {
 	all := c.Bool("all")
-	daemon := c.Bool("daemon")
 	dir := c.Args().Get(0)
 	if len(dir) == 0 {
 		dir = "."
