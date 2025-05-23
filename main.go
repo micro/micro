@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -108,7 +107,6 @@ func main() {
 					Usage:   "Daemonize (detach and only log to file)",
 				},
 			},
-			Action: runHandler,
 		},
 		{
 			Name:  "gen",
