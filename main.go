@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -23,6 +22,7 @@ import (
 	_ "github.com/micro/micro/v5/cmd/micro-cli"
 	_ "github.com/micro/micro/v5/cmd/micro-mcp"
 	_ "github.com/micro/micro/v5/cmd/micro-web"
+	_ "github.com/micro/micro/v5/cmd/micro-run"
 	"github.com/micro/micro/v5/util"
 )
 
@@ -37,192 +37,6 @@ func genProtoHandler(c *cli.Context) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
-}
-
-func runHandler(c *cli.Context) error {
-	all := c.Bool("all")
-	daemon := c.Bool("daemon")
-	dir := c.Args().Get(0)
-	if len(dir) == 0 {
-		dir = "."
-	}
-
-	// Detect git URL and clone if needed
-	isGitURL := strings.HasPrefix(dir, "github.com/") || strings.HasPrefix(dir, "https://") || strings.HasPrefix(dir, "git@")
-	if isGitURL {
-		tmpDir, err := os.MkdirTemp("", "micro-git-")
-		if err != nil {
-			return fmt.Errorf("failed to create temp dir: %w", err)
-		}
-		gitURL := dir
-		if strings.HasPrefix(dir, "github.com/") {
-			gitURL = "https://" + dir
-		}
-		cmd := exec.Command("git", "clone", gitURL, tmpDir)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("failed to clone repo: %w", err)
-		}
-		dir = tmpDir
-	}
-
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("failed to get home dir: %w", err)
-	}
-	logsDir := filepath.Join(homeDir, "micro", "logs")
-	if err := os.MkdirAll(logsDir, 0755); err != nil {
-		return fmt.Errorf("failed to create logs dir: %w", err)
-	}
-	runDir := filepath.Join(homeDir, "micro", "run")
-	if err := os.MkdirAll(runDir, 0755); err != nil {
-		return fmt.Errorf("failed to create run dir: %w", err)
-	}
-	binDir := filepath.Join(homeDir, "micro", "bin")
-	if err := os.MkdirAll(binDir, 0755); err != nil {
-		return fmt.Errorf("failed to create bin dir: %w", err)
-	}
-
-	if all {
-		var mainFiles []string
-		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if info.IsDir() {
-				return nil
-			}
-			if info.Name() == "main.go" {
-				mainFiles = append(mainFiles, path)
-			}
-			return nil
-		})
-		if err != nil {
-			return fmt.Errorf("error walking the path: %w", err)
-		}
-		if len(mainFiles) == 0 {
-			return fmt.Errorf("no main.go files found in %s", dir)
-		}
-		var procs []*exec.Cmd
-		var pidFiles []string
-		for _, mainFile := range mainFiles {
-			serviceDir := filepath.Dir(mainFile)
-			serviceName := filepath.Base(serviceDir)
-			logFilePath := filepath.Join(logsDir, serviceName+".log")
-			binPath := filepath.Join(binDir, serviceName)
-			pidFilePath := filepath.Join(runDir, serviceName+".pid")
-			logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "failed to open log file for %s: %v\n", serviceName, err)
-				continue
-			}
-			// Build the binary
-			buildCmd := exec.Command("go", "build", "-o", binPath, ".")
-			buildCmd.Dir = serviceDir
-			buildOut, buildErr := buildCmd.CombinedOutput()
-			if buildErr != nil {
-				logFile.WriteString(string(buildOut))
-				lastLine := lastNonEmptyLine(string(buildOut))
-				os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", serviceDir, lastLine)), 0644)
-				fmt.Fprintf(os.Stderr, "failed to build %s: %v\n", serviceName, buildErr)
-				logFile.Close()
-				continue
-			}
-			// Run the binary
-			cmd := exec.Command(binPath)
-			cmd.Dir = serviceDir
-			if daemon {
-				cmd.Stdout = logFile
-				cmd.Stderr = logFile
-				if err := cmd.Start(); err != nil {
-					lastLine := lastLogLine(logFilePath)
-					os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", serviceDir, lastLine)), 0644)
-					fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
-					logFile.Close()
-					continue
-				}
-				os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, serviceDir)), 0644)
-				fmt.Printf("Started %s (pid %d), logging to %s\n", serviceName, cmd.Process.Pid, logFilePath)
-				logFile.Close()
-			} else {
-				pr, pw := io.Pipe()
-				cmd.Stdout = pw
-				cmd.Stderr = pw
-				go func(logFile *os.File, pr *io.PipeReader) {
-					tee := io.MultiWriter(os.Stdout, logFile)
-					io.Copy(tee, pr)
-					logFile.Close()
-				}(logFile, pr)
-				if err := cmd.Start(); err != nil {
-					lastLine := lastLogLine(logFilePath)
-					os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", serviceDir, lastLine)), 0644)
-					fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
-					pw.Close()
-					continue
-				}
-				os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, serviceDir)), 0644)
-				fmt.Printf("Started %s (pid %d), logging to %s\n", serviceName, cmd.Process.Pid, logFilePath)
-				procs = append(procs, cmd)
-				pidFiles = append(pidFiles, pidFilePath)
-			}
-		}
-		if !daemon {
-			// Handle Ctrl+C cleanup
-			waitAndCleanup(procs, pidFiles)
-		}
-		return nil
-	}
-
-	// single service mode
-	serviceName := filepath.Base(dir)
-	logFilePath := filepath.Join(logsDir, serviceName+".log")
-	binPath := filepath.Join(binDir, serviceName)
-	pidFilePath := filepath.Join(runDir, serviceName+".pid")
-	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		return fmt.Errorf("failed to open log file: %w", err)
-	}
-	defer logFile.Close()
-	// Build the binary
-	buildCmd := exec.Command("go", "build", "-o", binPath, dir)
-	buildCmd.Dir = dir
-	buildOut, buildErr := buildCmd.CombinedOutput()
-	if buildErr != nil {
-		logFile.WriteString(string(buildOut))
-		lastLine := lastNonEmptyLine(string(buildOut))
-		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", dir, lastLine)), 0644)
-		return fmt.Errorf("failed to build %s: %v", serviceName, buildErr)
-	}
-	cmd := exec.Command(binPath)
-	cmd.Dir = dir
-	if daemon {
-		cmd.Stdout = logFile
-		cmd.Stderr = logFile
-		if err := cmd.Start(); err != nil {
-			lastLine := lastLogLine(logFilePath)
-			os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", dir, lastLine)), 0644)
-			return err
-		}
-		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, dir)), 0644)
-		return nil
-	} else {
-		pr, pw := io.Pipe()
-		cmd.Stdout = pw
-		cmd.Stderr = pw
-		go func() {
-			tee := io.MultiWriter(os.Stdout, logFile)
-			io.Copy(tee, pr)
-		}()
-		if err := cmd.Start(); err != nil {
-			lastLine := lastLogLine(logFilePath)
-			os.WriteFile(pidFilePath, []byte(fmt.Sprintf("0\n%s\nreason: %s\n", dir, lastLine)), 0644)
-			return err
-		}
-		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, dir)), 0644)
-		waitAndCleanup([]*exec.Cmd{cmd}, []string{pidFilePath})
-		return nil
-	}
 }
 
 // lastNonEmptyLine returns the last non-empty line from a string
@@ -279,22 +93,6 @@ func waitAndCleanup(procs []*exec.Cmd, pidFiles []string) {
 
 func main() {
 	cmd.Register([]*cli.Command{
-		{
-			Name:  "run",
-			Usage: "Run a service",
-			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:  "all",
-					Usage: "Run all services (find all main.go)",
-				},
-				&cli.BoolFlag{
-					Name:    "daemon",
-					Aliases: []string{"d"},
-					Usage:   "Daemonize (detach and only log to file)",
-				},
-			},
-			Action: runHandler,
-		},
 		{
 			Name:  "gen",
 			Usage: "Generate various things",
