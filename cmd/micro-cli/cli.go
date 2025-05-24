@@ -18,6 +18,7 @@ import (
 	"go-micro.dev/v5/registry"
 	"go-micro.dev/v5/broker"
 	"go-micro.dev/v5/config"
+	"go-micro.dev/v5/store"
 )
 
 var (
@@ -157,7 +158,7 @@ var commands = []Command{
 				if len(args) < 3 {
 					return fmt.Errorf("Usage: config set [key] [value]")
 				}
-				err := config.Set(args[1], args[2])
+				err := config.DefaultConfig.Set(args[1], args[2])
 				if err != nil {
 					return err
 				}
@@ -295,6 +296,19 @@ func Run(c *cli.Context) error {
 			}
 		}
 	}
+}
+
+func tableWriteOption(table string) store.WriteOption {
+	return store.WriteOption(store.Table(table))
+}
+func tableReadOption(table string) store.ReadOption {
+	return store.ReadOption(store.Table(table))
+}
+func tableDeleteOption(table string) store.DeleteOption {
+	return store.DeleteOption(store.Table(table))
+}
+func prefixReadOption() store.ReadOption {
+	return store.ReadOption(store.Prefix())
 }
 
 func init() {

@@ -146,7 +146,6 @@ func tableReadOption(table string) store.ReadOption {
 func tableDeleteOption(table string) store.DeleteOption {
 	return store.DeleteOption(store.Table(table))
 }
-// Helper for store.Prefix as ReadOption
 func prefixReadOption() store.ReadOption {
 	return store.ReadOption(store.Prefix())
 }

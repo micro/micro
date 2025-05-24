@@ -286,7 +286,7 @@ func init() {
 					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
 					return
 				}
-				b, _ := json.Marshal(map[string]interface{}{ "key": key, "value": val.String() })
+				b, _ := json.Marshal(map[string]interface{}{ "key": key, "value": val.String("") })
 				w.Write(b)
 				return
 			case "/config/set":
