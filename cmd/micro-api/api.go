@@ -13,6 +13,7 @@ import (
 	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/errors"
+	"go-micro.dev/v5/store"
 	"tailscale.com/tsnet"
 )
 
@@ -53,6 +54,398 @@ func init() {
 			// write the response
 			w.Write(rsp.Data)
 			return
+		}
+
+		if strings.HasPrefix(r.URL.Path, "/store/") {
+			w.Header().Set("Content-Type", "application/json")
+			switch r.URL.Path {
+			case "/store/write":
+				if r.Method != "POST" {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				var req struct {
+					Key   string `json:"key"`
+					Value string `json:"value"`
+					Table string `json:"table,omitempty"`
+				}
+				if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"invalid request body"}`))
+					return
+				}
+				rec := &store.Record{Key: req.Key, Value: []byte(req.Value)}
+				var opts []store.WriteOption
+				if req.Table != "" {
+					opts = append(opts, store.Table(req.Table))
+				}
+				if err := store.DefaultStore.Write(rec, opts...); err != nil {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				w.Write([]byte(`{"result":"ok"}`))
+				return
+			case "/store/read":
+				if r.Method != "GET" {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				key := r.URL.Query().Get("key")
+				table := r.URL.Query().Get("table")
+				if key == "" {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"missing key"}`))
+					return
+				}
+				var opts []store.ReadOption
+				if table != "" {
+					opts = append(opts, store.Table(table))
+				}
+				recs, err := store.DefaultStore.Read(key, opts...)
+				if err != nil {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusNotFound)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				if len(recs) == 0 {
+					w.Header().Set("Content-Type", "application/json")
+					w.Write([]byte(`{"error":"not found"}`))
+					return
+				}
+				resp := map[string]interface{}{"key": recs[0].Key, "value": string(recs[0].Value)}
+				if recs[0].Expiry > 0 {
+					resp["expiry"] = recs[0].Expiry
+				}
+				b, _ := json.Marshal(resp)
+				w.Write(b)
+				return
+			case "/store/delete":
+				if r.Method != "DELETE" {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				var req struct {
+					Key   string `json:"key"`
+					Table string `json:"table,omitempty"`
+				}
+				if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"invalid request body"}`))
+					return
+				}
+				var opts []store.DeleteOption
+				if req.Table != "" {
+					opts = append(opts, store.Table(req.Table))
+				}
+				if err := store.DefaultStore.Delete(req.Key, opts...); err != nil {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				w.Write([]byte(`{"result":"ok"}`))
+				return
+			case "/store/list":
+				if r.Method != "GET" {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				prefix := r.URL.Query().Get("prefix")
+				table := r.URL.Query().Get("table")
+				var opts []store.ReadOption
+				if table != "" {
+					opts = append(opts, store.Table(table))
+				}
+				if prefix != "" {
+					opts = append(opts, store.Prefix())
+				}
+				recs, err := store.DefaultStore.Read(prefix, opts...)
+				if err != nil {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				keys := make([]string, 0, len(recs))
+				for _, rec := range recs {
+					keys = append(keys, rec.Key)
+				}
+				b, _ := json.Marshal(map[string]interface{}{ "keys": keys })
+				w.Write(b)
+				return
+			}
+		}
+
+		// --- Broker API ---
+		if strings.HasPrefix(r.URL.Path, "/broker/") {
+			w.Header().Set("Content-Type", "application/json")
+			switch r.URL.Path {
+			case "/broker/publish":
+				if r.Method != "POST" {
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				var req struct {
+					Topic   string `json:"topic"`
+					Message string `json:"message"`
+				}
+				if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"invalid request body"}`))
+					return
+				}
+				if req.Topic == "" || req.Message == "" {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"missing topic or message"}`))
+					return
+				}
+				if err := broker.DefaultBroker.Publish(req.Topic, &broker.Message{Body: []byte(req.Message)}); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				w.Write([]byte(`{"result":"ok"}`))
+				return
+			case "/broker/subscribe":
+				if r.Method != "POST" {
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				var req struct {
+					Topic string `json:"topic"`
+				}
+				if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"invalid request body"}`))
+					return
+				}
+				if req.Topic == "" {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"missing topic"}`))
+					return
+				}
+				ch := make(chan *broker.Message, 1)
+				_, err := broker.DefaultBroker.Subscribe(req.Topic, func(p broker.Event) error {
+					ch <- p.Message()
+					return nil
+				})
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				select {
+				case msg := <-ch:
+					w.Write([]byte(`{"topic":"` + req.Topic + `","message":"` + string(msg.Body) + `"}`))
+				case <-r.Context().Done():
+					w.WriteHeader(http.StatusRequestTimeout)
+					w.Write([]byte(`{"error":"timeout"}`))
+				}
+				return
+			}
+		}
+
+		// --- Config API ---
+		if strings.HasPrefix(r.URL.Path, "/config/") {
+			w.Header().Set("Content-Type", "application/json")
+			switch r.URL.Path {
+			case "/config/get":
+				if r.Method != "GET" {
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				key := r.URL.Query().Get("key")
+				if key == "" {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"missing key"}`))
+					return
+				}
+				val, err := config.DefaultConfig.Get(key)
+				if err != nil {
+					w.WriteHeader(http.StatusNotFound)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				b, _ := json.Marshal(map[string]interface{}{ "key": key, "value": val.String() })
+				w.Write(b)
+				return
+			case "/config/set":
+				if r.Method != "POST" {
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				var req struct {
+					Key   string `json:"key"`
+					Value string `json:"value"`
+				}
+				if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"invalid request body"}`))
+					return
+				}
+				if req.Key == "" {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"missing key"}`))
+					return
+				}
+				if err := config.DefaultConfig.Set(req.Key, req.Value); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				w.Write([]byte(`{"result":"ok"}`))
+				return
+			case "/config/delete":
+				if r.Method != "DELETE" {
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				var req struct {
+					Key string `json:"key"`
+				}
+				if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"invalid request body"}`))
+					return
+				}
+				if req.Key == "" {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"missing key"}`))
+					return
+				}
+				if err := config.DefaultConfig.Delete(req.Key); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				w.Write([]byte(`{"result":"ok"}`))
+				return
+			case "/config/list":
+				if r.Method != "GET" {
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				vals, err := config.DefaultConfig.List()
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				b, _ := json.Marshal(map[string]interface{}{ "keys": vals })
+				w.Write(b)
+				return
+			}
+		}
+
+		// --- Registry API ---
+		if strings.HasPrefix(r.URL.Path, "/registry/") {
+			w.Header().Set("Content-Type", "application/json")
+			switch r.URL.Path {
+			case "/registry/list":
+				if r.Method != "GET" {
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				services, err := registry.DefaultRegistry.ListServices()
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				b, _ := json.Marshal(map[string]interface{}{ "services": services })
+				w.Write(b)
+				return
+			case "/registry/get":
+				if r.Method != "GET" {
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				name := r.URL.Query().Get("name")
+				if name == "" {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"missing name"}`))
+					return
+				}
+				svc, err := registry.DefaultRegistry.GetService(name)
+				if err != nil {
+					w.WriteHeader(http.StatusNotFound)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				b, _ := json.Marshal(map[string]interface{}{ "service": svc })
+				w.Write(b)
+				return
+			case "/registry/register":
+				if r.Method != "POST" {
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				var req registry.Service
+				if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"invalid request body"}`))
+					return
+				}
+				if req.Name == "" {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"missing name"}`))
+					return
+				}
+				if err := registry.DefaultRegistry.Register(&req); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				w.Write([]byte(`{"result":"ok"}`))
+				return
+			case "/registry/deregister":
+				if r.Method != "POST" {
+					w.WriteHeader(http.StatusMethodNotAllowed)
+					w.Write([]byte(`{"error":"method not allowed"}`))
+					return
+				}
+				var req registry.Service
+				if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"invalid request body"}`))
+					return
+				}
+				if req.Name == "" {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte(`{"error":"missing name"}`))
+					return
+				}
+				if err := registry.DefaultRegistry.Deregister(&req); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+					return
+				}
+				w.Write([]byte(`{"result":"ok"}`))
+				return
+			}
 		}
 
 		parts := strings.Split(r.URL.Path, "/")
