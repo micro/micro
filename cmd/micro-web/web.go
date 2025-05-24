@@ -136,15 +136,15 @@ func rpcCall(service, endpoint string, request []byte) ([]byte, error) {
 	return rsp.Data, nil
 }
 
-// Helper for store.Table as WriteOption, ReadOption, DeleteOption
+// Helper for store.Table as WriteOption, ReadOption, DeleteOption (using store.WriteTable, store.ReadTable, store.DeleteTable)
 func tableWriteOption(table string) store.WriteOption {
-	return store.WriteOption(store.Table(table))
+	return store.WriteTable(table)
 }
 func tableReadOption(table string) store.ReadOption {
-	return store.ReadOption(store.Table(table))
+	return store.ReadTable(table)
 }
 func tableDeleteOption(table string) store.DeleteOption {
-	return store.DeleteOption(store.Table(table))
+	return store.DeleteTable(table)
 }
 func prefixReadOption() store.ReadOption {
 	return store.ReadOption(store.Prefix())
@@ -362,7 +362,7 @@ func init() {
 				table := r.FormValue("table")
 				var opts []store.ReadOption
 				if table != "" {
-					opts = append(opts, store.Table(table))
+					opts = append(opts, tableReadOption(table))
 				}
 				if prefix != "" {
 					opts = append(opts, prefixReadOption())
