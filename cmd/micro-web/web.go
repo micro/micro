@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/urfave/cli/v2"
+	"go-micro.dev/v5/broker"
 	"go-micro.dev/v5/client"
 	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/codec/bytes"
@@ -133,6 +134,21 @@ func rpcCall(service, endpoint string, request []byte) ([]byte, error) {
 	}
 
 	return rsp.Data, nil
+}
+
+// Helper for store.Table as WriteOption, ReadOption, DeleteOption
+func tableWriteOption(table string) store.WriteOption {
+	return store.WriteOption(store.Table(table))
+}
+func tableReadOption(table string) store.ReadOption {
+	return store.ReadOption(store.Table(table))
+}
+func tableDeleteOption(table string) store.DeleteOption {
+	return store.DeleteOption(store.Table(table))
+}
+// Helper for store.Prefix as ReadOption
+func prefixReadOption() store.ReadOption {
+	return store.ReadOption(store.Prefix())
 }
 
 func init() {
@@ -305,7 +321,7 @@ func init() {
 				rec := &store.Record{Key: key, Value: []byte(value)}
 				var opts []store.WriteOption
 				if table != "" {
-					opts = append(opts, store.Table(table))
+					opts = append(opts, tableWriteOption(table))
 				}
 				err := store.DefaultStore.Write(rec, opts...)
 				if err != nil {
@@ -318,7 +334,7 @@ func init() {
 				table := r.FormValue("table")
 				var opts []store.ReadOption
 				if table != "" {
-					opts = append(opts, store.Table(table))
+					opts = append(opts, tableReadOption(table))
 				}
 				recs, err := store.DefaultStore.Read(key, opts...)
 				if err != nil {
@@ -334,7 +350,7 @@ func init() {
 				table := r.FormValue("table")
 				var opts []store.DeleteOption
 				if table != "" {
-					opts = append(opts, store.Table(table))
+					opts = append(opts, tableDeleteOption(table))
 				}
 				err := store.DefaultStore.Delete(key, opts...)
 				if err != nil {
@@ -350,7 +366,7 @@ func init() {
 					opts = append(opts, store.Table(table))
 				}
 				if prefix != "" {
-					opts = append(opts, store.Prefix())
+					opts = append(opts, prefixReadOption())
 				}
 				recs, err := store.DefaultStore.Read(prefix, opts...)
 				if err != nil {

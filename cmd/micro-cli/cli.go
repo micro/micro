@@ -137,42 +137,34 @@ var commands = []Command{
 	},
 	{
 		Name:  "config",
-		Usage: "Config admin commands (get, set, delete, list)",
+		Usage: "Config admin commands (get, set, list)",
 		Action: func(ctx *cli.Context, args []string) error {
 			if len(args) < 1 {
-				return fmt.Errorf("Usage: config [get|set|delete|list] ...")
+				return fmt.Errorf("Usage: config [get|set|list] ...")
 			}
 			switch args[0] {
 			case "get":
 				if len(args) < 2 {
 					return fmt.Errorf("Usage: config get [key]")
 				}
-				val, err := config.DefaultConfig.Get(args[1])
+				val, err := config.Get(args[1])
 				if err != nil {
 					return err
 				}
-				fmt.Println(val.String())
+				fmt.Println(val)
 				return nil
 			case "set":
 				if len(args) < 3 {
 					return fmt.Errorf("Usage: config set [key] [value]")
 				}
-				if err := config.DefaultConfig.Set(args[1], args[2]); err != nil {
+				err := config.Set(args[1], args[2])
+				if err != nil {
 					return err
 				}
 				fmt.Println("Set OK")
 				return nil
-			case "delete":
-				if len(args) < 2 {
-					return fmt.Errorf("Usage: config delete [key]")
-				}
-				if err := config.DefaultConfig.Delete(args[1]); err != nil {
-					return err
-				}
-				fmt.Println("Delete OK")
-				return nil
 			case "list":
-				vals, err := config.DefaultConfig.List()
+				vals, err := config.Values()
 				if err != nil {
 					return err
 				}

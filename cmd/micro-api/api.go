@@ -3,17 +3,19 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"go-micro.dev/v5/broker"
+	"go-micro.dev/v5/client"
+	"go-micro.dev/v5/cmd"
+	"go-micro.dev/v5/codec/bytes"
+	"go-micro.dev/v5/config"
+	"go-micro.dev/v5/errors"
+	"go-micro.dev/v5/store"
 	"io"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/urfave/cli/v2"
-	"go-micro.dev/v5/client"
-	"go-micro.dev/v5/cmd"
-	"go-micro.dev/v5/codec/bytes"
-	"go-micro.dev/v5/errors"
-	"go-micro.dev/v5/store"
 	"tailscale.com/tsnet"
 )
 
@@ -80,7 +82,7 @@ func init() {
 				rec := &store.Record{Key: req.Key, Value: []byte(req.Value)}
 				var opts []store.WriteOption
 				if req.Table != "" {
-					opts = append(opts, store.Table(req.Table))
+					opts = append(opts, tableWriteOption(req.Table))
 				}
 				if err := store.DefaultStore.Write(rec, opts...); err != nil {
 					w.Header().Set("Content-Type", "application/json")
@@ -107,7 +109,7 @@ func init() {
 				}
 				var opts []store.ReadOption
 				if table != "" {
-					opts = append(opts, store.Table(table))
+					opts = append(opts, tableReadOption(table))
 				}
 				recs, err := store.DefaultStore.Read(key, opts...)
 				if err != nil {
@@ -147,7 +149,7 @@ func init() {
 				}
 				var opts []store.DeleteOption
 				if req.Table != "" {
-					opts = append(opts, store.Table(req.Table))
+					opts = append(opts, tableDeleteOption(req.Table))
 				}
 				if err := store.DefaultStore.Delete(req.Key, opts...); err != nil {
 					w.Header().Set("Content-Type", "application/json")
@@ -168,10 +170,10 @@ func init() {
 				table := r.URL.Query().Get("table")
 				var opts []store.ReadOption
 				if table != "" {
-					opts = append(opts, store.Table(table))
+					opts = append(opts, tableReadOption(table))
 				}
 				if prefix != "" {
-					opts = append(opts, store.Prefix())
+					opts = append(opts, prefixReadOption())
 				}
 				recs, err := store.DefaultStore.Read(prefix, opts...)
 				if err != nil {
@@ -529,4 +531,19 @@ func init() {
 			return http.ListenAndServe(":8080", h)
 		},
 	})
+}
+
+// Helper for store.Table as WriteOption, ReadOption, DeleteOption
+func tableWriteOption(table string) store.WriteOption {
+	return store.WriteOption(store.Table(table))
+}
+func tableReadOption(table string) store.ReadOption {
+	return store.ReadOption(store.Table(table))
+}
+func tableDeleteOption(table string) store.DeleteOption {
+	return store.DeleteOption(store.Table(table))
+}
+// Helper for store.Prefix as ReadOption
+func prefixReadOption() store.ReadOption {
+	return store.ReadOption(store.Prefix())
 }
