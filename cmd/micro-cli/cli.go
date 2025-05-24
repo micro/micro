@@ -137,10 +137,10 @@ var commands = []Command{
 	},
 	{
 		Name:  "config",
-		Usage: "Config admin commands (get, set, list)",
+		Usage: "Config admin commands (get, set)",
 		Action: func(ctx *cli.Context, args []string) error {
 			if len(args) < 1 {
-				return fmt.Errorf("Usage: config [get|set|list] ...")
+				return fmt.Errorf("Usage: config [get|set] ...")
 			}
 			switch args[0] {
 			case "get":
@@ -162,14 +162,6 @@ var commands = []Command{
 					return err
 				}
 				fmt.Println("Set OK")
-				return nil
-			case "list":
-				vals, err := config.Values()
-				if err != nil {
-					return err
-				}
-				b, _ := json.MarshalIndent(vals, "", "    ")
-				fmt.Println(string(b))
 				return nil
 			default:
 				return fmt.Errorf("Unknown config command: %s", args[0])

@@ -461,15 +461,6 @@ func init() {
 			  <input name="value" placeholder="Value">
 			  <button>Set</button>
 			</form>
-			<form action="/config/delete" method="POST">
-			  <h3>Delete</h3>
-			  <input name="key" placeholder="Key">
-			  <button>Delete</button>
-			</form>
-			<form action="/config/list" method="POST">
-			  <h3>List</h3>
-			  <button>List</button>
-			</form>
 			`
 			render(w, configHTML)
 			return
@@ -497,23 +488,6 @@ func init() {
 					output = "<div>Error: " + err.Error() + "</div>" + backLink
 				} else {
 					output = "<div>Set OK</div>" + backLink
-				}
-			case "/config/delete":
-				key := r.FormValue("key")
-				if key == "" {
-					output = "<div>Error: missing key</div>" + backLink
-				} else if err := config.DefaultConfig.Delete(key); err != nil {
-					output = "<div>Error: " + err.Error() + "</div>" + backLink
-				} else {
-					output = "<div>Delete OK</div>" + backLink
-				}
-			case "/config/list":
-				vals, err := config.DefaultConfig.List()
-				if err != nil {
-					output = "<div>Error: " + err.Error() + "</div>" + backLink
-				} else {
-					pretty, _ := json.MarshalIndent(vals, "", "    ")
-					output = "<pre>" + string(pretty) + "</pre>" + backLink
 				}
 			default:
 				w.WriteHeader(404)

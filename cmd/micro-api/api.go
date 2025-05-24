@@ -9,6 +9,7 @@ import (
 	"go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/config"
 	"go-micro.dev/v5/errors"
+	"go-micro.dev/v5/registry"
 	"go-micro.dev/v5/store"
 	"io"
 	"net/http"
@@ -314,47 +315,6 @@ func init() {
 					return
 				}
 				w.Write([]byte(`{"result":"ok"}`))
-				return
-			case "/config/delete":
-				if r.Method != "DELETE" {
-					w.WriteHeader(http.StatusMethodNotAllowed)
-					w.Write([]byte(`{"error":"method not allowed"}`))
-					return
-				}
-				var req struct {
-					Key string `json:"key"`
-				}
-				if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-					w.WriteHeader(http.StatusBadRequest)
-					w.Write([]byte(`{"error":"invalid request body"}`))
-					return
-				}
-				if req.Key == "" {
-					w.WriteHeader(http.StatusBadRequest)
-					w.Write([]byte(`{"error":"missing key"}`))
-					return
-				}
-				if err := config.DefaultConfig.Delete(req.Key); err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
-					return
-				}
-				w.Write([]byte(`{"result":"ok"}`))
-				return
-			case "/config/list":
-				if r.Method != "GET" {
-					w.WriteHeader(http.StatusMethodNotAllowed)
-					w.Write([]byte(`{"error":"method not allowed"}`))
-					return
-				}
-				vals, err := config.DefaultConfig.List()
-				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(`{"error":"` + err.Error() + `"}`))
-					return
-				}
-				b, _ := json.Marshal(map[string]interface{}{ "keys": vals })
-				w.Write(b)
 				return
 			}
 		}
