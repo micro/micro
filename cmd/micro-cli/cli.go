@@ -1,4 +1,4 @@
-package cli
+oppackage cli
 
 import (
 	"bufio"
@@ -16,7 +16,7 @@ import (
 	"go-micro.dev/v5/registry"
 
 	"github.com/micro/micro/v5/cmd/micro-cli/new"
-	"github.com/micro/micro/v5/util"
+	"github.com/micro/micro/v5/cmd/micro-cli/util"
 )
 
 var (
