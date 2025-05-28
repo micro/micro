@@ -125,7 +125,7 @@ func Run(c *cli.Context) error {
 
 	if useSSE {
 		// Use the SSE server from the mcp-go/server package, passing the MCP server
-		return server.NewSSEServer(s).Start()
+		return server.NewSSEServer(s).Start(":8081")
 	}
 
 	// Start the stdio server
@@ -143,7 +143,7 @@ func init() {
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:  "sse",
-				Usage: "Run as SSE server on :8080 instead of stdio",
+				Usage: "Run as SSE server on :8081 instead of stdio",
 			},
 		},
 		Action: Run,
