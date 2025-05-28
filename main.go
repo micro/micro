@@ -23,7 +23,7 @@ import (
 	_ "github.com/micro/micro/v5/cmd/micro-mcp"
 	_ "github.com/micro/micro/v5/cmd/micro-web"
 	_ "github.com/micro/micro/v5/cmd/micro-run"
-	"github.com/micro/micro/v5/util"
+	"github.com/micro/micro/v5/cmd/micro-cli/util"
 )
 
 var (
