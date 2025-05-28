@@ -1,4 +1,4 @@
-oppackage cli
+package cli
 
 import (
 	"bufio"
