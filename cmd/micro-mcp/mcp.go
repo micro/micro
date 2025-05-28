@@ -45,6 +45,8 @@ func handler(ctx context.Context, r mcp.CallToolRequest) (*mcp.CallToolResult, e
 }
 
 func Run(c *cli.Context) error {
+	useSSE := c.Bool("sse")
+
 	// Create MCP server
 	s := server.NewMCPServer(
 		"micro",
@@ -121,6 +123,11 @@ func Run(c *cli.Context) error {
 		return mcp.NewToolResultText(string(b)), nil
 	})
 
+	if useSSE {
+		// Use the SSE server from the mcp-go/server package, passing the MCP server
+		return server.NewSSEServer(s).Start(":8081")
+	}
+
 	// Start the stdio server
 	if err := server.ServeStdio(s); err != nil {
 		fmt.Printf("Server error: %v\n", err)
@@ -132,7 +139,13 @@ func Run(c *cli.Context) error {
 func init() {
 	cmd.Register(&cli.Command{
 		Name:   "mcp",
-		Usage:  "Run MCP server on stdio",
+		Usage:  "Run MCP server on stdio or SSE (with --sse)",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "sse",
+				Usage: "Run as SSE server on :8081 instead of stdio",
+			},
+		},
 		Action: Run,
 	})
 }
