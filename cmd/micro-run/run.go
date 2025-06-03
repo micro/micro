@@ -54,21 +54,27 @@ var htmlTemplate = `<!DOCTYPE html>
         position: relative;
       }
       #head a { color: black; text-decoration: none; }
-      #api-link {
+      #api-link, #web-link {
         position: absolute;
-        right: 25px;
         top: 25px;
         font-size: 18px;
+        font-weight: bold;
       }
+      #api-link { right: 25px; }
+      #web-link { right: 90px; }
       .container {
          padding: 25px;
          max-width: 1400px;
          margin: 0 auto;
       }
-      a, .micro-link {
+      .micro-link {
         color: black;
         text-decoration: none;
+        font-weight: bold;
+        margin-bottom: 10px;
         margin-right: 10px;
+        margin-top: 10px;
+        margin-left: 0;
         border: 2px solid #888;
         border-radius: 8px;
         padding: 5px 14px;
@@ -76,11 +82,11 @@ var htmlTemplate = `<!DOCTYPE html>
         transition: background 0.15s;
         background: #f9f9f9;
       }
-      a:hover, .micro-link:hover {
+      .micro-link:hover {
         background: whitesmoke;
       }
-      #title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
-      #title:hover { background: none; }
+      #logo { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
+      #logo:hover { background: none; }
       pre { background: #f5f5f5; border-radius: 5px; padding: 10px; overflow: scroll;}
       input, button { border-radius: 5px; padding: 10px; display: block; margin-bottom: 5px; }
       button:hover { cursor: pointer; }
@@ -88,7 +94,8 @@ var htmlTemplate = `<!DOCTYPE html>
   </head>
   <body>
      <div id="head">
-       <h1><a href="/" id="title">Micro</a></h1>
+       <h1><a href="/" id="logo">Micro</a></h1>
+       <a id="web-link" href="/web" class="micro-link">Web</a>
        <a id="api-link" href="/api" class="micro-link">API</a>
      </div>
      <div class="container">
@@ -254,134 +261,141 @@ func serveMicroWeb(dir string, addr string) {
 			return
 		}
 
-		// --- Restore web reverse proxy logic ---
-		if _, err := os.Stat(webDir); err == nil {
-			// web subdir exists, look for service by parent dir name
-			srvs, err := registry.GetService(parentDir)
-			if err == nil && len(srvs) > 0 && len(srvs[0].Nodes) > 0 {
-				// reverse proxy to first node
-				target := srvs[0].Nodes[0].Address
-				u, _ := url.Parse("http://" + target)
-				proxy := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-					proxyReq, _ := http.NewRequest(req.Method, u.String()+req.RequestURI, req.Body)
-					for k, v := range req.Header {
-						proxyReq.Header[k] = v
-					}
-					resp, err := http.DefaultClient.Do(proxyReq)
-					if err != nil {
-						http.Error(w, "Proxy error", 502)
-						return
-					}
-					defer resp.Body.Close()
-					for k, v := range resp.Header {
-						w.Header()[k] = v
-					}
-					w.WriteHeader(resp.StatusCode)
-					io.Copy(w, resp.Body)
-				})
-				proxy.ServeHTTP(w, r)
-				return
-			}
-		}
-
-		// --- Custom routing for / and /services ---
+		// --- Serve /services and /service/{service} always, never remap ---
 		parts := strings.Split(r.URL.Path, "/")
 		if len(parts) == 2 && parts[1] == "services" {
 			// List all services on /services
 			services, _ := registry.ListServices()
 			html := `<h2>Services</h2>`
 			for _, service := range services {
-				html += fmt.Sprintf(`<a class="micro-link" href="/%s">%s</a>`, url.QueryEscape(service.Name), service.Name)
+				html += fmt.Sprintf(`<a class="micro-link" href="/service/%s">%s</a>`, url.QueryEscape(service.Name), service.Name)
 			}
 			render(w, html)
 			return
 		}
-		if len(parts) < 2 || parts[1] == "" {
-			// Index page: just a welcome message and a link to /services
-			html := `<h2>Web</h2>
-            <p><a href="/services">Services</a></p>`
-			render(w, html)
-			return
-		}
-		service := parts[1]
-		// Try to decode URL-encoded service names (for /services links)
-		service, _ = url.QueryUnescape(service)
-		s, err := registry.GetService(service)
-		if err != nil || len(s) == 0 {
-			w.WriteHeader(404)
-			w.Write([]byte(fmt.Sprintf("Service not found: %s", service)))
-			return
-		}
-		if len(parts) < 3 || parts[2] == "" {
-			// List endpoints for the service
-			var endpoints string
-			for _, ep := range s[0].Endpoints {
-				p := strings.Split(ep.Name, ".")
-				uri := fmt.Sprintf("/%s/%s/%s", service, p[0], p[1])
-				endpoints += fmt.Sprintf(`<a class="micro-link" href="%s">%s</a>`, uri, ep.Name)
+		if len(parts) >= 3 && parts[1] == "service" && parts[2] != "" {
+			service := parts[2]
+			service, _ = url.QueryUnescape(service)
+			s, err := registry.GetService(service)
+			if err != nil || len(s) == 0 {
+				w.WriteHeader(404)
+				w.Write([]byte(fmt.Sprintf("Service not found: %s", service)))
+				return
 			}
-			b, _ := json.MarshalIndent(s[0], "", "    ")
-			serviceHTML := fmt.Sprintf(serviceTemplate, service, endpoints, string(b))
-			render(w, serviceHTML)
-			return
-		}
-		endpoint := parts[2]
-		if len(parts) == 4 {
-			endpoint = normalize(endpoint) + "." + normalize(parts[3])
-		} else {
-			endpoint = normalize(service) + "." + normalize(endpoint)
-		}
-		// get the endpoint
-		var ep *registry.Endpoint
-		for _, eps := range s[0].Endpoints {
-			if eps.Name == endpoint {
-				ep = eps
-				break
+			if len(parts) < 4 || parts[3] == "" {
+				var endpoints string
+				for _, ep := range s[0].Endpoints {
+					p := strings.Split(ep.Name, ".")
+					uri := fmt.Sprintf("/service/%s/%s/%s", service, p[0], p[1])
+					endpoints += fmt.Sprintf(`<a class="micro-link" href="%s">%s</a>`, uri, ep.Name)
+				}
+				b, _ := json.MarshalIndent(s[0], "", "    ")
+				serviceHTML := fmt.Sprintf(serviceTemplate, service, endpoints, string(b))
+				render(w, serviceHTML)
+				return
 			}
-		}
-		if ep == nil {
-			w.WriteHeader(404)
-			w.Write([]byte("Endpoint not found"))
-			return
-		}
-		if r.Method == "GET" {
-			var inputs string
-			inputs += fmt.Sprintf("<h3>%s</h3>", ep.Name)
-			if ep != nil {
+			endpoint := parts[3]
+			if len(parts) == 5 {
+				endpoint = normalize(endpoint) + "." + normalize(parts[4])
+			} else {
+				endpoint = normalize(service) + "." + normalize(endpoint)
+			}
+			var ep *registry.Endpoint
+			for _, eps := range s[0].Endpoints {
+				if eps.Name == endpoint {
+					ep = eps
+					break
+				}
+			}
+			if ep == nil {
+				w.WriteHeader(404)
+				w.Write([]byte("Endpoint not found"))
+				return
+			}
+			if r.Method == "GET" {
+				var inputs string
+				inputs += fmt.Sprintf("<h3>%s</h3>", ep.Name)
 				for _, input := range ep.Request.Values {
 					inputs += fmt.Sprintf(`<input id=%s name=%s placeholder=%s>`, input.Name, input.Name, input.Name)
 				}
-			} else {
-				inputs = `<textarea></textarea>`
-			}
-			inputs += `<button>Submit</button>`
-			formHTML := fmt.Sprintf(endpointTemplate, service, r.URL.Path, inputs)
-			render(w, formHTML)
-			return
-		}
-		if r.Method == "POST" {
-			r.ParseForm()
-			request := map[string]interface{}{}
-			for k, v := range r.Form {
-				request[k] = strings.Join(v, ",")
-			}
-			b, _ := json.Marshal(request)
-			rsp, err := rpcCall(service, endpoint, b)
-			if err != nil {
-				http.Error(w, err.Error(), 500)
+				inputs += `<button>Submit</button>`
+				formHTML := fmt.Sprintf(endpointTemplate, service, r.URL.Path, inputs)
+				render(w, formHTML)
 				return
 			}
-			var response map[string]interface{}
-			json.Unmarshal(rsp, &response)
-			var output string
-			for k, v := range response {
-				output += fmt.Sprintf(`<div>%s: %s</div>`, k, v)
+			if r.Method == "POST" {
+				r.ParseForm()
+				request := map[string]interface{}{}
+				for k, v := range r.Form {
+					request[k] = strings.Join(v, ",")
+				}
+				b, _ := json.Marshal(request)
+				rsp, err := rpcCall(service, endpoint, b)
+				if err != nil {
+					http.Error(w, err.Error(), 500)
+					return
+				}
+				var response map[string]interface{}
+				json.Unmarshal(rsp, &response)
+				var output string
+				for k, v := range response {
+					output += fmt.Sprintf(`<div>%s: %s</div>`, k, v)
+				}
+				pretty, _ := json.MarshalIndent(response, "", "    ")
+				output += fmt.Sprintf(`<pre>%s</pre>`, string(pretty))
+				render(w, fmt.Sprintf(responseTemplate, output))
+				return
 			}
-			pretty, _ := json.MarshalIndent(response, "", "    ")
-			output += fmt.Sprintf(`<pre>%s</pre>`, string(pretty))
-			render(w, fmt.Sprintf(responseTemplate, output))
+		}
+
+		// --- Serve /web and proxy all other requests to the web app if webDir exists ---
+		if _, err := os.Stat(webDir); err == nil {
+			if r.URL.Path == "/web" || r.URL.Path == "/web/" {
+				html := `<h2>Web</h2>
+            <p><a href="/services" class="micro-link">Services</a></p>`
+				render(w, html)
+				return
+			}
+			// Proxy everything else (except /api and /services/service) to the web app
+			if !strings.HasPrefix(r.URL.Path, "/api") && !strings.HasPrefix(r.URL.Path, "/services") && !strings.HasPrefix(r.URL.Path, "/service") {
+				srvs, err := registry.GetService(parentDir)
+				if err == nil && len(srvs) > 0 && len(srvs[0].Nodes) > 0 {
+					target := srvs[0].Nodes[0].Address
+					u, _ := url.Parse("http://" + target)
+					proxy := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+						proxyReq, _ := http.NewRequest(req.Method, u.String()+req.RequestURI, req.Body)
+						for k, v := range req.Header {
+							proxyReq.Header[k] = v
+						}
+						resp, err := http.DefaultClient.Do(proxyReq)
+						if err != nil {
+							http.Error(w, "Proxy error", 502)
+							return
+						}
+						defer resp.Body.Close()
+						for k, v := range resp.Header {
+							w.Header()[k] = v
+						}
+						w.WriteHeader(resp.StatusCode)
+						io.Copy(w, resp.Body)
+					})
+					proxy.ServeHTTP(w, r)
+					return
+				}
+			}
+		}
+
+		// --- Default index page ---
+		if len(parts) < 2 || parts[1] == "" {
+			html := `<h2>Web</h2>
+            <p><a href="/services" class="micro-link">Services</a></p>`
+			render(w, html)
 			return
 		}
+
+		// --- Fallback: 404 ---
+		w.WriteHeader(404)
+		w.Write([]byte("Not found"))
 	})
 	go http.ListenAndServe(addr, nil)
 }
