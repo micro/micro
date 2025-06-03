@@ -124,35 +124,38 @@ func serveMicroWeb(dir string, addr string) {
 	parentDir := filepath.Base(absDir)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if _, err := os.Stat(webDir); err == nil {
-			// web subdir exists, look for service by parent dir name
-			srvs, err := registry.GetService(parentDir)
-			if err == nil && len(srvs) > 0 && len(srvs[0].Nodes) > 0 {
-				// reverse proxy to first node
-				target := srvs[0].Nodes[0].Address
-				u, _ := url.Parse("http://" + target)
-				proxy := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-					proxyReq, _ := http.NewRequest(req.Method, u.String()+req.RequestURI, req.Body)
-					for k, v := range req.Header {
-						proxyReq.Header[k] = v
-					}
-					resp, err := http.DefaultClient.Do(proxyReq)
-					if err != nil {
-						http.Error(w, "Proxy error", 502)
-						return
-					}
-					defer resp.Body.Close()
-					for k, v := range resp.Header {
-						w.Header()[k] = v
-					}
-					w.WriteHeader(resp.StatusCode)
-					io.Copy(w, resp.Body)
-				})
-				proxy.ServeHTTP(w, r)
+		// --- Handle /api prefix for micro-api functionality ---
+		if strings.HasPrefix(r.URL.Path, "/api/") {
+			// /api/{service}/{endpointService}/{endpointMethod}
+			parts := strings.Split(r.URL.Path, "/")
+			if len(parts) < 5 {
+				http.Error(w, "Invalid API path. Use /api/{service}/{endpointService}/{endpointMethod}", 400)
 				return
 			}
+			service := parts[2]
+			endpointService := parts[3]
+			endpointMethod := parts[4]
+			// Compose endpoint name: EndpointService.EndpointMethod (capitalize)
+			endpointName := normalize(endpointService) + "." + normalize(endpointMethod)
+			// Parse request body as JSON
+			var reqBody map[string]interface{}
+			if r.Body != nil {
+				defer r.Body.Close()
+				json.NewDecoder(r.Body).Decode(&reqBody)
+			}
+			if reqBody == nil {
+				reqBody = map[string]interface{}{}
+			}
+			b, _ := json.Marshal(reqBody)
+			rsp, err := rpcCall(service, endpointName, b)
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(rsp)
+			return
 		}
-
 		// --- Custom routing for / and /services ---
 		parts := strings.Split(r.URL.Path, "/")
 		if len(parts) == 2 && parts[1] == "services" {
