@@ -31,8 +31,13 @@ func colorFor(idx int) string {
 }
 
 func serveMicroWeb(dir string) {
-	webDir := filepath.Join(dir, "web")
-	parentDir := filepath.Base(dir)
+	// Always resolve to absolute path for dir
+	absDir, err := filepath.Abs(dir)
+	if err != nil {
+		absDir = dir // fallback
+	}
+	webDir := filepath.Join(absDir, "web")
+	parentDir := filepath.Base(absDir)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if _, err := os.Stat(webDir); err == nil {
