@@ -184,7 +184,7 @@ func main() {
 The API provides a fixed HTTP entrypoint for calling services.
 
 ```
-curl http://localhost:8080/helloworld/Helloworld/Call -d '{"name": "John"}'
+curl http://localhost:8080/api/helloworld/Helloworld/Call -d '{"name": "John"}'
 ```
 See /api for more details
 
