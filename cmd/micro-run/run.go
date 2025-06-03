@@ -1,6 +1,7 @@
 package run
 
 import (
+	"bytes"
 	"fmt"
 	"bufio"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/cmd"
@@ -28,6 +30,85 @@ var colors = []string{
 
 func colorFor(idx int) string {
 	return colors[idx%len(colors)]
+}
+
+// HTML templates for micro web UI
+var htmlTemplate = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Micro Web</title>
+    <style>
+      html, body {
+        font-family: Arial;
+        font-size: 16px;
+        margin: 0;
+        padding: 0;
+      }
+      #head {
+        margin: 25px;
+      }
+      #head a { color: black; text-decoration: none; }
+      .container {
+         padding: 25px;
+         max-width: 1400px;
+         margin: 0 auto;
+      }
+      a { color: black; text-decoration: none; font-weight: bold; margin-bottom: 10px;}
+      pre { background: #f5f5f5; border-radius: 5px; padding: 10px; overflow: scroll;}
+      input, button { border-radius: 5px; padding: 10px; display: block; margin-bottom: 5px; }
+      button:hover { cursor: pointer; }
+    </style>
+  </head>
+  <body>
+     <div id="head">
+<h1><a href="/">Micro</a></h1>
+     </div>
+     <div class="container">
+	%s
+     </div>
+  </body>
+</html>
+`
+
+var serviceTemplate = `
+<h2>%s</h2>
+<div>%s</div>
+<pre>%s</pre>
+`
+
+var endpointTemplate = `
+<h2>%s</h2>
+<form action=%s method=POST>%s</form>
+`
+var responseTemplate = `<h2>Response</h2><div>%s</div>`
+
+func normalize(v string) string {
+	if len(v) == 0 {
+		return v
+	}
+	return strings.ToUpper(v[:1]) + v[1:]
+}
+
+func render(w http.ResponseWriter, v string) error {
+	html := fmt.Sprintf(htmlTemplate, v)
+	_, err := w.Write([]byte(html))
+	return err
+}
+
+func rpcCall(service, endpoint string, request []byte) ([]byte, error) {
+	data := []byte(`{}`)
+	if len(request) > 0 {
+		data = request
+	}
+	req := client.NewRequest(service, endpoint, &bytes.Frame{Data: data})
+	var rsp bytes.Frame
+	err := client.Call(context.TODO(), req, &rsp)
+	if err != nil {
+		return nil, err
+	}
+	return rsp.Data, nil
 }
 
 func serveMicroWeb(dir string) {
@@ -68,14 +149,94 @@ func serveMicroWeb(dir string) {
 				return
 			}
 		}
-		// else: serve index page listing services
-		services, _ := registry.ListServices()
-		html := "<h1>Available Services</h1>"
-		for _, s := range services {
-			html += "<p>" + s.Name + "</p>"
+		// --- Default micro web UI logic below (copied from micro-web) ---
+		parts := strings.Split(r.URL.Path, "/")
+		if len(parts) < 2 || parts[1] == "" {
+			// List all services
+			services, _ := registry.ListServices()
+			var html string
+			for _, service := range services {
+				html += fmt.Sprintf(`<p><a href="/%s">%s</a></p>`, url.QueryEscape(service.Name), service.Name)
+			}
+			render(w, html)
+			return
 		}
-		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte(html))
+		service := parts[1]
+		s, err := registry.GetService(service)
+		if err != nil || len(s) == 0 {
+			w.WriteHeader(404)
+			w.Write([]byte("Service not found"))
+			return
+		}
+		if len(parts) < 3 || parts[2] == "" {
+			// List endpoints for the service
+			var endpoints string
+			for _, ep := range s[0].Endpoints {
+				p := strings.Split(ep.Name, ".")
+				uri := fmt.Sprintf("/%s/%s/%s", service, p[0], p[1])
+				endpoints += fmt.Sprintf(`<div><a href="%s">%s</a></div>`, uri, ep.Name)
+			}
+			b, _ := json.MarshalIndent(s[0], "", "    ")
+			serviceHTML := fmt.Sprintf(serviceTemplate, service, endpoints, string(b))
+			render(w, serviceHTML)
+			return
+		}
+		endpoint := parts[2]
+		if len(parts) == 4 {
+			endpoint = normalize(endpoint) + "." + normalize(parts[3])
+		} else {
+			endpoint = normalize(service) + "." + normalize(endpoint)
+		}
+		// get the endpoint
+		var ep *registry.Endpoint
+		for _, eps := range s[0].Endpoints {
+			if eps.Name == endpoint {
+				ep = eps
+				break
+			}
+		}
+		if ep == nil {
+			w.WriteHeader(404)
+			w.Write([]byte("Endpoint not found"))
+			return
+		}
+		if r.Method == "GET" {
+			var inputs string
+			if ep != nil {
+				for _, input := range ep.Request.Values {
+					inputs += fmt.Sprintf(`<input id=%s name=%s placeholder=%s>`, input.Name, input.Name, input.Name)
+				}
+			} else {
+				inputs = `<textarea></textarea>`
+			}
+			inputs += `<button>Submit</button>`
+			formHTML := fmt.Sprintf(endpointTemplate, service, r.URL.Path, inputs)
+			render(w, formHTML)
+			return
+		}
+		if r.Method == "POST" {
+			r.ParseForm()
+			request := map[string]interface{}{}
+			for k, v := range r.Form {
+				request[k] = strings.Join(v, ",")
+			}
+			b, _ := json.Marshal(request)
+			rsp, err := rpcCall(service, endpoint, b)
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
+			var response map[string]interface{}
+			json.Unmarshal(rsp, &response)
+			var output string
+			for k, v := range response {
+				output += fmt.Sprintf(`<div>%s: %s</div>`, k, v)
+			}
+			pretty, _ := json.MarshalIndent(response, "", "    ")
+			output += fmt.Sprintf(`<pre>%s</pre>`, string(pretty))
+			render(w, fmt.Sprintf(responseTemplate, output))
+			return
+		}
 	})
 	go http.ListenAndServe(":8080", nil)
 }
