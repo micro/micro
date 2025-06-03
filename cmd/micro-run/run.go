@@ -261,55 +261,7 @@ func serveMicroWeb(dir string, addr string) {
 			return
 		}
 
-		// --- Restore web reverse proxy logic ---
-		if _, err := os.Stat(webDir); err == nil {
-			// If /web or /web/ is requested, serve the micro web index
-			if r.URL.Path == "/web" || r.URL.Path == "/web/" {
-				html := `<h2>Web</h2>
-            <p><a href="/services" class="micro-link">Services</a></p>`
-				render(w, html)
-				return
-			}
-			// Always allow /services to be handled below (not remapped)
-			// Remap /{service} and /{service}/... to /service/{service} and /service/{service}/...
-			parts := strings.Split(r.URL.Path, "/")
-			if len(parts) > 1 && parts[1] != "" && parts[1] != "web" && parts[1] != "api" && parts[1] != "services" && parts[1] != "service" {
-				// e.g. /foo, /foo/bar
-				http.Redirect(w, r, "/service"+r.URL.Path, http.StatusFound)
-				return
-			}
-			// web subdir exists, look for service by parent dir name
-			srvs, err := registry.GetService(parentDir)
-			if err == nil && len(srvs) > 0 && len(srvs[0].Nodes) > 0 {
-				// reverse proxy to first node
-				target := srvs[0].Nodes[0].Address
-				u, _ := url.Parse("http://" + target)
-				proxy := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-					proxyReq, _ := http.NewRequest(req.Method, u.String()+req.RequestURI, req.Body)
-					for k, v := range req.Header {
-						proxyReq.Header[k] = v
-					}
-					resp, err := http.DefaultClient.Do(proxyReq)
-					if err != nil {
-						http.Error(w, "Proxy error", 502)
-						return
-					}
-					defer resp.Body.Close()
-					for k, v := range resp.Header {
-						w.Header()[k] = v
-					}
-					w.WriteHeader(resp.StatusCode)
-					io.Copy(w, resp.Body)
-				})
-				// Only proxy if not /web or /web/
-				if !(r.URL.Path == "/web" || r.URL.Path == "/web/") {
-					proxy.ServeHTTP(w, r)
-					return
-				}
-			}
-		}
-
-		// --- Custom routing for /services and /service/{service} ---
+		// --- Serve /services and /service/{service} always, never remap ---
 		parts := strings.Split(r.URL.Path, "/")
 		if len(parts) == 2 && parts[1] == "services" {
 			// List all services on /services
@@ -323,7 +275,6 @@ func serveMicroWeb(dir string, addr string) {
 		}
 		if len(parts) >= 3 && parts[1] == "service" && parts[2] != "" {
 			service := parts[2]
-			// Try to decode URL-encoded service names (for /services links)
 			service, _ = url.QueryUnescape(service)
 			s, err := registry.GetService(service)
 			if err != nil || len(s) == 0 {
@@ -332,7 +283,6 @@ func serveMicroWeb(dir string, addr string) {
 				return
 			}
 			if len(parts) < 4 || parts[3] == "" {
-				// List endpoints for the service
 				var endpoints string
 				for _, ep := range s[0].Endpoints {
 					p := strings.Split(ep.Name, ".")
@@ -350,7 +300,6 @@ func serveMicroWeb(dir string, addr string) {
 			} else {
 				endpoint = normalize(service) + "." + normalize(endpoint)
 			}
-			// get the endpoint
 			var ep *registry.Endpoint
 			for _, eps := range s[0].Endpoints {
 				if eps.Name == endpoint {
@@ -366,12 +315,8 @@ func serveMicroWeb(dir string, addr string) {
 			if r.Method == "GET" {
 				var inputs string
 				inputs += fmt.Sprintf("<h3>%s</h3>", ep.Name)
-				if ep != nil {
-					for _, input := range ep.Request.Values {
-						inputs += fmt.Sprintf(`<input id=%s name=%s placeholder=%s>`, input.Name, input.Name, input.Name)
-					}
-				} else {
-					inputs = `<textarea></textarea>`
+				for _, input := range ep.Request.Values {
+					inputs += fmt.Sprintf(`<input id=%s name=%s placeholder=%s>`, input.Name, input.Name, input.Name)
 				}
 				inputs += `<button>Submit</button>`
 				formHTML := fmt.Sprintf(endpointTemplate, service, r.URL.Path, inputs)
@@ -402,97 +347,55 @@ func serveMicroWeb(dir string, addr string) {
 				return
 			}
 		}
-		if len(parts) < 2 || parts[1] == "" {
-			// If webDir exists, redirect "/" to "/web" for the index page
-			if _, err := os.Stat(webDir); err == nil {
-				http.Redirect(w, r, "/web", http.StatusFound)
+
+		// --- Serve /web and proxy all other requests to the web app if webDir exists ---
+		if _, err := os.Stat(webDir); err == nil {
+			if r.URL.Path == "/web" || r.URL.Path == "/web/" {
+				html := `<h2>Web</h2>
+            <p><a href="/services" class="micro-link">Services</a></p>`
+				render(w, html)
 				return
 			}
-			// Otherwise, show the default index
+			// Proxy everything else (except /api and /services/service) to the web app
+			if !strings.HasPrefix(r.URL.Path, "/api") && !strings.HasPrefix(r.URL.Path, "/services") && !strings.HasPrefix(r.URL.Path, "/service") {
+				srvs, err := registry.GetService(parentDir)
+				if err == nil && len(srvs) > 0 && len(srvs[0].Nodes) > 0 {
+					target := srvs[0].Nodes[0].Address
+					u, _ := url.Parse("http://" + target)
+					proxy := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+						proxyReq, _ := http.NewRequest(req.Method, u.String()+req.RequestURI, req.Body)
+						for k, v := range req.Header {
+							proxyReq.Header[k] = v
+						}
+						resp, err := http.DefaultClient.Do(proxyReq)
+						if err != nil {
+							http.Error(w, "Proxy error", 502)
+							return
+						}
+						defer resp.Body.Close()
+						for k, v := range resp.Header {
+							w.Header()[k] = v
+						}
+						w.WriteHeader(resp.StatusCode)
+						io.Copy(w, resp.Body)
+					})
+					proxy.ServeHTTP(w, r)
+					return
+				}
+			}
+		}
+
+		// --- Default index page ---
+		if len(parts) < 2 || parts[1] == "" {
 			html := `<h2>Web</h2>
             <p><a href="/services" class="micro-link">Services</a></p>`
 			render(w, html)
 			return
 		}
-		service := parts[1]
-		// Try to decode URL-encoded service names (for /services links)
-		service, _ = url.QueryUnescape(service)
-		s, err := registry.GetService(service)
-		if err != nil || len(s) == 0 {
-			w.WriteHeader(404)
-			w.Write([]byte(fmt.Sprintf("Service not found: %s", service)))
-			return
-		}
-		if len(parts) < 3 || parts[2] == "" {
-			// List endpoints for the service
-			var endpoints string
-			for _, ep := range s[0].Endpoints {
-				p := strings.Split(ep.Name, ".")
-				uri := fmt.Sprintf("/%s/%s/%s", service, p[0], p[1])
-				endpoints += fmt.Sprintf(`<a class="micro-link" href="%s">%s</a>`, uri, ep.Name)
-			}
-			b, _ := json.MarshalIndent(s[0], "", "    ")
-			serviceHTML := fmt.Sprintf(serviceTemplate, service, endpoints, string(b))
-			render(w, serviceHTML)
-			return
-		}
-		endpoint := parts[2]
-		if len(parts) == 4 {
-			endpoint = normalize(endpoint) + "." + normalize(parts[3])
-		} else {
-			endpoint = normalize(service) + "." + normalize(endpoint)
-		}
-		// get the endpoint
-		var ep *registry.Endpoint
-		for _, eps := range s[0].Endpoints {
-			if eps.Name == endpoint {
-				ep = eps
-				break
-			}
-		}
-		if ep == nil {
-			w.WriteHeader(404)
-			w.Write([]byte("Endpoint not found"))
-			return
-		}
-		if r.Method == "GET" {
-			var inputs string
-			inputs += fmt.Sprintf("<h3>%s</h3>", ep.Name)
-			if ep != nil {
-				for _, input := range ep.Request.Values {
-					inputs += fmt.Sprintf(`<input id=%s name=%s placeholder=%s>`, input.Name, input.Name, input.Name)
-				}
-			} else {
-				inputs = `<textarea></textarea>`
-			}
-			inputs += `<button>Submit</button>`
-			formHTML := fmt.Sprintf(endpointTemplate, service, r.URL.Path, inputs)
-			render(w, formHTML)
-			return
-		}
-		if r.Method == "POST" {
-			r.ParseForm()
-			request := map[string]interface{}{}
-			for k, v := range r.Form {
-				request[k] = strings.Join(v, ",")
-			}
-			b, _ := json.Marshal(request)
-			rsp, err := rpcCall(service, endpoint, b)
-			if err != nil {
-				http.Error(w, err.Error(), 500)
-				return
-			}
-			var response map[string]interface{}
-			json.Unmarshal(rsp, &response)
-			var output string
-			for k, v := range response {
-				output += fmt.Sprintf(`<div>%s: %s</div>`, k, v)
-			}
-			pretty, _ := json.MarshalIndent(response, "", "    ")
-			output += fmt.Sprintf(`<pre>%s</pre>`, string(pretty))
-			render(w, fmt.Sprintf(responseTemplate, output))
-			return
-		}
+
+		// --- Fallback: 404 ---
+		w.WriteHeader(404)
+		w.Write([]byte("Not found"))
 	})
 	go http.ListenAndServe(addr, nil)
 }
