@@ -149,6 +149,7 @@ func serveMicroWeb(dir string, addr string) {
 	parentDir := filepath.Base(absDir)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+<<<<<<< HEAD
 		// --- Handle /api prefix for micro-api functionality ---
 		if r.URL.Path == "/api" || r.URL.Path == "/api/" {
 			// Render API documentation page
