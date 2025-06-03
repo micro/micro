@@ -179,30 +179,17 @@ func main() {
 }
 ```
 
-## Call via API
+## API Endpoints 
 
 The API provides a fixed HTTP entrypoint for calling services.
-
-Run the micro API
-
-```
-micro api
-```
-
-If the helloworld service is running curl it via `/[service]/[endpoint]/[method]`
 
 ```
 curl http://localhost:8080/helloworld/Helloworld/Call -d '{"name": "John"}'
 ```
+See /api for more details
 
-## Call via Web
+## Web Dashboard 
 
 Access services via the web using micro web which generates dynamic form fills
 
-Run the web app
-
-```
-micro web
-```
-
-Go to [localhost:8082](http://localhost:8082)
+Go to [localhost:8080](http://localhost:8080)
