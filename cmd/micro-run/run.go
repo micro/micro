@@ -54,21 +54,27 @@ var htmlTemplate = `<!DOCTYPE html>
         position: relative;
       }
       #head a { color: black; text-decoration: none; }
-      #api-link {
+      #api-link, #web-link {
         position: absolute;
-        right: 25px;
         top: 25px;
         font-size: 18px;
+        font-weight: bold;
       }
+      #api-link { right: 25px; }
+      #web-link { right: 90px; }
       .container {
          padding: 25px;
          max-width: 1400px;
          margin: 0 auto;
       }
-      a, .micro-link {
+      .micro-link {
         color: black;
         text-decoration: none;
+        font-weight: bold;
+        margin-bottom: 10px;
         margin-right: 10px;
+        margin-top: 10px;
+        margin-left: 0;
         border: 2px solid #888;
         border-radius: 8px;
         padding: 5px 14px;
@@ -76,7 +82,7 @@ var htmlTemplate = `<!DOCTYPE html>
         transition: background 0.15s;
         background: #f9f9f9;
       }
-      a:hover, .micro-link:hover {
+      .micro-link:hover {
         background: whitesmoke;
       }
       #title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
@@ -89,6 +95,7 @@ var htmlTemplate = `<!DOCTYPE html>
   <body>
      <div id="head">
        <h1><a href="/" id="title">Micro</a></h1>
+       <a id="web-link" href="/web" class="micro-link">Web</a>
        <a id="api-link" href="/api" class="micro-link">API</a>
      </div>
      <div class="container">
@@ -256,6 +263,14 @@ func serveMicroWeb(dir string, addr string) {
 
 		// --- Restore web reverse proxy logic ---
 		if _, err := os.Stat(webDir); err == nil {
+			// If /web or /web/ is requested, serve the micro web index
+			if r.URL.Path == "/web" || r.URL.Path == "/web/" {
+				// Render the micro web index page (same as old "/")
+				html := `<h2>Web</h2>
+            <p><a href="/services" class="micro-link">Services</a></p>`
+				render(w, html)
+				return
+			}
 			// web subdir exists, look for service by parent dir name
 			srvs, err := registry.GetService(parentDir)
 			if err == nil && len(srvs) > 0 && len(srvs[0].Nodes) > 0 {
@@ -279,8 +294,11 @@ func serveMicroWeb(dir string, addr string) {
 					w.WriteHeader(resp.StatusCode)
 					io.Copy(w, resp.Body)
 				})
-				proxy.ServeHTTP(w, r)
-				return
+				// Only proxy if not /web or /web/
+				if !(r.URL.Path == "/web" || r.URL.Path == "/web/") {
+					proxy.ServeHTTP(w, r)
+					return
+				}
 			}
 		}
 
@@ -297,9 +315,14 @@ func serveMicroWeb(dir string, addr string) {
 			return
 		}
 		if len(parts) < 2 || parts[1] == "" {
-			// Index page: just a welcome message and a link to /services
+			// If webDir exists, redirect "/" to "/web" for the index page
+			if _, err := os.Stat(webDir); err == nil {
+				http.Redirect(w, r, "/web", http.StatusFound)
+				return
+			}
+			// Otherwise, show the default index
 			html := `<h2>Web</h2>
-            <p><a href="/services">Services</a></p>`
+            <p><a href="/services" class="micro-link">Services</a></p>`
 			render(w, html)
 			return
 		}
