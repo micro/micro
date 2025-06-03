@@ -51,8 +51,16 @@ var htmlTemplate = `<!DOCTYPE html>
       }
       #head {
         margin: 25px;
+        position: relative;
       }
       #head a { color: black; text-decoration: none; }
+      #api-link {
+        position: absolute;
+        right: 25px;
+        top: 25px;
+        font-size: 18px;
+        font-weight: bold;
+      }
       .container {
          padding: 25px;
          max-width: 1400px;
@@ -66,7 +74,8 @@ var htmlTemplate = `<!DOCTYPE html>
   </head>
   <body>
      <div id="head">
-<h1><a href="/">Micro</a></h1>
+       <h1><a href="/">Micro</a></h1>
+       <a id="api-link" href="/api">API</a>
      </div>
      <div class="container">
 	%s
