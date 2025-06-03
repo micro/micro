@@ -59,7 +59,6 @@ var htmlTemplate = `<!DOCTYPE html>
         right: 25px;
         top: 25px;
         font-size: 18px;
-        font-weight: bold;
       }
       .container {
          padding: 25px;
@@ -69,8 +68,7 @@ var htmlTemplate = `<!DOCTYPE html>
       a, .micro-link {
         color: black;
         text-decoration: none;
-        font-weight: bold;
-        margin: 10px;
+        margin-right: 10px;
         border: 2px solid #888;
         border-radius: 8px;
         padding: 5px 14px;
@@ -79,9 +77,10 @@ var htmlTemplate = `<!DOCTYPE html>
         background: #f9f9f9;
       }
       a:hover, .micro-link:hover {
-        background: #e0e0e0;
+        background: whitesmoke;
       }
-	  #title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
+      #title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
+      #title:hover { background: none; }
       pre { background: #f5f5f5; border-radius: 5px; padding: 10px; overflow: scroll;}
       input, button { border-radius: 5px; padding: 10px; display: block; margin-bottom: 5px; }
       button:hover { cursor: pointer; }
@@ -194,12 +193,14 @@ func serveMicroWeb(dir string, addr string) {
 						response = "<i>No response fields</i>"
 					}
 					html += fmt.Sprintf(
-						`<div style="margin-bottom:1em;">
-							<div><b>Endpoint:</b> <code>%s</code></div>
+						`<div><code>%s</code></div>
+						  <hr>
+						  <div style="margin: 1em 1em 2em 1em;">
 							<div><b>HTTP Path:</b> <code>%s</code></div>
+							<br>
 							<div><b>Parameters:</b> %s</div>
 							<div><b>Response:</b> %s</div>
-						</div>`,
+						  </div>`,
 						ep.Name, apiPath, params, response,
 					)
 				}
@@ -297,8 +298,8 @@ func serveMicroWeb(dir string, addr string) {
 		}
 		if len(parts) < 2 || parts[1] == "" {
 			// Index page: just a welcome message and a link to /services
-			html := `<h2>Welcome to Micro Web</h2>
-            <p><a href="/services">View Services</a></p>`
+			html := `<h2>Web</h2>
+            <p><a href="/services">Services</a></p>`
 			render(w, html)
 			return
 		}
@@ -345,6 +346,7 @@ func serveMicroWeb(dir string, addr string) {
 		}
 		if r.Method == "GET" {
 			var inputs string
+			inputs += fmt.Sprintf("<h3>%s</h3>", ep.Name)
 			if ep != nil {
 				for _, input := range ep.Request.Values {
 					inputs += fmt.Sprintf(`<input id=%s name=%s placeholder=%s>`, input.Name, input.Name, input.Name)
