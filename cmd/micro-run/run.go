@@ -1,16 +1,18 @@
 package run
 
+
 import (
-	"io"
-	"os"
-	"os/exec"
-	"os/signal"
 	"fmt"
-	"path/filepath"
-	"bufio"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/cmd"
+
+	api "github.com/micro/micro/v5/cmd/micro-api"
+	web "github.com/micro/micro/v5/cmd/micro-web"
 )
 
 // Color codes for log output
@@ -28,157 +30,36 @@ func colorFor(idx int) string {
 }
 
 func Run(c *cli.Context) error {
-	all := c.Bool("all")
-	dir := c.Args().Get(0)
-	if len(dir) == 0 {
-		dir = "."
+	// Unified server on :8080
+	mux := http.NewServeMux()
+	mux.Handle("/api/", api.APIHandler())
+	mux.Handle("/web/", web.WebHandler())
+	// Root (/) serves the web UI dashboard
+	mux.Handle("/", web.WebHandler())
+
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: mux,
 	}
 
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("failed to get home dir: %w", err)
-	}
-	logsDir := filepath.Join(homeDir, "micro", "logs")
-	if err := os.MkdirAll(logsDir, 0755); err != nil {
-		return fmt.Errorf("failed to create logs dir: %w", err)
-	}
-	runDir := filepath.Join(homeDir, "micro", "run")
-	if err := os.MkdirAll(runDir, 0755); err != nil {
-		return fmt.Errorf("failed to create run dir: %w", err)
-	}
-	binDir := filepath.Join(homeDir, "micro", "bin")
-	if err := os.MkdirAll(binDir, 0755); err != nil {
-		return fmt.Errorf("failed to create bin dir: %w", err)
-	}
+	// Graceful shutdown
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
-	if all {
-		var mainFiles []string
-		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if info.IsDir() {
-				return nil
-			}
-			if info.Name() == "main.go" {
-				mainFiles = append(mainFiles, path)
-			}
-			return nil
-		})
-		if err != nil {
-			return fmt.Errorf("error walking the path: %w", err)
-		}
-		if len(mainFiles) == 0 {
-			return fmt.Errorf("no main.go files found in %s", dir)
-		}
-		var procs []*exec.Cmd
-		var pidFiles []string
-		for i, mainFile := range mainFiles {
-			serviceDir := filepath.Dir(mainFile)
-			serviceName := filepath.Base(serviceDir)
-			logFilePath := filepath.Join(logsDir, serviceName+".log")
-			binPath := filepath.Join(binDir, serviceName)
-			pidFilePath := filepath.Join(runDir, serviceName+".pid")
-
-			logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "failed to open log file for %s: %v\n", serviceName, err)
-				continue
-			}
-			buildCmd := exec.Command("go", "build", "-o", binPath, ".")
-			buildCmd.Dir = serviceDir
-			buildOut, buildErr := buildCmd.CombinedOutput()
-			if buildErr != nil {
-				logFile.WriteString(string(buildOut))
-				logFile.Close()
-				fmt.Fprintf(os.Stderr, "failed to build %s: %v\n", serviceName, buildErr)
-				continue
-			}
-			cmd := exec.Command(binPath)
-			cmd.Dir = serviceDir
-			pr, pw := io.Pipe()
-			cmd.Stdout = pw
-			cmd.Stderr = pw
-			color := colorFor(i)
-			go func(name string, color string, pr *io.PipeReader) {
-				scanner := bufio.NewScanner(pr)
-				for scanner.Scan() {
-					fmt.Printf("%s[%s]\033[0m %s\n", color, name, scanner.Text())
-				}
-			}(serviceName, color, pr)
-			if err := cmd.Start(); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
-				pw.Close()
-				continue
-			}
-			procs = append(procs, cmd)
-			pidFiles = append(pidFiles, pidFilePath)
-			os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, serviceDir)), 0644)
-		}
-		ch := make(chan os.Signal, 1)
-		signal.Notify(ch, os.Interrupt)
-		go func() {
-			<-ch
-			for _, proc := range procs {
-				if proc.Process != nil {
-					_ = proc.Process.Kill()
-				}
-			}
-			for _, pf := range pidFiles {
-				_ = os.Remove(pf)
-			}
+	go func() {
+		fmt.Println("Micro server running on http://localhost:8080")
+		fmt.Println("- API: http://localhost:8080/api/")
+		fmt.Println("- Web UI: http://localhost:8080/web/")
+		fmt.Println("- Dashboard: http://localhost:8080/")
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			fmt.Fprintf(os.Stderr, "Server error: %v\n", err)
 			os.Exit(1)
-		}()
-		for _, proc := range procs {
-			_ = proc.Wait()
 		}
-		return nil
-	}
+	}()
 
-	// single service mode (no color needed)
-	serviceName := filepath.Base(dir)
-	logFilePath := filepath.Join(logsDir, serviceName+".log")
-	binPath := filepath.Join(binDir, serviceName)
-	pidFilePath := filepath.Join(runDir, serviceName+".pid")
-	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		return fmt.Errorf("failed to open log file: %w", err)
-	}
-	defer logFile.Close()
-	buildCmd := exec.Command("go", "build", "-o", binPath, dir)
-	buildCmd.Dir = dir
-	buildOut, buildErr := buildCmd.CombinedOutput()
-	if buildErr != nil {
-		logFile.WriteString(string(buildOut))
-		return fmt.Errorf("failed to build %s: %v", serviceName, buildErr)
-	}
-	cmd := exec.Command(binPath)
-	cmd.Dir = dir
-	pr, pw := io.Pipe()
-	cmd.Stdout = pw
-	cmd.Stderr = pw
-	go func() {
-		scanner := bufio.NewScanner(pr)
-		for scanner.Scan() {
-			fmt.Printf("[%s] %s\n", serviceName, scanner.Text())
-		}
-	}()
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-	os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, dir)), 0644)
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt)
-	go func() {
-		<-ch
-		if cmd.Process != nil {
-			_ = cmd.Process.Kill()
-		}
-		_ = os.Remove(pidFilePath)
-		os.Exit(1)
-	}()
-	_ = cmd.Wait()
-	return nil
+	<-stop
+	fmt.Println("Shutting down micro server...")
+	return srv.Close()
 }
 
 func init() {
