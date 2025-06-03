@@ -176,10 +176,12 @@ func serveMicroWeb(dir string, addr string) {
 			return
 		}
 		service := parts[1]
+		// Try to decode URL-encoded service names (for /services links)
+		service, _ = url.QueryUnescape(service)
 		s, err := registry.GetService(service)
 		if err != nil || len(s) == 0 {
 			w.WriteHeader(404)
-			w.Write([]byte("Service not found"))
+			w.Write([]byte(fmt.Sprintf("Service not found: %s", service)))
 			return
 		}
 		if len(parts) < 3 || parts[2] == "" {
