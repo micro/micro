@@ -85,8 +85,8 @@ var htmlTemplate = `<!DOCTYPE html>
       .micro-link:hover {
         background: whitesmoke;
       }
-      #title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
-      #title:hover { background: none; }
+      #logo { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
+      #logo:hover { background: none; }
       pre { background: #f5f5f5; border-radius: 5px; padding: 10px; overflow: scroll;}
       input, button { border-radius: 5px; padding: 10px; display: block; margin-bottom: 5px; }
       button:hover { cursor: pointer; }
@@ -94,7 +94,7 @@ var htmlTemplate = `<!DOCTYPE html>
   </head>
   <body>
      <div id="head">
-       <h1><a href="/" id="title">Micro</a></h1>
+       <h1><a href="/" id="logo">Micro</a></h1>
        <a id="web-link" href="/web" class="micro-link">Web</a>
        <a id="api-link" href="/api" class="micro-link">API</a>
      </div>
