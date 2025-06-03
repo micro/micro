@@ -125,6 +125,62 @@ func serveMicroWeb(dir string, addr string) {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// --- Handle /api prefix for micro-api functionality ---
+		if r.URL.Path == "/api" || r.URL.Path == "/api/" {
+			// Render API documentation page
+			services, _ := registry.ListServices()
+			var html string
+			html += "<h2>Available API Endpoints</h2>"
+			for _, srv := range services {
+				srvs, err := registry.GetService(srv.Name)
+				if err != nil || len(srvs) == 0 {
+					continue
+				}
+				s := srvs[0]
+				html += fmt.Sprintf(`<h3>%s</h3>`, s.Name)
+				for _, ep := range s.Endpoints {
+					// Parse endpoint name
+					parts := strings.Split(ep.Name, ".")
+					if len(parts) != 2 {
+						continue
+					}
+					// Build API path
+					apiPath := fmt.Sprintf("/api/%s/%s/%s", s.Name, parts[0], parts[1])
+					// Params
+					var params string
+					if ep.Request != nil && len(ep.Request.Values) > 0 {
+						params += "<ul>"
+						for _, v := range ep.Request.Values {
+							params += fmt.Sprintf("<li><b>%s</b> (%s)</li>", v.Name, v.Type)
+						}
+						params += "</ul>"
+					} else {
+						params = "<i>No parameters</i>"
+					}
+					// Response
+					var response string
+					if ep.Response != nil && len(ep.Response.Values) > 0 {
+						response += "<ul>"
+						for _, v := range ep.Response.Values {
+							response += fmt.Sprintf("<li><b>%s</b> (%s)</li>", v.Name, v.Type)
+						}
+						response += "</ul>"
+					} else {
+						response = "<i>No response fields</i>"
+					}
+					html += fmt.Sprintf(
+						`<div style="margin-bottom:1em;">
+							<div><b>Endpoint:</b> <code>%s</code></div>
+							<div><b>HTTP Path:</b> <code>%s</code></div>
+							<div><b>Parameters:</b> %s</div>
+							<div><b>Response:</b> %s</div>
+						</div>`,
+						ep.Name, apiPath, params, response,
+					)
+				}
+			}
+			render(w, html)
+			return
+		}
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			// /api/{service}/{endpointService}/{endpointMethod}
 			parts := strings.Split(r.URL.Path, "/")
