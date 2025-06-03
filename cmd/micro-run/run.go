@@ -156,6 +156,37 @@ func serveMicroWeb(dir string, addr string) {
 			w.Write(rsp)
 			return
 		}
+
+		// --- Restore web reverse proxy logic ---
+		if _, err := os.Stat(webDir); err == nil {
+			// web subdir exists, look for service by parent dir name
+			srvs, err := registry.GetService(parentDir)
+			if err == nil && len(srvs) > 0 && len(srvs[0].Nodes) > 0 {
+				// reverse proxy to first node
+				target := srvs[0].Nodes[0].Address
+				u, _ := url.Parse("http://" + target)
+				proxy := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+					proxyReq, _ := http.NewRequest(req.Method, u.String()+req.RequestURI, req.Body)
+					for k, v := range req.Header {
+						proxyReq.Header[k] = v
+					}
+					resp, err := http.DefaultClient.Do(proxyReq)
+					if err != nil {
+						http.Error(w, "Proxy error", 502)
+						return
+					}
+					defer resp.Body.Close()
+					for k, v := range resp.Header {
+						w.Header()[k] = v
+					}
+					w.WriteHeader(resp.StatusCode)
+					io.Copy(w, resp.Body)
+				})
+				proxy.ServeHTTP(w, r)
+				return
+			}
+		}
+
 		// --- Custom routing for / and /services ---
 		parts := strings.Split(r.URL.Path, "/")
 		if len(parts) == 2 && parts[1] == "services" {
