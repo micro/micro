@@ -1,16 +1,19 @@
 package run
 
 import (
+	"fmt"
+	"bufio"
 	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"os/signal"
-	"fmt"
 	"path/filepath"
-	"bufio"
 
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/cmd"
+	"go-micro.dev/v5/registry"
 )
 
 // Color codes for log output
@@ -27,12 +30,58 @@ func colorFor(idx int) string {
 	return colors[idx%len(colors)]
 }
 
+func serveMicroWeb(dir string) {
+	webDir := filepath.Join(dir, "web")
+	parentDir := filepath.Base(dir)
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if _, err := os.Stat(webDir); err == nil {
+			// web subdir exists, look for service by parent dir name
+			srvs, err := registry.GetService(parentDir)
+			if err == nil && len(srvs) > 0 && len(srvs[0].Nodes) > 0 {
+				// reverse proxy to first node
+				target := srvs[0].Nodes[0].Address
+				u, _ := url.Parse("http://" + target)
+				proxy := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+					proxyReq, _ := http.NewRequest(req.Method, u.String()+req.RequestURI, req.Body)
+					for k, v := range req.Header {
+						proxyReq.Header[k] = v
+					}
+					resp, err := http.DefaultClient.Do(proxyReq)
+					if err != nil {
+						http.Error(w, "Proxy error", 502)
+						return
+					}
+					defer resp.Body.Close()
+					for k, v := range resp.Header {
+						w.Header()[k] = v
+					}
+					w.WriteHeader(resp.StatusCode)
+					io.Copy(w, resp.Body)
+				})
+				proxy.ServeHTTP(w, r)
+				return
+			}
+		}
+		// else: serve index page listing services
+		services, _ := registry.ListServices()
+		html := "<h1>Available Services</h1>"
+		for _, s := range services {
+			html += "<p>" + s.Name + "</p>"
+		}
+		w.Header().Set("Content-Type", "text/html")
+		w.Write([]byte(html))
+	})
+	go http.ListenAndServe(":8080", nil)
+}
+
 func Run(c *cli.Context) error {
 	all := c.Bool("all")
 	dir := c.Args().Get(0)
 	if len(dir) == 0 {
 		dir = "."
 	}
+	serveMicroWeb(dir)
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
