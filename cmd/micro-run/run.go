@@ -70,7 +70,7 @@ var htmlTemplate = `<!DOCTYPE html>
         color: black;
         text-decoration: none;
         font-weight: bold;
-        margin-bottom: 10px;
+        margin: 10px;
         border: 2px solid #888;
         border-radius: 8px;
         padding: 5px 14px;
@@ -81,6 +81,7 @@ var htmlTemplate = `<!DOCTYPE html>
       a:hover, .micro-link:hover {
         background: #e0e0e0;
       }
+	  #title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
       pre { background: #f5f5f5; border-radius: 5px; padding: 10px; overflow: scroll;}
       input, button { border-radius: 5px; padding: 10px; display: block; margin-bottom: 5px; }
       button:hover { cursor: pointer; }
@@ -88,7 +89,7 @@ var htmlTemplate = `<!DOCTYPE html>
   </head>
   <body>
      <div id="head">
-       <h1><a href="/">Micro</a></h1>
+       <h1><a href="/" id="title">Micro</a></h1>
        <a id="api-link" href="/api" class="micro-link">API</a>
      </div>
      <div class="container">
