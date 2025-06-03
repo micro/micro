@@ -1,10 +1,10 @@
 package run
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
-	"bufio"
 	"io"
 	"net/http"
 	"net/url"
@@ -16,9 +16,9 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/cmd"
-	"go-micro.dev/v5/registry"
 	"go-micro.dev/v5/client"
 	"go-micro.dev/v5/codec/bytes"
+	"go-micro.dev/v5/registry"
 )
 
 // Color codes for log output
@@ -114,7 +114,7 @@ func rpcCall(service, endpoint string, request []byte) ([]byte, error) {
 	return rsp.Data, nil
 }
 
-func serveMicroWeb(dir string) {
+func serveMicroWeb(dir string, addr string) {
 	// Always resolve to absolute path for dir
 	absDir, err := filepath.Abs(dir)
 	if err != nil {
@@ -152,15 +152,23 @@ func serveMicroWeb(dir string) {
 				return
 			}
 		}
-		// --- Default micro web UI logic below (copied from micro-web) ---
+
+		// --- Custom routing for / and /services ---
 		parts := strings.Split(r.URL.Path, "/")
-		if len(parts) < 2 || parts[1] == "" {
-			// List all services
+		if len(parts) == 2 && parts[1] == "services" {
+			// List all services on /services
 			services, _ := registry.ListServices()
 			var html string
 			for _, service := range services {
 				html += fmt.Sprintf(`<p><a href="/%s">%s</a></p>`, url.QueryEscape(service.Name), service.Name)
 			}
+			render(w, html)
+			return
+		}
+		if len(parts) < 2 || parts[1] == "" {
+			// Index page: just a welcome message and a link to /services
+			html := `<h2>Welcome to Micro Web</h2>
+            <p><a href="/services">View Services</a></p>`
 			render(w, html)
 			return
 		}
@@ -241,7 +249,7 @@ func serveMicroWeb(dir string) {
 			return
 		}
 	})
-	go http.ListenAndServe(":8080", nil)
+	go http.ListenAndServe(addr, nil)
 }
 
 func Run(c *cli.Context) error {
@@ -249,7 +257,11 @@ func Run(c *cli.Context) error {
 	if len(dir) == 0 {
 		dir = "."
 	}
-	serveMicroWeb(dir)
+	addr := c.String("address")
+	if addr == "" {
+		addr = ":8080"
+	}
+	serveMicroWeb(dir, addr)
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -366,5 +378,13 @@ func init() {
 		Name:   "run",
 		Usage:  "Run all services in a directory",
 		Action: Run,
+		Flags: []*cli.Flag{
+			&cli.StringFlag{
+				Name:    "address",
+				Aliases: []string{"a"},
+				Usage:   "Address to bind the micro web UI (default :8080)",
+				Value:   ":8080",
+			},
+		},
 	})
 }
