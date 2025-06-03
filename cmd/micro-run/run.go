@@ -66,7 +66,21 @@ var htmlTemplate = `<!DOCTYPE html>
          max-width: 1400px;
          margin: 0 auto;
       }
-      a { color: black; text-decoration: none; font-weight: bold; margin-bottom: 10px;}
+      a, .micro-link {
+        color: black;
+        text-decoration: none;
+        font-weight: bold;
+        margin-bottom: 10px;
+        border: 2px solid #888;
+        border-radius: 8px;
+        padding: 5px 14px;
+        display: inline-block;
+        transition: background 0.15s;
+        background: #f9f9f9;
+      }
+      a:hover, .micro-link:hover {
+        background: #e0e0e0;
+      }
       pre { background: #f5f5f5; border-radius: 5px; padding: 10px; overflow: scroll;}
       input, button { border-radius: 5px; padding: 10px; display: block; margin-bottom: 5px; }
       button:hover { cursor: pointer; }
@@ -75,7 +89,7 @@ var htmlTemplate = `<!DOCTYPE html>
   <body>
      <div id="head">
        <h1><a href="/">Micro</a></h1>
-       <a id="api-link" href="/api">API</a>
+       <a id="api-link" href="/api" class="micro-link">API</a>
      </div>
      <div class="container">
 	%s
@@ -275,7 +289,7 @@ func serveMicroWeb(dir string, addr string) {
 			services, _ := registry.ListServices()
 			html := `<h2>Services</h2>`
 			for _, service := range services {
-				html += fmt.Sprintf(`<p><a href="/%s">%s</a></p>`, url.QueryEscape(service.Name), service.Name)
+				html += fmt.Sprintf(`<a class="micro-link" href="/%s">%s</a>`, url.QueryEscape(service.Name), service.Name)
 			}
 			render(w, html)
 			return
@@ -302,7 +316,7 @@ func serveMicroWeb(dir string, addr string) {
 			for _, ep := range s[0].Endpoints {
 				p := strings.Split(ep.Name, ".")
 				uri := fmt.Sprintf("/%s/%s/%s", service, p[0], p[1])
-				endpoints += fmt.Sprintf(`<div><a href="%s">%s</a></div>`, uri, ep.Name)
+				endpoints += fmt.Sprintf(`<a class="micro-link" href="%s">%s</a>`, uri, ep.Name)
 			}
 			b, _ := json.MarshalIndent(s[0], "", "    ")
 			serviceHTML := fmt.Sprintf(serviceTemplate, service, endpoints, string(b))
