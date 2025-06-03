@@ -128,7 +128,16 @@ func Run(c *cli.Context) error {
 	var pidFiles []string
 	for i, mainFile := range mainFiles {
 		serviceDir := filepath.Dir(mainFile)
-		serviceName := filepath.Base(serviceDir)
+		var serviceName string
+		absDir, _ := filepath.Abs(dir)
+		absServiceDir, _ := filepath.Abs(serviceDir)
+		if absDir == absServiceDir {
+			// If main.go is in the root dir being run, use the current working dir name
+			cwd, _ := os.Getwd()
+			serviceName = filepath.Base(cwd)
+		} else {
+			serviceName = filepath.Base(serviceDir)
+		}
 		logFilePath := filepath.Join(logsDir, serviceName+".log")
 		binPath := filepath.Join(binDir, serviceName)
 		pidFilePath := filepath.Join(runDir, serviceName+".pid")
