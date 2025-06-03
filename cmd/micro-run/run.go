@@ -15,8 +15,8 @@ import (
 	"strings"
 
 	"github.com/urfave/cli/v2"
-	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/client"
+	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/registry"
 )
@@ -378,7 +378,7 @@ func init() {
 		Name:   "run",
 		Usage:  "Run all services in a directory",
 		Action: Run,
-		Flags: []*cli.Flag{
+		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "address",
 				Aliases: []string{"a"},
