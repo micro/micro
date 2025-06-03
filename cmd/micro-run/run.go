@@ -81,7 +81,6 @@ func serveMicroWeb(dir string) {
 }
 
 func Run(c *cli.Context) error {
-	all := c.Bool("all")
 	dir := c.Args().Get(0)
 	if len(dir) == 0 {
 		dir = "."
@@ -105,151 +104,94 @@ func Run(c *cli.Context) error {
 		return fmt.Errorf("failed to create bin dir: %w", err)
 	}
 
-	if all {
-		var mainFiles []string
-		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if info.IsDir() {
-				return nil
-			}
-			if info.Name() == "main.go" {
-				mainFiles = append(mainFiles, path)
-			}
-			return nil
-		})
+	// Always run all services (find all main.go)
+	var mainFiles []string
+	err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return fmt.Errorf("error walking the path: %w", err)
+			return err
 		}
-		if len(mainFiles) == 0 {
-			return fmt.Errorf("no main.go files found in %s", dir)
+		if info.IsDir() {
+			return nil
 		}
-		var procs []*exec.Cmd
-		var pidFiles []string
-		for i, mainFile := range mainFiles {
-			serviceDir := filepath.Dir(mainFile)
-			serviceName := filepath.Base(serviceDir)
-			logFilePath := filepath.Join(logsDir, serviceName+".log")
-			binPath := filepath.Join(binDir, serviceName)
-			pidFilePath := filepath.Join(runDir, serviceName+".pid")
-
-			logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "failed to open log file for %s: %v\n", serviceName, err)
-				continue
-			}
-			buildCmd := exec.Command("go", "build", "-o", binPath, ".")
-			buildCmd.Dir = serviceDir
-			buildOut, buildErr := buildCmd.CombinedOutput()
-			if buildErr != nil {
-				logFile.WriteString(string(buildOut))
-				logFile.Close()
-				fmt.Fprintf(os.Stderr, "failed to build %s: %v\n", serviceName, buildErr)
-				continue
-			}
-			cmd := exec.Command(binPath)
-			cmd.Dir = serviceDir
-			pr, pw := io.Pipe()
-			cmd.Stdout = pw
-			cmd.Stderr = pw
-			color := colorFor(i)
-			go func(name string, color string, pr *io.PipeReader) {
-				scanner := bufio.NewScanner(pr)
-				for scanner.Scan() {
-					fmt.Printf("%s[%s]\033[0m %s\n", color, name, scanner.Text())
-				}
-			}(serviceName, color, pr)
-			if err := cmd.Start(); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
-				pw.Close()
-				continue
-			}
-			procs = append(procs, cmd)
-			pidFiles = append(pidFiles, pidFilePath)
-			os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, serviceDir)), 0644)
-		}
-		ch := make(chan os.Signal, 1)
-		signal.Notify(ch, os.Interrupt)
-		go func() {
-			<-ch
-			for _, proc := range procs {
-				if proc.Process != nil {
-					_ = proc.Process.Kill()
-				}
-			}
-			for _, pf := range pidFiles {
-				_ = os.Remove(pf)
-			}
-			os.Exit(1)
-		}()
-		for _, proc := range procs {
-			_ = proc.Wait()
+		if info.Name() == "main.go" {
+			mainFiles = append(mainFiles, path)
 		}
 		return nil
-	}
-
-	// single service mode (no color needed)
-	serviceName := filepath.Base(dir)
-	logFilePath := filepath.Join(logsDir, serviceName+".log")
-	binPath := filepath.Join(binDir, serviceName)
-	pidFilePath := filepath.Join(runDir, serviceName+".pid")
-	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	})
 	if err != nil {
-		return fmt.Errorf("failed to open log file: %w", err)
+		return fmt.Errorf("error walking the path: %w", err)
 	}
-	defer logFile.Close()
-	buildCmd := exec.Command("go", "build", "-o", binPath, dir)
-	buildCmd.Dir = dir
-	buildOut, buildErr := buildCmd.CombinedOutput()
-	if buildErr != nil {
-		logFile.WriteString(string(buildOut))
-		return fmt.Errorf("failed to build %s: %v", serviceName, buildErr)
+	if len(mainFiles) == 0 {
+		return fmt.Errorf("no main.go files found in %s", dir)
 	}
-	cmd := exec.Command(binPath)
-	cmd.Dir = dir
-	pr, pw := io.Pipe()
-	cmd.Stdout = pw
-	cmd.Stderr = pw
-	go func() {
-		scanner := bufio.NewScanner(pr)
-		for scanner.Scan() {
-			fmt.Printf("[%s] %s\n", serviceName, scanner.Text())
+	var procs []*exec.Cmd
+	var pidFiles []string
+	for i, mainFile := range mainFiles {
+		serviceDir := filepath.Dir(mainFile)
+		serviceName := filepath.Base(serviceDir)
+		logFilePath := filepath.Join(logsDir, serviceName+".log")
+		binPath := filepath.Join(binDir, serviceName)
+		pidFilePath := filepath.Join(runDir, serviceName+".pid")
+
+		logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to open log file for %s: %v\n", serviceName, err)
+			continue
 		}
-	}()
-	if err := cmd.Start(); err != nil {
-		return err
+		buildCmd := exec.Command("go", "build", "-o", binPath, ".")
+		buildCmd.Dir = serviceDir
+		buildOut, buildErr := buildCmd.CombinedOutput()
+		if buildErr != nil {
+			logFile.WriteString(string(buildOut))
+			logFile.Close()
+			fmt.Fprintf(os.Stderr, "failed to build %s: %v\n", serviceName, buildErr)
+			continue
+		}
+		cmd := exec.Command(binPath)
+		cmd.Dir = serviceDir
+		pr, pw := io.Pipe()
+		cmd.Stdout = pw
+		cmd.Stderr = pw
+		color := colorFor(i)
+		go func(name string, color string, pr *io.PipeReader) {
+			scanner := bufio.NewScanner(pr)
+			for scanner.Scan() {
+				fmt.Printf("%s[%s]\033[0m %s\n", color, name, scanner.Text())
+			}
+		}(serviceName, color, pr)
+		if err := cmd.Start(); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
+			pw.Close()
+			continue
+		}
+		procs = append(procs, cmd)
+		pidFiles = append(pidFiles, pidFilePath)
+		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, serviceDir)), 0644)
 	}
-	os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, dir)), 0644)
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)
 	go func() {
 		<-ch
-		if cmd.Process != nil {
-			_ = cmd.Process.Kill()
+		for _, proc := range procs {
+			if proc.Process != nil {
+				_ = proc.Process.Kill()
+			}
 		}
-		_ = os.Remove(pidFilePath)
+		for _, pf := range pidFiles {
+			_ = os.Remove(pf)
+		}
 		os.Exit(1)
 	}()
-	_ = cmd.Wait()
+	for _, proc := range procs {
+		_ = proc.Wait()
+	}
 	return nil
 }
 
 func init() {
 	cmd.Register(&cli.Command{
 		Name:   "run",
-		Usage:  "Run a service or all services in a directory",
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:  "all",
-				Usage: "Run all services (find all main.go)",
-			},
-			&cli.BoolFlag{
-				Name:    "daemon",
-				Aliases: []string{"d"},
-				Usage:   "Daemonize (detach and only log to file)",
-			},
-		},
+		Usage:  "Run all services in a directory",
 		Action: Run,
 	})
 }
