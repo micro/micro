@@ -1,7 +1,8 @@
 package run
 
 import (
-	"bytes"
+	"context"
+	"encoding/json"
 	"fmt"
 	"bufio"
 	"io"
@@ -16,6 +17,8 @@ import (
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/registry"
+	"go-micro.dev/v5/client"
+	"go-micro.dev/v5/codec/bytes"
 )
 
 // Color codes for log output
