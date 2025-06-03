@@ -135,17 +135,31 @@ func serveMicroWeb(dir string, addr string) {
 			service := parts[2]
 			endpointService := parts[3]
 			endpointMethod := parts[4]
-			// Compose endpoint name: EndpointService.EndpointMethod (capitalize)
 			endpointName := normalize(endpointService) + "." + normalize(endpointMethod)
-			// Parse request body as JSON
+
+			// Support GET params, POST form, and JSON body
 			var reqBody map[string]interface{}
-			if r.Body != nil {
+
+			// Prefer JSON body if present and Content-Type is application/json
+			if r.Method == "POST" && strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
 				defer r.Body.Close()
 				json.NewDecoder(r.Body).Decode(&reqBody)
 			}
+
+			// If not JSON, or for GET, use URL query/form values
 			if reqBody == nil {
 				reqBody = map[string]interface{}{}
+				// Parse form for POST, or query for GET
+				r.ParseForm()
+				for k, v := range r.Form {
+					if len(v) == 1 {
+						reqBody[k] = v[0]
+					} else {
+						reqBody[k] = v
+					}
+				}
 			}
+
 			b, _ := json.Marshal(reqBody)
 			rsp, err := rpcCall(service, endpointName, b)
 			if err != nil {
