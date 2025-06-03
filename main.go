@@ -20,9 +20,9 @@ import (
 
 	_ "github.com/micro/micro/v5/cmd/micro-api"
 	_ "github.com/micro/micro/v5/cmd/micro-cli"
-	_ "github.com/micro/micro/v5/cmd/micro-web"
-	_ "github.com/micro/micro/v5/cmd/micro-run"
 	"github.com/micro/micro/v5/cmd/micro-cli/util"
+	_ "github.com/micro/micro/v5/cmd/micro-run"
+	_ "github.com/micro/micro/v5/cmd/micro-web"
 )
 
 var (
