@@ -267,8 +267,19 @@ func serveMicroWeb(dir string, addr string) {
 			if r.URL.Path == "/web" || r.URL.Path == "/web/" {
 				// Render the micro web index page (same as old "/")
 				html := `<h2>Web</h2>
-            <p><a href="/services" class="micro-link">Services</a></p>`
+            <p><a href="/web/services" class="micro-link">Services</a></p>`
 				render(w, html)
+				return
+			}
+			// Remap /services and /{service}... to /web/services and /web/{service}...
+			if r.URL.Path == "/services" || strings.HasPrefix(r.URL.Path, "/services/") {
+				http.Redirect(w, r, "/web"+r.URL.Path, http.StatusFound)
+				return
+			}
+			parts := strings.Split(r.URL.Path, "/")
+			if len(parts) > 1 && parts[1] != "" && parts[1] != "web" && parts[1] != "api" {
+				// e.g. /foo, /foo/bar
+				http.Redirect(w, r, "/web"+r.URL.Path, http.StatusFound)
 				return
 			}
 			// web subdir exists, look for service by parent dir name
