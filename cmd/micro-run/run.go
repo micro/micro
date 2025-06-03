@@ -86,7 +86,9 @@ var htmlTemplate = `<!DOCTYPE html>
 
 var serviceTemplate = `
 <h2>%s</h2>
+<h3>Endpoints</h3>
 <div>%s</div>
+<h3>Description</h3>
 <pre>%s</pre>
 `
 
@@ -138,7 +140,7 @@ func serveMicroWeb(dir string, addr string) {
 			// Render API documentation page
 			services, _ := registry.ListServices()
 			var html string
-			html += "<h2>Available API Endpoints</h2>"
+			html += "<h2>API Endpoints</h2>"
 			for _, srv := range services {
 				srvs, err := registry.GetService(srv.Name)
 				if err != nil || len(srvs) == 0 {
@@ -271,7 +273,7 @@ func serveMicroWeb(dir string, addr string) {
 		if len(parts) == 2 && parts[1] == "services" {
 			// List all services on /services
 			services, _ := registry.ListServices()
-			var html string
+			html := `<h2>Services</h2>`
 			for _, service := range services {
 				html += fmt.Sprintf(`<p><a href="/%s">%s</a></p>`, url.QueryEscape(service.Name), service.Name)
 			}
