@@ -265,21 +265,17 @@ func serveMicroWeb(dir string, addr string) {
 		if _, err := os.Stat(webDir); err == nil {
 			// If /web or /web/ is requested, serve the micro web index
 			if r.URL.Path == "/web" || r.URL.Path == "/web/" {
-				// Render the micro web index page (same as old "/")
 				html := `<h2>Web</h2>
-            <p><a href="/web/services" class="micro-link">Services</a></p>`
+            <p><a href="/services" class="micro-link">Services</a></p>`
 				render(w, html)
 				return
 			}
-			// Remap /services and /{service}... to /web/services and /web/{service}...
-			if r.URL.Path == "/services" || strings.HasPrefix(r.URL.Path, "/services/") {
-				http.Redirect(w, r, "/web"+r.URL.Path, http.StatusFound)
-				return
-			}
+			// Always allow /services to be handled below (not remapped)
+			// Remap /{service} and /{service}/... to /service/{service} and /service/{service}/...
 			parts := strings.Split(r.URL.Path, "/")
-			if len(parts) > 1 && parts[1] != "" && parts[1] != "web" && parts[1] != "api" {
+			if len(parts) > 1 && parts[1] != "" && parts[1] != "web" && parts[1] != "api" && parts[1] != "services" && parts[1] != "service" {
 				// e.g. /foo, /foo/bar
-				http.Redirect(w, r, "/web"+r.URL.Path, http.StatusFound)
+				http.Redirect(w, r, "/service"+r.URL.Path, http.StatusFound)
 				return
 			}
 			// web subdir exists, look for service by parent dir name
@@ -313,17 +309,98 @@ func serveMicroWeb(dir string, addr string) {
 			}
 		}
 
-		// --- Custom routing for / and /services ---
+		// --- Custom routing for /services and /service/{service} ---
 		parts := strings.Split(r.URL.Path, "/")
 		if len(parts) == 2 && parts[1] == "services" {
 			// List all services on /services
 			services, _ := registry.ListServices()
 			html := `<h2>Services</h2>`
 			for _, service := range services {
-				html += fmt.Sprintf(`<a class="micro-link" href="/%s">%s</a>`, url.QueryEscape(service.Name), service.Name)
+				html += fmt.Sprintf(`<a class="micro-link" href="/service/%s">%s</a>`, url.QueryEscape(service.Name), service.Name)
 			}
 			render(w, html)
 			return
+		}
+		if len(parts) >= 3 && parts[1] == "service" && parts[2] != "" {
+			service := parts[2]
+			// Try to decode URL-encoded service names (for /services links)
+			service, _ = url.QueryUnescape(service)
+			s, err := registry.GetService(service)
+			if err != nil || len(s) == 0 {
+				w.WriteHeader(404)
+				w.Write([]byte(fmt.Sprintf("Service not found: %s", service)))
+				return
+			}
+			if len(parts) < 4 || parts[3] == "" {
+				// List endpoints for the service
+				var endpoints string
+				for _, ep := range s[0].Endpoints {
+					p := strings.Split(ep.Name, ".")
+					uri := fmt.Sprintf("/service/%s/%s/%s", service, p[0], p[1])
+					endpoints += fmt.Sprintf(`<a class="micro-link" href="%s">%s</a>`, uri, ep.Name)
+				}
+				b, _ := json.MarshalIndent(s[0], "", "    ")
+				serviceHTML := fmt.Sprintf(serviceTemplate, service, endpoints, string(b))
+				render(w, serviceHTML)
+				return
+			}
+			endpoint := parts[3]
+			if len(parts) == 5 {
+				endpoint = normalize(endpoint) + "." + normalize(parts[4])
+			} else {
+				endpoint = normalize(service) + "." + normalize(endpoint)
+			}
+			// get the endpoint
+			var ep *registry.Endpoint
+			for _, eps := range s[0].Endpoints {
+				if eps.Name == endpoint {
+					ep = eps
+					break
+				}
+			}
+			if ep == nil {
+				w.WriteHeader(404)
+				w.Write([]byte("Endpoint not found"))
+				return
+			}
+			if r.Method == "GET" {
+				var inputs string
+				inputs += fmt.Sprintf("<h3>%s</h3>", ep.Name)
+				if ep != nil {
+					for _, input := range ep.Request.Values {
+						inputs += fmt.Sprintf(`<input id=%s name=%s placeholder=%s>`, input.Name, input.Name, input.Name)
+					}
+				} else {
+					inputs = `<textarea></textarea>`
+				}
+				inputs += `<button>Submit</button>`
+				formHTML := fmt.Sprintf(endpointTemplate, service, r.URL.Path, inputs)
+				render(w, formHTML)
+				return
+			}
+			if r.Method == "POST" {
+				r.ParseForm()
+				request := map[string]interface{}{}
+				for k, v := range r.Form {
+					request[k] = strings.Join(v, ",")
+				}
+				b, _ := json.Marshal(request)
+				rsp, err := rpcCall(service, endpoint, b)
+				if err != nil {
+					http.Error(w, err.Error(), 500)
+					return
+				}
+				var response map[string]interface{}
+				json.Unmarshal(rsp, &response)
+				var output string
+				for k, v := range response {
+					output += fmt.Sprintf(`<div>%s: %s</div>`, k, v)
+				}
+				pretty, _ := json.MarshalIndent(response, "", "    ")
+				output += fmt.Sprintf(`<pre>%s</pre>`, string(pretty))
+				render(w, fmt.Sprintf(responseTemplate, output))
+				return
+			}
 		}
 		if len(parts) < 2 || parts[1] == "" {
 			// If webDir exists, redirect "/" to "/web" for the index page
