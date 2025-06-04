@@ -42,63 +42,26 @@ var htmlTemplate = `<!DOCTYPE html>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <title>Micro Web</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      html, body {
-        font-family: Arial;
-        font-size: 16px;
-        margin: 0;
-        padding: 0;
-      }
-      #head {
-        margin: 25px;
-        position: relative;
-      }
-      #head a { color: black; text-decoration: none; }
-      #api-link, #web-link {
-        position: absolute;
-        top: 25px;
-        font-size: 18px;
-        font-weight: bold;
-      }
-      #api-link { right: 25px; }
-      #web-link { right: 90px; }
-      .container {
-         padding: 25px;
-         max-width: 1400px;
-         margin: 0 auto;
-      }
+      /* Custom styles for .micro-link to match Tailwind look */
       .micro-link {
-        color: black;
-        text-decoration: none;
-        font-weight: bold;
-        margin-bottom: 10px;
-        margin-right: 10px;
-        margin-top: 10px;
-        margin-left: 0;
-        border: 2px solid #888;
-        border-radius: 8px;
-        padding: 5px 14px;
-        display: inline-block;
-        transition: background 0.15s;
-        background: #f9f9f9;
+        @apply inline-block font-bold border-2 border-gray-400 rounded-lg px-4 py-2 bg-gray-50 mr-2 mb-2 transition-colors;
       }
       .micro-link:hover {
-        background: whitesmoke;
+        @apply bg-gray-100;
       }
-      #logo { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
-      #logo:hover { background: none; }
-      pre { background: #f5f5f5; border-radius: 5px; padding: 10px; overflow: scroll;}
-      input, button { border-radius: 5px; padding: 10px; display: block; margin-bottom: 5px; }
-      button:hover { cursor: pointer; }
+      #title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
+      #title:hover { background: none; }
     </style>
   </head>
-  <body>
-     <div id="head">
-       <h1><a href="/" id="logo">Micro</a></h1>
-       <a id="web-link" href="/web" class="micro-link">Web</a>
-       <a id="api-link" href="/api" class="micro-link">API</a>
+  <body class="bg-gray-50 text-gray-900">
+     <div id="head" class="relative m-6">
+       <h1><a href="/" id="title" class="text-3xl font-bold">Micro</a></h1>
+       <a id="web-link" href="/web" class="micro-link absolute top-0 right-24">Web</a>
+       <a id="api-link" href="/api" class="micro-link absolute top-0 right-2">API</a>
      </div>
-     <div class="container">
+     <div class="container px-6 py-4 max-w-screen-xl mx-auto">
 	%s
      </div>
   </body>
