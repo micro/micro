@@ -46,9 +46,14 @@ var htmlTemplate = `<!DOCTYPE html>
     <style>
       .micro-link {
         @apply inline-block font-bold border-2 border-gray-400 rounded-lg px-4 py-2 bg-gray-50 mr-2 mb-2 transition-colors;
+        border: 2px solid #888;
+        border-radius: 8px;
+        padding: 8px 18px;
+        margin: 8px 8px 8px 0;
       }
       .micro-link:hover {
         @apply bg-gray-100;
+        background: #f3f4f6;
       }
       #title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
       #title:hover { background: none; }
