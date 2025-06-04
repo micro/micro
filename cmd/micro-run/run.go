@@ -44,7 +44,6 @@ var htmlTemplate = `<!DOCTYPE html>
     <title>Micro Web</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Custom styles for .micro-link to match Tailwind look */
       .micro-link {
         @apply inline-block font-bold border-2 border-gray-400 rounded-lg px-4 py-2 bg-gray-50 mr-2 mb-2 transition-colors;
       }
@@ -58,7 +57,7 @@ var htmlTemplate = `<!DOCTYPE html>
   <body class="bg-gray-50 text-gray-900">
      <div id="head" class="relative m-6">
        <h1><a href="/" id="title" class="text-3xl font-bold">Micro</a></h1>
-       <a id="web-link" href="/web" class="micro-link absolute top-0 right-24">Web</a>
+       <a id="web-link" href="%s" class="micro-link absolute top-0 right-24">Web</a>
        <a id="api-link" href="/api" class="micro-link absolute top-0 right-2">API</a>
      </div>
      <div class="container px-6 py-4 max-w-screen-xl mx-auto">
@@ -89,8 +88,8 @@ func normalize(v string) string {
 	return strings.ToUpper(v[:1]) + v[1:]
 }
 
-func render(w http.ResponseWriter, v string) error {
-	html := fmt.Sprintf(htmlTemplate, v)
+func render(w http.ResponseWriter, v string, webLink string) error {
+	html := fmt.Sprintf(htmlTemplate, webLink, v)
 	_, err := w.Write([]byte(html))
 	return err
 }
@@ -119,63 +118,63 @@ func serveMicroWeb(dir string, addr string) {
 	parentDir := filepath.Base(absDir)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Determine web link for nav
+		webLink := "/web"
+		if _, err := os.Stat(webDir); err != nil {
+			webLink = "/"
+		}
+
 		// --- Handle /api prefix for micro-api functionality ---
 		if r.URL.Path == "/api" || r.URL.Path == "/api/" {
 			// Render API documentation page
 			services, _ := registry.ListServices()
 			var html string
-			html += "<h2>API Endpoints</h2>"
+			html += `<h2 class="text-2xl font-bold mb-4">API Endpoints</h2>`
 			for _, srv := range services {
 				srvs, err := registry.GetService(srv.Name)
 				if err != nil || len(srvs) == 0 {
 					continue
 				}
 				s := srvs[0]
-				html += fmt.Sprintf(`<h3>%s</h3>`, s.Name)
+				html += fmt.Sprintf(`<h3 class="text-xl font-semibold mt-6 mb-2">%s</h3>`, s.Name)
 				for _, ep := range s.Endpoints {
-					// Parse endpoint name
 					parts := strings.Split(ep.Name, ".")
 					if len(parts) != 2 {
 						continue
 					}
-					// Build API path
 					apiPath := fmt.Sprintf("/api/%s/%s/%s", s.Name, parts[0], parts[1])
-					// Params
 					var params string
 					if ep.Request != nil && len(ep.Request.Values) > 0 {
-						params += "<ul>"
+						params += "<ul class=\"ml-4\">"
 						for _, v := range ep.Request.Values {
-							params += fmt.Sprintf("<li><b>%s</b> (%s)</li>", v.Name, v.Type)
+							params += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">(%s)</span></li>", v.Name, v.Type)
 						}
 						params += "</ul>"
 					} else {
-						params = "<i>No parameters</i>"
+						params = "<i class=\"text-gray-500\">No parameters</i>"
 					}
-					// Response
 					var response string
 					if ep.Response != nil && len(ep.Response.Values) > 0 {
-						response += "<ul>"
+						response += "<ul class=\"ml-4\">"
 						for _, v := range ep.Response.Values {
-							response += fmt.Sprintf("<li><b>%s</b> (%s)</li>", v.Name, v.Type)
+							response += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">(%s)</span></li>", v.Name, v.Type)
 						}
 						response += "</ul>"
 					} else {
-						response = "<i>No response fields</i>"
+						response = "<i class=\"text-gray-500\">No response fields</i>"
 					}
 					html += fmt.Sprintf(
-						`<div><code>%s</code></div>
-						  <hr>
-						  <div style="margin: 1em 1em 2em 1em;">
-							<div><b>HTTP Path:</b> <code>%s</code></div>
-							<br>
-							<div><b>Parameters:</b> %s</div>
-							<div><b>Response:</b> %s</div>
-						  </div>`,
+						`<div class="mb-4">
+							<div><span class="font-bold">Endpoint:</span> <code class="font-mono">%s</code></div>
+							<div><span class="font-bold">HTTP Path:</span> <code class="font-mono">%s</code></div>
+							<div><span class="font-bold">Parameters:</span> %s</div>
+							<div><span class="font-bold">Response:</span> %s</div>
+						</div>`,
 						ep.Name, apiPath, params, response,
 					)
 				}
 			}
-			render(w, html)
+			render(w, html, webLink)
 			return
 		}
 		if strings.HasPrefix(r.URL.Path, "/api/") {
@@ -229,11 +228,11 @@ func serveMicroWeb(dir string, addr string) {
 		if len(parts) == 2 && parts[1] == "services" {
 			// List all services on /services
 			services, _ := registry.ListServices()
-			html := `<h2>Services</h2>`
+			html := `<h2 class="text-2xl font-bold mb-4">Services</h2>`
 			for _, service := range services {
 				html += fmt.Sprintf(`<a class="micro-link" href="/service/%s">%s</a>`, url.QueryEscape(service.Name), service.Name)
 			}
-			render(w, html)
+			render(w, html, webLink)
 			return
 		}
 		if len(parts) >= 3 && parts[1] == "service" && parts[2] != "" {
@@ -247,14 +246,18 @@ func serveMicroWeb(dir string, addr string) {
 			}
 			if len(parts) < 4 || parts[3] == "" {
 				var endpoints string
+				endpoints += `<h4 class="font-semibold mb-2">Endpoints</h4>`
 				for _, ep := range s[0].Endpoints {
 					p := strings.Split(ep.Name, ".")
 					uri := fmt.Sprintf("/service/%s/%s/%s", service, p[0], p[1])
 					endpoints += fmt.Sprintf(`<a class="micro-link" href="%s">%s</a>`, uri, ep.Name)
 				}
 				b, _ := json.MarshalIndent(s[0], "", "    ")
-				serviceHTML := fmt.Sprintf(serviceTemplate, service, endpoints, string(b))
-				render(w, serviceHTML)
+				serviceHTML := fmt.Sprintf(
+					`<h2 class="text-xl font-bold mb-2">%s</h2>%s<h4 class="font-semibold mt-4 mb-2">Description</h4><pre class="bg-gray-100 rounded p-2">%s</pre>`,
+					service, endpoints, string(b),
+				)
+				render(w, serviceHTML, webLink)
 				return
 			}
 			endpoint := parts[3]
@@ -277,13 +280,13 @@ func serveMicroWeb(dir string, addr string) {
 			}
 			if r.Method == "GET" {
 				var inputs string
-				inputs += fmt.Sprintf("<h3>%s</h3>", ep.Name)
+				inputs += fmt.Sprintf(`<h3 class="text-lg font-bold mb-2">%s</h3>`, ep.Name)
 				for _, input := range ep.Request.Values {
-					inputs += fmt.Sprintf(`<input id=%s name=%s placeholder=%s>`, input.Name, input.Name, input.Name)
+					inputs += fmt.Sprintf(`<label class="block font-semibold">%s</label><input id=%s name=%s placeholder=%s class="border rounded px-2 py-1 mb-2 w-full">`, input.Name, input.Name, input.Name, input.Name)
 				}
-				inputs += `<button>Submit</button>`
+				inputs += `<button class="micro-link mt-2" type="submit">Submit</button>`
 				formHTML := fmt.Sprintf(endpointTemplate, service, r.URL.Path, inputs)
-				render(w, formHTML)
+				render(w, formHTML, webLink)
 				return
 			}
 			if r.Method == "POST" {
@@ -314,9 +317,9 @@ func serveMicroWeb(dir string, addr string) {
 		// --- Serve /web and proxy all other requests to the web app if webDir exists ---
 		if _, err := os.Stat(webDir); err == nil {
 			if r.URL.Path == "/web" || r.URL.Path == "/web/" {
-				html := `<h2>Web</h2>
+				html := `<h2 class="text-2xl font-bold mb-4">Web</h2>
             <p><a href="/services" class="micro-link">Services</a></p>`
-				render(w, html)
+				render(w, html, webLink)
 				return
 			}
 			// Proxy everything else (except /api and /services/service) to the web app
@@ -350,9 +353,9 @@ func serveMicroWeb(dir string, addr string) {
 
 		// --- Default index page ---
 		if len(parts) < 2 || parts[1] == "" {
-			html := `<h2>Web</h2>
+			html := `<h2 class="text-2xl font-bold mb-4">Web</h2>
             <p><a href="/services" class="micro-link">Services</a></p>`
-			render(w, html)
+			render(w, html, webLink)
 			return
 		}
 
