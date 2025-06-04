@@ -309,7 +309,7 @@ func serveMicroWeb(dir string, addr string) {
 				}
 				pretty, _ := json.MarshalIndent(response, "", "    ")
 				output += fmt.Sprintf(`<pre>%s</pre>`, string(pretty))
-				render(w, fmt.Sprintf(responseTemplate, output))
+				render(w, fmt.Sprintf(responseTemplate, output), webLink)
 				return
 			}
 		}
