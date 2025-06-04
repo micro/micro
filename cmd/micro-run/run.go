@@ -303,18 +303,38 @@ func serveMicroWeb(dir string, addr string) {
 				b, _ := json.Marshal(request)
 				rsp, err := rpcCall(service, endpoint, b)
 				if err != nil {
-					http.Error(w, err.Error(), 500)
+					// Render form with error below
+					var inputs string
+					inputs += fmt.Sprintf(`<h3 class="text-lg font-bold mb-2">%s</h3>`, ep.Name)
+					for _, input := range ep.Request.Values {
+						inputs += fmt.Sprintf(`<label class="block font-semibold">%s</label><input id=%s name=%s placeholder=%s class="border rounded px-2 py-1 mb-2 w-full" value="%s">`, input.Name, input.Name, input.Name, input.Name, r.Form.Get(input.Name))
+					}
+					inputs += `<button class="micro-link mt-2" type="submit">Submit</button>`
+					formHTML := fmt.Sprintf(endpointTemplate, service, r.URL.Path, inputs)
+					errorHTML := fmt.Sprintf(`<div class="mt-4 text-red-600 font-bold">Error: %s</div>`, err.Error())
+					render(w, formHTML+errorHTML, webLink)
 					return
 				}
 				var response map[string]interface{}
 				json.Unmarshal(rsp, &response)
-				var output string
+				// Build response table
+				var tableRows string
 				for k, v := range response {
-					output += fmt.Sprintf(`<div>%s: %s</div>`, k, v)
+					tableRows += fmt.Sprintf(`<tr><td class="border px-2 py-1 font-semibold">%s</td><td class="border px-2 py-1">%v</td></tr>`, k, v)
 				}
+				tableHTML := `<table class="table-auto border-collapse border border-gray-300 mt-4 mb-2"><thead><tr><th class="border px-2 py-1">Field</th><th class="border px-2 py-1">Value</th></tr></thead><tbody>` + tableRows + `</tbody></table>`
 				pretty, _ := json.MarshalIndent(response, "", "    ")
-				output += fmt.Sprintf(`<pre>%s</pre>`, string(pretty))
-				render(w, fmt.Sprintf(responseTemplate, output), webLink)
+				jsonHTML := fmt.Sprintf(`<pre class="bg-gray-100 rounded p-2 mt-2">%s</pre>`, string(pretty))
+				// Render form + response
+				var inputs string
+				inputs += fmt.Sprintf(`<h3 class="text-lg font-bold mb-2">%s</h3>`, ep.Name)
+				for _, input := range ep.Request.Values {
+					inputs += fmt.Sprintf(`<label class="block font-semibold">%s</label><input id=%s name=%s placeholder=%s class="border rounded px-2 py-1 mb-2 w-full" value="%s">`, input.Name, input.Name, input.Name, input.Name, r.Form.Get(input.Name))
+				}
+				inputs += `<button class="micro-link mt-2" type="submit">Submit</button>`
+				formHTML := fmt.Sprintf(endpointTemplate, service, r.URL.Path, inputs)
+				responseHTML := `<div class="mt-4"><h4 class="font-bold mb-2">Response</h4>` + tableHTML + jsonHTML + `</div>`
+				render(w, formHTML+responseHTML, webLink)
 				return
 			}
 		}
