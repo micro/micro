@@ -136,7 +136,7 @@ func serveMicroWeb(dir string, addr string) {
 					continue
 				}
 				s := srvs[0]
-				html += fmt.Sprintf(`<h3 class="text-xl font-semibold mt-6 mb-2">%s</h3>`, s.Name)
+				html += fmt.Sprintf(`<h3 class="text-xl font-semibold mt-8 mb-2">%s</h3>`, s.Name)
 				for _, ep := range s.Endpoints {
 					parts := strings.Split(ep.Name, ".")
 					if len(parts) != 2 {
@@ -145,7 +145,7 @@ func serveMicroWeb(dir string, addr string) {
 					apiPath := fmt.Sprintf("/api/%s/%s/%s", s.Name, parts[0], parts[1])
 					var params string
 					if ep.Request != nil && len(ep.Request.Values) > 0 {
-						params += "<ul class=\"ml-4\">"
+						params += "<ul class=\"ml-4 mb-2\">"
 						for _, v := range ep.Request.Values {
 							params += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">(%s)</span></li>", v.Name, v.Type)
 						}
@@ -155,7 +155,7 @@ func serveMicroWeb(dir string, addr string) {
 					}
 					var response string
 					if ep.Response != nil && len(ep.Response.Values) > 0 {
-						response += "<ul class=\"ml-4\">"
+						response += "<ul class=\"ml-4 mb-2\">"
 						for _, v := range ep.Response.Values {
 							response += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">(%s)</span></li>", v.Name, v.Type)
 						}
@@ -164,11 +164,12 @@ func serveMicroWeb(dir string, addr string) {
 						response = "<i class=\"text-gray-500\">No response fields</i>"
 					}
 					html += fmt.Sprintf(
-						`<div class="mb-4">
-							<div><span class="font-bold">Endpoint:</span> <code class="font-mono">%s</code></div>
-							<div><span class="font-bold">HTTP Path:</span> <code class="font-mono">%s</code></div>
-							<div><span class="font-bold">Parameters:</span> %s</div>
-							<div><span class="font-bold">Response:</span> %s</div>
+						`<div class="mb-10">
+							<div class="text-lg font-bold mb-1">%s</div>
+							<hr class="mb-4 border-gray-300">
+							<div class="mb-2"><span class="font-bold">HTTP Path:</span> <code class="font-mono">%s</code></div>
+							<div class="mb-2"><span class="font-bold">Parameters:</span> %s</div>
+							<div class="mb-2"><span class="font-bold">Response:</span> %s</div>
 						</div>`,
 						ep.Name, apiPath, params, response,
 					)
@@ -226,11 +227,10 @@ func serveMicroWeb(dir string, addr string) {
 		// --- Serve /services and /service/{service} always, never remap ---
 		parts := strings.Split(r.URL.Path, "/")
 		if len(parts) == 2 && parts[1] == "services" {
-			// List all services on /services
 			services, _ := registry.ListServices()
 			html := `<h2 class="text-2xl font-bold mb-4">Services</h2>`
 			for _, service := range services {
-				html += fmt.Sprintf(`<a class="micro-link" href="/service/%s">%s</a>`, url.QueryEscape(service.Name), service.Name)
+				html += fmt.Sprintf(`<button onclick="location.href='/service/%s'" class="micro-link">%s</button>`, url.QueryEscape(service.Name), service.Name)
 			}
 			render(w, html, webLink)
 			return
@@ -250,7 +250,7 @@ func serveMicroWeb(dir string, addr string) {
 				for _, ep := range s[0].Endpoints {
 					p := strings.Split(ep.Name, ".")
 					uri := fmt.Sprintf("/service/%s/%s/%s", service, p[0], p[1])
-					endpoints += fmt.Sprintf(`<a class="micro-link" href="%s">%s</a>`, uri, ep.Name)
+					endpoints += fmt.Sprintf(`<button onclick="location.href='%s'" class="micro-link">%s</button>`, uri, ep.Name)
 				}
 				b, _ := json.MarshalIndent(s[0], "", "    ")
 				serviceHTML := fmt.Sprintf(
@@ -318,7 +318,7 @@ func serveMicroWeb(dir string, addr string) {
 		if _, err := os.Stat(webDir); err == nil {
 			if r.URL.Path == "/web" || r.URL.Path == "/web/" {
 				html := `<h2 class="text-2xl font-bold mb-4">Web</h2>
-            <p><a href="/services" class="micro-link">Services</a></p>`
+            <button onclick="location.href='/services'" class="micro-link">Services</button>`
 				render(w, html, webLink)
 				return
 			}
@@ -354,7 +354,7 @@ func serveMicroWeb(dir string, addr string) {
 		// --- Default index page ---
 		if len(parts) < 2 || parts[1] == "" {
 			html := `<h2 class="text-2xl font-bold mb-4">Web</h2>
-            <p><a href="/services" class="micro-link">Services</a></p>`
+            <button onclick="location.href='/services'" class="micro-link">Services</button>`
 			render(w, html, webLink)
 			return
 		}
