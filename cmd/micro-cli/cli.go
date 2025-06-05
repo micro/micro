@@ -303,9 +303,4 @@ func init() {
 
 		return nil
 	}
-
-	cmd.Init(
-		cmd.Name("micro"),
-		cmd.Version(version),
-	)
 }
