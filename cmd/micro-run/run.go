@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/client"
 	"go-micro.dev/v5/cmd"
@@ -400,6 +401,7 @@ func Run(c *cli.Context) error {
 	if addr == "" {
 		addr = ":8080"
 	}
+	watch := c.Bool("watch")
 	serveMicroWeb(dir, addr)
 
 	homeDir, err := os.UserHomeDir()
@@ -439,6 +441,16 @@ func Run(c *cli.Context) error {
 	if len(mainFiles) == 0 {
 		return fmt.Errorf("no main.go files found in %s", dir)
 	}
+
+	// Map serviceDir -> (cmd, logFile, etc)
+	type serviceProc struct {
+		cmd         *exec.Cmd
+		logFile     *os.File
+		binPath     string
+		serviceName string
+		pidFilePath string
+	}
+	services := map[string]*serviceProc{}
 	var procs []*exec.Cmd
 	var pidFiles []string
 	for i, mainFile := range mainFiles {
@@ -491,7 +503,9 @@ func Run(c *cli.Context) error {
 		procs = append(procs, cmd)
 		pidFiles = append(pidFiles, pidFilePath)
 		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, serviceDir)), 0644)
+		services[serviceDir] = &serviceProc{cmd, logFile, binPath, serviceName, pidFilePath}
 	}
+
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)
 	go func() {
@@ -506,8 +520,70 @@ func Run(c *cli.Context) error {
 		}
 		os.Exit(1)
 	}()
-	for _, proc := range procs {
-		_ = proc.Wait()
+
+	if watch {
+		watcher, err := fsnotify.NewWatcher()
+		if err != nil {
+			return fmt.Errorf("failed to create watcher: %w", err)
+		}
+		defer watcher.Close()
+		// Watch all service dirs
+		for serviceDir := range services {
+			watcher.Add(serviceDir)
+		}
+		go func() {
+			for {
+				select {
+				case event, ok := <-watcher.Events:
+					if !ok {
+						return
+					}
+					if event.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Remove|fsnotify.Rename) != 0 {
+						for serviceDir, proc := range services {
+							if strings.HasPrefix(event.Name, serviceDir) {
+								// Kill old process
+								if proc.cmd.Process != nil {
+									_ = proc.cmd.Process.Kill()
+								}
+								// Rebuild
+								buildCmd := exec.Command("go", "build", "-o", proc.binPath, ".")
+								buildCmd.Dir = serviceDir
+								buildOut, buildErr := buildCmd.CombinedOutput()
+								if buildErr != nil {
+									proc.logFile.WriteString(string(buildOut))
+									continue
+								}
+								// Restart
+								cmd := exec.Command(proc.binPath)
+								cmd.Dir = serviceDir
+								pr, pw := io.Pipe()
+								cmd.Stdout = pw
+								cmd.Stderr = pw
+								color := colorFor(0)
+								go func(name string, color string, pr *io.PipeReader) {
+									scanner := bufio.NewScanner(pr)
+									for scanner.Scan() {
+										fmt.Printf("%s[%s]\033[0m %s\n", color, name, scanner.Text())
+									}
+								}(proc.serviceName, color, pr)
+								cmd.Start()
+								proc.cmd = cmd
+							}
+						}
+					}
+				case err, ok := <-watcher.Errors:
+					if !ok {
+						return
+					}
+					fmt.Println("watcher error:", err)
+				}
+			}
+		}()
+		select {}
+	} else {
+		for _, proc := range procs {
+			_ = proc.Wait()
+		}
 	}
 	return nil
 }
@@ -523,6 +599,10 @@ func init() {
 				Aliases: []string{"a"},
 				Usage:   "Address to bind the micro web UI (default :8080)",
 				Value:   ":8080",
+			},
+			&cli.BoolFlag{
+				Name:  "watch",
+				Usage: "Watch for file changes and hot reload services",
 			},
 		},
 	})
