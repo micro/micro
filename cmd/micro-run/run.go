@@ -1,5 +1,6 @@
 package run
 
+
 import (
 	"bufio"
 	"context"
@@ -8,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"net/http/httputil"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -39,35 +41,35 @@ func colorFor(idx int) string {
 var htmlTemplate = `<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Micro Web</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      .micro-link {
-        @apply inline-block font-bold border-2 border-gray-400 rounded-lg px-4 py-2 bg-gray-50 mr-2 mb-2 transition-colors;
-        border: 2px solid #888;
-        border-radius: 8px;
-        padding: 8px 18px;
-        margin: 8px 8px 8px 0;
-      }
-      .micro-link:hover {
-        @apply bg-gray-100;
-        background: #f3f4f6;
-      }
-      #title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
-      #title:hover { background: none; }
-    </style>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width" />
+	<title>Micro Web</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+	  .micro-link {
+		@apply inline-block font-bold border-2 border-gray-400 rounded-lg px-4 py-2 bg-gray-50 mr-2 mb-2 transition-colors;
+		border: 2px solid #888;
+		border-radius: 8px;
+		padding: 8px 18px;
+		margin: 8px 8px 8px 0;
+	  }
+	  .micro-link:hover {
+		@apply bg-gray-100;
+		background: #f3f4f6;
+	  }
+	  #title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }
+	  #title:hover { background: none; }
+	</style>
   </head>
   <body class="bg-gray-50 text-gray-900">
-     <div id="head" class="relative m-6">
-       <h1><a href="/" id="title" class="text-3xl font-bold">Micro</a></h1>
-       <a id="web-link" href="%s" class="micro-link absolute top-0 right-24">Web</a>
-       <a id="api-link" href="/api" class="micro-link absolute top-0 right-2">API</a>
-     </div>
-     <div class="container px-6 py-4 max-w-screen-xl mx-auto">
+	 <div id="head" class="relative m-6">
+	   <h1><a href="/" id="title" class="text-3xl font-bold">Micro</a></h1>
+	   <a id="web-link" href="%s" class="micro-link absolute top-0 right-24">Web</a>
+	   <a id="api-link" href="/api" class="micro-link absolute top-0 right-2">API</a>
+	 </div>
+	 <div class="container px-6 py-4 max-w-screen-xl mx-auto">
 	%s
-     </div>
+	 </div>
   </body>
 </html>
 `
@@ -343,43 +345,27 @@ func serveMicroWeb(dir string, addr string) {
 		if _, err := os.Stat(webDir); err == nil {
 			if r.URL.Path == "/web" || r.URL.Path == "/web/" {
 				html := `<h2 class="text-2xl font-bold mb-4">Web</h2>
-            <button onclick="location.href='/services'" class="micro-link">Services</button>`
+			<button onclick="location.href='/services'" class="micro-link">Services</button>`
 				render(w, html, webLink)
 				return
 			}
 			// Proxy everything else (except /api and /services/service) to the web app
 			if !strings.HasPrefix(r.URL.Path, "/api") && !strings.HasPrefix(r.URL.Path, "/services") && !strings.HasPrefix(r.URL.Path, "/service") {
-				srvs, err := registry.GetService(parentDir)
-				if err == nil && len(srvs) > 0 && len(srvs[0].Nodes) > 0 {
-					target := srvs[0].Nodes[0].Address
-					u, _ := url.Parse("http://" + target)
-					proxy := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-						proxyReq, _ := http.NewRequest(req.Method, u.String()+req.RequestURI, req.Body)
-						for k, v := range req.Header {
-							proxyReq.Header[k] = v
-						}
-						resp, err := http.DefaultClient.Do(proxyReq)
-						if err != nil {
-							http.Error(w, "Proxy error", 502)
-							return
-						}
-						defer resp.Body.Close()
-						for k, v := range resp.Header {
-							w.Header()[k] = v
-						}
-						w.WriteHeader(resp.StatusCode)
-						io.Copy(w, resp.Body)
-					})
-					proxy.ServeHTTP(w, r)
-					return
-				}
+			   srvs, err := registry.GetService(parentDir)
+			   if err == nil && len(srvs) > 0 && len(srvs[0].Nodes) > 0 {
+				   target := srvs[0].Nodes[0].Address
+				   u, _ := url.Parse("http://" + target)
+				   proxy := httputil.NewSingleHostReverseProxy(u)
+				   proxy.ServeHTTP(w, r)
+				   return
+			   }
 			}
 		}
 
 		// --- Default index page ---
 		if len(parts) < 2 || parts[1] == "" {
 			html := `<h2 class="text-2xl font-bold mb-4">Web</h2>
-            <button onclick="location.href='/services'" class="micro-link">Services</button>`
+			<button onclick="location.href='/services'" class="micro-link">Services</button>`
 			render(w, html, webLink)
 			return
 		}
