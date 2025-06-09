@@ -48,7 +48,7 @@ go install github.com/google/gnostic/plugins/protoc-gen-openapi@latest
 Run the service
 
 ```
-micro run .
+micro run
 ```
 
 List services to see it's running and registered itself
