@@ -135,6 +135,12 @@ Call the service using the CLI
 micro call helloworld Helloworld.Call '{"name": "Asim"}'
 ```
 
+Micro dynamically maps services to CLI commands so you can also do
+
+```
+micro helloworld --help
+```
+
 ## Create a client
 
 Create a client to call the service
