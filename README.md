@@ -129,16 +129,16 @@ Output
 
 ## Call the service
 
-Call the service using the CLI
+Call via RPC endpoint
 
 ```
 micro call helloworld Helloworld.Call '{"name": "Asim"}'
 ```
 
-Micro dynamically maps services to CLI commands so you can also do
+Call via dynamic CLI mapping
 
 ```
-micro helloworld --help
+micro helloworld call --name=Asim
 ```
 
 ## Create a client
