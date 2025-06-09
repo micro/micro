@@ -463,12 +463,17 @@ func Run(c *cli.Context) error {
 		cmd.Stdout = pw
 		cmd.Stderr = pw
 		color := colorFor(i)
-		go func(name string, color string, pr *io.PipeReader) {
-			scanner := bufio.NewScanner(pr)
-			for scanner.Scan() {
-				fmt.Printf("%s[%s]\033[0m %s\n", color, name, scanner.Text())
-			}
-		}(serviceName, color, pr)
+	   go func(name string, color string, pr *io.PipeReader, logFile *os.File) {
+		   defer logFile.Close()
+		   scanner := bufio.NewScanner(pr)
+		   for scanner.Scan() {
+			   line := scanner.Text()
+			   // Write to terminal with color
+			   fmt.Printf("%s[%s]\033[0m %s\n", color, name, line)
+			   // Write to log file (without color)
+			   logFile.WriteString(line + "\n")
+		   }
+	   }(serviceName, color, pr, logFile)
 		if err := cmd.Start(); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
 			pw.Close()

@@ -192,24 +192,20 @@ func init() {
 					if err != nil {
 						continue
 					}
-					var pid int
-					var dir, reason string
-					fmt.Fscanf(pidFile, "%d\n%s\nreason: [%s]\n", &pid, &dir, &reason)
-					pidFile.Close()
-					status := "stopped"
-					if pid > 0 {
-						proc, err := os.FindProcess(pid)
-						if err == nil {
-							if err := proc.Signal(syscall.Signal(0)); err == nil {
-								status = "running"
-							}
-						}
-					}
-					if reason != "" && status != "running" {
-						fmt.Printf("%-20s %-8d %-8s %-40s %s\n", service, pid, status, reason, dir)
-					} else {
-						fmt.Printf("%-20s %-8d %-8s %-40s %s\n", service, pid, status, "", dir)
-					}
+				   var pid int
+				   var dir string
+				   fmt.Fscanf(pidFile, "%d\n%s\n", &pid, &dir)
+				   pidFile.Close()
+				   status := "stopped"
+				   if pid > 0 {
+					   proc, err := os.FindProcess(pid)
+					   if err == nil {
+						   if err := proc.Signal(syscall.Signal(0)); err == nil {
+							   status = "running"
+						   }
+					   }
+				   }
+				   fmt.Printf("%-20s %-8d %-8s %-40s %s\n", service, pid, status, "", dir)
 				}
 				return nil
 			},
