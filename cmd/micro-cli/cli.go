@@ -256,17 +256,33 @@ func init() {
 		},
 		{
 			Name:  "logs",
-			Usage: "Show logs for a service",
+			Usage: "Show logs for a service, or list available logs if no service is specified",
 			Action: func(ctx *cli.Context) error {
-				if ctx.Args().Len() != 1 {
-					return fmt.Errorf("Usage: micro logs [service]")
-				}
-				service := ctx.Args().Get(0)
 				homeDir, err := os.UserHomeDir()
 				if err != nil {
 					return fmt.Errorf("failed to get home dir: %w", err)
 				}
 				logsDir := filepath.Join(homeDir, "micro", "logs")
+				if ctx.Args().Len() == 0 {
+					// List available logs
+					dirEntries, err := os.ReadDir(logsDir)
+					if err != nil {
+						return fmt.Errorf("could not list logs directory: %v", err)
+					}
+					fmt.Println("Available logs:")
+					found := false
+					for _, entry := range dirEntries {
+						if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".log") {
+							fmt.Println("  ", strings.TrimSuffix(entry.Name(), ".log"))
+							found = true
+						}
+					}
+					if !found {
+						fmt.Println("  (no logs found)")
+					}
+					return nil
+				}
+				service := ctx.Args().Get(0)
 				logFilePath := filepath.Join(logsDir, service+".log")
 				f, err := os.Open(logFilePath)
 				if err != nil {
