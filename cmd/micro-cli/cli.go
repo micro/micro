@@ -18,6 +18,7 @@ import (
 	"go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/registry"
 
+	"github.com/micro/micro/v5/cmd/micro-cli/new"
 	"github.com/micro/micro/v5/cmd/micro-cli/util"
 )
 
@@ -85,6 +86,11 @@ func waitAndCleanup(procs []*exec.Cmd, pidFiles []string) {
 
 func init() {
 	cmd.Register([]*cli.Command{
+		{
+			Name:  "new",
+			Usage: "Create a new service",
+			Action: new.Run,
+		},
 		{
 			Name:  "gen",
 			Usage: "Generate various things",
