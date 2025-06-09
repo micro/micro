@@ -182,7 +182,7 @@ func main() {
 
 ## Protobuf 
 
-In the event you want to reduce boilerplate with code generation use [protoc-gen-micro](https://github.com/micro/micro/tree/master/cmd/protoc-gen-micro)
+Use protobuf for code generation with [protoc-gen-micro](https://github.com/micro/micro/tree/master/cmd/protoc-gen-micro)
 
 ## API Endpoints 
 
