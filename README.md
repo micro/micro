@@ -38,11 +38,6 @@ This will:
 - Show the updated project tree including generated files
 - Warn you if `protoc` is not installed, with install instructions
 
-If you need OpenAPI support, install `protoc-gen-openapi` separately:
-```
-go install github.com/google/gnostic/plugins/protoc-gen-openapi@latest
-```
-
 ## Run the service
 
 Run the service
