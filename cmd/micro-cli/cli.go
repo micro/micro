@@ -87,8 +87,8 @@ func waitAndCleanup(procs []*exec.Cmd, pidFiles []string) {
 func init() {
 	cmd.Register([]*cli.Command{
 		{
-			Name:  "new",
-			Usage: "Create a new service",
+			Name:   "new",
+			Usage:  "Create a new service",
 			Action: new.Run,
 		},
 		{
@@ -192,26 +192,26 @@ func init() {
 					if err != nil {
 						continue
 					}
-				   var pid int
-				   var dir string
-				   scanner := bufio.NewScanner(pidFile)
-				   if scanner.Scan() {
-					   fmt.Sscanf(scanner.Text(), "%d", &pid)
-				   }
-				   if scanner.Scan() {
-					   dir = scanner.Text()
-				   }
-				   pidFile.Close()
-				   status := "stopped"
-				   if pid > 0 {
-					   proc, err := os.FindProcess(pid)
-					   if err == nil {
-						   if err := proc.Signal(syscall.Signal(0)); err == nil {
-							   status = "running"
-						   }
-					   }
-				   }
-				   fmt.Printf("%-20s %-8d %-8s %-40s %s\n", service, pid, status, "", dir)
+					var pid int
+					var dir string
+					scanner := bufio.NewScanner(pidFile)
+					if scanner.Scan() {
+						fmt.Sscanf(scanner.Text(), "%d", &pid)
+					}
+					if scanner.Scan() {
+						dir = scanner.Text()
+					}
+					pidFile.Close()
+					status := "stopped"
+					if pid > 0 {
+						proc, err := os.FindProcess(pid)
+						if err == nil {
+							if err := proc.Signal(syscall.Signal(0)); err == nil {
+								status = "running"
+							}
+						}
+					}
+					fmt.Printf("%-20s %-8d %-8s %-40s %s\n", service, pid, status, "", dir)
 				}
 				return nil
 			},
@@ -234,32 +234,32 @@ func init() {
 				if err != nil {
 					return fmt.Errorf("no pid file for service %s", service)
 				}
-			   var pid int
-			   var dir string
-			   scanner := bufio.NewScanner(pidFile)
-			   if scanner.Scan() {
-				   fmt.Sscanf(scanner.Text(), "%d", &pid)
-			   }
-			   if scanner.Scan() {
-				   dir = scanner.Text()
-			   }
-			   pidFile.Close()
-			   if pid <= 0 {
-				   _ = os.Remove(pidFilePath)
-				   return fmt.Errorf("service %s is not running", service)
-			   }
-			   proc, err := os.FindProcess(pid)
-			   if err != nil {
-				   _ = os.Remove(pidFilePath)
-				   return fmt.Errorf("could not find process for %s", service)
-			   }
-			   if err := proc.Signal(syscall.SIGTERM); err != nil {
-				   _ = os.Remove(pidFilePath)
-				   return fmt.Errorf("failed to stop service %s: %v", service, err)
-			   }
-			   _ = os.Remove(pidFilePath)
-			   fmt.Printf("Stopped service %s (pid %d) in directory %s\n", service, pid, dir)
-			   return nil
+				var pid int
+				var dir string
+				scanner := bufio.NewScanner(pidFile)
+				if scanner.Scan() {
+					fmt.Sscanf(scanner.Text(), "%d", &pid)
+				}
+				if scanner.Scan() {
+					dir = scanner.Text()
+				}
+				pidFile.Close()
+				if pid <= 0 {
+					_ = os.Remove(pidFilePath)
+					return fmt.Errorf("service %s is not running", service)
+				}
+				proc, err := os.FindProcess(pid)
+				if err != nil {
+					_ = os.Remove(pidFilePath)
+					return fmt.Errorf("could not find process for %s", service)
+				}
+				if err := proc.Signal(syscall.SIGTERM); err != nil {
+					_ = os.Remove(pidFilePath)
+					return fmt.Errorf("failed to stop service %s: %v", service, err)
+				}
+				_ = os.Remove(pidFilePath)
+				fmt.Printf("Stopped service %s (pid %d) in directory %s\n", service, pid, dir)
+				return nil
 			},
 		},
 		{

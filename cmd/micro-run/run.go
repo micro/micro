@@ -1,26 +1,16 @@
 package run
 
-
 import (
 	"bufio"
-	"context"
-	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
-	"net/url"
-	"net/http/httputil"
 	"os"
 	"os/exec"
 	"os/signal"
 	"path/filepath"
-	"strings"
 
 	"github.com/urfave/cli/v2"
-	"go-micro.dev/v5/client"
 	"go-micro.dev/v5/cmd"
-	"go-micro.dev/v5/codec/bytes"
-	"go-micro.dev/v5/registry"
 )
 
 // Color codes for log output
@@ -37,39 +27,36 @@ func colorFor(idx int) string {
 	return colors[idx%len(colors)]
 }
 
-
-
 func Run(c *cli.Context) error {
-
-	   dir := c.Args().Get(0)
-	   var tmpDir string
-	   if len(dir) == 0 {
-			   dir = "."
-	   } else if strings.HasPrefix(dir, "github.com/") || strings.HasPrefix(dir, "https://github.com/") {
-			   // Handle git URLs
-			   repo := dir
-			   if strings.HasPrefix(repo, "https://") {
-					   repo = strings.TrimPrefix(repo, "https://")
-			   }
-			   // Clone to a temp directory
-			   tmp, err := os.MkdirTemp("", "micro-run-")
-			   if err != nil {
-					   return fmt.Errorf("failed to create temp dir: %w", err)
-			   }
-			   tmpDir = tmp
-			   cloneURL := repo
-			   if !strings.HasPrefix(cloneURL, "https://") {
-					   cloneURL = "https://" + repo
-			   }
-			   // Run git clone
-			   cmd := exec.Command("git", "clone", cloneURL, tmpDir)
-			   cmd.Stdout = os.Stdout
-			   cmd.Stderr = os.Stderr
-			   if err := cmd.Run(); err != nil {
-					   return fmt.Errorf("failed to clone repo %s: %w", cloneURL, err)
-			   }
-			   dir = tmpDir
-	   }
+	dir := c.Args().Get(0)
+	var tmpDir string
+	if len(dir) == 0 {
+		dir = "."
+	} else if strings.HasPrefix(dir, "github.com/") || strings.HasPrefix(dir, "https://github.com/") {
+		// Handle git URLs
+		repo := dir
+		if strings.HasPrefix(repo, "https://") {
+			repo = strings.TrimPrefix(repo, "https://")
+		}
+		// Clone to a temp directory
+		tmp, err := os.MkdirTemp("", "micro-run-")
+		if err != nil {
+			return fmt.Errorf("failed to create temp dir: %w", err)
+		}
+		tmpDir = tmp
+		cloneURL := repo
+		if !strings.HasPrefix(cloneURL, "https://") {
+			cloneURL = "https://" + repo
+		}
+		// Run git clone
+		cmd := exec.Command("git", "clone", cloneURL, tmpDir)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("failed to clone repo %s: %w", cloneURL, err)
+		}
+		dir = tmpDir
+	}
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -146,17 +133,17 @@ func Run(c *cli.Context) error {
 		cmd.Stdout = pw
 		cmd.Stderr = pw
 		color := colorFor(i)
-	   go func(name string, color string, pr *io.PipeReader, logFile *os.File) {
-		   defer logFile.Close()
-		   scanner := bufio.NewScanner(pr)
-		   for scanner.Scan() {
-			   line := scanner.Text()
-			   // Write to terminal with color
-			   fmt.Printf("%s[%s]\033[0m %s\n", color, name, line)
-			   // Write to log file (without color)
-			   logFile.WriteString(line + "\n")
-		   }
-	   }(serviceName, color, pr, logFile)
+		go func(name string, color string, pr *io.PipeReader, logFile *os.File) {
+			defer logFile.Close()
+			scanner := bufio.NewScanner(pr)
+			for scanner.Scan() {
+				line := scanner.Text()
+				// Write to terminal with color
+				fmt.Printf("%s[%s]\033[0m %s\n", color, name, line)
+				// Write to log file (without color)
+				logFile.WriteString(line + "\n")
+			}
+		}(serviceName, color, pr, logFile)
 		if err := cmd.Start(); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
 			pw.Close()
@@ -164,8 +151,8 @@ func Run(c *cli.Context) error {
 		}
 		procs = append(procs, cmd)
 		pidFiles = append(pidFiles, pidFilePath)
-	   absServiceDir, _ = filepath.Abs(serviceDir)
-	   os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, absServiceDir)), 0644)
+		absServiceDir, _ = filepath.Abs(serviceDir)
+		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, absServiceDir)), 0644)
 	}
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)
