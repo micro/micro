@@ -184,17 +184,27 @@ func main() {
 
 Use protobuf for code generation with [protoc-gen-micro](https://github.com/micro/micro/tree/master/cmd/protoc-gen-micro)
 
-## API Endpoints 
+## Server
 
-The API provides a fixed HTTP entrypoint for calling services.
+The micro server is an api and web dashboard that provide a fixed entrypoint for seeing and querying services.
+
+Run it like so
+
+```
+micro server
+```
+
+Then browse to [localhost:8080](http://localhost:8080)
+
+### API Endpoints 
+
+The API provides a fixed HTTP entrypoint for calling services along with docs
 
 ```
 curl http://localhost:8080/api/helloworld/Helloworld/Call -d '{"name": "John"}'
 ```
-See /api for more details
+See /api for more details and documentation for each service
 
-## Web Dashboard 
+### Web Dashboard 
 
-Access services via the web using micro web which generates dynamic form fills
-
-Go to [localhost:8080](http://localhost:8080)
+The web dashboard lists the services, describes their registry output and provides dynamic form fill. 
