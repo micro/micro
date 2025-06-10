@@ -40,11 +40,36 @@ func colorFor(idx int) string {
 
 
 func Run(c *cli.Context) error {
-	dir := c.Args().Get(0)
-	if len(dir) == 0 {
-		dir = "."
-	}
-	   // Removed web/API server logic. This is now handled by micro server.
+
+	   dir := c.Args().Get(0)
+	   var tmpDir string
+	   if len(dir) == 0 {
+			   dir = "."
+	   } else if strings.HasPrefix(dir, "github.com/") || strings.HasPrefix(dir, "https://github.com/") {
+			   // Handle git URLs
+			   repo := dir
+			   if strings.HasPrefix(repo, "https://") {
+					   repo = strings.TrimPrefix(repo, "https://")
+			   }
+			   // Clone to a temp directory
+			   tmp, err := os.MkdirTemp("", "micro-run-")
+			   if err != nil {
+					   return fmt.Errorf("failed to create temp dir: %w", err)
+			   }
+			   tmpDir = tmp
+			   cloneURL := repo
+			   if !strings.HasPrefix(cloneURL, "https://") {
+					   cloneURL = "https://" + repo
+			   }
+			   // Run git clone
+			   cmd := exec.Command("git", "clone", cloneURL, tmpDir)
+			   cmd.Stdout = os.Stdout
+			   cmd.Stderr = os.Stderr
+			   if err := cmd.Run(); err != nil {
+					   return fmt.Errorf("failed to clone repo %s: %w", cloneURL, err)
+			   }
+			   dir = tmpDir
+	   }
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
