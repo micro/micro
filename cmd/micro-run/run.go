@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/cmd"
