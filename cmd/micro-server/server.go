@@ -156,7 +156,7 @@ func Run(c *cli.Context) error {
 						// Build params and response HTML from endpoint values
 						var params, response string
 						if ep.Request != nil && len(ep.Request.Values) > 0 {
-							params += "<ul style='margin:0 0 0.5em 1.2em;'>"
+							params += "<ul class=no-bullets>"
 							for _, v := range ep.Request.Values {
 								params += fmt.Sprintf("<li><b>%s</b> <span style='color:#888;'>%s</span></li>", v.Name, v.Type)
 							}
@@ -165,7 +165,7 @@ func Run(c *cli.Context) error {
 							params = "<i style='color:#888;'>No parameters</i>"
 						}
 						if ep.Response != nil && len(ep.Response.Values) > 0 {
-							response += "<ul style='margin:0 0 0.5em 1.2em;'>"
+							response += "<ul class=no-bullets>"
 							for _, v := range ep.Response.Values {
 								response += fmt.Sprintf("<li><b>%s</b> <span style='color:#888;'>%s</span></li>", v.Name, v.Type)
 							}
