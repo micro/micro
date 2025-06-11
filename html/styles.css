@@ -1,0 +1,110 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background: #fafbfc;
+    color: #111111;
+}
+
+h1, h2, h3, h4 {
+    margin-bottom: 0.5em;
+    font-weight: 600;
+    color: #111111;
+}
+
+a, .micro-link {
+    color: #444;
+    font-weight: bold;
+    text-decoration: underline;
+    transition: color 0.2s, text-decoration 0.2s;
+}
+
+a:hover, .micro-link:hover {
+    color: #222;
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2.5rem 2vw;
+    background: #fff;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.micro-link {
+    display: inline;
+    border: none;
+    background: none;
+    font-weight: bold;
+    padding: 0;
+    margin: 0 2em 0 0;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 0;
+    transition: color 0.2s, text-decoration 0.2s;
+}
+.micro-link:hover {
+    color: #111111;
+    text-decoration: none;
+    background: none;
+}
+
+.micro-link[type=submit], .micro-link.button {
+    border: 1.5px solid #111;
+    padding: 0.4em 1.2em;
+    border-radius: 5px;
+    background: #f8f8f8;
+    font-weight: bold;
+    transition: background 0.2s, border-color 0.2s;
+}
+.micro-link[type=submit]:hover, .micro-link.button:hover {
+    background: #f3f3f3;
+    border-color: #333;
+}
+
+#title {
+    text-decoration: none;
+    color: #111111;
+    border: none;
+    padding: 0;
+    font-weight: bold;
+    font-size: 2.2rem;
+    letter-spacing: -1px;
+}
+
+ul.no-bullets, ul.no-bullets li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+pre {
+    background: #f3f4f6;
+    border-radius: 6px;
+    padding: 1em;
+    overflow-x: auto;
+}
+
+label {
+    margin-top: 1em;
+    display: block;
+}
+
+input[type="text"], input:not([type]) {
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin-bottom: 1em;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+td, th {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+}

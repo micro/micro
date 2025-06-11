@@ -1,0 +1,25 @@
+{{define "content"}}
+{{if .ServiceName}}
+  <h2 class="text-xl font-bold mb-2">{{.ServiceName}}</h2>
+  <a href="/logs/{{.ServiceName}}" class="micro-link" style="margin-bottom:1em;display:inline-block;">View logs</a>
+  <h4 class="font-semibold mb-2">Endpoints</h4>
+  {{if .Endpoints}}
+      {{range .Endpoints}}
+          <a href="{{.Path}}" class="micro-link">{{.Name}}</a>
+      {{end}}
+  {{else}}
+      <p>No endpoints registered</p>
+  {{end}}
+  <h4 class="font-semibold mt-4 mb-2">Description</h4>
+  <pre class="bg-gray-100 rounded p-2">{{.Description}}</pre>
+{{else}}
+  <h2 class="text-2xl font-bold mb-4">Services</h2>
+  {{if .Services}}
+      {{range .Services}}
+          <a href="/{{.}}" class="micro-link">{{.}}</a>
+      {{end}}
+  {{else}}
+      <p>No services registered</p>
+  {{end}}
+{{end}}
+{{end}}
