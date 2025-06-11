@@ -785,7 +785,16 @@ You can generate tokens on the <a href='/auth/tokens'>Tokens page</a>.
 			user = nil
 		}
 		if r.Method == "POST" {
+			if del := r.FormValue("delete"); del != "" {
+				storeInst.Delete("auth/" + del)
+				http.Redirect(w, r, "/auth/users", http.StatusSeeOther)
+				return
+			}
 			id := r.FormValue("id")
+			if id == "" {
+				http.Redirect(w, r, "/auth/users", http.StatusSeeOther)
+				return
+			}
 			pass := r.FormValue("password")
 			typeStr := r.FormValue("type")
 			accType := "user"
