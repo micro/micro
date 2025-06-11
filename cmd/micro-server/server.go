@@ -157,10 +157,16 @@ func Run(c *cli.Context) error {
 				reqBody = map[string]interface{}{}
 				// Parse form for POST, or query for GET
 				r.ParseForm()
-				for k, v := range r.Form {
+				for k, v := range r.Form{
 					if len(v) == 1 {
+						if len(v[0]) == 0 {
+							continue
+						}
 						reqBody[k] = v[0]
 					} else {
+						if len(v) == 0 {
+							continue
+						}
 						reqBody[k] = v
 					}
 				}
