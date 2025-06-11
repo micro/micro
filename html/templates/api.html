@@ -1,9 +1,9 @@
 {{define "content"}}
-{{if .ApiAuthDoc}}
-  {{/* Show API auth doc at the top if present */}}
-  {{html .ApiAuthDoc}}
-{{end}}
 <h2 class="text-2xl font-bold mb-4">API</h2>
+<p class="api-auth-info" style="background:#f8f8e8; border:1px solid #e0e0b0; padding:1em; margin-bottom:2em; font-size:1.08em; border-radius:6px;">
+  <b>API Authentication Required:</b> All API calls to <code>/api/...</code> endpoints (except this page) must include an <b>Authorization: Bearer &lt;token&gt;</b> header.<br>
+  You can generate tokens on the <a href="/auth/tokens">Tokens page</a>.
+</p>
 {{range .Services}}
   <h3 id="{{.Anchor}}" style="margin-top:3em; font-size:1.2em; font-weight:bold;">{{.Name}}</h3>
   {{if .Endpoints}}
