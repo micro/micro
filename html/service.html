@@ -1,6 +1,7 @@
 {{define "content"}}
 {{if .ServiceName}}
   <h2 class="text-xl font-bold mb-2">{{.ServiceName}}</h2>
+  <a href="/logs/{{.ServiceName}}" class="micro-link" style="margin-bottom:1em;display:inline-block;">View logs</a>
   <h4 class="font-semibold mb-2">Endpoints</h4>
   {{if .Endpoints}}
       {{range .Endpoints}}
