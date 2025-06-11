@@ -207,11 +207,25 @@ See /api for more details and documentation for each service
 
 ### Web Dashboard 
 
-The web dashboard lists the services, describes their registry output and provides dynamic form fill. 
+The web dashboard provides a modern, secure UI for managing and exploring your Micro services. Major features include:
 
-Features:
+- **Dynamic Service & Endpoint Forms**: Browse all registered services and endpoints. For each endpoint, a dynamic form is generated for easy testing and exploration.
+- **API Documentation**: The `/api` page lists all available services and endpoints, with request/response schemas and a sidebar for quick navigation. A documentation banner explains authentication requirements.
+- **JWT Authentication**: All login and token management uses a custom JWT utility. Passwords are securely stored with bcrypt. All `/api/x` endpoints and authenticated pages require an `Authorization: Bearer <token>` header (or `micro_token` cookie as fallback).
+- **Token Management**: The `/auth/tokens` page allows you to generate, view (obfuscated), and copy JWT tokens. Tokens are stored and can be revoked. When a user is deleted, all their tokens are revoked immediately.
+- **User Management**: The `/auth/users` page allows you to create, list, and delete users. Passwords are never shown or stored in plaintext.
+- **Token Revocation**: JWT tokens are stored and checked for revocation on every request. Revoked or deleted tokens are immediately invalidated.
+- **Sidebar Logic**: Sidebar API endpoints only appear on the `/api` page for a focused experience.
+- **Security**: All protected endpoints use consistent authentication logic. Unauthorized or revoked tokens receive a 401 error. All sensitive actions require authentication.
+- **Modern UI**: Clean, responsive design with improved form and button styling for a better user experience.
+- **Logs & Status**: View service logs and status (PID, uptime, etc) directly from the dashboard.
 
-- Endpoints - Per service endpoint querying
-- Status - service status, pid, etc
-- Logs - See the log output
-- API - Generated api docs
+To get started, run:
+
+```
+micro server
+```
+
+Then browse to [localhost:8080](http://localhost:8080) and log in with the default admin account (`admin`/`micro`).
+
+> **Note:** See the `/api` page for details on API authentication and how to generate tokens for use with the HTTP API
