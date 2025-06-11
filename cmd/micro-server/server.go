@@ -754,12 +754,22 @@ You can generate tokens on the <a href='/auth/tokens'>Tokens page</a>.
 				if t, ok := acc.Metadata["token"]; ok {
 					tok = t
 				}
+				var tokenPrefix, tokenSuffix string
+				if len(tok) > 12 {
+					tokenPrefix = tok[:4]
+					tokenSuffix = tok[len(tok)-4:]
+				} else {
+					tokenPrefix = tok
+					tokenSuffix = ""
+				}
 				tokens = append(tokens, map[string]any{
-					"ID":       acc.ID,
-					"Type":     acc.Type,
-					"Scopes":   acc.Scopes,
-					"Metadata": acc.Metadata,
-					"Token":    tok,
+					"ID":          acc.ID,
+					"Type":        acc.Type,
+					"Scopes":      acc.Scopes,
+					"Metadata":    acc.Metadata,
+					"Token":       tok,
+					"TokenPrefix": tokenPrefix,
+					"TokenSuffix": tokenSuffix,
 				})
 			}
 		}
