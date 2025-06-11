@@ -396,6 +396,11 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 				apiCache.time = time.Now()
 			}
 			apiCache.Unlock()
+			// Add API auth doc at the top
+			apiData["ApiAuthDoc"] = `<div style='background:#f8f8e8; border:1px solid #e0e0b0; padding:1em; margin-bottom:2em; font-size:1.08em;'>
+<b>API Authentication Required:</b> All API calls to <code>/api/...</code> endpoints (except this page) must include an <b>Authorization: Bearer &lt;token&gt;</b> header. <br>
+You can generate tokens on the <a href='/auth/tokens'>Tokens page</a>.
+</div>`
 			_ = render(w, tmpls.api, apiData)
 			return
 		}
@@ -881,7 +886,7 @@ func exportPublicKeyAsPEM(pub *rsa.PublicKey) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 func importPrivateKeyFromPEM(privKeyPEM []byte) (*rsa.PrivateKey, error) {
-	block, _ := pem.Decode(privKeyPEM)
+	block, _ := pem
 	if block == nil {
 		return nil, fmt.Errorf("invalid PEM block")
 	}
