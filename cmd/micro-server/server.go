@@ -271,7 +271,7 @@ func Run(c *cli.Context) error {
 					b, _ := json.Marshal(reqBody)
 					req := goMicroClient.NewRequest(service, endpoint, &goMicroBytes.Frame{Data: b})
 					var rsp goMicroBytes.Frame
-					err := goMicroClient.Call(nil, req, &rsp)
+					err := goMicroClient.Call(r.Context(), req, &rsp)
 					if err != nil {
 						w.WriteHeader(500)
 						w.Header().Set("Content-Type", "application/json")
