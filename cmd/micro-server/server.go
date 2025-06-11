@@ -51,6 +51,7 @@ type templates struct {
 	status     *template.Template
 	authTokens *template.Template
 	authLogin  *template.Template
+	authUsers  *template.Template
 }
 
 type TemplateUser struct {
@@ -77,6 +78,7 @@ func parseTemplates() *templates {
 		status:     template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/status.html")),
 		authTokens: template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_tokens.html")),
 		authLogin:  template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")),
+		authUsers:  template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_users.html")),
 	}
 }
 
@@ -398,6 +400,7 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 			return
 		}
 		if path == "/services" {
+			// Do NOT include SidebarEndpoints on this page
 			services, _ := registry.ListServices()
 			var serviceNames []string
 			for _, service := range services {
@@ -408,6 +411,7 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 			return
 		}
 		if path == "/logs" || path == "/logs/" {
+			// Do NOT include SidebarEndpoints on this page
 			homeDir, err := os.UserHomeDir()
 			if err != nil {
 				w.WriteHeader(500)
@@ -432,6 +436,7 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 			return
 		}
 		if strings.HasPrefix(path, "/logs/") {
+			// Do NOT include SidebarEndpoints on this page
 			service := strings.TrimPrefix(path, "/logs/")
 			if service == "" {
 				w.WriteHeader(404)
@@ -463,6 +468,7 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 			return
 		}
 		if path == "/status" {
+			// Do NOT include SidebarEndpoints on this page
 			homeDir, err := os.UserHomeDir()
 			if err != nil {
 				w.WriteHeader(500)
@@ -699,6 +705,40 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 			}
 		}
 		_ = tmpls.authTokens.Execute(w, map[string]any{"Title": "Auth Tokens", "Tokens": tokens, "User": getUser(r)})
+	}))
+
+	http.HandleFunc("/auth/users", authMw(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			id := r.FormValue("id")
+			pass := r.FormValue("password")
+			typeStr := r.FormValue("type")
+			accType := "user"
+			if typeStr == "admin" {
+				accType = "admin"
+			}
+			hash, _ := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
+			acc := &Account{
+				ID:       id,
+				Type:     accType,
+				Scopes:   []string{"*"},
+				Metadata: map[string]string{"created": time.Now().Format(time.RFC3339), "password_hash": string(hash)},
+			}
+			b, _ := json.Marshal(acc)
+			storeInst.Write(&store.Record{Key: "auth/" + id, Value: b})
+			http.Redirect(w, r, "/auth/users", http.StatusSeeOther)
+			return
+		}
+		recs, _ := storeInst.Read("auth/", store.ReadPrefix())
+		var users []Account
+		for _, rec := range recs {
+			var acc Account
+			if err := json.Unmarshal(rec.Value, &acc); err == nil {
+				if acc.Type == "user" || acc.Type == "admin" {
+					users = append(users, acc)
+				}
+			}
+		}
+		_ = tmpls.authUsers.Execute(w, map[string]any{"Title": "User Accounts", "Users": users, "User": getUser(r)})
 	}))
 	http.HandleFunc("/auth/login", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
