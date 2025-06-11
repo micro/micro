@@ -12,14 +12,14 @@ h1, h2, h3, h4 {
 }
 
 a, .micro-link {
-    color: #1a4fff;
+    color: #444;
     font-weight: bold;
     text-decoration: underline;
     transition: color 0.2s, text-decoration 0.2s;
 }
 
 a:hover, .micro-link:hover {
-    color: #1636a0;
+    color: #222;
     text-decoration: underline;
 }
 
