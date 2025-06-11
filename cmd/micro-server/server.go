@@ -20,7 +20,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/registry"
-	htmltemplate "html/template"
 )
 
 // HTML is the embedded filesystem for templates and static files, set by main.go
@@ -129,8 +128,12 @@ func Run(c *cli.Context) error {
 				useCache = true
 			}
 			var apiData map[string]any
+			var sidebarEndpoints []map[string]string
 			if useCache {
 				apiData = apiCache.data
+				if v, ok := apiData["SidebarEndpoints"]; ok {
+					sidebarEndpoints, _ = v.([]map[string]string)
+				}
 			} else {
 				services, _ := registry.ListServices()
 				var apiServices []map[string]any
@@ -150,38 +153,20 @@ func Run(c *cli.Context) error {
 							continue
 						}
 						apiPath := fmt.Sprintf("/api/%s/%s/%s", s.Name, parts[0], parts[1])
-						var params, response string
-						if ep.Request != nil && len(ep.Request.Values) > 0 {
-							params += "<ul class=\"ml-4 mb-2\">"
-							for _, v := range ep.Request.Values {
-								params += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">%s</span></li>", v.Name, v.Type)
-							}
-							params += "</ul>"
-						} else {
-							params = "<i class=\"text-gray-500\">No parameters</i>"
-						}
-						if ep.Response != nil && len(ep.Response.Values) > 0 {
-							response += "<ul class=\"ml-4 mb-2\">"
-							for _, v := range ep.Response.Values {
-								response += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">%s</span></li>", v.Name, v.Type)
-							}
-							response += "</ul>"
-						} else {
-							response = "<i class=\"text-gray-500\">No response fields</i>"
-						}
 						endpoints = append(endpoints, map[string]any{
 							"Name": ep.Name,
 							"Path": apiPath,
-							"Params": htmltemplate.HTML(params),
-							"Response": htmltemplate.HTML(response),
 						})
 					}
+					anchor := strings.ReplaceAll(s.Name, ".", "-")
 					apiServices = append(apiServices, map[string]any{
 						"Name": s.Name,
+						"Anchor": anchor,
 						"Endpoints": endpoints,
 					})
+					sidebarEndpoints = append(sidebarEndpoints, map[string]string{"Name": s.Name, "Anchor": anchor})
 				}
-				apiData = map[string]any{"Title": "API", "WebLink": "/", "Services": apiServices}
+				apiData = map[string]any{"Title": "API", "WebLink": "/", "Services": apiServices, "SidebarEndpoints": sidebarEndpoints, "SidebarEndpointsEnabled": true}
 				apiCache.data = apiData
 				apiCache.time = time.Now()
 			}

@@ -17,6 +17,15 @@
                 <li><a href="/status" class="micro-link">Status</a></li>
                 <li><a href="/api" class="micro-link">API</a></li>
             </ul>
+            {{if and .SidebarEndpoints .SidebarEndpointsEnabled}}
+            <hr style="margin:2em 0 1em 0;">
+            <div style="font-weight:bold; margin-bottom:0.5em;">API Endpoints</div>
+            <ul style="max-height:40vh; overflow-y:auto; font-size:0.97em;">
+              {{range .SidebarEndpoints}}
+                <li style="margin-bottom:0.3em;"><a href="#{{.Anchor}}" class="micro-link">{{.Name}}</a></li>
+              {{end}}
+            </ul>
+            {{end}}
         </nav>
         <main class="container" style="flex:1; min-width:0;">
             {{template "content" .}}
