@@ -198,7 +198,7 @@ Then browse to [localhost:8080](http://localhost:8080)
 
 ### API Endpoints 
 
-The API provides a fixed HTTP entrypoint for calling services along with docs
+The API provides a fixed HTTP entrypoint for calling services
 
 ```
 curl http://localhost:8080/api/helloworld/Helloworld/Call -d '{"name": "John"}'
@@ -214,3 +214,4 @@ Features:
 - Endpoints - Per service endpoint querying
 - Status - service status, pid, etc
 - Logs - See the log output
+- API - Generated api docs
