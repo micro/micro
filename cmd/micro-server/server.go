@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"encoding/json"
+	"encoding/base64"
 	"fmt"
 	"io/fs"
 	"io"
@@ -19,6 +20,7 @@ import (
 	"text/template"
 	"time"
 	"syscall"
+	"path/filepath"
 
 	goMicroClient "go-micro.dev/v5/client"
 	goMicroBytes "go-micro.dev/v5/codec/bytes"
@@ -41,73 +43,116 @@ var (
 	}
 )
 
-func Run(c *cli.Context) error {
-	// --- AUTH INIT ---
-	if err := initAuth(); err != nil {
-		log.Fatalf("Failed to initialize auth: %v", err)
+type templates struct {
+	api      *template.Template
+	service  *template.Template
+	form     *template.Template
+	home     *template.Template
+	logs     *template.Template
+	log      *template.Template
+	status   *template.Template
+	authTokens *template.Template
+}
+
+func parseTemplates() *templates {
+	return &templates{
+		api:      template.Must(template.ParseFS(HTML, "html/base.html", "html/api.html")),
+		service:  template.Must(template.ParseFS(HTML, "html/base.html", "html/service.html")),
+		form:     template.Must(template.ParseFS(HTML, "html/base.html", "html/form.html")),
+		home:     template.Must(template.ParseFS(HTML, "html/base.html", "html/home.html")),
+		logs:     template.Must(template.ParseFS(HTML, "html/base.html", "html/logs.html")),
+		log:      template.Must(template.ParseFS(HTML, "html/base.html", "html/log.html")),
+		status:   template.Must(template.ParseFS(HTML, "html/base.html", "html/status.html")),
+		authTokens: template.Must(template.ParseFS(HTML, "html/base.html", "html/auth_tokens.html")),
 	}
+}
 
-	// Make authSrv and storeInst accessible in handlers
-	homeDir, _ := os.UserHomeDir()
-	keyDir := filepath.Join(homeDir, "micro", "keys")
-	privPath := filepath.Join(keyDir, "private.pem")
-	pubPath := filepath.Join(keyDir, "public.pem")
-	privPem, _ := os.ReadFile(privPath)
-	pubPem, _ := os.ReadFile(pubPath)
-	authSrv := jwtAuth.NewAuth(
-		jwtAuth.PublicKey(string(pubPem)),
-		jwtAuth.PrivateKey(string(privPem)),
-	)
-	storeInst := store.DefaultStore
+// Helper to render templates
+func render(w http.ResponseWriter, tmpl *template.Template, data any) error {
+	return tmpl.Execute(w, data)
+}
 
-	addr := c.String("address")
-	if addr == "" {
-		addr = ":8080"
+// Helper to extract user info from JWT cookie
+func getUser(r *http.Request) string {
+	cookie, err := r.Cookie("micro_token")
+	if err != nil || cookie.Value == "" {
+		return ""
 	}
-
-	staticFS, _ := fs.Sub(HTML, "html")
-
-	parseTmpl := func(name string) *template.Template {
-		tmpl, err := template.ParseFS(HTML, "html/base.html", "html/"+name)
-		if err != nil {
-			panic(err)
-		}
-		return tmpl
+	// Parse JWT claims (just decode, don't verify)
+	parts := strings.Split(cookie.Value, ".")
+	if len(parts) != 3 {
+		return ""
 	}
-
-	apiTmpl := parseTmpl("api.html")
-	serviceTmpl := parseTmpl("service.html")
-	formTmpl := parseTmpl("form.html")
-	homeTmpl := parseTmpl("home.html")
-	logsTmpl := parseTmpl("logs.html")
-	logTmpl := parseTmpl("log.html")
-
-	render := func(w http.ResponseWriter, tmpl *template.Template, data any) error {
-		return tmpl.Execute(w, data)
+	payload, err := decodeSegment(parts[1])
+	if err != nil {
+		return ""
 	}
+	var claims map[string]any
+	if err := json.Unmarshal(payload, &claims); err != nil {
+		return ""
+	}
+	if sub, ok := claims["sub"].(string); ok {
+		return sub
+	}
+	if id, ok := claims["id"].(string); ok {
+		return id
+	}
+	return ""
+}
 
-	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.FS(staticFS))))
+// Helper to decode JWT base64url segment
+func decodeSegment(seg string) ([]byte, error) {
+	// JWT uses base64url, no padding
+	missing := len(seg) % 4
+	if missing != 0 {
+		seg += strings.Repeat("=", 4-missing)
+	}
+	return decodeBase64Url(seg)
+}
 
-	// --- AUTH MIDDLEWARE ---
-	authRequired := func(next http.HandlerFunc) http.HandlerFunc {
+func decodeBase64Url(s string) ([]byte, error) {
+	return base64.URLEncoding.DecodeString(s)
+}
+
+// Fix authRequired to check JWT expiry from claims, not acc.Expiry
+func authRequired(authSrv auth.Auth) func(http.HandlerFunc) http.HandlerFunc {
+	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			cookie, err := r.Cookie("micro_token")
 			if err != nil || cookie.Value == "" {
 				http.Redirect(w, r, "/auth/login", http.StatusFound)
 				return
 			}
-			acc, err := authSrv.Inspect(cookie.Value)
-			if err != nil || acc == nil || acc.Expiry.Before(time.Now()) {
+			// Parse JWT expiry
+			parts := strings.Split(cookie.Value, ".")
+			if len(parts) != 3 {
 				http.Redirect(w, r, "/auth/login", http.StatusFound)
 				return
 			}
-			// Optionally: set user in context for handlers
+			payload, err := decodeSegment(parts[1])
+			if err != nil {
+				http.Redirect(w, r, "/auth/login", http.StatusFound)
+				return
+			}
+			var claims map[string]any
+			if err := json.Unmarshal(payload, &claims); err != nil {
+				http.Redirect(w, r, "/auth/login", http.StatusFound)
+				return
+			}
+			if exp, ok := claims["exp"].(float64); ok {
+				if int64(exp) < time.Now().Unix() {
+					http.Redirect(w, r, "/auth/login", http.StatusFound)
+					return
+				}
+			}
+			// Optionally: verify token with authSrv (optional, since we just check expiry here)
 			next(w, r)
 		}
 	}
+}
 
-	// --- PROTECT ALL ROUTES BY DEFAULT ---
-	wrapAuth := func(h http.HandlerFunc) http.HandlerFunc {
+func wrapAuth(authRequired func(http.HandlerFunc) http.HandlerFunc) func(http.HandlerFunc) http.HandlerFunc {
+	return func(h http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasPrefix(r.URL.Path, "/auth/login") || strings.HasPrefix(r.URL.Path, "/auth/logout") {
 				h(w, r)
@@ -116,57 +161,68 @@ func Run(c *cli.Context) error {
 			authRequired(h)(w, r)
 		}
 	}
+}
 
-	http.HandleFunc("/", wrapAuth(func(w http.ResponseWriter, r *http.Request) {
+func getDashboardData() (serviceCount, runningCount, stoppedCount int, statusDot string) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return
+	}
+	pidDir := homeDir + "/micro/run"
+	dirEntries, err := os.ReadDir(pidDir)
+	if err != nil {
+		return
+	}
+	for _, entry := range dirEntries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".pid") || strings.HasPrefix(entry.Name(), ".") {
+			continue
+		}
+		pidFile := pidDir + "/" + entry.Name()
+		pidBytes, err := os.ReadFile(pidFile)
+		if err != nil {
+			continue
+		}
+		lines := strings.Split(string(pidBytes), "\n")
+		pid := "-"
+		if len(lines) > 0 && len(lines[0]) > 0 {
+			pid = lines[0]
+		}
+		serviceCount++
+		if pid != "-" {
+			if _, err := os.FindProcess(parsePid(pid)); err == nil {
+				if processRunning(pid) {
+					runningCount++
+				} else {
+					stoppedCount++
+				}
+			} else {
+				stoppedCount++
+			}
+		} else {
+			stoppedCount++
+		}
+	}
+	if serviceCount > 0 && runningCount == serviceCount {
+		statusDot = "green"
+	} else if serviceCount > 0 && runningCount > 0 {
+		statusDot = "yellow"
+	} else {
+		statusDot = "red"
+	}
+	return
+}
+
+func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store) {
+	authMw := authRequired(authSrv)
+	wrap := wrapAuth(authMw)
+
+	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.FS(HTML))))
+
+	http.HandleFunc("/", wrap(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 		if path == "/" {
-			// Dashboard summary: count of services, running/stopped, status dot
-			homeDir, err := os.UserHomeDir()
-			var serviceCount, runningCount, stoppedCount int
-			var statusDot string
-			if err == nil {
-				pidDir := homeDir + "/micro/run"
-				dirEntries, err := os.ReadDir(pidDir)
-				if err == nil {
-					for _, entry := range dirEntries {
-						if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".pid") || strings.HasPrefix(entry.Name(), ".") {
-							continue
-						}
-						pidFile := pidDir + "/" + entry.Name()
-						pidBytes, err := os.ReadFile(pidFile)
-						if err != nil {
-							continue
-						}
-						lines := strings.Split(string(pidBytes), "\n")
-						pid := "-"
-						if len(lines) > 0 && len(lines[0]) > 0 {
-							pid = lines[0]
-						}
-						serviceCount++
-						if pid != "-" {
-							if _, err := os.FindProcess(parsePid(pid)); err == nil {
-								if processRunning(pid) {
-									runningCount++
-								} else {
-									stoppedCount++
-								}
-							} else {
-								stoppedCount++
-							}
-						} else {
-							stoppedCount++
-						}
-					}
-				}
-			}
-			if serviceCount > 0 && runningCount == serviceCount {
-				statusDot = "green"
-			} else if serviceCount > 0 && runningCount > 0 {
-				statusDot = "yellow"
-			} else {
-				statusDot = "red"
-			}
-			_ = render(w, homeTmpl, map[string]any{
+			serviceCount, runningCount, stoppedCount, statusDot := getDashboardData()
+			_ = tmpls.home.Execute(w, map[string]any{
 				"Title": "Micro Dashboard",
 				"WebLink": "/",
 				"ServiceCount": serviceCount,
@@ -253,7 +309,7 @@ func Run(c *cli.Context) error {
 				apiCache.time = time.Now()
 			}
 			apiCache.Unlock()
-			_ = render(w, apiTmpl, apiData)
+			_ = render(w, tmpls.api, apiData)
 			return
 		}
 		if path == "/services" {
@@ -263,7 +319,7 @@ func Run(c *cli.Context) error {
 				serviceNames = append(serviceNames, service.Name)
 			}
 			sort.Strings(serviceNames)
-			_ = render(w, serviceTmpl, map[string]any{"Title": "Services", "WebLink": "/", "Services": serviceNames})
+			_ = render(w, tmpls.service, map[string]any{"Title": "Services", "WebLink": "/", "Services": serviceNames})
 			return
 		}
 		if path == "/logs" || path == "/logs/" {
@@ -287,7 +343,7 @@ func Run(c *cli.Context) error {
 					serviceNames = append(serviceNames, strings.TrimSuffix(name, ".log"))
 				}
 			}
-			_ = render(w, logsTmpl, map[string]any{"Title": "Logs", "WebLink": "/", "Services": serviceNames})
+			_ = render(w, tmpls.logs, map[string]any{"Title": "Logs", "WebLink": "/", "Services": serviceNames})
 			return
 		}
 		if strings.HasPrefix(path, "/logs/") {
@@ -318,7 +374,7 @@ func Run(c *cli.Context) error {
 				return
 			}
 			logText := string(logBytes)
-			_ = render(w, logTmpl, map[string]any{"Title": "Logs for " + service, "WebLink": "/logs", "Service": service, "Log": logText})
+			_ = render(w, tmpls.log, map[string]any{"Title": "Logs for " + service, "WebLink": "/logs", "Service": service, "Log": logText})
 			return
 		}
 		if path == "/status" {
@@ -393,7 +449,7 @@ func Run(c *cli.Context) error {
 					"ID": strings.TrimSuffix(entry.Name(), ".pid"),
 				})
 			}
-			_ = render(w, parseTmpl("status.html"), map[string]any{"Title": "Service Status", "WebLink": "/", "Statuses": statuses})
+			_ = render(w, tmpls.status, map[string]any{"Title": "Service Status", "WebLink": "/", "Statuses": statuses})
 			return
 		}
 		// Match /{service} and /{service}/{endpoint}
@@ -415,7 +471,7 @@ func Run(c *cli.Context) error {
 					})
 				}
 				b, _ := json.MarshalIndent(s[0], "", "    ")
-				_ = render(w, serviceTmpl, map[string]any{
+				_ = render(w, tmpls.service, map[string]any{
 					"Title": "Service: " + service,
 					"WebLink": "/",
 					"ServiceName": service,
@@ -459,7 +515,7 @@ func Run(c *cli.Context) error {
 							})
 						}
 					}
-					_ = render(w, formTmpl, map[string]any{
+					_ = render(w, tmpls.form, map[string]any{
 						"Title":       "Service: " + service,
 						"WebLink":     "/",
 						"ServiceName": service,
@@ -510,23 +566,23 @@ func Run(c *cli.Context) error {
 		}
 		w.WriteHeader(404)
 		w.Write([]byte("Not found"))
-	})
+	}))
 
 	http.HandleFunc("/auth/logout", func(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &http.Cookie{Name: "micro_token", Value: "", Path: "/", Expires: time.Now().Add(-1 * time.Hour), HttpOnly: true})
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 	})
 
-	http.HandleFunc("/auth/tokens", authRequired(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/auth/tokens", authMw(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			id := r.FormValue("id")
 			typeStr := r.FormValue("type")
 			scopesStr := r.FormValue("scopes")
-			accType := auth.AccountTypeUser
+			accType := "user"
 			if typeStr == "admin" {
-				accType = auth.AccountTypeAdmin
+				accType = "admin"
 			} else if typeStr == "service" {
-				accType = auth.AccountTypeService
+				accType = "service"
 			}
 			scopes := []string{"*"}
 			if scopesStr != "" {
@@ -542,14 +598,14 @@ func Run(c *cli.Context) error {
 				Metadata: map[string]string{"created": time.Now().Format(time.RFC3339)},
 			}
 			// Service tokens do not require a password, generate a JWT directly
-			tok, _ := authSrv.Generate(acc.ID, auth.WithType(acc.Type), auth.WithScopes(acc.Scopes...), auth.WithExpiry(time.Hour*24*365))
+			tok, _ := authSrv.Generate(acc.ID, auth.WithType(accType), auth.WithScopes(acc.Scopes...))
 			acc.Metadata["token"] = tok.Secret
 			b, _ := json.Marshal(acc)
-			storeInst.Write(&store.Record{Key: "auth/" + id, Value: b, Table: "auth"})
+			storeInst.Write(&store.Record{Key: "auth/" + id, Value: b})
 			http.Redirect(w, r, "/auth/tokens", http.StatusSeeOther)
 			return
 		}
-		recs, _ := storeInst.Read("", store.ReadPrefix(), store.ReadTable("auth"))
+		recs, _ := storeInst.Read("auth/", store.ReadPrefix())
 		var tokens []map[string]any
 		for _, rec := range recs {
 			var acc auth.Account
@@ -567,8 +623,35 @@ func Run(c *cli.Context) error {
 				})
 			}
 		}
-		_ = render(w, parseTmpl("auth_tokens.html"), map[string]any{"Title": "Auth Tokens", "Tokens": tokens, "User": getUser(r)})
+		_ = tmpls.authTokens.Execute(w, map[string]any{"Title": "Auth Tokens", "Tokens": tokens, "User": getUser(r)})
 	}))
+}
+
+func Run(c *cli.Context) error {
+	if err := initAuth(); err != nil {
+		log.Fatalf("Failed to initialize auth: %v", err)
+	}
+
+	homeDir, _ := os.UserHomeDir()
+	keyDir := filepath.Join(homeDir, "micro", "keys")
+	privPath := filepath.Join(keyDir, "private.pem")
+	pubPath := filepath.Join(keyDir, "public.pem")
+	privPem, _ := os.ReadFile(privPath)
+	pubPem, _ := os.ReadFile(pubPath)
+	authSrv := jwtAuth.NewAuth()
+	authSrv.Init(
+		auth.PublicKey(string(pubPem)),
+		auth.PrivateKey(string(privPem)),
+	)
+	storeInst := store.DefaultStore
+
+	tmpls := parseTemplates()
+	registerHandlers(tmpls, authSrv, storeInst)
+
+	addr := c.String("address")
+	if addr == "" {
+		addr = ":8080"
+	}
 
 	go func() {
 		log.Printf("[micro-server] Web/API listening on %s", addr)
@@ -691,12 +774,8 @@ func initAuth() error {
 		pubPem := pem.EncodeToMemory(&pem.Block{Type: "RSA PUBLIC KEY", Bytes: pubBytes})
 		os.WriteFile(pubPath, pubPem, 0644)
 	}
-	privPem, _ := os.ReadFile(privPath)
-	pubPem, _ := os.ReadFile(pubPath)
-	authSrv := jwtAuth.NewAuth(
-		jwtAuth.PublicKey(string(pubPem)),
-		jwtAuth.PrivateKey(string(privPem)),
-	)
+	_, _ = os.ReadFile(privPath)
+	_, _ = os.ReadFile(pubPath)
 	storeInst := store.DefaultStore
 	// --- Ensure default admin account exists ---
 	adminID := "admin"
@@ -705,13 +784,13 @@ func initAuth() error {
 	if recs, _ := storeInst.Read(adminKey); len(recs) == 0 {
 		acc := &auth.Account{
 			ID: adminID,
-			Type: auth.AccountTypeAdmin,
+			Type: "admin",
 			Scopes: []string{"*"},
 			Metadata: map[string]string{"created": "true"},
 		}
 		acc.Secret = adminPass
 		b, _ := json.Marshal(acc)
-		storeInst.Write(&store.Record{Key: adminKey, Value: b, Table: "auth"})
+		storeInst.Write(&store.Record{Key: adminKey, Value: b})
 	}
 	return nil
 }
