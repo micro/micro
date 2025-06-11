@@ -9,17 +9,9 @@
         <div><a href="{{.Path}}" class="micro-link">{{.Name}}</a></div>
         <div style="margin-left:1em; font-size:0.97em;">
           <b>Request:</b>
-          {{if .Params}}
-            {{.Params | html}}
-          {{else}}
-            <i style="color:#888;">No parameters</i>
-          {{end}}
+          {{{.Params}}}
           <b>Response:</b>
-          {{if .Response}}
-            {{.Response | html}}
-          {{else}}
-            <i style="color:#888;">No response fields</i>
-          {{end}}
+          {{{.Response}}}
         </div>
       </li>
     {{end}}
