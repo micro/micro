@@ -304,8 +304,7 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 		}
 		if path == "/" {
 			serviceCount, runningCount, stoppedCount, statusDot := getDashboardData()
-			sidebarEndpoints, _ := getSidebarEndpoints()
-			// Render with error logging
+			// Do NOT include SidebarEndpoints on home page
 			err := tmpls.home.Execute(w, map[string]any{
 				"Title":        "Micro Dashboard",
 				"WebLink":      "/",
@@ -314,8 +313,7 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 				"StoppedCount": stoppedCount,
 				"StatusDot":    statusDot,
 				"User":         user,
-				"SidebarEndpoints": sidebarEndpoints,
-				"SidebarEndpointsEnabled": true,
+				// No SidebarEndpoints or SidebarEndpointsEnabled here
 			})
 			if err != nil {
 				log.Printf("[TEMPLATE ERROR] home: %v", err)
@@ -354,7 +352,6 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 							continue
 						}
 						apiPath := fmt.Sprintf("/api/%s/%s/%s", s.Name, parts[0], parts[1])
-						// Build params and response HTML from endpoint values
 						var params, response string
 						if ep.Request != nil && len(ep.Request.Values) > 0 {
 							params += "<ul class=no-bullets>"
@@ -389,11 +386,10 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 					})
 					sidebarEndpoints = append(sidebarEndpoints, map[string]string{"Name": s.Name, "Anchor": anchor})
 				}
-				// Sort sidebarEndpoints by Name
 				sort.Slice(sidebarEndpoints, func(i, j int) bool {
 					return sidebarEndpoints[i]["Name"] < sidebarEndpoints[j]["Name"]
 				})
-				apiData = map[string]any{"Title": "API", "WebLink": "/", "Services": apiServices, "SidebarEndpoints": sidebarEndpoints, "SidebarEndpointsEnabled": true}
+				apiData = map[string]any{"Title": "API", "WebLink": "/", "Services": apiServices, "SidebarEndpoints": sidebarEndpoints, "SidebarEndpointsEnabled": true, "User": user}
 				apiCache.data = apiData
 				apiCache.time = time.Now()
 			}
