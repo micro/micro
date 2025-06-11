@@ -187,14 +187,9 @@ func Run(c *cli.Context) error {
 				}
 				endpoints := []map[string]string{}
 				for _, ep := range s[0].Endpoints {
-					p := strings.Split(ep.Name, ".")
-					if len(p) != 2 {
-						continue
-					}
-					uri := fmt.Sprintf("/%s/%s", service, p[1])
 					endpoints = append(endpoints, map[string]string{
 						"Name": ep.Name,
-						"Path": uri,
+						"Path": fmt.Sprintf("/%s/%s", service, ep.Name),
 					})
 				}
 				b, _ := json.MarshalIndent(s[0], "", "    ")
