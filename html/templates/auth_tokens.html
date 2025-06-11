@@ -20,8 +20,8 @@
       <td style="max-width:320px; word-break:break-all;">
         {{if .Token}}
           <span class="obfuscated-token" data-token="{{.Token}}">
-            {{if gt (len .Token) 12}}
-              {{slice .Token 0 4}}...{{slice .Token (sub (len .Token) 4) (len .Token)}}
+            {{if .TokenSuffix}}
+              {{.TokenPrefix}}...{{.TokenSuffix}}
             {{else}}
               {{.Token}}
             {{end}}
