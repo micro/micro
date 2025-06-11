@@ -113,11 +113,11 @@ func Run(c *cli.Context) error {
 		}
 		if path == "/services" {
 			services, _ := registry.ListServices()
-			html := `<h2 class="text-2xl font-bold mb-4">Services</h2>`
+			var serviceNames []string
 			for _, service := range services {
-				html += fmt.Sprintf(`<button onclick="location.href='/%s'" class="micro-link">%s</button>`, url.QueryEscape(service.Name), service.Name)
+				serviceNames = append(serviceNames, service.Name)
 			}
-			_ = render(w, serviceTmpl, map[string]any{"Title": "Services", "WebLink": "/", "Content": html})
+			_ = render(w, serviceTmpl, map[string]any{"Title": "Services", "WebLink": "/", "Services": serviceNames})
 			return
 		}
 		if path == "/logs" || path == "/logs/" {
