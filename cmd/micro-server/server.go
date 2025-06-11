@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"text/template"
 
@@ -114,10 +116,24 @@ func Run(c *cli.Context) error {
 			return
 		}
 		if path == "/logs" || path == "/logs/" {
-			services, _ := registry.ListServices()
+			homeDir, err := os.UserHomeDir()
+			if err != nil {
+				w.WriteHeader(500)
+				w.Write([]byte("Could not get home directory"))
+				return
+			}
+			logsDir := homeDir + "/micro/logs"
+			dirEntries, err := os.ReadDir(logsDir)
+			if err != nil {
+				w.WriteHeader(500)
+				w.Write([]byte("Could not list logs directory: " + err.Error()))
+				return
+			}
 			serviceNames := []string{}
-			for _, srv := range services {
-				serviceNames = append(serviceNames, srv.Name)
+			for _, entry := range dirEntries {
+				if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".log") {
+					serviceNames = append(serviceNames, strings.TrimSuffix(entry.Name(), ".log"))
+				}
 			}
 			_ = render(w, logsTmpl, map[string]any{"Title": "Logs", "WebLink": "/", "Services": serviceNames})
 			return
@@ -129,12 +145,27 @@ func Run(c *cli.Context) error {
 				w.Write([]byte("Service not specified"))
 				return
 			}
-			cmd := exec.Command("micro", "logs", service)
-			output, err := cmd.CombinedOutput()
-			logText := string(output)
-			if err != nil && logText == "" {
-				logText = err.Error()
+			homeDir, err := os.UserHomeDir()
+			if err != nil {
+				w.WriteHeader(500)
+				w.Write([]byte("Could not get home directory"))
+				return
 			}
+			logFilePath := homeDir + "/micro/logs/" + service + ".log"
+			f, err := os.Open(logFilePath)
+			if err != nil {
+				w.WriteHeader(404)
+				w.Write([]byte("Could not open log file for service: " + service))
+				return
+			}
+			defer f.Close()
+			logBytes, err := io.ReadAll(f)
+			if err != nil {
+				w.WriteHeader(500)
+				w.Write([]byte("Could not read log file for service: " + service))
+				return
+			}
+			logText := string(logBytes)
 			_ = render(w, logTmpl, map[string]any{"Title": "Logs for " + service, "WebLink": "/logs", "Service": service, "Log": logText})
 			return
 		}
