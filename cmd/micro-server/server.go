@@ -211,6 +211,31 @@ func getDashboardData() (serviceCount, runningCount, stoppedCount int, statusDot
 	return
 }
 
+func getSidebarEndpoints() ([]map[string]string, error) {
+	apiCache.Lock()
+	defer apiCache.Unlock()
+	if apiCache.data != nil && time.Since(apiCache.time) < 30*time.Second {
+		if v, ok := apiCache.data["SidebarEndpoints"]; ok {
+			if endpoints, ok := v.([]map[string]string); ok {
+				return endpoints, nil
+			}
+		}
+	}
+	services, err := registry.ListServices()
+	if err != nil {
+		return nil, err
+	}
+	var sidebarEndpoints []map[string]string
+	for _, srv := range services {
+		anchor := strings.ReplaceAll(srv.Name, ".", "-")
+		sidebarEndpoints = append(sidebarEndpoints, map[string]string{"Name": srv.Name, "Anchor": anchor})
+	}
+	sort.Slice(sidebarEndpoints, func(i, j int) bool {
+		return sidebarEndpoints[i]["Name"] < sidebarEndpoints[j]["Name"]
+	})
+	return sidebarEndpoints, nil
+}
+
 func registerHandlers(tmpls *templates, storeInst store.Store) {
 	authMw := authRequired()
 	wrap := wrapAuth(authMw)
@@ -246,6 +271,7 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 		}
 		if path == "/" {
 			serviceCount, runningCount, stoppedCount, statusDot := getDashboardData()
+			sidebarEndpoints, _ := getSidebarEndpoints()
 			_ = tmpls.home.Execute(w, map[string]any{
 				"Title":        "Micro Dashboard",
 				"WebLink":      "/",
@@ -254,6 +280,8 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 				"StoppedCount": stoppedCount,
 				"StatusDot":    statusDot,
 				"User":         getUser(r),
+				"SidebarEndpoints": sidebarEndpoints,
+				"SidebarEndpointsEnabled": true,
 			})
 			return
 		}
@@ -337,16 +365,18 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 			return
 		}
 		if path == "/services" {
+			sidebarEndpoints, _ := getSidebarEndpoints()
 			services, _ := registry.ListServices()
 			var serviceNames []string
 			for _, service := range services {
 				serviceNames = append(serviceNames, service.Name)
 			}
 			sort.Strings(serviceNames)
-			_ = render(w, tmpls.service, map[string]any{"Title": "Services", "WebLink": "/", "Services": serviceNames})
+			_ = render(w, tmpls.service, map[string]any{"Title": "Services", "WebLink": "/", "Services": serviceNames, "SidebarEndpoints": sidebarEndpoints, "SidebarEndpointsEnabled": true, "User": getUser(r)})
 			return
 		}
 		if path == "/logs" || path == "/logs/" {
+			sidebarEndpoints, _ := getSidebarEndpoints()
 			homeDir, err := os.UserHomeDir()
 			if err != nil {
 				w.WriteHeader(500)
@@ -367,10 +397,11 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 					serviceNames = append(serviceNames, strings.TrimSuffix(name, ".log"))
 				}
 			}
-			_ = render(w, tmpls.logs, map[string]any{"Title": "Logs", "WebLink": "/", "Services": serviceNames})
+			_ = render(w, tmpls.logs, map[string]any{"Title": "Logs", "WebLink": "/", "Services": serviceNames, "SidebarEndpoints": sidebarEndpoints, "SidebarEndpointsEnabled": true, "User": getUser(r)})
 			return
 		}
 		if strings.HasPrefix(path, "/logs/") {
+			sidebarEndpoints, _ := getSidebarEndpoints()
 			service := strings.TrimPrefix(path, "/logs/")
 			if service == "" {
 				w.WriteHeader(404)
@@ -398,10 +429,11 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 				return
 			}
 			logText := string(logBytes)
-			_ = render(w, tmpls.log, map[string]any{"Title": "Logs for " + service, "WebLink": "/logs", "Service": service, "Log": logText})
+			_ = render(w, tmpls.log, map[string]any{"Title": "Logs for " + service, "WebLink": "/logs", "Service": service, "Log": logText, "SidebarEndpoints": sidebarEndpoints, "SidebarEndpointsEnabled": true, "User": getUser(r)})
 			return
 		}
 		if path == "/status" {
+			sidebarEndpoints, _ := getSidebarEndpoints()
 			homeDir, err := os.UserHomeDir()
 			if err != nil {
 				w.WriteHeader(500)
@@ -475,7 +507,7 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 					"ID":      strings.TrimSuffix(entry.Name(), ".pid"),
 				})
 			}
-			_ = render(w, tmpls.status, map[string]any{"Title": "Service Status", "WebLink": "/", "Statuses": statuses})
+			_ = render(w, tmpls.status, map[string]any{"Title": "Service Status", "WebLink": "/", "Statuses": statuses, "SidebarEndpoints": sidebarEndpoints, "SidebarEndpointsEnabled": true, "User": getUser(r)})
 			return
 		}
 		// Match /{service} and /{service}/{endpoint}
@@ -483,6 +515,7 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 		if len(parts) >= 1 && parts[0] != "api" && parts[0] != "html" && parts[0] != "services" {
 			service := parts[0]
 			if len(parts) == 1 {
+				sidebarEndpoints, _ := getSidebarEndpoints()
 				s, err := registry.GetService(service)
 				if err != nil || len(s) == 0 {
 					w.WriteHeader(404)
@@ -504,10 +537,13 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 					"Endpoints":   endpoints,
 					"Description": string(b),
 					"User":        getUser(r),
+					"SidebarEndpoints": sidebarEndpoints,
+					"SidebarEndpointsEnabled": true,
 				})
 				return
 			}
 			if len(parts) == 2 {
+				sidebarEndpoints, _ := getSidebarEndpoints()
 				service := parts[0]
 				endpoint := parts[1] // Use the actual endpoint name from the URL, e.g. Foo.Bar
 				s, err := registry.GetService(service)
@@ -549,6 +585,8 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 						"Inputs":       inputs,
 						"Action":       service + "/" + endpoint,
 						"User":         getUser(r),
+						"SidebarEndpoints": sidebarEndpoints,
+						"SidebarEndpointsEnabled": true,
 					})
 					return
 				}
