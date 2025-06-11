@@ -135,8 +135,9 @@ func Run(c *cli.Context) error {
 			}
 			serviceNames := []string{}
 			for _, entry := range dirEntries {
-				if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".log") {
-					serviceNames = append(serviceNames, strings.TrimSuffix(entry.Name(), ".log"))
+				name := entry.Name()
+				if !entry.IsDir() && strings.HasSuffix(name, ".log") && !strings.HasPrefix(name, ".") {
+					serviceNames = append(serviceNames, strings.TrimSuffix(name, ".log"))
 				}
 			}
 			_ = render(w, logsTmpl, map[string]any{"Title": "Logs", "WebLink": "/", "Services": serviceNames})
