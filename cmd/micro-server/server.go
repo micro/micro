@@ -224,14 +224,26 @@ func Run(c *cli.Context) error {
 					return
 				}
 				if r.Method == "GET" {
-					var inputs string
-					inputs += fmt.Sprintf(`<h3 class="text-lg font-bold mb-2">%s</h3>`, ep.Name)
-					for _, input := range ep.Request.Values {
-						inputs += fmt.Sprintf(`<label class="block font-semibold">%s</label><input id=%s name=%s placeholder=%s class="border rounded px-2 py-1 mb-2 w-full">`, input.Name, input.Name, input.Name, input.Name)
+					// Build form fields from endpoint request values
+					var inputs []map[string]string
+					if ep.Request != nil && len(ep.Request.Values) > 0 {
+						for _, input := range ep.Request.Values {
+							inputs = append(inputs, map[string]string{
+								"Label":      input.Name,
+								"Name":       input.Name,
+								"Placeholder": input.Name,
+								"Value":      "",
+							})
+						}
 					}
-					inputs += `<button class="micro-link mt-2" type="submit">Submit</button>`
-					formHTML := fmt.Sprintf(`<h2>%s</h2><form action=/%s/%s method=POST data-reactive>%s</form>`, service, service, parts[1], inputs)
-					_ = render(w, formTmpl, map[string]any{"Title": "Service: " + service, "WebLink": "/", "Content": formHTML})
+					_ = render(w, formTmpl, map[string]any{
+						"Title":       "Service: " + service,
+						"WebLink":     "/",
+						"ServiceName": service,
+						"EndpointName": ep.Name,
+						"Inputs":      inputs,
+						"Action":      endpoint,
+					})
 					return
 				}
 				if r.Method == "POST" {
