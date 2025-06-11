@@ -30,7 +30,17 @@ func Run(c *cli.Context) error {
 	}
 
 	// HTML templates for micro web UI
-	var htmlTemplate = `<!DOCTYPE html><html><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width" /><title>Micro Web</title><script src="https://cdn.tailwindcss.com"></script><style>.micro-link {@apply inline-block font-bold border-2 border-gray-400 rounded-lg px-4 py-2 bg-gray-50 mr-2 mb-2 transition-colors;border: 2px solid #888;border-radius: 8px;padding: 8px 18px;margin: 8px 8px 8px 0;}.micro-link:hover {@apply bg-gray-100;background: #f3f4f6;}#title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }#title:hover { background: none; }</style></head><body class="bg-gray-50 text-gray-900"><div id="head" class="relative m-6"><h1><a href="/" id="title" class="text-3xl font-bold">Micro</a></h1><a id="web-link" href="%s" class="micro-link absolute top-0 right-24">Web</a><a id="api-link" href="/api" class="micro-link absolute top-0 right-2">API</a></div><div class="container px-6 py-4 max-w-screen-xl mx-auto">%s</div></body></html>`
+	var htmlTemplate = `<!DOCTYPE html><html><head><meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width" />
+	<title>Micro Web</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+	.micro-link {@apply inline-block font-bold border-2 border-gray-400 rounded-lg px-4 py-2 bg-gray-50 mr-2 mb-2 transition-colors;border: 2px solid #888;border-radius: 8px;padding: 8px 18px;margin: 8px 8px 8px 0;}.micro-link:hover {@apply bg-gray-100;background: #f3f4f6;}#title { text-decoration: none; color: black; border: none; padding: 0; margin: 0; }#title:hover { background: none; }
+	</style>
+	</head>
+	<body class="bg-gray-50 text-gray-900"><div id="head" class="relative m-6"><h1><a href="/" id="title" class="text-3xl font-bold">Micro</a></h1><a id="web-link" href="%s" class="micro-link absolute top-0 right-24">Web</a><a id="api-link" href="/api" class="micro-link absolute top-0 right-2">API</a></div><div class="container px-6 py-4 max-w-screen-xl mx-auto">%s</div>
+	</body>
+	</html>`
 
 	// Helper functions
 	normalize := func(v string) string {
@@ -80,7 +90,11 @@ func Run(c *cli.Context) error {
 					continue
 				}
 				s := srvs[0]
+				if len(s.Endpoints) == 0 {
+					continue
+				}
 				html += fmt.Sprintf(`<h3 class="text-xl font-semibold mt-8 mb-2">%s</h3>`, s.Name)
+
 				for _, ep := range s.Endpoints {
 					parts := strings.Split(ep.Name, ".")
 					if len(parts) != 2 {
@@ -91,7 +105,7 @@ func Run(c *cli.Context) error {
 					if ep.Request != nil && len(ep.Request.Values) > 0 {
 						params += "<ul class=\"ml-4 mb-2\">"
 						for _, v := range ep.Request.Values {
-							params += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">(%s)</span></li>", v.Name, v.Type)
+							params += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">%s</span></li>", v.Name, v.Type)
 						}
 						params += "</ul>"
 					} else {
@@ -101,14 +115,14 @@ func Run(c *cli.Context) error {
 					if ep.Response != nil && len(ep.Response.Values) > 0 {
 						response += "<ul class=\"ml-4 mb-2\">"
 						for _, v := range ep.Response.Values {
-							response += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">(%s)</span></li>", v.Name, v.Type)
+							response += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">%s</span></li>", v.Name, v.Type)
 						}
 						response += "</ul>"
 					} else {
 						response = "<i class=\"text-gray-500\">No response fields</i>"
 					}
 					html += fmt.Sprintf(
-						`<div class="mb-10"><div class="text-lg font-bold mb-1">%s</div><hr class="mb-4 border-gray-300"><div class="mb-2"><span class="font-bold">HTTP Path:</span> <code class="font-mono">%s</code></div><div class="mb-2"><span class="font-bold">Parameters:</span> %s</div><div class="mb-2"><span class="font-bold">Response:</span> %s</div></div>`,
+						`<div class="mb-10"><div class="text-lg font-bold mb-1">%s</div><hr class="mb-4 border-gray-300"><div class="mb-2"><span class="font-bold">HTTP Path:</span> <code class="font-mono">%s</code></div><div class="mb-2"><span class="font-bold">Request:</span> %s</div><div class="mb-2"><span class="font-bold">Response:</span> %s</div></div>`,
 						ep.Name, apiPath, params, response,
 					)
 				}
@@ -116,6 +130,7 @@ func Run(c *cli.Context) error {
 			render(w, html, webLink)
 			return
 		}
+
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			// /api/{service}/{endpointService}/{endpointMethod}
 			parts := strings.Split(r.URL.Path, "/")
@@ -173,6 +188,10 @@ func Run(c *cli.Context) error {
 			render(w, html, webLink)
 			return
 		}
+
+		// /service/foo
+		// /service/foo/bar
+
 		if len(parts) >= 3 && parts[1] == "service" && parts[2] != "" {
 			service := parts[2]
 			service, _ = url.QueryUnescape(service)
@@ -182,11 +201,20 @@ func Run(c *cli.Context) error {
 				w.Write([]byte(fmt.Sprintf("Service not found: %s", service)))
 				return
 			}
-			if len(parts) < 4 || parts[3] == "" {
+
+			if len(parts) <= 3 {
 				var endpoints string
 				endpoints += `<h4 class="font-semibold mb-2">Endpoints</h4>`
+				if len(s[0].Endpoints) == 0 {
+					endpoints += "<p>No endpoints registered</p>"
+				}
+
 				for _, ep := range s[0].Endpoints {
 					p := strings.Split(ep.Name, ".")
+					if len(p) != 2 {
+						endpoints += "<p>" + ep.Name + "</p>"
+						continue
+					}
 					uri := fmt.Sprintf("/service/%s/%s/%s", service, p[0], p[1])
 					endpoints += fmt.Sprintf(`<button onclick="location.href='%s'" class="micro-link">%s</button>`, uri, ep.Name)
 				}
@@ -198,6 +226,7 @@ func Run(c *cli.Context) error {
 				render(w, serviceHTML, webLink)
 				return
 			}
+
 			endpoint := parts[3]
 			if len(parts) == 5 {
 				endpoint = normalize(endpoint) + "." + normalize(parts[4])
