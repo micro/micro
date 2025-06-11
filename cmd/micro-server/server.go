@@ -58,15 +58,15 @@ type templates struct {
 
 func parseTemplates() *templates {
 	return &templates{
-		api:        template.Must(template.ParseFS(HTML, "html/base.html", "html/api.html")),
-		service:    template.Must(template.ParseFS(HTML, "html/base.html", "html/service.html")),
-		form:       template.Must(template.ParseFS(HTML, "html/base.html", "html/form.html")),
-		home:       template.Must(template.ParseFS(HTML, "html/base.html", "html/home.html")),
-		logs:       template.Must(template.ParseFS(HTML, "html/base.html", "html/logs.html")),
-		log:        template.Must(template.ParseFS(HTML, "html/base.html", "html/log.html")),
-		status:     template.Must(template.ParseFS(HTML, "html/base.html", "html/status.html")),
-		authTokens: template.Must(template.ParseFS(HTML, "html/base.html", "html/auth_tokens.html")),
-		authLogin:  template.Must(template.ParseFS(HTML, "html/base.html", "html/login.html")),
+		api:        template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/api.html")),
+		service:    template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/service.html")),
+		form:       template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/form.html")),
+		home:       template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/home.html")),
+		logs:       template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/logs.html")),
+		log:        template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/log.html")),
+		status:     template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/status.html")),
+		authTokens: template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_tokens.html")),
+		authLogin:  template.Must(template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")),
 	}
 }
 
@@ -636,7 +636,7 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 	http.HandleFunc("/auth/login", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			// Render login form
-			loginTmpl, err := template.ParseFS(HTML, "html/base.html", "html/auth_login.html")
+			loginTmpl, err := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
 			if err != nil {
 				w.WriteHeader(500)
 				w.Write([]byte("Template error: " + err.Error()))
@@ -651,20 +651,20 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 			recKey := "auth/" + id
 			recs, _ := storeInst.Read(recKey)
 			if len(recs) == 0 {
-				loginTmpl, _ := template.ParseFS(HTML, "html/base.html", "html/auth_login.html")
+				loginTmpl, _ := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
 				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": ""})
 				return
 			}
 			var acc auth.Account
 			if err := json.Unmarshal(recs[0].Value, &acc); err != nil || acc.Secret != pass {
-				loginTmpl, _ := template.ParseFS(HTML, "html/base.html", "html/auth_login.html")
+				loginTmpl, _ := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
 				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": ""})
 				return
 			}
 			// Generate JWT token
 			tok, err := authSrv.Generate(acc.ID, auth.WithType(acc.Type), auth.WithScopes(acc.Scopes...))
 			if err != nil {
-				loginTmpl, _ := template.ParseFS(HTML, "html/base.html", "html/auth_login.html")
+				loginTmpl, _ := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
 				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Token error", "User": ""})
 				return
 			}
