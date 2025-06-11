@@ -12,6 +12,7 @@ import (
 	"sync"
 	"text/template"
 	"time"
+	"syscall"
 
 	goMicroClient "go-micro.dev/v5/client"
 	goMicroBytes "go-micro.dev/v5/codec/bytes"
@@ -425,6 +426,6 @@ func processRunning(pid string) bool {
 	if err != nil {
 		return false
 	}
-	// On unix, sending signal 0 checks if process exists
-	return proc.Signal(os.Signal(0)) == nil
+	// On unix, sending syscall.Signal(0) checks if process exists
+	return proc.Signal(syscall.Signal(0)) == nil
 }
