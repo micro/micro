@@ -273,27 +273,35 @@ func Run(c *cli.Context) error {
 				if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".pid") || strings.HasPrefix(entry.Name(), ".") {
 					continue
 				}
-				serviceName := strings.TrimSuffix(entry.Name(), ".pid")
 				pidFile := pidDir + "/" + entry.Name()
 				pidBytes, err := os.ReadFile(pidFile)
 				if err != nil {
 					statuses = append(statuses, map[string]string{
-						"Name": serviceName,
+						"Service": entry.Name(),
+						"Dir": "-",
 						"Status": "unknown",
 						"PID": "-",
 						"Uptime": "-",
+						"ID": strings.TrimSuffix(entry.Name(), ".pid"),
 					})
 					continue
 				}
 				lines := strings.Split(string(pidBytes), "\n")
 				pid := "-"
+				dir := "-"
+				service := "-"
 				start := "-"
 				if len(lines) > 0 && len(lines[0]) > 0 {
 					pid = lines[0]
 				}
-				// line 1 is source dir, skip
+				if len(lines) > 1 && len(lines[1]) > 0 {
+					dir = lines[1]
+				}
 				if len(lines) > 2 && len(lines[2]) > 0 {
-					start = lines[2]
+					service = lines[2]
+				}
+				if len(lines) > 3 && len(lines[3]) > 0 {
+					start = lines[3]
 				}
 				status := "stopped"
 				if pid != "-" {
@@ -310,10 +318,12 @@ func Run(c *cli.Context) error {
 					}
 				}
 				statuses = append(statuses, map[string]string{
-					"Name": serviceName,
+					"Service": service,
+					"Dir": dir,
 					"Status": status,
 					"PID": pid,
 					"Uptime": uptime,
+					"ID": strings.TrimSuffix(entry.Name(), ".pid"),
 				})
 			}
 			_ = render(w, parseTmpl("status.html"), map[string]any{"Title": "Service Status", "WebLink": "/", "Statuses": statuses})

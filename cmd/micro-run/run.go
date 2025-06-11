@@ -2,13 +2,16 @@ package run
 
 import (
 	"bufio"
+	"crypto/md5"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/urfave/cli/v2"
@@ -102,18 +105,25 @@ func Run(c *cli.Context) error {
 	for i, mainFile := range mainFiles {
 		serviceDir := filepath.Dir(mainFile)
 		var serviceName string
-		absDir, _ := filepath.Abs(dir)
 		absServiceDir, _ := filepath.Abs(serviceDir)
-		if absDir == absServiceDir {
-			// If main.go is in the root dir being run, use the current working dir name
-			cwd, _ := os.Getwd()
-			serviceName = filepath.Base(cwd)
-		} else {
-			serviceName = filepath.Base(serviceDir)
+		serviceNameForPid := serviceName + "-" + fmt.Sprintf("%x", md5.Sum([]byte(absServiceDir)))[:8]
+		logFilePath := filepath.Join(logsDir, serviceNameForPid+".log")
+		binPath := filepath.Join(binDir, serviceNameForPid)
+		pidFilePath := filepath.Join(runDir, serviceNameForPid+".pid")
+
+		// Check if pid file exists and process is running
+		if pidBytes, err := os.ReadFile(pidFilePath); err == nil {
+			lines := strings.Split(string(pidBytes), "\n")
+			if len(lines) > 0 && len(lines[0]) > 0 {
+				pid := lines[0]
+				if _, err := os.FindProcess(parsePid(pid)); err == nil {
+					if processRunning(pid) {
+						fmt.Fprintf(os.Stderr, "Service %s already running (pid %s)\n", serviceNameForPid, pid)
+						continue
+					}
+				}
+			}
 		}
-		logFilePath := filepath.Join(logsDir, serviceName+".log")
-		binPath := filepath.Join(binDir, serviceName)
-		pidFilePath := filepath.Join(runDir, serviceName+".pid")
 
 		logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
@@ -153,8 +163,7 @@ func Run(c *cli.Context) error {
 		}
 		procs = append(procs, cmd)
 		pidFiles = append(pidFiles, pidFilePath)
-		absServiceDir, _ = filepath.Abs(serviceDir)
-		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n%s\n", cmd.Process.Pid, absServiceDir, time.Now().Format(time.RFC3339))), 0644)
+		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n%s\n%s\n", cmd.Process.Pid, absServiceDir, serviceName, time.Now().Format(time.RFC3339))), 0644)
 	}
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)
@@ -174,6 +183,24 @@ func Run(c *cli.Context) error {
 		_ = proc.Wait()
 	}
 	return nil
+}
+
+// Add helpers for process check
+func parsePid(pidStr string) int {
+	pid, _ := strconv.Atoi(pidStr)
+	return pid
+}
+func processRunning(pidStr string) bool {
+	pid := parsePid(pidStr)
+	if pid <= 0 {
+		return false
+	}
+	proc, err := os.FindProcess(pid)
+	if err != nil {
+		return false
+	}
+	// On Unix, sending signal 0 checks if process exists
+	return proc.Signal(syscall.Signal(0)) == nil
 }
 
 func init() {
