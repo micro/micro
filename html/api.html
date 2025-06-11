@@ -8,8 +8,18 @@
       <li>
         <div><a href="{{.Path}}" class="micro-link">{{.Name}}</a></div>
         <div style="margin-left:1em; font-size:0.97em;">
-          <b>Request:</b> {{.Params | html}}
-          <b>Response:</b> {{.Response | html}}
+          <b>Request:</b>
+          {{if .Params}}
+            {{.Params | html}}
+          {{else}}
+            <i style="color:#888;">No parameters</i>
+          {{end}}
+          <b>Response:</b>
+          {{if .Response}}
+            {{.Response | html}}
+          {{else}}
+            <i style="color:#888;">No response fields</i>
+          {{end}}
         </div>
       </li>
     {{end}}
