@@ -220,6 +220,10 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 
 	http.HandleFunc("/", wrap(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
+		if strings.HasPrefix(path, "/auth/") {
+			// Let the dedicated /auth/* handlers process this
+			return
+		}
 		if path == "/" {
 			serviceCount, runningCount, stoppedCount, statusDot := getDashboardData()
 			_ = tmpls.home.Execute(w, map[string]any{
