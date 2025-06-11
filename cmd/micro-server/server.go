@@ -957,7 +957,7 @@ func processRunning(pid string) bool {
 		return false
 	}
 	// On unix, sending syscall.Signal(0) checks if process exists
-	return proc.Signal(syscall.Signal(0)) == nil
+	return proc.Signal(syscall.Signal(0)) ==
 }
 func generateKeyPair(bits int) (*rsa.PrivateKey, error) {
 	priv, err := rsa.GenerateKey(rand.Reader, bits)
@@ -1041,7 +1041,7 @@ func initAuth() error {
 			ID:       adminID,
 			Type:     "admin",
 			Scopes:   []string{"*"},
-			Metadata: map[string]string{"created": "true", "password_hash": string(hash)},
+			Metadata: map[string]string{"created": time.Now().Format(time.RFC3339), "password_hash": string(hash)},
 		}
 		b, _ := json.Marshal(acc)
 		storeInst.Write(&store.Record{Key: adminKey, Value: b})
