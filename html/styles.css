@@ -51,6 +51,19 @@ a:hover {
     background: none;
 }
 
+.micro-link[type=submit], .micro-link.button {
+    border: 1.5px solid #111;
+    padding: 0.4em 1.2em;
+    border-radius: 5px;
+    background: #f8f8f8;
+    font-weight: bold;
+    transition: background 0.2s, border-color 0.2s;
+}
+.micro-link[type=submit]:hover, .micro-link.button:hover {
+    background: #f3f3f3;
+    border-color: #333;
+}
+
 #title {
     text-decoration: none;
     color: #111111;

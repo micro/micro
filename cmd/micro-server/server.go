@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"text/template"
+	"time"
 
 	goMicroClient "go-micro.dev/v5/client"
 	goMicroBytes "go-micro.dev/v5/codec/bytes"
@@ -21,6 +23,14 @@ import (
 
 // HTML is the embedded filesystem for templates and static files, set by main.go
 var HTML fs.FS
+
+var (
+	apiCache struct {
+		sync.Mutex
+		data map[string]any
+		time time.Time
+	}
+)
 
 func Run(c *cli.Context) error {
 	addr := c.String("address")
@@ -58,56 +68,70 @@ func Run(c *cli.Context) error {
 			return
 		}
 		if path == "/api" || path == "/api/" {
-			services, _ := registry.ListServices()
-			var apiServices []map[string]any
-			for _, srv := range services {
-				srvs, err := registry.GetService(srv.Name)
-				if err != nil || len(srvs) == 0 {
-					continue
-				}
-				s := srvs[0]
-				if len(s.Endpoints) == 0 {
-					continue
-				}
-				endpoints := []map[string]any{}
-				for _, ep := range s.Endpoints {
-					parts := strings.Split(ep.Name, ".")
-					if len(parts) != 2 {
+			apiCache.Lock()
+			useCache := false
+			if apiCache.data != nil && time.Since(apiCache.time) < 30*time.Second {
+				useCache = true
+			}
+			var apiData map[string]any
+			if useCache {
+				apiData = apiCache.data
+			} else {
+				services, _ := registry.ListServices()
+				var apiServices []map[string]any
+				for _, srv := range services {
+					srvs, err := registry.GetService(srv.Name)
+					if err != nil || len(srvs) == 0 {
 						continue
 					}
-					apiPath := fmt.Sprintf("/api/%s/%s/%s", s.Name, parts[0], parts[1])
-					var params, response string
-					if ep.Request != nil && len(ep.Request.Values) > 0 {
-						params += "<ul class=\"ml-4 mb-2\">"
-						for _, v := range ep.Request.Values {
-							params += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">%s</span></li>", v.Name, v.Type)
-						}
-						params += "</ul>"
-					} else {
-						params = "<i class=\"text-gray-500\">No parameters</i>"
+					s := srvs[0]
+					if len(s.Endpoints) == 0 {
+						continue
 					}
-					if ep.Response != nil && len(ep.Response.Values) > 0 {
-						response += "<ul class=\"ml-4 mb-2\">"
-						for _, v := range ep.Response.Values {
-							response += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">%s</span></li>", v.Name, v.Type)
+					endpoints := []map[string]any{}
+					for _, ep := range s.Endpoints {
+						parts := strings.Split(ep.Name, ".")
+						if len(parts) != 2 {
+							continue
 						}
-						response += "</ul>"
-					} else {
-						response = "<i class=\"text-gray-500\">No response fields</i>"
+						apiPath := fmt.Sprintf("/api/%s/%s/%s", s.Name, parts[0], parts[1])
+						var params, response string
+						if ep.Request != nil && len(ep.Request.Values) > 0 {
+							params += "<ul class=\"ml-4 mb-2\">"
+							for _, v := range ep.Request.Values {
+								params += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">%s</span></li>", v.Name, v.Type)
+							}
+							params += "</ul>"
+						} else {
+							params = "<i class=\"text-gray-500\">No parameters</i>"
+						}
+						if ep.Response != nil && len(ep.Response.Values) > 0 {
+							response += "<ul class=\"ml-4 mb-2\">"
+							for _, v := range ep.Response.Values {
+								response += fmt.Sprintf("<li><b>%s</b> <span class=\"text-gray-500\">%s</span></li>", v.Name, v.Type)
+							}
+							response += "</ul>"
+						} else {
+							response = "<i class=\"text-gray-500\">No response fields</i>"
+						}
+						endpoints = append(endpoints, map[string]any{
+							"Name": ep.Name,
+							"Path": apiPath,
+							"Params": htmltemplate.HTML(params),
+							"Response": htmltemplate.HTML(response),
+						})
 					}
-					endpoints = append(endpoints, map[string]any{
-						"Name": ep.Name,
-						"Path": apiPath,
-						"Params": htmltemplate.HTML(params),
-						"Response": htmltemplate.HTML(response),
+					apiServices = append(apiServices, map[string]any{
+						"Name": s.Name,
+						"Endpoints": endpoints,
 					})
 				}
-				apiServices = append(apiServices, map[string]any{
-					"Name": s.Name,
-					"Endpoints": endpoints,
-				})
+				apiData = map[string]any{"Title": "API", "WebLink": "/", "Services": apiServices}
+				apiCache.data = apiData
+				apiCache.time = time.Now()
 			}
-			_ = render(w, apiTmpl, map[string]any{"Title": "API", "WebLink": "/", "Services": apiServices})
+			apiCache.Unlock()
+			_ = render(w, apiTmpl, apiData)
 			return
 		}
 		if path == "/services" {
