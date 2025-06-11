@@ -8,6 +8,7 @@
 </head>
 <body>
     <div id="layout" style="display:flex; min-height:100vh;">
+        {{if not .HideSidebar}}
         <nav id="sidebar" style="width:220px; background:#f5f6fa; padding:2em 1.5em 2em 2em; border-right:1px solid #eee;">
             <h1 style="margin-bottom:2em;"><a href="/" id="title">Micro</a></h1>
             {{if .User}}
@@ -42,6 +43,7 @@
             </div>
             {{end}}
         </nav>
+        {{end}}
         <main class="container" style="flex:1; min-width:0;">
             {{template "content" .}}
         </main>

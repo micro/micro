@@ -157,7 +157,10 @@ func authRequired(authSrv auth.Auth) func(http.HandlerFunc) http.HandlerFunc {
 func wrapAuth(authRequired func(http.HandlerFunc) http.HandlerFunc) func(http.HandlerFunc) http.HandlerFunc {
 	return func(h http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
-			if strings.HasPrefix(r.URL.Path, "/auth/login") || strings.HasPrefix(r.URL.Path, "/auth/logout") {
+			path := r.URL.Path
+			if strings.HasPrefix(path, "/auth/login") || strings.HasPrefix(path, "/auth/logout") ||
+				strings.HasPrefix(path, "/html/main.js") || strings.HasPrefix(path, "/html/styles.css") ||
+				strings.HasPrefix(path, "/html/templates/") || strings.HasPrefix(path, "/html/") {
 				h(w, r)
 				return
 			}
@@ -635,14 +638,13 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 
 	http.HandleFunc("/auth/login", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
-			// Render login form
 			loginTmpl, err := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
 			if err != nil {
 				w.WriteHeader(500)
 				w.Write([]byte("Template error: " + err.Error()))
 				return
 			}
-			_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "", "User": getUser(r)})
+			_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "", "User": getUser(r), "HideSidebar": true})
 			return
 		}
 		if r.Method == "POST" {
@@ -652,20 +654,19 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 			recs, _ := storeInst.Read(recKey)
 			if len(recs) == 0 {
 				loginTmpl, _ := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
-				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": ""})
+				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": "", "HideSidebar": true})
 				return
 			}
 			var acc auth.Account
 			if err := json.Unmarshal(recs[0].Value, &acc); err != nil || acc.Secret != pass {
 				loginTmpl, _ := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
-				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": ""})
+				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": "", "HideSidebar": true})
 				return
 			}
-			// Generate JWT token
 			tok, err := authSrv.Generate(acc.ID, auth.WithType(acc.Type), auth.WithScopes(acc.Scopes...))
 			if err != nil {
 				loginTmpl, _ := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
-				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Token error", "User": ""})
+				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Token error", "User": "", "HideSidebar": true})
 				return
 			}
 			http.SetCookie(w, &http.Cookie{
