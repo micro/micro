@@ -242,7 +242,6 @@ func Run(c *cli.Context) error {
 				status := "stopped"
 				if pid != "-" {
 					if _, err := os.FindProcess(parsePid(pid)); err == nil {
-						// Check if process exists (best effort, works on unix)
 						if processRunning(pid) {
 							status = "running"
 						}
