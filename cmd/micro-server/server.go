@@ -1,7 +1,10 @@
 package server
 
 import (
-	"encoding/json"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"io/fs"
 	"io"
@@ -18,8 +21,11 @@ import (
 	goMicroClient "go-micro.dev/v5/client"
 	goMicroBytes "go-micro.dev/v5/codec/bytes"
 	"github.com/urfave/cli/v2"
+	"go-micro.dev/v5/auth"
+	jwtAuth "go-micro.dev/v5/auth/jwt"
 	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/registry"
+	"go-micro.dev/v5/store"
 )
 
 // HTML is the embedded filesystem for templates and static files, set by main.go
@@ -34,6 +40,11 @@ var (
 )
 
 func Run(c *cli.Context) error {
+	// --- AUTH INIT ---
+	if err := initAuth(); err != nil {
+		log.Fatalf("Failed to initialize auth: %v", err)
+	}
+
 	addr := c.String("address")
 	if addr == "" {
 		addr = ":8080"
@@ -62,7 +73,18 @@ func Run(c *cli.Context) error {
 
 	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.FS(staticFS))))
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	// --- PROTECT ALL ROUTES BY DEFAULT ---
+	wrapAuth := func(h http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			if strings.HasPrefix(r.URL.Path, "/auth/login") || strings.HasPrefix(r.URL.Path, "/auth/logout") {
+				h(w, r)
+				return
+			}
+			authRequired(h)(w, r)
+		}
+	}
+
+	http.HandleFunc("/", wrapAuth(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 		if path == "/" {
 			// Dashboard summary: count of services, running/stopped, status dot
@@ -118,6 +140,7 @@ func Run(c *cli.Context) error {
 				"RunningCount": runningCount,
 				"StoppedCount": stoppedCount,
 				"StatusDot": statusDot,
+				"User": getUser(r),
 			})
 			return
 		}
@@ -365,6 +388,7 @@ func Run(c *cli.Context) error {
 					"ServiceName": service,
 					"Endpoints": endpoints,
 					"Description": string(b),
+					"User": getUser(r),
 				})
 				return
 			}
@@ -409,6 +433,7 @@ func Run(c *cli.Context) error {
 						"EndpointName": ep.Name,
 						"Inputs":      inputs,
 						"Action":      service + "/" + endpoint,
+						"User": getUser(r),
 					})
 					return
 				}
@@ -453,6 +478,82 @@ func Run(c *cli.Context) error {
 		w.WriteHeader(404)
 		w.Write([]byte("Not found"))
 	})
+
+	http.HandleFunc("/auth/logout", func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{Name: "micro_token", Value: "", Path: "/", Expires: time.Now().Add(-1 * time.Hour), HttpOnly: true})
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+	})
+
+	http.HandleFunc("/auth/tokens", authRequired(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			id := r.FormValue("id")
+			typeStr := r.FormValue("type")
+			scopesStr := r.FormValue("scopes")
+			accType := auth.AccountTypeUser
+			if typeStr == "admin" {
+				accType = auth.AccountTypeAdmin
+			} else if typeStr == "service" {
+				accType = auth.AccountTypeService
+			}
+			scopes := []string{"*"}
+			if scopesStr != "" {
+				scopes = strings.Split(scopesStr, ",")
+				for i := range scopes {
+					scopes[i] = strings.TrimSpace(scopes[i])
+				}
+			}
+			acc := &auth.Account{
+				ID: id,
+				Type: accType,
+				Scopes: scopes,
+				Metadata: map[string]string{"created": time.Now().Format(time.RFC3339)},
+			}
+			// Service tokens do not require a password, generate a JWT directly
+			tok, _ := authSrv.Generate(acc.ID, auth.WithType(acc.Type), auth.WithScopes(acc.Scopes...), auth.WithExpiry(time.Hour*24*365))
+			acc.Metadata["token"] = tok.Secret
+			b, _ := json.Marshal(acc)
+			storeInst.Write(&store.Record{Key: "auth/" + id, Value: b, Table: "auth"})
+			http.Redirect(w, r, "/auth/tokens", http.StatusSeeOther)
+			return
+		}
+		recs, _ := storeInst.Read("", store.ReadPrefix(), store.ReadTable("auth"))
+		var tokens []map[string]any
+		for _, rec := range recs {
+			var acc auth.Account
+			if err := json.Unmarshal(rec.Value, &acc); err == nil {
+				tok := ""
+				if t, ok := acc.Metadata["token"]; ok {
+					tok = t
+				}
+				tokens = append(tokens, map[string]any{
+					"ID": acc.ID,
+					"Type": acc.Type,
+					"Scopes": acc.Scopes,
+					"Metadata": acc.Metadata,
+					"Token": tok,
+				})
+			}
+		}
+		_ = render(w, parseTmpl("auth_tokens.html"), map[string]any{"Title": "Auth Tokens", "Tokens": tokens, "User": getUser(r)})
+	}))
+
+	// --- AUTH MIDDLEWARE ---
+	authRequired := func(next http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			cookie, err := r.Cookie("micro_token")
+			if err != nil || cookie.Value == "" {
+				http.Redirect(w, r, "/auth/login", http.StatusFound)
+				return
+			}
+			acc, err := authSrv.Inspect(cookie.Value)
+			if err != nil || acc == nil || acc.Expiry.Before(time.Now()) {
+				http.Redirect(w, r, "/auth/login", http.StatusFound)
+				return
+			}
+			// Optionally: set user in context for handlers
+			next(w, r)
+		}
+	}
 
 	go func() {
 		log.Printf("[micro-server] Web/API listening on %s", addr)
@@ -504,4 +605,108 @@ func processRunning(pid string) bool {
 	}
 	// On unix, sending syscall.Signal(0) checks if process exists
 	return proc.Signal(syscall.Signal(0)) == nil
+}
+
+func generateKeyPair(bits int) (*rsa.PrivateKey, error) {
+	priv, err := rsa.GenerateKey(rand.Reader, bits)
+	if err != nil {
+		return nil, err
+	}
+	return priv, nil
+}
+
+func exportPrivateKeyAsPEM(priv *rsa.PrivateKey) ([]byte, error) {
+	privKeyBytes := x509.MarshalPKCS1PrivateKey(priv)
+	block := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: privKeyBytes,
+	}
+	var buf bytes.Buffer
+	err := pem.Encode(&buf, block)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func exportPublicKeyAsPEM(pub *rsa.PublicKey) ([]byte, error) {
+	pubKeyBytes := x509.MarshalPKCS1PublicKey(pub)
+	block := &pem.Block{
+		Type:  "RSA PUBLIC KEY",
+		Bytes: pubKeyBytes,
+	}
+	var buf bytes.Buffer
+	err := pem.Encode(&buf, block)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func importPrivateKeyFromPEM(privKeyPEM []byte) (*rsa.PrivateKey, error) {
+	block, _ := pem.Decode(privKeyPEM)
+	if block == nil {
+		return nil, fmt.Errorf("invalid PEM block")
+	}
+	return x509.ParsePKCS1PrivateKey(block.Bytes)
+}
+
+func importPublicKeyFromPEM(pubKeyPEM []byte) (*rsa.PublicKey, error) {
+	block, _ := pem.Decode(pubKeyPEM)
+	if block == nil {
+		return nil, fmt.Errorf("invalid PEM block")
+	}
+	return x509.ParsePKCS1PublicKey(block.Bytes)
+}
+
+func initAuth() error {
+	// --- AUTH SETUP ---
+	homeDir, _ := os.UserHomeDir()
+	keyDir := filepath.Join(homeDir, "micro", "keys")
+	privPath := filepath.Join(keyDir, "private.pem")
+	pubPath := filepath.Join(keyDir, "public.pem")
+	os.MkdirAll(keyDir, 0700)
+	// Generate keypair if not exist
+	if _, err := os.Stat(privPath); os.IsNotExist(err) {
+		priv, _ := rsa.GenerateKey(rand.Reader, 2048)
+		privBytes := x509.MarshalPKCS1PrivateKey(priv)
+		privPem := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: privBytes})
+		os.WriteFile(privPath, privPem, 0600)
+		pubBytes := x509.MarshalPKCS1PublicKey(&priv.PublicKey)
+		pubPem := pem.EncodeToMemory(&pem.Block{Type: "RSA PUBLIC KEY", Bytes: pubBytes})
+		os.WriteFile(pubPath, pubPem, 0644)
+	}
+	privPem, _ := os.ReadFile(privPath)
+	pubPem, _ := os.ReadFile(pubPath)
+	authSrv := jwtAuth.NewAuth(
+		jwtAuth.PublicKey(string(pubPem)),
+		jwtAuth.PrivateKey(string(privPem)),
+	)
+	storeInst := store.DefaultStore
+	// --- Ensure default admin account exists ---
+	adminID := "admin"
+	adminPass := "micro"
+	adminKey := "auth/" + adminID
+	if recs, _ := storeInst.Read(adminKey); len(recs) == 0 {
+		acc := &auth.Account{
+			ID: adminID,
+			Type: auth.AccountTypeAdmin,
+			Scopes: []string{"*"},
+			Metadata: map[string]string{"created":"true"},
+		}
+		acc.Secret = adminPass
+		b, _ := json.Marshal(acc)
+		storeInst.Write(&store.Record{Key: adminKey, Value: b, Table: "auth"})
+	}
+
+	// Initialize JWT auth with the private key
+	jwtAuth := jwtAuth.NewAuth(
+		auth.WithSigner(jwtAuth.NewRS256Signer(priv)),
+		auth.WithVerifier(jwtAuth.NewRS256Verifier(pub)),
+	)
+
+	// Set the global auth provider
+	auth.DefaultAuth = jwtAuth
+
+	return nil
 }
