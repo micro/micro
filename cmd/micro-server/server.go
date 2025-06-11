@@ -52,7 +52,7 @@ func Run(c *cli.Context) error {
 	apiTmpl := parseTmpl("api.html")
 	serviceTmpl := parseTmpl("service.html")
 	formTmpl := parseTmpl("form.html")
-	webTmpl := parseTmpl("web.html")
+	homeTmpl := parseTmpl("home.html")
 	logsTmpl := parseTmpl("logs.html")
 	logTmpl := parseTmpl("log.html")
 
@@ -65,7 +65,60 @@ func Run(c *cli.Context) error {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 		if path == "/" {
-			_ = render(w, webTmpl, map[string]any{"Title": "Micro Web", "WebLink": "/", "Content": nil})
+			// Dashboard summary: count of services, running/stopped, status dot
+			homeDir, err := os.UserHomeDir()
+			var serviceCount, runningCount, stoppedCount int
+			var statusDot string
+			if err == nil {
+				pidDir := homeDir + "/micro/run"
+				dirEntries, err := os.ReadDir(pidDir)
+				if err == nil {
+					for _, entry := range dirEntries {
+						if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".pid") || strings.HasPrefix(entry.Name(), ".") {
+							continue
+						}
+						pidFile := pidDir + "/" + entry.Name()
+						pidBytes, err := os.ReadFile(pidFile)
+						if err != nil {
+							continue
+						}
+						lines := strings.Split(string(pidBytes), "\n")
+						pid := "-"
+						if len(lines) > 0 && len(lines[0]) > 0 {
+							pid = lines[0]
+						}
+						serviceCount++
+						if pid != "-" {
+							if _, err := os.FindProcess(parsePid(pid)); err == nil {
+								if processRunning(pid) {
+									runningCount++
+								} else {
+									stoppedCount++
+								}
+							} else {
+								stoppedCount++
+							}
+						} else {
+							stoppedCount++
+						}
+					}
+				}
+			}
+			if serviceCount > 0 && runningCount == serviceCount {
+				statusDot = "green"
+			} else if serviceCount > 0 && runningCount > 0 {
+				statusDot = "yellow"
+			} else {
+				statusDot = "red"
+			}
+			_ = render(w, homeTmpl, map[string]any{
+				"Title": "Micro Dashboard",
+				"WebLink": "/",
+				"ServiceCount": serviceCount,
+				"RunningCount": runningCount,
+				"StoppedCount": stoppedCount,
+				"StatusDot": statusDot,
+			})
 			return
 		}
 		if path == "/api" || path == "/api/" {
