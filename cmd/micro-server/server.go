@@ -957,8 +957,9 @@ func processRunning(pid string) bool {
 		return false
 	}
 	// On unix, sending syscall.Signal(0) checks if process exists
-	return proc.Signal(syscall.Signal(0)) ==
+	return proc.Signal(syscall.Signal(0)) == nil
 }
+
 func generateKeyPair(bits int) (*rsa.PrivateKey, error) {
 	priv, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
