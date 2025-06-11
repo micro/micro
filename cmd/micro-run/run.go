@@ -106,8 +106,8 @@ func Run(c *cli.Context) error {
 		serviceDir := filepath.Dir(mainFile)
 		var serviceName string
 		absServiceDir, _ := filepath.Abs(serviceDir)
-		// Determine service name: if running from root dir ("."), use actual cwd name
-		if absServiceDir == "." || absServiceDir == dir {
+		// Determine service name: if absServiceDir matches the provided dir (which may be "."), use cwd
+		if absServiceDir == dir || dir == "." {
 			cwd, _ := os.Getwd()
 			serviceName = filepath.Base(cwd)
 		} else {
