@@ -106,6 +106,7 @@ func Run(c *cli.Context) error {
 		serviceDir := filepath.Dir(mainFile)
 		var serviceName string
 		absServiceDir, _ := filepath.Abs(serviceDir)
+		serviceName = filepath.Base(serviceDir)
 		serviceNameForPid := serviceName + "-" + fmt.Sprintf("%x", md5.Sum([]byte(absServiceDir)))[:8]
 		logFilePath := filepath.Join(logsDir, serviceNameForPid+".log")
 		binPath := filepath.Join(binDir, serviceNameForPid)
@@ -150,12 +151,12 @@ func Run(c *cli.Context) error {
 			scanner := bufio.NewScanner(pr)
 			for scanner.Scan() {
 				line := scanner.Text()
-				// Write to terminal with color
+				// Write to terminal with color and service name
 				fmt.Printf("%s[%s]\033[0m %s\n", color, name, line)
-				// Write to log file (without color)
-				logFile.WriteString(line + "\n")
+				// Write to log file with service name prefix
+				logFile.WriteString("[" + name + "] " + line + "\n")
 			}
-		}(serviceName, color, pr, logFile)
+		}(serviceNameForPid, color, pr, logFile)
 		if err := cmd.Start(); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
 			pw.Close()
