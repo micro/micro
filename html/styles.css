@@ -1,57 +1,59 @@
 body {
     font-family: sans-serif;
-    margin: 2rem;
+    margin: 0;
     background: #fafbfc;
-    color: #222;
+    color: #111111;
 }
 
 h1, h2, h3, h4 {
     margin-bottom: 0.5em;
     font-weight: 600;
+    color: #111111;
 }
 
 a {
-    color: #007acc;
-    text-decoration: none;
+    color: #111111;
+    text-decoration: underline;
+    font-weight: 500;
 }
 
 a:hover {
-    text-decoration: underline;
+    text-decoration: underline wavy;
+    color: #333;
 }
 
 .container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
+    width: 100vw;
+    max-width: none;
+    margin: 0;
+    padding: 2.5rem 4vw;
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border-radius: 0;
+    box-shadow: none;
 }
 
 .micro-link {
-    display: inline-block;
-    font-weight: bold;
-    border: 2px solid #888;
-    border-radius: 8px;
-    padding: 8px 18px;
-    margin: 8px 8px 8px 0;
-    background: #f8f9fa;
-    transition: background 0.2s;
+    display: inline;
+    border: none;
+    background: none;
+    color: #111111;
+    font-weight: 500;
+    padding: 0;
+    margin: 0 2em 0 0;
     cursor: pointer;
+    text-decoration: underline;
+    border-radius: 0;
+    transition: color 0.2s;
 }
 .micro-link:hover {
-    background: #f3f4f6;
+    color: #333;
+    background: none;
 }
 
-#title {
-    text-decoration: none;
-    color: black;
-    border: none;
-    padding: 0;
+ul.no-bullets, ul.no-bullets li {
+    list-style: none;
     margin: 0;
-}
-#title:hover {
-    background: none;
+    padding: 0;
 }
 
 pre {
@@ -73,10 +75,6 @@ input[type="text"], input:not([type]) {
     margin-bottom: 1em;
     width: 100%;
     box-sizing: border-box;
-}
-
-button {
-    cursor: pointer;
 }
 
 table {
