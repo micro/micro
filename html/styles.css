@@ -108,3 +108,15 @@ td, th {
     border: 1px solid #ccc;
     padding: 6px 10px;
 }
+
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+}
+#layout {
+  padding-left: 220px;
+}
