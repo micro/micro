@@ -153,9 +153,31 @@ func Run(c *cli.Context) error {
 							continue
 						}
 						apiPath := fmt.Sprintf("/api/%s/%s/%s", s.Name, parts[0], parts[1])
+						// Build params and response HTML from endpoint values
+						var params, response string
+						if ep.Request != nil && len(ep.Request.Values) > 0 {
+							params += "<ul style='margin:0 0 0.5em 1.2em;'>"
+							for _, v := range ep.Request.Values {
+								params += fmt.Sprintf("<li><b>%s</b> <span style='color:#888;'>%s</span></li>", v.Name, v.Type)
+							}
+							params += "</ul>"
+						} else {
+							params = "<i style='color:#888;'>No parameters</i>"
+						}
+						if ep.Response != nil && len(ep.Response.Values) > 0 {
+							response += "<ul style='margin:0 0 0.5em 1.2em;'>"
+							for _, v := range ep.Response.Values {
+								response += fmt.Sprintf("<li><b>%s</b> <span style='color:#888;'>%s</span></li>", v.Name, v.Type)
+							}
+							response += "</ul>"
+						} else {
+							response = "<i style='color:#888;'>No response fields</i>"
+						}
 						endpoints = append(endpoints, map[string]any{
 							"Name": ep.Name,
 							"Path": apiPath,
+							"Params": params,
+							"Response": response,
 						})
 					}
 					anchor := strings.ReplaceAll(s.Name, ".", "-")
