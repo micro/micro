@@ -655,6 +655,13 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 	})
 	http.HandleFunc("/auth/tokens", authMw(func(w http.ResponseWriter, r *http.Request) {
+		userID := getUser(r)
+		var user any
+		if userID != "" {
+			user = &TemplateUser{ID: userID}
+		} else {
+			user = nil
+		}
 		if r.Method == "POST" {
 			id := r.FormValue("id")
 			typeStr := r.FormValue("type")
@@ -704,10 +711,17 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 				})
 			}
 		}
-		_ = tmpls.authTokens.Execute(w, map[string]any{"Title": "Auth Tokens", "Tokens": tokens, "User": getUser(r)})
+		_ = tmpls.authTokens.Execute(w, map[string]any{"Title": "Auth Tokens", "Tokens": tokens, "User": user})
 	}))
 
 	http.HandleFunc("/auth/users", authMw(func(w http.ResponseWriter, r *http.Request) {
+		userID := getUser(r)
+		var user any
+		if userID != "" {
+			user = &TemplateUser{ID: userID}
+		} else {
+			user = nil
+		}
 		if r.Method == "POST" {
 			id := r.FormValue("id")
 			pass := r.FormValue("password")
@@ -738,7 +752,7 @@ func registerHandlers(tmpls *templates, storeInst store.Store) {
 				}
 			}
 		}
-		_ = tmpls.authUsers.Execute(w, map[string]any{"Title": "User Accounts", "Users": users, "User": getUser(r)})
+		_ = tmpls.authUsers.Execute(w, map[string]any{"Title": "User Accounts", "Users": users, "User": user})
 	}))
 	http.HandleFunc("/auth/login", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
