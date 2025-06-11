@@ -222,7 +222,9 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 	authMw := authRequired(authSrv)
 	wrap := wrapAuth(authMw)
 
-	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.FS(HTML))))
+	// Serve static files from root (not /html/)
+	http.Handle("/styles.css", http.FileServer(http.FS(HTML)))
+	http.Handle("/main.js", http.FileServer(http.FS(HTML)))
 
 	http.HandleFunc("/", wrap(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
