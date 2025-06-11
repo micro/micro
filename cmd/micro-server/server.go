@@ -1,10 +1,12 @@
 package server
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"io"
@@ -45,6 +47,19 @@ func Run(c *cli.Context) error {
 		log.Fatalf("Failed to initialize auth: %v", err)
 	}
 
+	// Make authSrv and storeInst accessible in handlers
+	homeDir, _ := os.UserHomeDir()
+	keyDir := filepath.Join(homeDir, "micro", "keys")
+	privPath := filepath.Join(keyDir, "private.pem")
+	pubPath := filepath.Join(keyDir, "public.pem")
+	privPem, _ := os.ReadFile(privPath)
+	pubPem, _ := os.ReadFile(pubPath)
+	authSrv := jwtAuth.NewAuth(
+		jwtAuth.PublicKey(string(pubPem)),
+		jwtAuth.PrivateKey(string(privPem)),
+	)
+	storeInst := store.DefaultStore
+
 	addr := c.String("address")
 	if addr == "" {
 		addr = ":8080"
@@ -72,6 +87,24 @@ func Run(c *cli.Context) error {
 	}
 
 	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.FS(staticFS))))
+
+	// --- AUTH MIDDLEWARE ---
+	authRequired := func(next http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			cookie, err := r.Cookie("micro_token")
+			if err != nil || cookie.Value == "" {
+				http.Redirect(w, r, "/auth/login", http.StatusFound)
+				return
+			}
+			acc, err := authSrv.Inspect(cookie.Value)
+			if err != nil || acc == nil || acc.Expiry.Before(time.Now()) {
+				http.Redirect(w, r, "/auth/login", http.StatusFound)
+				return
+			}
+			// Optionally: set user in context for handlers
+			next(w, r)
+		}
+	}
 
 	// --- PROTECT ALL ROUTES BY DEFAULT ---
 	wrapAuth := func(h http.HandlerFunc) http.HandlerFunc {
@@ -537,24 +570,6 @@ func Run(c *cli.Context) error {
 		_ = render(w, parseTmpl("auth_tokens.html"), map[string]any{"Title": "Auth Tokens", "Tokens": tokens, "User": getUser(r)})
 	}))
 
-	// --- AUTH MIDDLEWARE ---
-	authRequired := func(next http.HandlerFunc) http.HandlerFunc {
-		return func(w http.ResponseWriter, r *http.Request) {
-			cookie, err := r.Cookie("micro_token")
-			if err != nil || cookie.Value == "" {
-				http.Redirect(w, r, "/auth/login", http.StatusFound)
-				return
-			}
-			acc, err := authSrv.Inspect(cookie.Value)
-			if err != nil || acc == nil || acc.Expiry.Before(time.Now()) {
-				http.Redirect(w, r, "/auth/login", http.StatusFound)
-				return
-			}
-			// Optionally: set user in context for handlers
-			next(w, r)
-		}
-	}
-
 	go func() {
 		log.Printf("[micro-server] Web/API listening on %s", addr)
 		if err := http.ListenAndServe(addr, nil); err != nil {
@@ -692,21 +707,11 @@ func initAuth() error {
 			ID: adminID,
 			Type: auth.AccountTypeAdmin,
 			Scopes: []string{"*"},
-			Metadata: map[string]string{"created":"true"},
+			Metadata: map[string]string{"created": "true"},
 		}
 		acc.Secret = adminPass
 		b, _ := json.Marshal(acc)
 		storeInst.Write(&store.Record{Key: adminKey, Value: b, Table: "auth"})
 	}
-
-	// Initialize JWT auth with the private key
-	jwtAuth := jwtAuth.NewAuth(
-		auth.WithSigner(jwtAuth.NewRS256Signer(priv)),
-		auth.WithVerifier(jwtAuth.NewRS256Verifier(pub)),
-	)
-
-	// Set the global auth provider
-	auth.DefaultAuth = jwtAuth
-
 	return nil
 }
