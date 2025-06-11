@@ -221,9 +221,28 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 	authMw := authRequired(authSrv)
 	wrap := wrapAuth(authMw)
 
-	// Serve static files from root (not /html/)
-	http.Handle("/styles.css", http.FileServer(http.FS(HTML)))
-	http.Handle("/main.js", http.FileServer(http.FS(HTML)))
+	// Serve static files from root (not /html/) with correct Content-Type
+	http.HandleFunc("/styles.css", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		f, err := HTML.Open("html/styles.css")
+		if err != nil {
+			w.WriteHeader(404)
+			return
+		}
+		defer f.Close()
+		io.Copy(w, f)
+	})
+
+	http.HandleFunc("/main.js", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		f, err := HTML.Open("html/main.js")
+		if err != nil {
+			w.WriteHeader(404)
+			return
+		}
+		defer f.Close()
+		io.Copy(w, f)
+	})
 
 	http.HandleFunc("/", wrap(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
