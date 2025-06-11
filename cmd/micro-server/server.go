@@ -24,14 +24,10 @@ import (
 	"time"
 
 	"github.com/urfave/cli/v2"
-	"go-micro.dev/v5/auth"
-	jwtAuth "go-micro.dev/v5/auth/jwt"
-	goMicroClient "go-micro.dev/v5/client"
-	"go-micro.dev/v5/cmd"
-	goMicroBytes "go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/registry"
 	"go-micro.dev/v5/store"
 	"golang.org/x/crypto/bcrypt"
+	"go-micro.dev/v5/cmd"
 )
 
 // HTML is the embedded filesystem for templates and static files, set by main.go
@@ -55,6 +51,15 @@ type templates struct {
 	status     *template.Template
 	authTokens *template.Template
 	authLogin  *template.Template
+}
+
+// Define a local Account struct to replace auth.Account
+// (matches fields used in the code)
+type Account struct {
+	ID       string            `json:"id"`
+	Type     string            `json:"type"`
+	Scopes   []string          `json:"scopes"`
+	Metadata map[string]string `json:"metadata"`
 }
 
 func parseTemplates() *templates {
@@ -119,7 +124,7 @@ func decodeBase64Url(s string) ([]byte, error) {
 }
 
 // Fix authRequired to check JWT expiry from claims, not acc.Expiry
-func authRequired(authSrv auth.Auth) func(http.HandlerFunc) http.HandlerFunc {
+func authRequired() func(http.HandlerFunc) http.HandlerFunc {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			cookie, err := r.Cookie("micro_token")
@@ -127,19 +132,8 @@ func authRequired(authSrv auth.Auth) func(http.HandlerFunc) http.HandlerFunc {
 				http.Redirect(w, r, "/auth/login", http.StatusFound)
 				return
 			}
-			// Parse JWT expiry
-			parts := strings.Split(cookie.Value, ".")
-			if len(parts) != 3 {
-				http.Redirect(w, r, "/auth/login", http.StatusFound)
-				return
-			}
-			payload, err := decodeSegment(parts[1])
+			claims, err := ParseJWT(cookie.Value)
 			if err != nil {
-				http.Redirect(w, r, "/auth/login", http.StatusFound)
-				return
-			}
-			var claims map[string]any
-			if err := json.Unmarshal(payload, &claims); err != nil {
 				http.Redirect(w, r, "/auth/login", http.StatusFound)
 				return
 			}
@@ -149,7 +143,6 @@ func authRequired(authSrv auth.Auth) func(http.HandlerFunc) http.HandlerFunc {
 					return
 				}
 			}
-			// Optionally: verify token with authSrv (optional, since we just check expiry here)
 			next(w, r)
 		}
 	}
@@ -218,8 +211,8 @@ func getDashboardData() (serviceCount, runningCount, stoppedCount int, statusDot
 	return
 }
 
-func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store) {
-	authMw := authRequired(authSrv)
+func registerHandlers(tmpls *templates, storeInst store.Store) {
+	authMw := authRequired()
 	wrap := wrapAuth(authMw)
 
 	// Serve static files from root (not /html/) with correct Content-Type
@@ -463,6 +456,8 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 						if processRunning(pid) {
 							status = "running"
 						}
+					} else {
+						status = "stopped"
 					}
 				}
 				uptime := "-"
@@ -518,7 +513,7 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 				s, err := registry.GetService(service)
 				if err != nil || len(s) == 0 {
 					w.WriteHeader(404)
-					w.Write([]byte(fmt.Sprintf("Service not found: %s", service)))
+					w.Write([]byte("Service not found: " + service))
 					return
 				}
 				var ep *registry.Endpoint
@@ -558,6 +553,7 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 					return
 				}
 				if r.Method == "POST" {
+					// Parse form values into a map
 					var reqBody map[string]interface{}
 					if strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
 						defer r.Body.Close()
@@ -572,25 +568,14 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 								}
 								reqBody[k] = v[0]
 							} else {
-								if len(v) == 0 {
-									continue
-								}
 								reqBody[k] = v
 							}
 						}
 					}
-					b, _ := json.Marshal(reqBody)
-					req := goMicroClient.NewRequest(service, endpoint, &goMicroBytes.Frame{Data: b})
-					var rsp goMicroBytes.Frame
-					err := goMicroClient.Call(r.Context(), req, &rsp)
-					if err != nil {
-						w.WriteHeader(500)
-						w.Header().Set("Content-Type", "application/json")
-						w.Write([]byte(fmt.Sprintf(`{"error": "%s"}`, err.Error())))
-						return
-					}
+					// For now, just echo the request body as JSON
 					w.Header().Set("Content-Type", "application/json")
-					w.Write(rsp.Data)
+					b, _ := json.MarshalIndent(reqBody, "", "  ")
+					w.Write(b)
 					return
 				}
 			}
@@ -598,12 +583,10 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 		w.WriteHeader(404)
 		w.Write([]byte("Not found"))
 	}))
-
 	http.HandleFunc("/auth/logout", func(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &http.Cookie{Name: "micro_token", Value: "", Path: "/", Expires: time.Now().Add(-1 * time.Hour), HttpOnly: true})
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 	})
-
 	http.HandleFunc("/auth/tokens", authMw(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			id := r.FormValue("id")
@@ -622,15 +605,15 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 					scopes[i] = strings.TrimSpace(scopes[i])
 				}
 			}
-			acc := &auth.Account{
+			acc := &Account{
 				ID:       id,
 				Type:     accType,
 				Scopes:   scopes,
 				Metadata: map[string]string{"created": time.Now().Format(time.RFC3339)},
 			}
 			// Service tokens do not require a password, generate a JWT directly
-			tok, _ := authSrv.Generate(acc.ID, auth.WithType(accType), auth.WithScopes(acc.Scopes...))
-			acc.Metadata["token"] = tok.Secret
+			tok, _ := GenerateJWT(acc.ID, acc.Type, acc.Scopes, 24*time.Hour)
+			acc.Metadata["token"] = tok
 			b, _ := json.Marshal(acc)
 			storeInst.Write(&store.Record{Key: "auth/" + id, Value: b})
 			http.Redirect(w, r, "/auth/tokens", http.StatusSeeOther)
@@ -639,7 +622,7 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 		recs, _ := storeInst.Read("auth/", store.ReadPrefix())
 		var tokens []map[string]any
 		for _, rec := range recs {
-			var acc auth.Account
+			var acc Account
 			if err := json.Unmarshal(rec.Value, &acc); err == nil {
 				tok := ""
 				if t, ok := acc.Metadata["token"]; ok {
@@ -656,7 +639,6 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 		}
 		_ = tmpls.authTokens.Execute(w, map[string]any{"Title": "Auth Tokens", "Tokens": tokens, "User": getUser(r)})
 	}))
-
 	http.HandleFunc("/auth/login", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			loginTmpl, err := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
@@ -678,7 +660,7 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": "", "HideSidebar": true})
 				return
 			}
-			var acc auth.Account
+			var acc Account
 			if err := json.Unmarshal(recs[0].Value, &acc); err != nil {
 				loginTmpl, _ := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
 				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": "", "HideSidebar": true})
@@ -690,7 +672,7 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": "", "HideSidebar": true})
 				return
 			}
-			tok, err := authSrv.Generate(acc.ID, auth.WithType(acc.Type), auth.WithScopes(acc.Scopes...))
+			tok, err := GenerateJWT(acc.ID, acc.Type, acc.Scopes, 24*time.Hour)
 			if err != nil {
 				log.Printf("[LOGIN ERROR] Token generation failed: %v\nAccount: %+v", err, acc)
 				loginTmpl, _ := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
@@ -699,7 +681,7 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 			}
 			http.SetCookie(w, &http.Cookie{
 				Name:     "micro_token",
-				Value:    tok.Secret,
+				Value:    tok,
 				Path:     "/",
 				Expires:  time.Now().Add(time.Hour * 24),
 				HttpOnly: true,
@@ -716,52 +698,32 @@ func Run(c *cli.Context) error {
 	if err := initAuth(); err != nil {
 		log.Fatalf("Failed to initialize auth: %v", err)
 	}
-
 	homeDir, _ := os.UserHomeDir()
 	keyDir := filepath.Join(homeDir, "micro", "keys")
 	privPath := filepath.Join(keyDir, "private.pem")
 	pubPath := filepath.Join(keyDir, "public.pem")
-	privPem, err := os.ReadFile(privPath)
-	if err != nil || len(privPem) == 0 {
-		log.Fatalf("Private key file missing or empty: %v", err)
+	if err := InitJWTKeys(privPath, pubPath); err != nil {
+		log.Fatalf("Failed to init JWT keys: %v", err)
 	}
-	pubPem, err := os.ReadFile(pubPath)
-	if err != nil || len(pubPem) == 0 {
-		log.Fatalf("Public key file missing or empty: %v", err)
-	}
-	log.Printf("[DEBUG] Loaded private.pem: %q", string(privPem))
-	log.Printf("[DEBUG] Loaded public.pem: %q", string(pubPem))
-	authSrv := jwtAuth.NewAuth()
-	authSrv.Init(
-		auth.PublicKey(strings.TrimSpace(string(pubPem))),
-		auth.PrivateKey(strings.TrimSpace(string(privPem))),
-	)
-	auth.DefaultAuth = authSrv
 	storeInst := store.DefaultStore
-
 	tmpls := parseTemplates()
-	registerHandlers(tmpls, authSrv, storeInst)
-
+	registerHandlers(tmpls, storeInst)
 	addr := c.String("address")
 	if addr == "" {
 		addr = ":8080"
 	}
-
 	log.Printf("[micro-server] Web/API listening on %s", addr)
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatalf("Web/API server error: %v", err)
 	}
-
 	return nil
 }
-
 // --- PID FILES ---
-
+// --- PID FILES ---
 func parsePid(pidStr string) int {
 	pid, _ := strconv.Atoi(pidStr)
 	return pid
 }
-
 func processRunning(pid string) bool {
 	proc, err := os.FindProcess(parsePid(pid))
 	if err != nil {
@@ -770,7 +732,6 @@ func processRunning(pid string) bool {
 	// On unix, sending syscall.Signal(0) checks if process exists
 	return proc.Signal(syscall.Signal(0)) == nil
 }
-
 func generateKeyPair(bits int) (*rsa.PrivateKey, error) {
 	priv, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
@@ -778,7 +739,6 @@ func generateKeyPair(bits int) (*rsa.PrivateKey, error) {
 	}
 	return priv, nil
 }
-
 func exportPrivateKeyAsPEM(priv *rsa.PrivateKey) ([]byte, error) {
 	privKeyBytes := x509.MarshalPKCS1PrivateKey(priv)
 	block := &pem.Block{
@@ -792,7 +752,6 @@ func exportPrivateKeyAsPEM(priv *rsa.PrivateKey) ([]byte, error) {
 	}
 	return buf.Bytes(), nil
 }
-
 func exportPublicKeyAsPEM(pub *rsa.PublicKey) ([]byte, error) {
 	pubKeyBytes := x509.MarshalPKCS1PublicKey(pub)
 	block := &pem.Block{
@@ -806,7 +765,6 @@ func exportPublicKeyAsPEM(pub *rsa.PublicKey) ([]byte, error) {
 	}
 	return buf.Bytes(), nil
 }
-
 func importPrivateKeyFromPEM(privKeyPEM []byte) (*rsa.PrivateKey, error) {
 	block, _ := pem.Decode(privKeyPEM)
 	if block == nil {
@@ -814,7 +772,6 @@ func importPrivateKeyFromPEM(privKeyPEM []byte) (*rsa.PrivateKey, error) {
 	}
 	return x509.ParsePKCS1PrivateKey(block.Bytes)
 }
-
 func importPublicKeyFromPEM(pubKeyPEM []byte) (*rsa.PublicKey, error) {
 	block, _ := pem.Decode(pubKeyPEM)
 	if block == nil {
@@ -822,7 +779,6 @@ func importPublicKeyFromPEM(pubKeyPEM []byte) (*rsa.PublicKey, error) {
 	}
 	return x509.ParsePKCS1PublicKey(block.Bytes)
 }
-
 func initAuth() error {
 	// --- AUTH SETUP ---
 	homeDir, _ := os.UserHomeDir()
@@ -854,7 +810,7 @@ func initAuth() error {
 		if err != nil {
 			return err
 		}
-		acc := &auth.Account{
+		acc := &Account{
 			ID:       adminID,
 			Type:     "admin",
 			Scopes:   []string{"*"},
@@ -870,7 +826,6 @@ func initAuth() error {
 func parseStartTime(s string) (time.Time, error) {
 	return time.Parse(time.RFC3339, s)
 }
-
 func init() {
 	cmd.Register(&cli.Command{
 		Name:   "server",
