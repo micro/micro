@@ -12,6 +12,7 @@ import (
 	"sync"
 	"text/template"
 	"time"
+	"syscall"
 
 	goMicroClient "go-micro.dev/v5/client"
 	goMicroBytes "go-micro.dev/v5/codec/bytes"
@@ -198,6 +199,71 @@ func Run(c *cli.Context) error {
 			_ = render(w, logTmpl, map[string]any{"Title": "Logs for " + service, "WebLink": "/logs", "Service": service, "Log": logText})
 			return
 		}
+		if path == "/status" {
+			homeDir, err := os.UserHomeDir()
+			if err != nil {
+				w.WriteHeader(500)
+				w.Write([]byte("Could not get home directory"))
+				return
+			}
+			pidDir := homeDir + "/micro/run"
+			dirEntries, err := os.ReadDir(pidDir)
+			if err != nil {
+				w.WriteHeader(500)
+				w.Write([]byte("Could not list pid directory: " + err.Error()))
+				return
+			}
+			statuses := []map[string]string{}
+			for _, entry := range dirEntries {
+				if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".pid") || strings.HasPrefix(entry.Name(), ".") {
+					continue
+				}
+				serviceName := strings.TrimSuffix(entry.Name(), ".pid")
+				pidFile := pidDir + "/" + entry.Name()
+				pidBytes, err := os.ReadFile(pidFile)
+				if err != nil {
+					statuses = append(statuses, map[string]string{
+						"Name": serviceName,
+						"Status": "unknown",
+						"PID": "-",
+						"Uptime": "-",
+					})
+					continue
+				}
+				lines := strings.Split(string(pidBytes), "\n")
+				pid := "-"
+				start := "-"
+				if len(lines) > 0 && len(lines[0]) > 0 {
+					pid = lines[0]
+				}
+				// line 1 is source dir, skip
+				if len(lines) > 2 && len(lines[2]) > 0 {
+					start = lines[2]
+				}
+				status := "stopped"
+				if pid != "-" {
+					if _, err := os.FindProcess(parsePid(pid)); err == nil {
+						if processRunning(pid) {
+							status = "running"
+						}
+					}
+				}
+				uptime := "-"
+				if start != "-" {
+					if t, err := parseStartTime(start); err == nil {
+						uptime = time.Since(t).Truncate(time.Second).String()
+					}
+				}
+				statuses = append(statuses, map[string]string{
+					"Name": serviceName,
+					"Status": status,
+					"PID": pid,
+					"Uptime": uptime,
+				})
+			}
+			_ = render(w, parseTmpl("status.html"), map[string]any{"Title": "Service Status", "WebLink": "/", "Statuses": statuses})
+			return
+		}
 		// Match /{service} and /{service}/{endpoint}
 		parts := strings.Split(strings.Trim(path, "/"), "/")
 		if len(parts) >= 1 && parts[0] != "api" && parts[0] != "html" && parts[0] != "services" {
@@ -338,4 +404,28 @@ func init() {
 		Action: Run,
 		Flags:  []cli.Flag{},
 	})
+}
+
+// Helper functions for status
+func parsePid(pid string) int {
+	var p int
+	fmt.Sscanf(pid, "%d", &p)
+	return p
+}
+
+func parseStartTime(start string) (time.Time, error) {
+	return time.Parse(time.RFC3339, start)
+}
+
+func processRunning(pid string) bool {
+	p := parsePid(pid)
+	if p <= 0 {
+		return false
+	}
+	proc, err := os.FindProcess(p)
+	if err != nil {
+		return false
+	}
+	// On unix, sending syscall.Signal(0) checks if process exists
+	return proc.Signal(syscall.Signal(0)) == nil
 }

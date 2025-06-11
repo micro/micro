@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/cmd"
@@ -153,7 +154,7 @@ func Run(c *cli.Context) error {
 		procs = append(procs, cmd)
 		pidFiles = append(pidFiles, pidFilePath)
 		absServiceDir, _ = filepath.Abs(serviceDir)
-		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n", cmd.Process.Pid, absServiceDir)), 0644)
+		os.WriteFile(pidFilePath, []byte(fmt.Sprintf("%d\n%s\n%s\n", cmd.Process.Pid, absServiceDir, time.Now().Format(time.RFC3339))), 0644)
 	}
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)
