@@ -208,3 +208,9 @@ See /api for more details and documentation for each service
 ### Web Dashboard 
 
 The web dashboard lists the services, describes their registry output and provides dynamic form fill. 
+
+Features:
+
+- Endpoints - Per service endpoint querying
+- Status - service status, pid, etc
+- Logs - See the log output
