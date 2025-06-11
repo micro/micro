@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"text/template"
@@ -194,6 +195,7 @@ func Run(c *cli.Context) error {
 			for _, service := range services {
 				serviceNames = append(serviceNames, service.Name)
 			}
+			sort.Strings(serviceNames)
 			_ = render(w, serviceTmpl, map[string]any{"Title": "Services", "WebLink": "/", "Services": serviceNames})
 			return
 		}
