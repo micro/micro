@@ -59,8 +59,7 @@ func Run(c *cli.Context) error {
 		}
 		if path == "/api" || path == "/api/" {
 			services, _ := registry.ListServices()
-			var html string
-			html += `<h2 class="text-2xl font-bold mb-4">API Endpoints</h2>`
+			var apiServices []map[string]any
 			for _, srv := range services {
 				srvs, err := registry.GetService(srv.Name)
 				if err != nil || len(srvs) == 0 {
@@ -70,14 +69,14 @@ func Run(c *cli.Context) error {
 				if len(s.Endpoints) == 0 {
 					continue
 				}
-				html += fmt.Sprintf(`<h3 class="text-xl font-semibold mt-8 mb-2">%s</h3>`, s.Name)
+				endpoints := []map[string]any{}
 				for _, ep := range s.Endpoints {
 					parts := strings.Split(ep.Name, ".")
 					if len(parts) != 2 {
 						continue
 					}
 					apiPath := fmt.Sprintf("/api/%s/%s/%s", s.Name, parts[0], parts[1])
-					var params string
+					var params, response string
 					if ep.Request != nil && len(ep.Request.Values) > 0 {
 						params += "<ul class=\"ml-4 mb-2\">"
 						for _, v := range ep.Request.Values {
@@ -87,7 +86,6 @@ func Run(c *cli.Context) error {
 					} else {
 						params = "<i class=\"text-gray-500\">No parameters</i>"
 					}
-					var response string
 					if ep.Response != nil && len(ep.Response.Values) > 0 {
 						response += "<ul class=\"ml-4 mb-2\">"
 						for _, v := range ep.Response.Values {
@@ -97,13 +95,19 @@ func Run(c *cli.Context) error {
 					} else {
 						response = "<i class=\"text-gray-500\">No response fields</i>"
 					}
-					html += fmt.Sprintf(
-						`<div class="mb-10"><div class="text-lg font-bold mb-1">%s</div><hr class="mb-4 border-gray-300"><div class="mb-2"><span class="font-bold">HTTP Path:</span> <code class="font-mono">%s</code></div><div class="mb-2"><span class="font-bold">Request:</span> %s</div><div class="mb-2"><span class="font-bold">Response:</span> %s</div></div>`,
-						ep.Name, apiPath, params, response,
-					)
+					endpoints = append(endpoints, map[string]any{
+						"Name": ep.Name,
+						"Path": apiPath,
+						"Params": template.HTML(params),
+						"Response": template.HTML(response),
+					})
 				}
+				apiServices = append(apiServices, map[string]any{
+					"Name": s.Name,
+					"Endpoints": endpoints,
+				})
 			}
-			_ = render(w, apiTmpl, map[string]any{"Title": "API", "WebLink": "/", "Content": html})
+			_ = render(w, apiTmpl, map[string]any{"Title": "API", "WebLink": "/", "Services": apiServices})
 			return
 		}
 		if path == "/services" {
