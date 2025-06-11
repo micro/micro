@@ -204,7 +204,7 @@ func Run(c *cli.Context) error {
 			}
 			if len(parts) == 2 {
 				service := parts[0]
-				endpoint := normalize(service) + "." + normalize(parts[1])
+				endpoint := parts[1] // Use the actual endpoint name from the URL, e.g. Foo.Bar
 				s, err := registry.GetService(service)
 				if err != nil || len(s) == 0 {
 					w.WriteHeader(404)
