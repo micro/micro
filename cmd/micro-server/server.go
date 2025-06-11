@@ -836,8 +836,9 @@ func initAuth() error {
 		privBytes := x509.MarshalPKCS1PrivateKey(priv)
 		privPem := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: privBytes})
 		os.WriteFile(privPath, privPem, 0600)
-		pubBytes := x509.MarshalPKCS1PublicKey(&priv.PublicKey)
-		pubPem := pem.EncodeToMemory(&pem.Block{Type: "RSA PUBLIC KEY", Bytes: pubBytes})
+		// Use PKIX format for public key
+		pubBytes, _ := x509.MarshalPKIXPublicKey(&priv.PublicKey)
+		pubPem := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: pubBytes})
 		os.WriteFile(pubPath, pubPem, 0644)
 	}
 	_, _ = os.ReadFile(privPath)
