@@ -12,7 +12,7 @@
       <td>{{range .Scopes}}<code>{{.}}</code> {{end}}</td>
       <td>
         {{range $k, $v := .Metadata}}
-          {{if ne $k "password_hash"}}
+          {{if and (ne $k "password_hash") (ne $k "token")}}
             <b>{{$k}}</b>: {{$v}} 
           {{end}}
         {{end}}
