@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"text/template"
@@ -27,7 +28,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/auth"
 	jwtAuth "go-micro.dev/v5/auth/jwt"
-	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/registry"
 	"go-micro.dev/v5/store"
 )
@@ -822,4 +822,25 @@ func initAuth() error {
 		storeInst.Write(&store.Record{Key: adminKey, Value: b})
 	}
 	return nil
+}
+
+// parseStartTime parses a string as RFC3339 time
+func parseStartTime(s string) (time.Time, error) {
+	return time.Parse(time.RFC3339, s)
+}
+
+func init() {
+	cmd.Register(&cli.Command{
+		Name:   "server",
+		Usage:  "Run the micro server",
+		Action: Run,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Address to listen on",
+				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
+				Value:   ":8080",
+			},
+		},
+	})
 }
