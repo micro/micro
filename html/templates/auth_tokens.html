@@ -10,8 +10,25 @@
       <td>{{.ID}}</td>
       <td>{{.Type}}</td>
       <td>{{range .Scopes}}<code>{{.}}</code> {{end}}</td>
-      <td>{{range $k, $v := .Metadata}}<b>{{$k}}</b>: {{$v}} {{end}}</td>
-      <td style="max-width:320px; word-break:break-all;">{{.Token}}</td>
+      <td>
+        {{range $k, $v := .Metadata}}
+          {{if ne $k "password_hash"}}
+            <b>{{$k}}</b>: {{$v}} 
+          {{end}}
+        {{end}}
+      </td>
+      <td style="max-width:320px; word-break:break-all;">
+        {{if .Token}}
+          <span class="obfuscated-token" data-token="{{.Token}}">
+            {{if gt (len .Token) 12}}
+              {{slice .Token 0 4}}...{{slice .Token (sub (len .Token) 4) (len .Token)}}
+            {{else}}
+              {{.Token}}
+            {{end}}
+          </span>
+          <button onclick="copyToken(this)" data-token="{{.Token}}" style="margin-left:0.5em;">Copy</button>
+        {{end}}
+      </td>
     </tr>
     {{end}}
   </tbody>
@@ -27,4 +44,14 @@
   <input name="scopes" placeholder="Scopes (comma separated)" style="margin-right:1em;">
   <button type="submit">Create</button>
 </form>
+<script>
+function copyToken(btn) {
+  const token = btn.getAttribute('data-token');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(token);
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
+  }
+}
+</script>
 {{end}}

@@ -10,7 +10,13 @@
       <td>{{.ID}}</td>
       <td>{{.Type}}</td>
       <td>{{range .Scopes}}<code>{{.}}</code> {{end}}</td>
-      <td>{{range $k, $v := .Metadata}}<b>{{$k}}</b>: {{$v}} {{end}}</td>
+      <td>
+        {{range $k, $v := .Metadata}}
+          {{if ne $k "password_hash"}}
+            <b>{{$k}}</b>: {{$v}} 
+          {{end}}
+        {{end}}
+      </td>
     </tr>
     {{end}}
   </tbody>
