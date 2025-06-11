@@ -120,3 +120,45 @@ td, th {
 #layout {
   padding-left: 220px;
 }
+
+form {
+  margin-bottom: 2em;
+  background: #fafbfc;
+  padding: 1.2em 1.5em;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  display: inline-block;
+}
+form input, form select {
+  padding: 0.5em 0.8em;
+  border: 1px solid #d0d7de;
+  border-radius: 5px;
+  margin-right: 1em;
+  font-size: 1em;
+  background: #fff;
+  transition: border 0.2s;
+}
+form input:focus, form select:focus {
+  border: 1.5px solid #6ea0f6;
+  outline: none;
+}
+form button, button, input[type="submit"] {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  cursor: pointer;
+}
+form button:hover, button:hover, input[type="submit"]:hover {
+  background: #1742a0;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+}
+form label {
+  font-weight: 500;
+  margin-right: 0.5em;
+}
