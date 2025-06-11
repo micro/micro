@@ -1,26 +1,19 @@
 package server
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
-	"os"
 	"os/exec"
 	"os/signal"
-	"path/filepath"
 	"strings"
 	"text/template"
 
 	"github.com/urfave/cli/v2"
-	"go-micro.dev/v5/client"
 	"go-micro.dev/v5/cmd"
-	"go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/registry"
-	"io/fs"
 )
 
 // HTML is the embedded filesystem for templates and static files, set by main.go
@@ -222,73 +215,13 @@ func Run(c *cli.Context) error {
 					return
 				}
 				if r.Method == "POST" {
-					r.ParseForm()
-					request := map[string]interface{}{}
-					for k, v := range r.Form {
-						request[k] = strings.Join(v, ",")
-					}
-					b, _ := json.Marshal(request)
-					rsp, err := rpcCall(service, endpoint, b)
-					if err != nil {
-						// Render form with error below
-						var inputs string
-						inputs += fmt.Sprintf(`<h3 class="text-lg font-bold mb-2">%s</h3>`, ep.Name)
-						for _, input := range ep.Request.Values {
-							inputs += fmt.Sprintf(`<label class="block font-semibold">%s</label><input id=%s name=%s placeholder=%s class="border rounded px-2 py-1 mb-2 w-full" value="%s">`, input.Name, input.Name, input.Name, input.Name, r.Form.Get(input.Name))
-						}
-						inputs += `<button class="micro-link mt-2" type="submit">Submit</button>`
-						formHTML := fmt.Sprintf(`<h2>%s</h2><form action=%s method=POST>%s</form>`, service, r.URL.Path, inputs)
-						errorHTML := fmt.Sprintf(`<div class="mt-4 text-red-600 font-bold">Error: %s</div>`, err.Error())
-						_ = render(w, formTmpl, map[string]any{"Title": "Service: " + service, "WebLink": "/", "Content": formHTML + errorHTML})
-						return
-					}
-					var response map[string]interface{}
-					json.Unmarshal(rsp, &response)
-					// Build response table
-					var tableRows string
-					for k, v := range response {
-						tableRows += fmt.Sprintf(`<tr><td class="border px-2 py-1 font-semibold">%s</td><td class="border px-2 py-1">%v</td></tr>`, k, v)
-					}
-					tableHTML := `<table class="table-auto border-collapse border border-gray-300 mt-4 mb-2"><thead><tr><th class="border px-2 py-1">Field</th><th class="border px-2 py-1">Value</th></tr></thead><tbody>` + tableRows + `</tbody></table>`
-					pretty, _ := json.MarshalIndent(response, "", "    ")
-					jsonHTML := fmt.Sprintf(`<pre class="bg-gray-100 rounded p-2 mt-2">%s</pre>`, string(pretty))
-					// Render form + response
-					var inputs string
-					inputs += fmt.Sprintf(`<h3 class="text-lg font-bold mb-2">%s</h3>`, ep.Name)
-					for _, input := range ep.Request.Values {
-						inputs += fmt.Sprintf(`<label class="block font-semibold">%s</label><input id=%s name=%s placeholder=%s class="border rounded px-2 py-1 mb-2 w-full" value="%s">`, input.Name, input.Name, input.Name, input.Name, r.Form.Get(input.Name))
-					}
-					inputs += `<button class="micro-link mt-2" type="submit">Submit</button>`
-					formHTML := fmt.Sprintf(`<h2>%s</h2><form action=%s method=POST>%s</form>`, service, r.URL.Path, inputs)
-					responseHTML := `<div class="mt-4"><h4 class="font-bold mb-2">Response</h4>` + tableHTML + jsonHTML + `</div>`
-					_ = render(w, formTmpl, map[string]any{"Title": "Service: " + service, "WebLink": "/", "Content": formHTML + responseHTML})
-					return
-				}
-			}
-		}
-		w.WriteHeader(404)
-		w.Write([]byte("Not found"))
-	})
-
-	go func() {
-		log.Printf("[micro-server] Web/API listening on %s", addr)
-		if err := http.ListenAndServe(addr, nil); err != nil {
-			log.Fatalf("Web/API server error: %v", err)
-		}
-	}()
-
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt)
-	<-ch
-	log.Println("Shutting down micro server...")
-	return nil
-}
-
-func init() {
-	cmd.Register(&cli.Command{
-		Name:   "server",
-		Usage:  "Start the Micro server (dashboard/API/web UI)",
-		Action: Run,
-		Flags:  []cli.Flag{},
-	})
-}
+					var reqBody map[string]interface{}
+					if strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
+						defer r.Body.Close()
+						json.NewDecoder(r.Body).Decode(&reqBody)
+					} else {
+						reqBody = map[string]interface{}{}
+						r.ParseForm()
+						for k, v := range r.Form {
+							if len(v) == 1 {
+								if len(v[0]) == 0 {
