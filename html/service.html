@@ -15,9 +15,11 @@
 {{else}}
   <h2 class="text-2xl font-bold mb-4">Services</h2>
   {{if .Services}}
+      <ul style="margin-bottom:1.5em;">
       {{range .Services}}
-          <a href="/{{.}}" class="micro-link">{{.}}</a>
+          <li><a href="/{{.}}" class="micro-link">{{.}}</a></li>
       {{end}}
+      </ul>
   {{else}}
       <p>No services registered</p>
   {{end}}
