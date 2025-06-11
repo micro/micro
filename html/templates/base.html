@@ -15,8 +15,8 @@
               <div style="margin-bottom:1.5em; font-size:1.05em;">
                 <span style="color:#888;">Logged in as</span><br>
                 <b>{{.User.ID}}</b>
-                <form method="POST" action="/auth/logout" style="margin-top:0.7em;">
-                  <button type="submit" style="padding:0.4em 1em; font-size:0.97em;">Logout</button>
+                <form method="POST" action="/auth/logout" style="margin-top:0.7em; display:inline; background:none; box-shadow:none; padding:0; border:none;">
+                  <button type="submit" style="padding:0.25em 0.8em; font-size:0.97em; border-radius:4px; margin:0; cursor:pointer; background:#2563eb; color:#fff; border:none;">Logout</button>
                 </form>
               </div>
             {{else}}
