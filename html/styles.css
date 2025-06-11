@@ -13,23 +13,23 @@ h1, h2, h3, h4 {
 
 a {
     color: #111111;
+    font-weight: bold;
     text-decoration: underline;
-    font-weight: 500;
+    transition: text-decoration 0.2s;
 }
 
 a:hover {
-    text-decoration: underline wavy;
-    color: #333;
+    text-decoration: none;
+    color: #111111;
 }
 
 .container {
-    width: 100vw;
-    max-width: none;
-    margin: 0;
-    padding: 2.5rem 4vw;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2.5rem 2vw;
     background: #fff;
-    border-radius: 0;
     box-shadow: none;
+    border-radius: 0;
 }
 
 .micro-link {
@@ -37,17 +37,28 @@ a:hover {
     border: none;
     background: none;
     color: #111111;
-    font-weight: 500;
+    font-weight: bold;
     padding: 0;
     margin: 0 2em 0 0;
     cursor: pointer;
     text-decoration: underline;
     border-radius: 0;
-    transition: color 0.2s;
+    transition: color 0.2s, text-decoration 0.2s;
 }
 .micro-link:hover {
-    color: #333;
+    color: #111111;
+    text-decoration: none;
     background: none;
+}
+
+#title {
+    text-decoration: none;
+    color: #111111;
+    border: none;
+    padding: 0;
+    font-weight: bold;
+    font-size: 2.2rem;
+    letter-spacing: -1px;
 }
 
 ul.no-bullets, ul.no-bullets li {

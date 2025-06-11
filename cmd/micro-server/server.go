@@ -184,26 +184,26 @@ func Run(c *cli.Context) error {
 					w.Write([]byte(fmt.Sprintf("Service not found: %s", service)))
 					return
 				}
-				var endpoints string
-				endpoints += `<h4 class="font-semibold mb-2">Endpoints</h4>`
-				if len(s[0].Endpoints) == 0 {
-					endpoints += "<p>No endpoints registered</p>"
-				}
+				endpoints := []map[string]string{}
 				for _, ep := range s[0].Endpoints {
 					p := strings.Split(ep.Name, ".")
 					if len(p) != 2 {
-						endpoints += "<p>" + ep.Name + "</p>"
 						continue
 					}
 					uri := fmt.Sprintf("/%s/%s", service, p[1])
-					endpoints += fmt.Sprintf(`<button onclick="location.href='%s'" class="micro-link">%s</button>`, uri, ep.Name)
+					endpoints = append(endpoints, map[string]string{
+						"Name": ep.Name,
+						"Path": uri,
+					})
 				}
 				b, _ := json.MarshalIndent(s[0], "", "    ")
-				serviceHTML := fmt.Sprintf(
-					`<h2 class="text-xl font-bold mb-2">%s</h2>%s<h4 class="font-semibold mt-4 mb-2">Description</h4><pre class="bg-gray-100 rounded p-2">%s</pre>`,
-					service, endpoints, string(b),
-				)
-				_ = render(w, serviceTmpl, map[string]any{"Title": "Service: " + service, "WebLink": "/", "Content": serviceHTML})
+				_ = render(w, serviceTmpl, map[string]any{
+					"Title": "Service: " + service,
+					"WebLink": "/",
+					"ServiceName": service,
+					"Endpoints": endpoints,
+					"Description": string(b),
+				})
 				return
 			}
 			if len(parts) == 2 {
