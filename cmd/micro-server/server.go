@@ -188,6 +188,10 @@ func Run(c *cli.Context) error {
 					})
 					sidebarEndpoints = append(sidebarEndpoints, map[string]string{"Name": s.Name, "Anchor": anchor})
 				}
+				// Sort sidebarEndpoints by Name
+				sort.Slice(sidebarEndpoints, func(i, j int) bool {
+					return sidebarEndpoints[i]["Name"] < sidebarEndpoints[j]["Name"]
+				})
 				apiData = map[string]any{"Title": "API", "WebLink": "/", "Services": apiServices, "SidebarEndpoints": sidebarEndpoints, "SidebarEndpointsEnabled": true}
 				apiCache.data = apiData
 				apiCache.time = time.Now()
