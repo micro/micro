@@ -1,0 +1,23 @@
+{{define "content"}}
+<h2 class="text-2xl font-bold mb-4">Service Status</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Service</th>
+      <th>Status</th>
+      <th>PID</th>
+      <th>Uptime</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range .Statuses}}
+    <tr>
+      <td>{{.Name}}</td>
+      <td>{{.Status}}</td>
+      <td>{{.PID}}</td>
+      <td>{{.Uptime}}</td>
+    </tr>
+    {{end}}
+  </tbody>
+</table>
+{{end}}
