@@ -106,7 +106,13 @@ func Run(c *cli.Context) error {
 		serviceDir := filepath.Dir(mainFile)
 		var serviceName string
 		absServiceDir, _ := filepath.Abs(serviceDir)
-		serviceName = filepath.Base(serviceDir)
+		// Determine service name: if running from root dir ("."), use actual cwd name
+		if absServiceDir == "." || absServiceDir == dir {
+			cwd, _ := os.Getwd()
+			serviceName = filepath.Base(cwd)
+		} else {
+			serviceName = filepath.Base(serviceDir)
+		}
 		serviceNameForPid := serviceName + "-" + fmt.Sprintf("%x", md5.Sum([]byte(absServiceDir)))[:8]
 		logFilePath := filepath.Join(logsDir, serviceNameForPid+".log")
 		binPath := filepath.Join(binDir, serviceNameForPid)
