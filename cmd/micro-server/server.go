@@ -31,6 +31,7 @@ import (
 	goMicroBytes "go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/registry"
 	"go-micro.dev/v5/store"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // HTML is the embedded filesystem for templates and static files, set by main.go
@@ -678,13 +679,20 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 				return
 			}
 			var acc auth.Account
-			if err := json.Unmarshal(recs[0].Value, &acc); err != nil || acc.Secret != pass {
+			if err := json.Unmarshal(recs[0].Value, &acc); err != nil {
+				loginTmpl, _ := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
+				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": "", "HideSidebar": true})
+				return
+			}
+			hash, ok := acc.Metadata["password_hash"]
+			if !ok || bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)) != nil {
 				loginTmpl, _ := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
 				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": "", "HideSidebar": true})
 				return
 			}
 			tok, err := authSrv.Generate(acc.ID, auth.WithType(acc.Type), auth.WithScopes(acc.Scopes...))
 			if err != nil {
+				log.Printf("[LOGIN ERROR] Token generation failed: %v\nAccount: %+v", err, acc)
 				loginTmpl, _ := template.ParseFS(HTML, "html/templates/base.html", "html/templates/auth_login.html")
 				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Token error", "User": "", "HideSidebar": true})
 				return
@@ -720,6 +728,7 @@ func Run(c *cli.Context) error {
 		auth.PublicKey(string(pubPem)),
 		auth.PrivateKey(string(privPem)),
 	)
+	auth.DefaultAuth = authSrv
 	storeInst := store.DefaultStore
 
 	tmpls := parseTemplates()
@@ -831,13 +840,17 @@ func initAuth() error {
 	adminPass := "micro"
 	adminKey := "auth/" + adminID
 	if recs, _ := storeInst.Read(adminKey); len(recs) == 0 {
+		// Hash the admin password with bcrypt
+		hash, err := bcrypt.GenerateFromPassword([]byte(adminPass), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
 		acc := &auth.Account{
 			ID:       adminID,
 			Type:     "admin",
 			Scopes:   []string{"*"},
-			Metadata: map[string]string{"created": "true"},
+			Metadata: map[string]string{"created": "true", "password_hash": string(hash)},
 		}
-		acc.Secret = adminPass
 		b, _ := json.Marshal(acc)
 		storeInst.Write(&store.Record{Key: adminKey, Value: b})
 	}
