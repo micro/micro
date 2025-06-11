@@ -129,22 +129,69 @@ func decodeBase64Url(s string) ([]byte, error) {
 	return base64.URLEncoding.DecodeString(s)
 }
 
-// Fix authRequired to check JWT expiry from claims, not acc.Expiry
+// Updated authRequired to check Authorization: Bearer header or micro_token cookie
 func authRequired() func(http.HandlerFunc) http.HandlerFunc {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
-			cookie, err := r.Cookie("micro_token")
-			if err != nil || cookie.Value == "" {
+			var token string
+			// 1. Check Authorization: Bearer header
+			authz := r.Header.Get("Authorization")
+			if strings.HasPrefix(authz, "Bearer ") {
+				token = strings.TrimPrefix(authz, "Bearer ")
+				token = strings.TrimSpace(token)
+			}
+			// 2. Fallback to micro_token cookie if no header
+			if token == "" {
+				cookie, err := r.Cookie("micro_token")
+				if err == nil && cookie.Value != "" {
+					token = cookie.Value
+				}
+			}
+			if token == "" {
+				if strings.HasPrefix(r.URL.Path, "/api/") && r.URL.Path != "/api" && r.URL.Path != "/api/" {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte(`{"error":"missing or invalid token"}`))
+					return
+				}
+				// For API endpoints, return 401. For UI, redirect to login.
+				if strings.HasPrefix(r.URL.Path, "/api/") {
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte("Unauthorized: missing token"))
+					return
+				}
 				http.Redirect(w, r, "/auth/login", http.StatusFound)
 				return
 			}
-			claims, err := ParseJWT(cookie.Value)
+			claims, err := ParseJWT(token)
 			if err != nil {
+				if strings.HasPrefix(r.URL.Path, "/api/") && r.URL.Path != "/api" && r.URL.Path != "/api/" {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte(`{"error":"invalid token"}`))
+					return
+				}
+				if strings.HasPrefix(r.URL.Path, "/api/") {
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte("Unauthorized: invalid token"))
+					return
+				}
 				http.Redirect(w, r, "/auth/login", http.StatusFound)
 				return
 			}
 			if exp, ok := claims["exp"].(float64); ok {
 				if int64(exp) < time.Now().Unix() {
+					if strings.HasPrefix(r.URL.Path, "/api/") && r.URL.Path != "/api" && r.URL.Path != "/api/" {
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusUnauthorized)
+						w.Write([]byte(`{"error":"token expired"}`))
+						return
+					}
+					if strings.HasPrefix(r.URL.Path, "/api/") {
+						w.WriteHeader(http.StatusUnauthorized)
+						w.Write([]byte("Unauthorized: token expired"))
+						return
+					}
 					http.Redirect(w, r, "/auth/login", http.StatusFound)
 					return
 				}
@@ -716,7 +763,7 @@ You can generate tokens on the <a href='/auth/tokens'>Tokens page</a>.
 				})
 			}
 		}
-		_ = tmpls.authTokens.Execute(w, map[string]any{"Title": "Auth Tokens", "Tokens": tokens, "User": user})
+		_ = tmpls.authTokens.Execute(w, map[string]any{"Title": "Auth Tokens", "Tokens": tokens, "User": user, "Sub": userID})
 	}))
 
 	http.HandleFunc("/auth/users", authMw(func(w http.ResponseWriter, r *http.Request) {
