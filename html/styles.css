@@ -14,7 +14,7 @@ h1, h2, h3, h4 {
 a {
     color: #111111;
     font-weight: bold;
-    text-decoration: underline;
+    text-decoration: none;
     transition: text-decoration 0.2s;
 }
 
@@ -41,7 +41,7 @@ a:hover {
     padding: 0;
     margin: 0 2em 0 0;
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
     border-radius: 0;
     transition: color 0.2s, text-decoration 0.2s;
 }
