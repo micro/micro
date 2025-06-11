@@ -1,6 +1,6 @@
 {{define "content"}}
 {{if .Content}}
-  {{.Content | safeHTML}}
+  {{.Content | html}}
 {{else}}
   <h2 class="text-2xl font-bold mb-4">API Endpoints</h2>
   {{range .Services}}
