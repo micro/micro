@@ -886,7 +886,7 @@ func exportPublicKeyAsPEM(pub *rsa.PublicKey) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 func importPrivateKeyFromPEM(privKeyPEM []byte) (*rsa.PrivateKey, error) {
-	block, _ := pem
+	block, _ := pem.Decode(privKeyPEM)
 	if block == nil {
 		return nil, fmt.Errorf("invalid PEM block")
 	}
