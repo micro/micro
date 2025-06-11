@@ -242,7 +242,7 @@ func Run(c *cli.Context) error {
 						"ServiceName": service,
 						"EndpointName": ep.Name,
 						"Inputs":      inputs,
-						"Action":      endpoint,
+						"Action":      service + "/" + endpoint,
 					})
 					return
 				}
