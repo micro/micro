@@ -1,0 +1,15 @@
+{{define "content"}}
+<h2 class="text-2xl font-bold mb-4">API Endpoints</h2>
+{{range .Services}}
+    <h3 class="text-xl font-semibold mt-8 mb-2">{{.Name}}</h3>
+    {{range .Endpoints}}
+        <div class="mb-10">
+            <div class="text-lg font-bold mb-1">{{.Name}}</div>
+            <hr class="mb-4 border-gray-300">
+            <div class="mb-2"><span class="font-bold">HTTP Path:</span> <code class="font-mono">{{.Path}}</code></div>
+            <div class="mb-2"><span class="font-bold">Request:</span> {{.Params}}</div>
+            <div class="mb-2"><span class="font-bold">Response:</span> {{.Response}}</div>
+        </div>
+    {{end}}
+{{end}}
+{{end}}

@@ -1,0 +1,89 @@
+body {
+    font-family: sans-serif;
+    margin: 2rem;
+    background: #fafbfc;
+    color: #222;
+}
+
+h1, h2, h3, h4 {
+    margin-bottom: 0.5em;
+    font-weight: 600;
+}
+
+a {
+    color: #007acc;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.micro-link {
+    display: inline-block;
+    font-weight: bold;
+    border: 2px solid #888;
+    border-radius: 8px;
+    padding: 8px 18px;
+    margin: 8px 8px 8px 0;
+    background: #f8f9fa;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+.micro-link:hover {
+    background: #f3f4f6;
+}
+
+#title {
+    text-decoration: none;
+    color: black;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+#title:hover {
+    background: none;
+}
+
+pre {
+    background: #f3f4f6;
+    border-radius: 6px;
+    padding: 1em;
+    overflow-x: auto;
+}
+
+label {
+    margin-top: 1em;
+    display: block;
+}
+
+input[type="text"], input:not([type]) {
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin-bottom: 1em;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button {
+    cursor: pointer;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+td, th {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+}
