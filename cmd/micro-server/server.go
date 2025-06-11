@@ -52,6 +52,7 @@ type templates struct {
 	log      *template.Template
 	status   *template.Template
 	authTokens *template.Template
+	authLogin *template.Template
 }
 
 func parseTemplates() *templates {
@@ -64,6 +65,7 @@ func parseTemplates() *templates {
 		log:      template.Must(template.ParseFS(HTML, "html/base.html", "html/log.html")),
 		status:   template.Must(template.ParseFS(HTML, "html/base.html", "html/status.html")),
 		authTokens: template.Must(template.ParseFS(HTML, "html/base.html", "html/auth_tokens.html")),
+		authLogin: template.Must(template.ParseFS(HTML, "html/base.html", "html/login.html")),
 	}
 }
 
@@ -629,6 +631,55 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 		}
 		_ = tmpls.authTokens.Execute(w, map[string]any{"Title": "Auth Tokens", "Tokens": tokens, "User": getUser(r)})
 	}))
+
+	http.HandleFunc("/auth/login", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			// Render login form
+			loginTmpl, err := template.ParseFS(HTML, "html/base.html", "html/auth_login.html")
+			if err != nil {
+				w.WriteHeader(500)
+				w.Write([]byte("Template error: " + err.Error()))
+				return
+			}
+			_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "", "User": getUser(r)})
+			return
+		}
+		if r.Method == "POST" {
+			id := r.FormValue("id")
+			pass := r.FormValue("password")
+			recKey := "auth/" + id
+			recs, _ := storeInst.Read(recKey)
+			if len(recs) == 0 {
+				loginTmpl, _ := template.ParseFS(HTML, "html/base.html", "html/auth_login.html")
+				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": ""})
+				return
+			}
+			var acc auth.Account
+			if err := json.Unmarshal(recs[0].Value, &acc); err != nil || acc.Secret != pass {
+				loginTmpl, _ := template.ParseFS(HTML, "html/base.html", "html/auth_login.html")
+				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Invalid credentials", "User": ""})
+				return
+			}
+			// Generate JWT token
+			tok, err := authSrv.Generate(acc.ID, auth.WithType(acc.Type), auth.WithScopes(acc.Scopes...))
+			if err != nil {
+				loginTmpl, _ := template.ParseFS(HTML, "html/base.html", "html/auth_login.html")
+				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Token error", "User": ""})
+				return
+			}
+			http.SetCookie(w, &http.Cookie{
+				Name:     "micro_token",
+				Value:    tok.Secret,
+				Path:     "/",
+				Expires:  time.Now().Add(time.Hour * 24),
+				HttpOnly: true,
+			})
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		w.WriteHeader(405)
+		w.Write([]byte("Method not allowed"))
+	})
 }
 
 func Run(c *cli.Context) error {
@@ -664,44 +715,18 @@ func Run(c *cli.Context) error {
 		}
 	}()
 
-	ch := make(chan struct{})
-	<-ch
 	return nil
 }
 
-func normalize(v string) string {
-	if len(v) == 0 {
-		return v
-	}
-	return strings.ToUpper(v[:1]) + v[1:]
-}
+// --- PID FILES ---
 
-func init() {
-	cmd.Register(&cli.Command{
-		Name:   "server",
-		Usage:  "Start the Micro server (dashboard/API/web UI)",
-		Action: Run,
-		Flags:  []cli.Flag{},
-	})
-}
-
-// Helper functions for status
-func parsePid(pid string) int {
-	var p int
-	fmt.Sscanf(pid, "%d", &p)
-	return p
-}
-
-func parseStartTime(start string) (time.Time, error) {
-	return time.Parse(time.RFC3339, start)
+func parsePid(pidStr string) int {
+	pid, _ := strconv.Atoi(pidStr)
+	return pid
 }
 
 func processRunning(pid string) bool {
-	p := parsePid(pid)
-	if p <= 0 {
-		return false
-	}
-	proc, err := os.FindProcess(p)
+	proc, err := os.FindProcess(parsePid(pid))
 	if err != nil {
 		return false
 	}
