@@ -20,11 +20,11 @@
             {{if and .SidebarEndpoints .SidebarEndpointsEnabled}}
             <hr style="margin:2em 0 1em 0;">
             <div style="font-weight:bold; margin-bottom:0.5em;">API Endpoints</div>
-            <ul style="max-height:40vh; overflow-y:auto; font-size:0.97em;">
+            <div style="max-height:40vh; overflow-y:auto; font-size:0.97em;">
               {{range .SidebarEndpoints}}
-                <li style="margin-bottom:0.3em;"><a href="#{{.Anchor}}" class="micro-link">{{.Name}}</a></li>
+                <div style="margin-bottom:0.3em;"><a href="#{{.Anchor}}" class="micro-link">{{.Name}}</a></div>
               {{end}}
-            </ul>
+            </div>
             {{end}}
         </nav>
         <main class="container" style="flex:1; min-width:0;">

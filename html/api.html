@@ -3,19 +3,19 @@
 {{range .Services}}
   <h3 id="{{.Anchor}}" style="margin-top:2em; font-size:1.2em; font-weight:bold;">{{.Name}}</h3>
   {{if .Endpoints}}
-    <ul style="margin-bottom:1.5em;">
+    <div style="margin-bottom:1.5em;">
     {{range .Endpoints}}
-      <li>
+      <div style="margin-bottom:1.2em;">
         <div><a href="{{.Path}}" class="micro-link">{{.Name}}</a></div>
         <div style="margin-left:1em; font-size:0.97em;">
           <b>Request:</b>
-          {{{.Params}}}
+          {{.Params | html}}
           <b>Response:</b>
-          {{{.Response}}}
+          {{.Response | html}}
         </div>
-      </li>
+      </div>
     {{end}}
-    </ul>
+    </div>
   {{else}}
     <p style="color:#888;">No endpoints</p>
   {{end}}
