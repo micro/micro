@@ -5,29 +5,30 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/pem"
-	"encoding/json"
 	"encoding/base64"
+	"encoding/json"
+	"encoding/pem"
 	"fmt"
-	"io/fs"
 	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"text/template"
 	"time"
-	"syscall"
-	"path/filepath"
 
-	goMicroClient "go-micro.dev/v5/client"
-	goMicroBytes "go-micro.dev/v5/codec/bytes"
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/auth"
 	jwtAuth "go-micro.dev/v5/auth/jwt"
+	goMicroClient "go-micro.dev/v5/client"
+	"go-micro.dev/v5/cmd"
+	goMicroBytes "go-micro.dev/v5/codec/bytes"
 	"go-micro.dev/v5/registry"
 	"go-micro.dev/v5/store"
 )
@@ -44,28 +45,28 @@ var (
 )
 
 type templates struct {
-	api      *template.Template
-	service  *template.Template
-	form     *template.Template
-	home     *template.Template
-	logs     *template.Template
-	log      *template.Template
-	status   *template.Template
+	api        *template.Template
+	service    *template.Template
+	form       *template.Template
+	home       *template.Template
+	logs       *template.Template
+	log        *template.Template
+	status     *template.Template
 	authTokens *template.Template
-	authLogin *template.Template
+	authLogin  *template.Template
 }
 
 func parseTemplates() *templates {
 	return &templates{
-		api:      template.Must(template.ParseFS(HTML, "html/base.html", "html/api.html")),
-		service:  template.Must(template.ParseFS(HTML, "html/base.html", "html/service.html")),
-		form:     template.Must(template.ParseFS(HTML, "html/base.html", "html/form.html")),
-		home:     template.Must(template.ParseFS(HTML, "html/base.html", "html/home.html")),
-		logs:     template.Must(template.ParseFS(HTML, "html/base.html", "html/logs.html")),
-		log:      template.Must(template.ParseFS(HTML, "html/base.html", "html/log.html")),
-		status:   template.Must(template.ParseFS(HTML, "html/base.html", "html/status.html")),
+		api:        template.Must(template.ParseFS(HTML, "html/base.html", "html/api.html")),
+		service:    template.Must(template.ParseFS(HTML, "html/base.html", "html/service.html")),
+		form:       template.Must(template.ParseFS(HTML, "html/base.html", "html/form.html")),
+		home:       template.Must(template.ParseFS(HTML, "html/base.html", "html/home.html")),
+		logs:       template.Must(template.ParseFS(HTML, "html/base.html", "html/logs.html")),
+		log:        template.Must(template.ParseFS(HTML, "html/base.html", "html/log.html")),
+		status:     template.Must(template.ParseFS(HTML, "html/base.html", "html/status.html")),
 		authTokens: template.Must(template.ParseFS(HTML, "html/base.html", "html/auth_tokens.html")),
-		authLogin: template.Must(template.ParseFS(HTML, "html/base.html", "html/login.html")),
+		authLogin:  template.Must(template.ParseFS(HTML, "html/base.html", "html/login.html")),
 	}
 }
 
@@ -229,13 +230,13 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 		if path == "/" {
 			serviceCount, runningCount, stoppedCount, statusDot := getDashboardData()
 			_ = tmpls.home.Execute(w, map[string]any{
-				"Title": "Micro Dashboard",
-				"WebLink": "/",
+				"Title":        "Micro Dashboard",
+				"WebLink":      "/",
 				"ServiceCount": serviceCount,
 				"RunningCount": runningCount,
 				"StoppedCount": stoppedCount,
-				"StatusDot": statusDot,
-				"User": getUser(r),
+				"StatusDot":    statusDot,
+				"User":         getUser(r),
 			})
 			return
 		}
@@ -292,16 +293,16 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 							response = "<i style='color:#888;'>No response fields</i>"
 						}
 						endpoints = append(endpoints, map[string]any{
-							"Name": ep.Name,
-							"Path": apiPath,
-							"Params": params,
+							"Name":     ep.Name,
+							"Path":     apiPath,
+							"Params":   params,
 							"Response": response,
 						})
 					}
 					anchor := strings.ReplaceAll(s.Name, ".", "-")
 					apiServices = append(apiServices, map[string]any{
-						"Name": s.Name,
-						"Anchor": anchor,
+						"Name":      s.Name,
+						"Anchor":    anchor,
 						"Endpoints": endpoints,
 					})
 					sidebarEndpoints = append(sidebarEndpoints, map[string]string{"Name": s.Name, "Anchor": anchor})
@@ -407,11 +408,11 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 				if err != nil {
 					statuses = append(statuses, map[string]string{
 						"Service": entry.Name(),
-						"Dir": "-",
-						"Status": "unknown",
-						"PID": "-",
-						"Uptime": "-",
-						"ID": strings.TrimSuffix(entry.Name(), ".pid"),
+						"Dir":     "-",
+						"Status":  "unknown",
+						"PID":     "-",
+						"Uptime":  "-",
+						"ID":      strings.TrimSuffix(entry.Name(), ".pid"),
 					})
 					continue
 				}
@@ -448,11 +449,11 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 				}
 				statuses = append(statuses, map[string]string{
 					"Service": service,
-					"Dir": dir,
-					"Status": status,
-					"PID": pid,
-					"Uptime": uptime,
-					"ID": strings.TrimSuffix(entry.Name(), ".pid"),
+					"Dir":     dir,
+					"Status":  status,
+					"PID":     pid,
+					"Uptime":  uptime,
+					"ID":      strings.TrimSuffix(entry.Name(), ".pid"),
 				})
 			}
 			_ = render(w, tmpls.status, map[string]any{"Title": "Service Status", "WebLink": "/", "Statuses": statuses})
@@ -478,12 +479,12 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 				}
 				b, _ := json.MarshalIndent(s[0], "", "    ")
 				_ = render(w, tmpls.service, map[string]any{
-					"Title": "Service: " + service,
-					"WebLink": "/",
+					"Title":       "Service: " + service,
+					"WebLink":     "/",
 					"ServiceName": service,
-					"Endpoints": endpoints,
+					"Endpoints":   endpoints,
 					"Description": string(b),
-					"User": getUser(r),
+					"User":        getUser(r),
 				})
 				return
 			}
@@ -514,21 +515,21 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 					if ep.Request != nil && len(ep.Request.Values) > 0 {
 						for _, input := range ep.Request.Values {
 							inputs = append(inputs, map[string]string{
-								"Label":      input.Name,
-								"Name":       input.Name,
+								"Label":       input.Name,
+								"Name":        input.Name,
 								"Placeholder": input.Name,
-								"Value":      "",
+								"Value":       "",
 							})
 						}
 					}
 					_ = render(w, tmpls.form, map[string]any{
-						"Title":       "Service: " + service,
-						"WebLink":     "/",
-						"ServiceName": service,
+						"Title":        "Service: " + service,
+						"WebLink":      "/",
+						"ServiceName":  service,
 						"EndpointName": ep.Name,
-						"Inputs":      inputs,
-						"Action":      service + "/" + endpoint,
-						"User": getUser(r),
+						"Inputs":       inputs,
+						"Action":       service + "/" + endpoint,
+						"User":         getUser(r),
 					})
 					return
 				}
@@ -598,9 +599,9 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 				}
 			}
 			acc := &auth.Account{
-				ID: id,
-				Type: accType,
-				Scopes: scopes,
+				ID:       id,
+				Type:     accType,
+				Scopes:   scopes,
 				Metadata: map[string]string{"created": time.Now().Format(time.RFC3339)},
 			}
 			// Service tokens do not require a password, generate a JWT directly
@@ -621,11 +622,11 @@ func registerHandlers(tmpls *templates, authSrv auth.Auth, storeInst store.Store
 					tok = t
 				}
 				tokens = append(tokens, map[string]any{
-					"ID": acc.ID,
-					"Type": acc.Type,
-					"Scopes": acc.Scopes,
+					"ID":       acc.ID,
+					"Type":     acc.Type,
+					"Scopes":   acc.Scopes,
 					"Metadata": acc.Metadata,
-					"Token": tok,
+					"Token":    tok,
 				})
 			}
 		}
@@ -812,9 +813,9 @@ func initAuth() error {
 	adminKey := "auth/" + adminID
 	if recs, _ := storeInst.Read(adminKey); len(recs) == 0 {
 		acc := &auth.Account{
-			ID: adminID,
-			Type: "admin",
-			Scopes: []string{"*"},
+			ID:       adminID,
+			Type:     "admin",
+			Scopes:   []string{"*"},
 			Metadata: map[string]string{"created": "true"},
 		}
 		acc.Secret = adminPass
