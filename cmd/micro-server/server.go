@@ -709,12 +709,10 @@ func Run(c *cli.Context) error {
 		addr = ":8080"
 	}
 
-	go func() {
-		log.Printf("[micro-server] Web/API listening on %s", addr)
-		if err := http.ListenAndServe(addr, nil); err != nil {
-			log.Fatalf("Web/API server error: %v", err)
-		}
-	}()
+	log.Printf("[micro-server] Web/API listening on %s", addr)
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		log.Fatalf("Web/API server error: %v", err)
+	}
 
 	return nil
 }
