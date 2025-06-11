@@ -17,6 +17,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/registry"
+	htmltemplate "html/template"
 )
 
 // HTML is the embedded filesystem for templates and static files, set by main.go
@@ -98,8 +99,8 @@ func Run(c *cli.Context) error {
 					endpoints = append(endpoints, map[string]any{
 						"Name": ep.Name,
 						"Path": apiPath,
-						"Params": template.HTML(params),
-						"Response": template.HTML(response),
+						"Params": htmltemplate.HTML(params),
+						"Response": htmltemplate.HTML(response),
 					})
 				}
 				apiServices = append(apiServices, map[string]any{
