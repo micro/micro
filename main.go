@@ -9,7 +9,7 @@ import (
 	"github.com/micro/micro/v5/cmd/micro-server"
 )
 
-//go:embed html/*
+//go:embed html/styles.css html/main.js html/templates/*
 var htmlFS embed.FS
 
 var version = "5.0.0-dev"

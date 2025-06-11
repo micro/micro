@@ -159,8 +159,7 @@ func wrapAuth(authRequired func(http.HandlerFunc) http.HandlerFunc) func(http.Ha
 		return func(w http.ResponseWriter, r *http.Request) {
 			path := r.URL.Path
 			if strings.HasPrefix(path, "/auth/login") || strings.HasPrefix(path, "/auth/logout") ||
-				strings.HasPrefix(path, "/html/main.js") || strings.HasPrefix(path, "/html/styles.css") ||
-				strings.HasPrefix(path, "/html/templates/") || strings.HasPrefix(path, "/html/") {
+				path == "/styles.css" || path == "/main.js" {
 				h(w, r)
 				return
 			}
