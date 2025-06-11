@@ -129,8 +129,29 @@ func decodeBase64Url(s string) ([]byte, error) {
 	return base64.URLEncoding.DecodeString(s)
 }
 
-// Updated authRequired to check Authorization: Bearer header or micro_token cookie
-func authRequired() func(http.HandlerFunc) http.HandlerFunc {
+// Helper: store JWT token
+func storeJWTToken(storeInst store.Store, token, userID string) {
+	storeInst.Write(&store.Record{Key: "jwt/" + token, Value: []byte(userID)})
+}
+
+// Helper: check if JWT token is revoked (not present in store)
+func isTokenRevoked(storeInst store.Store, token string) bool {
+	recs, _ := storeInst.Read("jwt/" + token)
+	return len(recs) == 0
+}
+
+// Helper: delete all JWT tokens for a user
+func deleteUserTokens(storeInst store.Store, userID string) {
+	recs, _ := storeInst.Read("jwt/", store.ReadPrefix())
+	for _, rec := range recs {
+		if string(rec.Value) == userID {
+			storeInst.Delete(rec.Key)
+		}
+	}
+}
+
+// Updated authRequired to accept storeInst as argument
+func authRequired(storeInst store.Store) func(http.HandlerFunc) http.HandlerFunc {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			var token string
@@ -195,6 +216,22 @@ func authRequired() func(http.HandlerFunc) http.HandlerFunc {
 					http.Redirect(w, r, "/auth/login", http.StatusFound)
 					return
 				}
+			}
+			// Check for token revocation
+			if isTokenRevoked(storeInst, token) {
+				if strings.HasPrefix(r.URL.Path, "/api/") && r.URL.Path != "/api" && r.URL.Path != "/api/" {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte(`{"error":"token revoked"}`))
+					return
+				}
+				if strings.HasPrefix(r.URL.Path, "/api/") {
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte("Unauthorized: token revoked"))
+					return
+				}
+				http.Redirect(w, r, "/auth/login", http.StatusFound)
+				return
 			}
 			next(w, r)
 		}
@@ -290,7 +327,7 @@ func getSidebarEndpoints() ([]map[string]string, error) {
 }
 
 func registerHandlers(tmpls *templates, storeInst store.Store) {
-	authMw := authRequired()
+	authMw := authRequired(storeInst)
 	wrap := wrapAuth(authMw)
 
 	// Serve static files from root (not /html/) with correct Content-Type
@@ -742,6 +779,7 @@ You can generate tokens on the <a href='/auth/tokens'>Tokens page</a>.
 			acc.Metadata["token"] = tok
 			b, _ := json.Marshal(acc)
 			storeInst.Write(&store.Record{Key: "auth/" + id, Value: b})
+			storeJWTToken(storeInst, tok, acc.ID) // Store the JWT token
 			http.Redirect(w, r, "/auth/tokens", http.StatusSeeOther)
 			return
 		}
@@ -786,7 +824,9 @@ You can generate tokens on the <a href='/auth/tokens'>Tokens page</a>.
 		}
 		if r.Method == "POST" {
 			if del := r.FormValue("delete"); del != "" {
+				// Delete user
 				storeInst.Delete("auth/" + del)
+				deleteUserTokens(storeInst, del) // Delete all JWT tokens for this user
 				http.Redirect(w, r, "/auth/users", http.StatusSeeOther)
 				return
 			}
@@ -865,6 +905,7 @@ You can generate tokens on the <a href='/auth/tokens'>Tokens page</a>.
 				_ = loginTmpl.Execute(w, map[string]any{"Title": "Login", "Error": "Token error", "User": "", "HideSidebar": true})
 				return
 			}
+			storeJWTToken(storeInst, tok, acc.ID) // Store the JWT token
 			http.SetCookie(w, &http.Cookie{
 				Name:     "micro_token",
 				Value:    tok,
