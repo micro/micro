@@ -721,12 +721,20 @@ func Run(c *cli.Context) error {
 	keyDir := filepath.Join(homeDir, "micro", "keys")
 	privPath := filepath.Join(keyDir, "private.pem")
 	pubPath := filepath.Join(keyDir, "public.pem")
-	privPem, _ := os.ReadFile(privPath)
-	pubPem, _ := os.ReadFile(pubPath)
+	privPem, err := os.ReadFile(privPath)
+	if err != nil || len(privPem) == 0 {
+		log.Fatalf("Private key file missing or empty: %v", err)
+	}
+	pubPem, err := os.ReadFile(pubPath)
+	if err != nil || len(pubPem) == 0 {
+		log.Fatalf("Public key file missing or empty: %v", err)
+	}
+	log.Printf("[DEBUG] Loaded private.pem: %q", string(privPem))
+	log.Printf("[DEBUG] Loaded public.pem: %q", string(pubPem))
 	authSrv := jwtAuth.NewAuth()
 	authSrv.Init(
-		auth.PublicKey(string(pubPem)),
-		auth.PrivateKey(string(privPem)),
+		auth.PublicKey(strings.TrimSpace(string(pubPem))),
+		auth.PrivateKey(strings.TrimSpace(string(privPem))),
 	)
 	auth.DefaultAuth = authSrv
 	storeInst := store.DefaultStore
