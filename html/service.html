@@ -1,6 +1,6 @@
 {{define "content"}}
 {{if .Content}}
-  {{.Content | safeHTML}}
+  {{.Content | html}}
 {{else}}
   <h2 class="text-xl font-bold mb-2">{{.ServiceName}}</h2>
   <h4 class="font-semibold mb-2">Endpoints</h4>
