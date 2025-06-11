@@ -1,13 +1,17 @@
 {{define "content"}}
-<h2 class="text-xl font-bold mb-2">{{.ServiceName}}</h2>
-<h4 class="font-semibold mb-2">Endpoints</h4>
-{{if .Endpoints}}
-    {{range .Endpoints}}
-        <button onclick="location.href='/{{.Path}}'" class="micro-link">{{.Name}}</button>
-    {{end}}
+{{if .Content}}
+  {{.Content | safeHTML}}
 {{else}}
-    <p>No endpoints registered</p>
+  <h2 class="text-xl font-bold mb-2">{{.ServiceName}}</h2>
+  <h4 class="font-semibold mb-2">Endpoints</h4>
+  {{if .Endpoints}}
+      {{range .Endpoints}}
+          <button onclick="location.href='/{{.Path}}'" class="micro-link">{{.Name}}</button>
+      {{end}}
+  {{else}}
+      <p>No endpoints registered</p>
+  {{end}}
+  <h4 class="font-semibold mt-4 mb-2">Description</h4>
+  <pre class="bg-gray-100 rounded p-2">{{.Description}}</pre>
 {{end}}
-<h4 class="font-semibold mt-4 mb-2">Description</h4>
-<pre class="bg-gray-100 rounded p-2">{{.Description}}</pre>
 {{end}}
