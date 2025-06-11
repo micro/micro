@@ -11,16 +11,16 @@ h1, h2, h3, h4 {
     color: #111111;
 }
 
-a {
-    color: #111111;
+a, .micro-link {
+    color: #1a4fff;
     font-weight: bold;
-    text-decoration: none;
-    transition: text-decoration 0.2s;
+    text-decoration: underline;
+    transition: color 0.2s, text-decoration 0.2s;
 }
 
-a:hover {
-    text-decoration: none;
-    color: #111111;
+a:hover, .micro-link:hover {
+    color: #1636a0;
+    text-decoration: underline;
 }
 
 .container {
