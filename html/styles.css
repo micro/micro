@@ -1,8 +1,8 @@
 body {
   background: #fff;
   color: #111;
-  font-family: 'IBM Plex Mono', 'Fira Mono', 'Menlo', 'Monaco', monospace;
-  font-size: 16px;
+  font-family: 'Inter', 'Segoe UI', 'Arial', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 15px;
   margin: 0;
   padding: 0;
   line-height: 1.7;
@@ -88,7 +88,7 @@ form {
   border: 1px solid #222;
   padding: 1.5em 1.5em 1em 1.5em;
   margin: 2em 0;
-  border-radius: 0;
+  border-radius: 10px;
   box-shadow: none;
 }
 
@@ -96,7 +96,7 @@ input, select, textarea {
   background: #fff;
   color: #111;
   border: 1px solid #222;
-  border-radius: 0;
+  border-radius: 7px;
   font-size: 1em;
   padding: 0.5em 0.7em;
   margin-bottom: 1em;
@@ -113,7 +113,7 @@ button, input[type="submit"], .button {
   background: #fff;
   color: #111;
   border: 1.5px solid #111;
-  border-radius: 0;
+  border-radius: 7px;
   font-size: 1em;
   padding: 0.5em 1.2em;
   margin: 0.5em 0.2em 0.5em 0;
@@ -169,7 +169,7 @@ table tr:nth-child(even) {
   background: #fff;
   color: #111;
   border: 1px solid #222;
-  border-radius: 0;
+  border-radius: 7px;
   font-size: 0.95em;
   padding: 0.2em 0.7em;
   margin-left: 0.5em;
@@ -187,7 +187,7 @@ table tr:nth-child(even) {
   border: 1px solid #222;
   padding: 1em 1.5em;
   margin: 2em 0;
-  border-radius: 0;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar {
