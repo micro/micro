@@ -17,10 +17,11 @@ header, nav, footer {
 }
 
 main {
-  max-width: 700px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 2em 1em 3em 1em;
   background: #fff;
+  margin-left: 200px; /* leave space for sidebar */
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -156,6 +157,12 @@ table tr:nth-child(even) {
   border-right: 1px solid #222;
   padding: 2em 1.5em 2em 1.5em;
   min-width: 180px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 10;
 }
 
 .copy-btn {
@@ -192,12 +199,17 @@ table tr:nth-child(even) {
 }
 
 @media (max-width: 800px) {
+  .sidebar {
+    position: static;
+    height: auto;
+    min-width: 0;
+    padding: 1em 0.5em 1em 0.5em;
+    border-right: none;
+    border-bottom: 1px solid #222;
+  }
   main {
     max-width: 98vw;
     padding: 1em 0.2em 2em 0.2em;
-  }
-  .sidebar {
-    min-width: 0;
-    padding: 1em 0.5em 1em 0.5em;
+    margin-left: 0;
   }
 }
