@@ -11,11 +11,14 @@ body {
 header, nav, footer {
   background: #fff;
   color: #111;
-  border-bottom: 1px solid #222;
   padding: 1.2em 2em 1.2em 2em;
   margin-bottom: 2em;
 }
+nav {
+  margin: 20px;
+  border-radius: 20px;
 
+}
 main {
   max-width: 1400px;
   margin: 0 auto;
@@ -50,7 +53,7 @@ hr {
 
 a {
   color: #111;
-  text-decoration: underline;
+  text-decoration: none;
   transition: background 0.2s;
 }
 a:hover {
@@ -151,19 +154,6 @@ table tr:nth-child(even) {
   padding: 0;
 }
 
-.sidebar {
-  background: #fff;
-  border-right: 1px solid #222;
-  padding: 2em 1.5em 2em 1.5em;
-  min-width: 180px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  overflow-y: auto;
-  z-index: 10;
-}
-
 .copy-btn {
   background: #fff;
   color: #111;
@@ -198,14 +188,6 @@ table tr:nth-child(even) {
 }
 
 @media (max-width: 800px) {
-  .sidebar {
-    position: static;
-    height: auto;
-    min-width: 0;
-    padding: 1em 0.5em 1em 0.5em;
-    border-right: none;
-    border-bottom: 1px solid #222;
-  }
   main {
     max-width: 98vw;
     padding: 1em 0.2em 2em 0.2em;
