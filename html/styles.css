@@ -133,7 +133,7 @@ button:hover, input[type="submit"]:hover, .button:hover {
   margin: 2em 0;
 }
 table th, table td {
-  border: 1px solid #222;
+  border: none;
   padding: 0.7em 1em;
   text-align: left;
 }
@@ -212,4 +212,36 @@ table tr:nth-child(even) {
     padding: 1em 0.2em 2em 0.2em;
     margin-left: 0;
   }
+}
+
+/* Inline/unstyled form for delete button */
+.form-inline, .form-plain {
+  display: inline;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+}
+.form-inline input, .form-inline button, .form-plain input, .form-plain button {
+  margin: 0;
+  padding: 0.3em 1em;
+  border-radius: 7px;
+  font-size: 1em;
+}
+.delete-btn, .form-inline .delete-btn, .form-plain .delete-btn {
+  background: #fff;
+  color: #c00;
+  border: 1.5px solid #c00;
+  border-radius: 7px;
+  font-size: 1em;
+  padding: 0.3em 1em;
+  margin: 0 0.2em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+}
+.delete-btn:hover {
+  background: #c00;
+  color: #fff;
 }
