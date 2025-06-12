@@ -107,7 +107,7 @@ func Run(c *cli.Context) error {
 		var serviceName string
 		absServiceDir, _ := filepath.Abs(serviceDir)
 		// Determine service name: if absServiceDir matches the provided dir (which may be "."), use cwd
-		if absServiceDir == dir || dir == "." {
+		if absServiceDir == dir {
 			cwd, _ := os.Getwd()
 			serviceName = filepath.Base(cwd)
 		} else {
@@ -162,7 +162,7 @@ func Run(c *cli.Context) error {
 				// Write to log file with service name prefix
 				logFile.WriteString("[" + name + "] " + line + "\n")
 			}
-		}(serviceNameForPid, color, pr, logFile)
+		}(serviceName, color, pr, logFile)
 		if err := cmd.Start(); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to start service %s: %v\n", serviceName, err)
 			pw.Close()

@@ -9,6 +9,7 @@
       <th>PID</th>
       <th>Uptime</th>
       <th>ID</th>
+      <th>Logs</th>
     </tr>
   </thead>
   <tbody>
@@ -20,6 +21,7 @@
       <td>{{.PID}}</td>
       <td>{{.Uptime}}</td>
       <td style="font-size:0.9em; color:#888;">{{.ID}}</td>
+      <td><a href="/logs/{{.ID}}" class="log-link">View logs</a></td>
     </tr>
     {{end}}
   </tbody>

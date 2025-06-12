@@ -64,10 +64,10 @@ func InitJWTKeys(privPath, pubPath string) error {
 // Generate a JWT for a user
 func GenerateJWT(userID, userType string, scopes []string, expiry time.Duration) (string, error) {
 	claims := jwt.MapClaims{
-		"sub": userID,
-		"type": userType,
+		"sub":    userID,
+		"type":   userType,
 		"scopes": scopes,
-		"exp": time.Now().Add(expiry).Unix(),
+		"exp":    time.Now().Add(expiry).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	return token.SignedString(jwtPrivateKey)

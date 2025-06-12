@@ -24,10 +24,10 @@ import (
 	"time"
 
 	"github.com/urfave/cli/v2"
+	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/registry"
 	"go-micro.dev/v5/store"
 	"golang.org/x/crypto/bcrypt"
-	"go-micro.dev/v5/cmd"
 )
 
 // HTML is the embedded filesystem for templates and static files, set by main.go
@@ -945,6 +945,7 @@ func Run(c *cli.Context) error {
 	}
 	return nil
 }
+
 // --- PID FILES ---
 // --- PID FILES ---
 func parsePid(pidStr string) int {

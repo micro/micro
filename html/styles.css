@@ -230,3 +230,7 @@ table tr:nth-child(even) {
 #title {
   text-decoration: none;
 }
+.log-link:hover {
+  font-weight: normal;
+  text-decoration: underline;
+}
