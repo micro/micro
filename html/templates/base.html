@@ -9,14 +9,14 @@
 <body>
     <div id="layout" style="display:flex; min-height:100vh;">
         {{if not .HideSidebar}}
-        <nav id="sidebar" style="width:220px; background:#f5f6fa; padding:2em 1.5em 2em 2em; border-right:1px solid #eee;">
+        <nav id="sidebar" style="width:220px; background:#f5f5f5; padding:2em 1.5em 2em 2em; border-right:1px solid #eee;">
             <h1 style="margin-bottom:2em;"><a href="/" id="title">Micro</a></h1>
             {{if .User}}
               <div style="margin-bottom:1.5em; font-size:1.05em;">
-                <span style="color:#888;">Logged in as</span><br>
+                <span style="color:#888;">Logged in as</span>
                 <b>{{.User.ID}}</b>
-                <form method="POST" action="/auth/logout" style="margin-top:0.7em; display:inline; background:none; box-shadow:none; padding:0; border:none;">
-                  <button type="submit" style="padding:0.25em 0.8em; font-size:0.97em; border-radius:4px; margin:0; cursor:pointer; background:#2563eb; color:#fff; border:none;">Logout</button>
+                <form method="POST" action="/auth/logout" style="margin-top:0.7em; display:block; background:none; box-shadow:none; padding:0; border:none;">
+                  <button type="submit" style="padding:0.25em 0.8em; font-size:0.97em; border-radius:4px; margin:0; cursor:pointer;">Logout</button>
                 </form>
               </div>
             {{else}}
