@@ -17,11 +17,12 @@ header, nav, footer {
 }
 
 main {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2em 1em 3em 1em;
   background: #fff;
-  margin-left: 200px; /* leave space for sidebar */
+  margin-left: 100px; /* leave space for sidebar */
+  margin-right: 100px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -53,8 +54,7 @@ a {
   transition: background 0.2s;
 }
 a:hover {
-  background: #111;
-  color: #fff;
+  font-weight: bold;
 }
 
 ul, ol {
@@ -71,8 +71,7 @@ pre, code {
   color: #111;
   font-family: inherit;
   font-size: 0.98em;
-  border-radius: 0;
-  border: 1px solid #222;
+  border-radius: 5px;
   padding: 0.2em 0.4em;
 }
 

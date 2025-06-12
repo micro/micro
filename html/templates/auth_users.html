@@ -18,7 +18,7 @@
         {{end}}
       </td>
       <td>
-        <form method="POST" action="/auth/users" style="display:inline;">
+        <form method="POST" action="/auth/users" style="display:inline; padding: 0; border: 0">
           <input type="hidden" name="delete" value="{{.ID}}">
           <button type="submit" onclick="return confirm('Delete user {{.ID}}?')">Delete</button>
         </form>
