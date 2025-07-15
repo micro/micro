@@ -8,7 +8,7 @@ require (
 	github.com/stretchr/objx v0.5.2
 	github.com/urfave/cli/v2 v2.27.6
 	github.com/xlab/treeprint v1.2.0
-	go-micro.dev/v5 v5.8.0
+	go-micro.dev/v5 v5.9.1-0.20250715194358-f99a205b2be8
 	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822
 	google.golang.org/protobuf v1.36.6
 	tailscale.com v1.82.5

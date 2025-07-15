@@ -16,6 +16,7 @@ import (
 	"go-micro.dev/v5/client"
 	"go-micro.dev/v5/cmd"
 	"go-micro.dev/v5/codec/bytes"
+	"go-micro.dev/v5/genai"
 	"go-micro.dev/v5/registry"
 
 	"github.com/micro/micro/v5/cmd/micro-cli/new"
@@ -33,6 +34,26 @@ func genProtoHandler(c *cli.Context) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
+}
+
+func genTextHandler(c *cli.Context) error {
+	prompt := c.String("prompt")
+	if len(prompt) == 0 {
+		return nil
+	}
+
+	gen := genai.DefaultGenAI
+	if gen.String() == "noop" {
+		return nil
+	}
+
+	res, err := gen.Generate(prompt)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(res.Text)
+	return nil
 }
 
 func lastNonEmptyLine(s string) string {
@@ -95,6 +116,18 @@ func init() {
 			Name:  "gen",
 			Usage: "Generate various things",
 			Subcommands: []*cli.Command{
+				{
+					Name:   "text",
+					Usage:  "Generate text via an LLM",
+					Action: genTextHandler,
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:    "prompt",
+							Aliases: []string{"p"},
+							Usage:   "The prompt to generate text from",
+						},
+					},
+				},
 				{
 					Name:   "proto",
 					Usage:  "Generate proto requires protoc and protoc-gen-micro",
