@@ -215,9 +215,7 @@ The web dashboard provides a modern, secure UI for managing and exploring your M
 - **Token Management**: The `/auth/tokens` page allows you to generate, view (obfuscated), and copy JWT tokens. Tokens are stored and can be revoked. When a user is deleted, all their tokens are revoked immediately.
 - **User Management**: The `/auth/users` page allows you to create, list, and delete users. Passwords are never shown or stored in plaintext.
 - **Token Revocation**: JWT tokens are stored and checked for revocation on every request. Revoked or deleted tokens are immediately invalidated.
-- **Sidebar Logic**: Sidebar API endpoints only appear on the `/api` page for a focused experience.
 - **Security**: All protected endpoints use consistent authentication logic. Unauthorized or revoked tokens receive a 401 error. All sensitive actions require authentication.
-- **Modern UI**: Clean, responsive design with improved form and button styling for a better user experience.
 - **Logs & Status**: View service logs and status (PID, uptime, etc) directly from the dashboard.
 
 To get started, run:
