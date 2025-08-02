@@ -13,7 +13,7 @@ the [Micro](https://github.com/micro/micro) toolkit. Micro and Go Micro codify a
 development including service discovery, client/server rpc and pubsub messaging. Utilizing a powerful pluggable architecture, 
 Micro adapts to any infrastructure while maintaining the same tools and development patterns.
 
-Today we're working on a consumer frontend that focuses on providing a place that can leverage and utilise the tools we've built prior. 
+Today we're working on a consumer frontend that focuses on providing a place that can leverage the tools we've built prior. 
 
 Try out [Mu](https://mu.xyz). Join us on [Discord]({{site.discord}}) to learn more.
 
