@@ -131,7 +131,7 @@ textarea { overflow: auto; }
 
 input, select, textarea, button { font-family: inherit; font-size: inherit; line-height: inherit; }
 
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; font-size: 14px; line-height: 1.5; color: #24292e; background-color: #fff; }
+body { font-family: "Nunito Sans", sans-serif; font-size: 14px; line-height: 1.5; color: #24292e; background-color: #fff; }
 
 a { color: #0366d6; text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -2679,7 +2679,7 @@ pre { margin-top: 0; margin-bottom: 0; font-family: "SFMono-Regular", Consolas, 
   .offset-xl-9 { margin-left: 75% !important; }
   .offset-xl-10 { margin-left: 83.3333333333% !important; }
   .offset-xl-11 { margin-left: 91.6666666667% !important; } }
-.markdown-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; font-size: 16px; line-height: 1.5; word-wrap: break-word; }
+.markdown-body { font-family: "Nunito Sans", sans-serif; font-size: 16px; line-height: 1.5; word-wrap: break-word; }
 .markdown-body::before { display: table; content: ""; }
 .markdown-body::after { display: table; clear: both; content: ""; }
 .markdown-body > *:first-child { margin-top: 0 !important; }
