@@ -1,6 +1,8 @@
+@import url('https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap');
+
 /*! normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css */
 /** 1. Change the default font family in all browsers (opinionated). 2. Prevent adjustments of font size after orientation changes in IE and iOS. */
-html { font-family: sans-serif; /* 1 */ -ms-text-size-adjust: 100%; /* 2 */ -webkit-text-size-adjust: 100%; /* 2 */ }
+html { font-family: "Nunito Sans", sans-serif; /* 1 */ -ms-text-size-adjust: 100%; /* 2 */ -webkit-text-size-adjust: 100%; /* 2 */ }
 
 /** Remove the margin in all browsers (opinionated). */
 body { margin: 0; }
