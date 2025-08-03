@@ -4,7 +4,7 @@ title: About
 cover: false
 ---
 
-After many years of working on various platforms at different companies, it became clear 
+After many years of working on platforms at various companies, it became clear 
 there was no open source alternative to the types of tooling we saw emerge within large tech companies. 
 With that in mind we set out to build a new set of tools for microservices.
 
