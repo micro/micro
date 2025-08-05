@@ -135,12 +135,6 @@ Call via RPC endpoint
 micro call helloworld Helloworld.Call '{"name": "Asim"}'
 ```
 
-Call via dynamic CLI mapping
-
-```
-micro helloworld call --name=Asim
-```
-
 ## Create a client
 
 Create a client to call the service
