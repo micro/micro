@@ -20,11 +20,12 @@
 
 title: Micro
 email: asim@micro.mu
-description: "Micro is a Go microservices toolkit"
+description: "Micro - The microservices platform"
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: _asimaslam
 github_username:  micro
+github: "https://github.com/micro"
 discord: "https://discord.gg/UmFkPbu32m"
 google_analytics: "G-R7R0EC6LWK"
 #logo: "/images/logo.png"
