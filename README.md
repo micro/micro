@@ -10,10 +10,10 @@ write services. Surrounding this we introduce a number of tools to make it easy 
 
 ## Install the CLI
 
-Install `micro` via `go get`
+Install `micro` via `go install`
 
 ```
-go get github.com/micro/micro/v5@latest
+go install github.com/micro/micro/v5@latest
 ```
 
 Or via install script
