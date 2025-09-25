@@ -4,5 +4,5 @@ title: Pricing
 cover: false
 ---
 
-For support or hosting contact [@asim](https://github.com/asim) on GitHub
+For support or hosting [file an issue](https://github.com/micro/micro/issues/new) on GitHub
 
