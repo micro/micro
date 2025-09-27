@@ -9,5 +9,5 @@ there was no open source alternative to the types of tooling we saw emerge withi
 With that in mind we set out to build a new set of tools.
 
 In January 2015 we open sourced the [Go Micro](https://go-micro.dev) framework. Go Micro codifies a set of design patterns for microservice 
-development including service discovery, rpc and pubsub messaging. Utilizing a powerful pluggable architecture, 
+development including service discovery, rpc and pubsub messaging. Utilizing a pluggable architecture, 
 Go Micro adapts to any infrastructure while maintaining the same tools and development patterns.
