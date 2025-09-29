@@ -4,12 +4,11 @@ title: About
 cover: false
 ---
 
-After many years of working on tech platforms, it became clear 
-there was no open source alternative to the types of tooling we saw emerge within large tech companies. 
-With that in mind we set out to build a new set of tools.
+After working on tech platforms for years, it became clear 
+there was no open source alternative to the types of tooling used within large tech companies. 
+With that in mind we set out to build a new set of tools. In January 2015, [Go Micro](https://go-micro.dev) was open sourced. Go Micro codifies a set of design patterns for microservice 
+development including service discovery, rpc and pubsub messaging. Utilizing a pluggable architecture, Go Micro adapts to any infrastructure while maintaining the same tools and development patterns.
 
-In January 2015 we open sourced the [Go Micro](https://go-micro.dev) framework. Go Micro codifies a set of design patterns for microservice 
-development including service discovery, rpc and pubsub messaging. 
+Today we're working on a new set of tools that focus on fixing the issues caused by these large tech cos for consumers.
 
-Utilizing a pluggable architecture, 
-Go Micro adapts to any infrastructure while maintaining the same tools and development patterns.
+Check out [Mu](https://github.com/micro/mu) to learn more.

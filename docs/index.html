@@ -45,9 +45,9 @@
         margin-right: 5px;
       }
       #title {
-	max-width: 600px;
         font-size: 4em;
 	margin-bottom: 25px;
+	display: block;
       }
       #block {
         display: inline-block;
@@ -59,6 +59,7 @@
 	}
 	#block {
         	margin: 10px;
+		display: block;
 	}
 	#title {
 		margin: 0;
@@ -78,18 +79,24 @@
           <a href="/about">About</a>
           <a href="/blog">Blog</a>
           <a href="https://github.com/micro/micro">Docs</a>
-	      <a href="/pricing">Pricing</a>
         </div>
      </div>
      <div class="container">
         <h1 id="title">Building Blocks</h1>
-		<h2>For Developers</h2>
-	    <div id="block">
+	<div id="block">
+	  <h2>For Devs</h2>
           <a href="https://github.com/micro/go-micro">
             <img src="/images/go-micro.png" style="height: 200px; width: auto;" />
           </a>
           <p>A Go microservices framework</p>
-	    </div>
+	</div>
+	<div id="block">
+	  <h2>For Life</h2>
+          <a href="https://github.com/micro/mu">
+            <img src="/images/logo.png" style="height: 200px; width: auto;" />
+          </a>
+          <p>Chat, news and video in one app</p>
+	</div>
      </div>
   </body>
 </html>
