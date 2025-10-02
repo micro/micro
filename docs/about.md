@@ -10,5 +10,3 @@ With that in mind we set out to build a new set of tools. In January 2015, [Go M
 development including service discovery, rpc and pubsub messaging. Utilizing a pluggable architecture, Go Micro adapts to any infrastructure while maintaining the same tools and development patterns.
 
 Today we're working on a new set of tools that focus on fixing the issues caused by these large tech cos for consumers.
-
-Check out [Mu](https://github.com/micro/mu) to learn more.
