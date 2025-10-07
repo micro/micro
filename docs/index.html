@@ -12,63 +12,71 @@
         font-family: "Nunito Sans", serif;
         font-size: 16px;
      	margin: 0;
-	 	padding: 0;
+	padding: 0;
       }
       .container {
          max-width: 1400px;
          margin: 0 auto;
          text-align: center;
-	  	 padding: 25px;
+	 padding: 25px;
       }
       a {
         color: black;
-		text-decoration: none;
+	text-decoration: none;
+      }
+      img {
+        width: 200px;
+	height: auto;
       }
       #head {
         margin: 25px;
       }
       #head a {
         color: black;
-		text-decoration: none;
+	text-decoration: none;
       }
       #head img, h1 {
         display: inline-block;
-		vertical-align: middle;
-		margin: 0;
-		font-size: 24px;
+	vertical-align: middle;
+	margin: 0;
+	font-size: 24px;
       }
       #nav {
         float: right;
-	    padding-top: 10px;
+	 padding-top: 10px;
       }
       #nav a {
         margin-right: 5px;
       }
       #title {
           font-size: 4em;
-	      margin-bottom: 25px;
-	      display: block;
-		  max-width: 600px;
-		  margin: 0 auto;
+	  margin-bottom: 25px;
+	  display: block;
+	  max-width: 600px;
+	  margin: 0 auto;
       }
       #block {
         display: inline-block;
-		margin: 25px;
+	margin: 25px;
       }
 @media only screen and (max-width: 600px) {
 	#nav a {
-		font-size: 0.9em;
+	  font-size: 0.9em;
 	}
 	#block {
         margin: 10px;
-		display: block;
+	  display: block;
 	}
 	#title {
-		margin: 0;
-		font-size: 3.5em;
+	  margin: 0;
+	  font-size: 3.5em;
+	}
+	img {
+          width: 100px;
+	  height: auto;
 	}
   }
-}
+
     </style>
   </head>
 
@@ -85,11 +93,18 @@
      </div>
      <div class="container">
         <h1 id="title">A microservices platform</h1>
+	<h2>For Developers</h2>
 	<div id="block">
-	  <h2>For Developers</h2>
           <a href="https://github.com/micro/go-micro">
-            <img src="/images/go-micro.png" style="height: 200px; width: auto;" />
+            <img src="/images/go-micro.png" />
           </a>
+	  <h4>Framework</h4>
+	</div>
+	<div id="block">
+          <a href="https://mu.xyz">
+	    <img src="/images/logo.png" />
+          </a>
+	  <h4>Network</h4>
 	</div>
      </div>
   </body>
