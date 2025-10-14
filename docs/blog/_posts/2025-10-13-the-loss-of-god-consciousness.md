@@ -1,12 +1,12 @@
 ---
 layout: post
-title: The Loss of God Consciousness
+title: AI and the Loss of God Consciousness
 author: Asim Aslam
 date:   2025-10-13 10:00:00
 tags: [technology, bigtech, reflection, culture]
 ---
 
-What does God consciousness have to do with technology? Or social media or microservices or anything in general?
+What does God consciousness have to do with technology? Or AI, social media or microservices?
 
 It is the very foundation of everything. 
 
