@@ -19,7 +19,7 @@
 # in the templates via {{ site.myvariable }}.
 
 title: Micro
-email: asim@micro.mu
+email: contact@micro.mu
 description: "Micro - The microservices platform"
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
