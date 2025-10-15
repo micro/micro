@@ -1,3 +1,5 @@
-# Micro Docs
+# Micro Website 
 
-A directory for micro docs
+A directory for micro website 
+
+Served via jekyll and GitHub pages
